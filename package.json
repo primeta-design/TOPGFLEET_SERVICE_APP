@@ -1,0 +1,19 @@
+{
+  "name": "topgfleet",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TOPGFLEET fleet control server",
+  "main": "server.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/run.js",
+    "test:e2e": "node test/e2e.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "pg": "^8.13.1"
+  }
+}

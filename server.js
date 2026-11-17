@@ -1,0 +1,296 @@
+'use strict';
+const express = require('express');
+const path = require('path');
+const fs = require('fs');
+const { pool, q, migrate } = require('./lib/db');
+const C = require('./lib/crypto');
+
+const PROD = process.env.NODE_ENV === 'production';
+const PORT = +process.env.PORT || 3000;
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
+const LOGIN_MAX = +process.env.RATE_LOGIN_MAX || 12;
+const SESSION_HOURS = 12, PW_STAGE_MIN = 10, LOCK_AFTER = 5, LOCK_MIN = 15;
+const COLLS = new Set(['trucks', 'trailers', 'drivers', 'issues', 'plans', 'svc', 'docs', 'inv', 'vend', 'links', 'hist', 'insp']);
+const KV_FLEET = new Set(['pti', 'ck', 'ph']);          // fleet-wide documents (members may write)
+const SETTING_KEYS = ['prio', 'comps', 'stat', 'tg', 'tpl', 'ptiOff', 'tmAcc'];   // admin-only
+const ROLES = new Set(['admin', 'member', 'driver']);
+
+const app = express();
+app.set('trust proxy', 1);
+app.disable('x-powered-by');
+
+// ---------- security headers ----------
+app.use((req, res, next) => {
+  res.setHeader('Content-Security-Policy',
+    "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+    "font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'");
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.setHeader('Permissions-Policy', 'camera=(self), microphone=(), geolocation=(), payment=()');
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  if (PROD) res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  if (req.path.startsWith('/api/')) res.setHeader('Cache-Control', 'no-store');
+  next();
+});
+if (PROD) app.use((req, res, next) => (req.secure || req.path === '/healthz') ? next() : res.redirect(308, 'https://' + req.headers.host + req.originalUrl));
+
+// ---------- tiny rate limiter (per IP, in memory) ----------
+const hits = new Map();
+function limit(name, max, windowMs) {
+  return (req, res, next) => {
+    const k = name + ':' + req.ip, now = Date.now();
+    const a = (hits.get(k) || []).filter(t => now - t < windowMs);
+    if (a.length >= max) { res.setHeader('Retry-After', Math.ceil(windowMs / 1000)); return res.status(429).json({ error: 'rate' }); }
+    a.push(now); hits.set(k, a); next();
+  };
+}
+setInterval(() => { const now = Date.now(); for (const [k, a] of hits) if (!a.length || now - a[a.length - 1] > 3600e3) hits.delete(k); }, 600e3).unref();
+
+app.use('/api', limit('api', 600, 60e3));
+app.use(express.json({ limit: '2mb' }));
+
+// ---------- CSRF: JSON API only accepts same-origin requests carrying our header ----------
+app.use('/api', (req, res, next) => {
+  if (req.method === 'GET' || req.method === 'HEAD') return next();
+  if (req.headers['x-requested-with'] !== 'tf') return res.status(403).json({ error: 'csrf' });
+  const o = req.headers.origin;
+  if (o) { try { if (new URL(o).host !== req.headers.host) return res.status(403).json({ error: 'csrf' }); } catch { return res.status(403).json({ error: 'csrf' }); } }
+  next();
+});
+
+// ---------- helpers ----------
+const COOKIE = 'tf_sid';
+function readCookie(req) {
+  const m = /(?:^|;\s*)tf_sid=([A-Za-z0-9_-]{20,80})/.exec(req.headers.cookie || '');
+  return m && m[1];
+}
+function setCookie(req, res, tok, maxAgeSec) {
+  const secure = PROD || req.secure;
+  res.setHeader('Set-Cookie', `${COOKIE}=${tok}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAgeSec}${secure ? '; Secure' : ''}`);
+}
+const clearCookie = (req, res) => setCookie(req, res, '', 0);
+const audit = (userId, action, target, detail, ip) =>
+  q('INSERT INTO audit(user_id,action,target,detail,ip) VALUES($1,$2,$3,$4,$5)', [userId || null, action, target || null, detail ? JSON.stringify(detail) : null, ip || null]).catch(e => console.error('audit', e.message));
+const publicUser = u => ({ id: u.id, email: u.email, username: u.username, name: u.name, role: u.role, owner: u.is_owner, totp: u.totp_on, mustChange: u.must_change });
+const wrap = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(e => { console.error(e); res.status(500).json({ error: 'server' }); });
+
+async function newSession(req, res, userId, stage) {
+  const tok = C.token(), ttl = stage === 'pw' ? PW_STAGE_MIN * 60 : SESSION_HOURS * 3600;
+  await q(`INSERT INTO sessions(token_hash,user_id,stage,expires_at,ip,ua) VALUES($1,$2,$3,now()+make_interval(secs => $4::int),$5,$6)`,
+    [C.sha(tok), userId, stage, ttl, req.ip, String(req.headers['user-agent'] || '').slice(0, 200)]);
+  setCookie(req, res, tok, ttl);
+}
+async function sessionOf(req) {
+  const tok = readCookie(req); if (!tok) return null;
+  const r = await q(`SELECT s.token_hash,s.stage,u.* FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=$1 AND s.expires_at>now() AND NOT u.disabled`, [C.sha(tok)]);
+  return r.rows[0] || null;
+}
+const auth = (stage = 'full') => wrap(async (req, res, next) => {
+  const s = await sessionOf(req);
+  if (!s || s.stage !== stage) return res.status(401).json({ error: 'auth' });
+  req.u = s; req.sh = s.token_hash; next();
+});
+const need = (...roles) => (req, res, next) => roles.includes(req.u.role) ? next() : res.status(403).json({ error: 'role' });
+const staff = need('admin', 'member');
+const admin = need('admin');
+
+// ---------- login ----------
+app.post('/api/login', limit('login', LOGIN_MAX, 10 * 60e3), wrap(async (req, res) => {
+  const email = String(req.body.email || '').trim().toLowerCase().slice(0, 200), pw = String(req.body.password || '').slice(0, 300);
+  const r = await q('SELECT * FROM users WHERE lower(email)=$1 OR lower(username)=$1', [email]);
+  const u = r.rows[0];
+  if (!u) { await C.dummyVerify(pw); audit(null, 'login.fail', email, { why: 'unknown' }, req.ip); return res.status(401).json({ error: 'creds' }); }
+  if (u.disabled) { await C.dummyVerify(pw); return res.status(401).json({ error: 'creds' }); }
+  if (u.locked_until && new Date(u.locked_until) > new Date()) { audit(u.id, 'login.locked', u.email, null, req.ip); return res.status(429).json({ error: 'locked' }); }
+  const ok = await C.verifyPassword(pw, u.pass_hash);
+  if (!ok) {
+    const f = u.failed + 1;
+    await q('UPDATE users SET failed=$2::int, locked_until=CASE WHEN $2::int>=$3::int THEN now()+make_interval(mins => $4::int) ELSE locked_until END WHERE id=$1', [u.id, f, LOCK_AFTER, LOCK_MIN]);
+    audit(u.id, 'login.fail', u.email, { failed: f }, req.ip);
+    return res.status(401).json({ error: 'creds' });
+  }
+  await q('UPDATE users SET failed=0, locked_until=NULL WHERE id=$1', [u.id]);
+  if (u.totp_on) { await newSession(req, res, u.id, 'pw'); return res.json({ next: 'totp' }); }
+  await newSession(req, res, u.id, 'full');
+  audit(u.id, 'login.ok', u.email, { totp: false }, req.ip);
+  res.json({ user: publicUser(u) });
+}));
+
+app.post('/api/login/totp', limit('totp', LOGIN_MAX, 10 * 60e3), auth('pw'), wrap(async (req, res) => {
+  const u = req.u;
+  if (u.locked_until && new Date(u.locked_until) > new Date()) return res.status(429).json({ error: 'locked' });
+  const step = C.totpCheck(C.unseal(u.totp_secret), req.body.code, +u.totp_last);
+  if (!step) {
+    const f = u.failed + 1;
+    await q('UPDATE users SET failed=$2::int, locked_until=CASE WHEN $2::int>=$3::int THEN now()+make_interval(mins => $4::int) ELSE locked_until END WHERE id=$1', [u.id, f, LOCK_AFTER, LOCK_MIN]);
+    audit(u.id, 'login.totp_fail', u.email, null, req.ip);
+    return res.status(401).json({ error: 'code' });
+  }
+  await q('UPDATE users SET totp_last=$2, failed=0 WHERE id=$1', [u.id, step]);
+  await q('DELETE FROM sessions WHERE token_hash=$1', [req.sh]);       // new token after the second step
+  await newSession(req, res, u.id, 'full');
+  audit(u.id, 'login.ok', u.email, { totp: true }, req.ip);
+  res.json({ user: publicUser(u) });
+}));
+
+app.post('/api/logout', wrap(async (req, res) => {
+  const tok = readCookie(req); if (tok) await q('DELETE FROM sessions WHERE token_hash=$1', [C.sha(tok)]);
+  clearCookie(req, res); res.json({ ok: true });
+}));
+app.get('/api/me', auth(), (req, res) => res.json({ user: publicUser(req.u) }));
+
+// ---------- 2FA + password ----------
+app.post('/api/2fa/start', auth(), wrap(async (req, res) => {
+  if (req.u.totp_on) return res.status(409).json({ error: 'already' });
+  const secret = C.newTotpSecret();
+  await q('UPDATE users SET totp_secret=$2 WHERE id=$1', [req.u.id, C.seal(secret)]);
+  res.json({ secret, uri: C.totpUri(secret, req.u.email) });
+}));
+app.post('/api/2fa/enable', limit('totp', LOGIN_MAX, 10 * 60e3), auth(), wrap(async (req, res) => {
+  if (!req.u.totp_secret) return res.status(400).json({ error: 'start' });
+  const step = C.totpCheck(C.unseal(req.u.totp_secret), req.body.code, 0);
+  if (!step) return res.status(401).json({ error: 'code' });
+  await q('UPDATE users SET totp_on=TRUE, totp_last=$2 WHERE id=$1', [req.u.id, step]);
+  audit(req.u.id, '2fa.enable', req.u.email, null, req.ip); res.json({ ok: true });
+}));
+app.post('/api/2fa/disable', limit('login', LOGIN_MAX, 10 * 60e3), auth(), wrap(async (req, res) => {
+  if (!(await C.verifyPassword(String(req.body.password || ''), req.u.pass_hash))) return res.status(401).json({ error: 'creds' });
+  const step = req.u.totp_on ? C.totpCheck(C.unseal(req.u.totp_secret), req.body.code, +req.u.totp_last) : 1;
+  if (!step) return res.status(401).json({ error: 'code' });
+  await q('UPDATE users SET totp_on=FALSE, totp_secret=NULL WHERE id=$1', [req.u.id]);
+  audit(req.u.id, '2fa.disable', req.u.email, null, req.ip); res.json({ ok: true });
+}));
+app.post('/api/password', limit('login', LOGIN_MAX, 10 * 60e3), auth(), wrap(async (req, res) => {
+  const { current, next } = req.body;
+  if (!(await C.verifyPassword(String(current || ''), req.u.pass_hash))) return res.status(401).json({ error: 'creds' });
+  const bad = C.passwordProblem(next, req.u); if (bad) return res.status(400).json({ error: 'weak', why: bad });
+  await q('UPDATE users SET pass_hash=$2, must_change=FALSE WHERE id=$1', [req.u.id, await C.hashPassword(next)]);
+  await q('DELETE FROM sessions WHERE user_id=$1 AND token_hash<>$2', [req.u.id, req.sh]);
+  audit(req.u.id, 'password.change', req.u.email, null, req.ip); res.json({ ok: true });
+}));
+
+// ---------- users (admin) ----------
+app.get('/api/users', auth(), admin, wrap(async (req, res) => {
+  const r = await q('SELECT * FROM users ORDER BY created_at'); res.json({ users: r.rows.map(u => ({ ...publicUser(u), disabled: u.disabled })) });
+}));
+app.post('/api/users', auth(), admin, wrap(async (req, res) => {
+  const b = req.body, email = String(b.email || '').trim().toLowerCase(), username = String(b.username || '').trim().toLowerCase(), name = String(b.name || '').trim();
+  if (!/^[^@\s]{1,64}@[^@\s]{1,200}$/.test(email) || !/^[a-z0-9._-]{3,30}$/.test(username) || !name || name.length > 100 || !ROLES.has(b.role)) return res.status(400).json({ error: 'bad' });
+  const bad = C.passwordProblem(b.password, { email, username, name }); if (bad) return res.status(400).json({ error: 'weak', why: bad });
+  try {
+    const id = C.uid();
+    await q('INSERT INTO users(id,email,username,name,role,pass_hash,must_change) VALUES($1,$2,$3,$4,$5,$6,TRUE)', [id, email, username, name, b.role, await C.hashPassword(b.password)]);
+    audit(req.u.id, 'user.create', email, { role: b.role }, req.ip); res.json({ id });
+  } catch (e) { if (e.code === '23505') return res.status(409).json({ error: 'dupe' }); throw e; }
+}));
+app.patch('/api/users/:id', auth(), admin, wrap(async (req, res) => {
+  const t = (await q('SELECT * FROM users WHERE id=$1', [req.params.id])).rows[0]; if (!t) return res.status(404).json({ error: 'none' });
+  if (t.is_owner && (req.body.disabled || (req.body.role && req.body.role !== 'admin'))) return res.status(400).json({ error: 'owner' });
+  if (t.id === req.u.id && req.body.disabled) return res.status(400).json({ error: 'self' });
+  const role = req.body.role && ROLES.has(req.body.role) ? req.body.role : t.role, disabled = typeof req.body.disabled === 'boolean' ? req.body.disabled : t.disabled;
+  const name = req.body.name ? String(req.body.name).trim().slice(0, 100) : t.name;
+  await q('UPDATE users SET role=$2, disabled=$3, name=$4 WHERE id=$1', [t.id, role, disabled, name]);
+  if (disabled || role !== t.role) await q('DELETE FROM sessions WHERE user_id=$1', [t.id]);
+  audit(req.u.id, 'user.update', t.email, { role, disabled }, req.ip); res.json({ ok: true });
+}));
+app.post('/api/users/:id/reset', auth(), admin, wrap(async (req, res) => {
+  const t = (await q('SELECT * FROM users WHERE id=$1', [req.params.id])).rows[0]; if (!t) return res.status(404).json({ error: 'none' });
+  const bad = C.passwordProblem(req.body.password, t); if (bad) return res.status(400).json({ error: 'weak', why: bad });
+  await q('UPDATE users SET pass_hash=$2, must_change=TRUE, failed=0, locked_until=NULL, totp_on=FALSE, totp_secret=NULL WHERE id=$1', [t.id, await C.hashPassword(req.body.password)]);
+  await q('DELETE FROM sessions WHERE user_id=$1', [t.id]);
+  audit(req.u.id, 'user.reset', t.email, null, req.ip); res.json({ ok: true });
+}));
+app.delete('/api/users/:id', auth(), admin, wrap(async (req, res) => {
+  const t = (await q('SELECT * FROM users WHERE id=$1', [req.params.id])).rows[0]; if (!t) return res.status(404).json({ error: 'none' });
+  if (t.is_owner || t.id === req.u.id) return res.status(400).json({ error: 'owner' });
+  await q('DELETE FROM users WHERE id=$1', [t.id]); audit(req.u.id, 'user.delete', t.email, null, req.ip); res.json({ ok: true });
+}));
+
+// ---------- fleet data ----------
+app.get('/api/state', auth(), staff, wrap(async (req, res) => {
+  const [rec, kv] = await Promise.all([q('SELECT coll,data FROM records'), q('SELECT key,value FROM kv')]);
+  const DB = {}; COLLS.forEach(c => DB[c] = []);
+  rec.rows.forEach(r => DB[r.coll] && DB[r.coll].push(r.data));
+  const S = {}; kv.rows.forEach(r => { if (KV_FLEET.has(r.key)) DB[r.key] = r.value; else if (SETTING_KEYS.includes(r.key)) S[r.key] = r.value; });
+  const tm = (await q("SELECT id,name,username,email,role,is_owner FROM users WHERE role<>'driver' AND NOT disabled ORDER BY created_at")).rows;
+  const team = tm.map(u => ({ id: u.id, n: u.name, u: u.username, m: req.u.role === 'admin' ? u.email : '', r: u.role, owner: u.is_owner }));
+  res.json({ DB, S, team, user: publicUser(req.u) });
+}));
+
+const okId = s => typeof s === 'string' && /^[A-Za-z0-9_-]{1,40}$/.test(s);
+app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, res) => {
+  const { upserts = [], deletes = [], kv = {} } = req.body || {};
+  if (!Array.isArray(upserts) || !Array.isArray(deletes) || typeof kv !== 'object' || upserts.length + deletes.length > 2000) return res.status(400).json({ error: 'bad' });
+  for (const x of upserts) if (!COLLS.has(x.c) || !okId(x.id) || typeof x.d !== 'object' || !x.d || JSON.stringify(x.d).length > 100000) return res.status(400).json({ error: 'bad' });
+  for (const x of deletes) if (!COLLS.has(x.c) || !okId(x.id)) return res.status(400).json({ error: 'bad' });
+  const kvKeys = Object.keys(kv);
+  for (const k of kvKeys) {
+    if (KV_FLEET.has(k)) { if (JSON.stringify(kv[k]).length > 400000) return res.status(400).json({ error: 'bad' }); }
+    else if (SETTING_KEYS.includes(k)) { if (req.u.role !== 'admin') return res.status(403).json({ error: 'role' }); if (JSON.stringify(kv[k]).length > 100000) return res.status(400).json({ error: 'bad' }); }
+    else return res.status(400).json({ error: 'bad' });
+  }
+  const cl = await pool.connect();
+  try {
+    await cl.query('BEGIN');
+    for (const x of upserts) {
+      x.d.id = x.id;
+      await cl.query(`INSERT INTO records(coll,id,data,updated_by) VALUES($1,$2,$3,$4) ON CONFLICT (coll,id) DO UPDATE SET data=EXCLUDED.data, updated_at=now(), updated_by=EXCLUDED.updated_by`, [x.c, x.id, JSON.stringify(x.d), req.u.id]);
+    }
+    for (const x of deletes) await cl.query('DELETE FROM records WHERE coll=$1 AND id=$2', [x.c, x.id]);
+    for (const k of kvKeys) await cl.query(`INSERT INTO kv(key,value,updated_by) VALUES($1,$2,$3) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_at=now(), updated_by=EXCLUDED.updated_by`, [k, JSON.stringify(kv[k]), req.u.id]);
+    await cl.query('COMMIT');
+  } catch (e) { await cl.query('ROLLBACK').catch(() => {}); throw e; } finally { cl.release(); }
+  if (upserts.length || deletes.length || kvKeys.length)
+    audit(req.u.id, 'sync', null, { up: upserts.slice(0, 50).map(x => x.c + '/' + x.id), upN: upserts.length, del: deletes.slice(0, 50).map(x => x.c + '/' + x.id), delN: deletes.length, kv: kvKeys }, req.ip);
+  res.json({ ok: true });
+}));
+
+app.get('/api/audit', auth(), admin, wrap(async (req, res) => {
+  const r = await q('SELECT a.id,a.at,a.action,a.target,a.detail,a.ip,u.email AS who FROM audit a LEFT JOIN users u ON u.id=a.user_id ORDER BY a.id DESC LIMIT 300'); res.json({ rows: r.rows });
+}));
+
+// ---------- files (stored on the Railway volume) ----------
+const MAGIC = { 'application/pdf': b => b.slice(0, 5).toString() === '%PDF-', 'image/jpeg': b => b[0] === 0xff && b[1] === 0xd8, 'image/png': b => b.slice(1, 4).toString() === 'PNG' };
+app.post('/api/files', auth(), staff, express.raw({ type: Object.keys(MAGIC), limit: '20mb' }), wrap(async (req, res) => {
+  const mime = (req.headers['content-type'] || '').split(';')[0];
+  if (!MAGIC[mime] || !Buffer.isBuffer(req.body) || !req.body.length || !MAGIC[mime](req.body)) return res.status(400).json({ error: 'type' });
+  const id = C.uid(); fs.mkdirSync(DATA_DIR, { recursive: true });
+  fs.writeFileSync(path.join(DATA_DIR, id), req.body, { mode: 0o600 });
+  const name = decodeURIComponent(String(req.headers['x-filename'] || 'file')).replace(/[^\w.\- ]/g, '_').slice(0, 120);
+  await q('INSERT INTO files(id,name,mime,size,path,uploaded_by) VALUES($1,$2,$3,$4,$5,$6)', [id, name, mime, req.body.length, id, req.u.id]);
+  audit(req.u.id, 'file.upload', id, { name, size: req.body.length }, req.ip); res.json({ id, name });
+}));
+app.get('/api/files/:id', auth(), wrap(async (req, res) => {
+  if (!okId(req.params.id)) return res.status(404).end();
+  const f = (await q('SELECT * FROM files WHERE id=$1', [req.params.id])).rows[0]; if (!f) return res.status(404).end();
+  res.setHeader('Content-Type', f.mime); res.setHeader('Content-Disposition', `inline; filename="${f.name.replace(/"/g, '')}"`);
+  res.setHeader('Content-Security-Policy', "default-src 'none'; sandbox");
+  fs.createReadStream(path.join(DATA_DIR, f.path)).on('error', () => res.status(404).end()).pipe(res);
+}));
+
+app.get('/healthz', (req, res) => res.type('text').send('ok'));
+app.use('/api', (req, res) => res.status(404).json({ error: 'none' }));
+app.use(express.static(path.join(__dirname, 'public'), { index: 'index.html', maxAge: 0, setHeaders: r => r.setHeader('Cache-Control', 'no-cache') }));
+app.use((req, res) => res.status(404).type('text').send('Not found'));
+
+// ---------- start ----------
+async function bootstrap() {
+  await migrate();
+  const n = +(await q('SELECT count(*) FROM users')).rows[0].count;
+  if (!n) {
+    const email = (process.env.ADMIN_EMAIL || '').trim().toLowerCase(), pw = process.env.ADMIN_PASSWORD || '';
+    if (!email || !pw) { console.warn('No users yet. Set ADMIN_EMAIL and ADMIN_PASSWORD in the environment and restart.'); return; }
+    const username = (process.env.ADMIN_USERNAME || email.split('@')[0]).toLowerCase().replace(/[^a-z0-9._-]/g, '').slice(0, 30) || 'admin';
+    const bad = C.passwordProblem(pw, { email, username }); if (bad) throw new Error('ADMIN_PASSWORD is too weak (' + bad + ')');
+    await q('INSERT INTO users(id,email,username,name,role,is_owner,pass_hash) VALUES($1,$2,$3,$4,\'admin\',TRUE,$5)', [C.uid(), email, username, process.env.ADMIN_NAME || 'Owner', await C.hashPassword(pw)]);
+    console.log('Owner account created for', email);
+  }
+}
+setInterval(() => q('DELETE FROM sessions WHERE expires_at<now()').catch(() => {}), 3600e3).unref();
+
+if (require.main === module) {
+  C.seal('x'); // fail fast when APP_SECRET is missing
+  bootstrap().then(() => app.listen(PORT, () => console.log('TOPGFLEET listening on', PORT))).catch(e => { console.error(e); process.exit(1); });
+}
+module.exports = { app, bootstrap };
