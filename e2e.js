@@ -43,7 +43,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   await sleep(1400);
   const st = await (async () => { const r = await A.w.fetch('/api/state'); return r.json(); })();
   ok(st.DB.trucks.length === 1 && st.DB.trucks[0].num === '4382', 'truck was saved to Postgres');
-  ok(Array.isArray(st.S.prio) && st.S.prio.length === 3 && st.S.comps.length === 1, 'default settings seeded on the server');
+  ok(Array.isArray(st.S.prio) && st.S.prio.length === 3 && st.S.comps.length === 14 && st.S.seed14 === 1, '14 companies seeded on the server');
   // add a trailer inline, an issue, change statuses
   A.ev('go("trailers")'); const inp = A.d.querySelector('#tla'); inp.value = 'T-900'; inp.dispatchEvent(new A.w.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
   A.ev('DB.issues.push({id:uid(),created:Date.now(),status:"open",title:"4382",desc:"Check engine",pr:S.prio[0].id,owner:"",sched:""});refresh()');
@@ -88,6 +88,11 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   ok(Cc.ev('S.in') === true && Cc.ev('DB.trucks.length') === 1, 'code opens the dashboard with data');
   // logout clears memory
   await Cc.ev('A.logout()'); await sleep(500); ok(Cc.ev('DB.trucks.length') === 0 && !Cc.ev('S.in'), 'logout wipes data from the page');
+  // deep link from Telegram: /invoices?id=... opens that invoice
+  A.ev('DB.inv.push({id:"ivX",truck:"",trailer:"",amt:42,reason:"fuel",date:"2026-11-17",who:"co",method:"cc",desc:"deep link test"})');
+  A.ev('history.pushState(null,"","/invoices?id=ivX");V="invoices";render()'); await sleep(300);
+  ok(/deep link test/.test(A.d.querySelector('#dr').innerHTML) || A.d.querySelector('#dr [name=desc]') && A.d.querySelector('#dr [name=desc]').value === 'deep link test', 'invoice link opens that invoice');
+  ok(A.ev('location.search') === '', 'query is cleaned after opening');
   console.log(errs.length ? `\n${errs.length} FAILED of ${n}` : `\nALL ${n} E2E CHECKS PASSED`);
   srv.close(); await pg.stop(); process.exit(errs.length ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(1); });

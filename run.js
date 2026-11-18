@@ -104,6 +104,28 @@ const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tfpg-')); try { fs.chmodSync(
   r = await call('POST', '/api/files', Buffer.from('<script>alert(1)</script>'), { raw: true, ct: 'application/pdf' }); ok(r.s === 400, 'fake pdf refused');
   r = await call('GET', '/api/files/' + fid); ok(r.s === 200 && r.h['content-type'] === 'application/pdf', 'file download when logged in');
   r = await call('GET', '/api/files/' + fid, undefined, { jar: {} }); ok(r.s === 401, 'file download needs login');
+  // ---- v2: profile edit, company scope, routes
+  const admJ = jar;
+  r = await call('PATCH', '/api/me', { name: 'Boss Man', username: 'bossman' }); ok(r.s === 200 && r.j.user.name === 'Boss Man' && r.j.user.username === 'bossman', 'PATCH /api/me name+username');
+  r = await call('PATCH', '/api/me', { username: 'a b!' }); ok(r.s === 400, 'bad username refused');
+  r = await call('PATCH', '/api/me', { email: 'new@example.com' }); ok(r.s === 401, 'email change needs current password');
+  r = await call('PATCH', '/api/me', { email: 'boss2@example.com', current: 'Correct-Horse-9!' }); ok(r.s === 200 && r.j.user.email === 'boss2@example.com', 'email change with password');
+  r = await call('PATCH', '/api/me', { color: '#12ab34' }); ok(r.s === 200 && r.j.user.color === '#12ab34', 'own colour');
+  r = await call('POST', '/api/sync', { kv: { comps: [{ id: 'cA', n: 'A', c: '#111111' }, { id: 'cB', n: 'B', c: '#222222' }] }, upserts: [{ c: 'trucks', id: 'tA', d: { num: '1', company: 'cA' } }, { c: 'trucks', id: 'tB', d: { num: '2', company: 'cB' } }, { c: 'drivers', id: 'dB', d: { name: 'Zed', truck: 'tB' } }, { c: 'drivers', id: 'dA', d: { name: 'Amy', truck: 'tA' } }] }); ok(r.s === 200, 'admin seeds two companies');
+  r = await call('POST', '/api/users', { name: 'Cora', username: 'cora', email: 'cora@example.com', role: 'member', password: 'Purple-Anchor-42', companies: ['cA'], test: true }); ok(r.s === 200, 'create company-restricted user');
+  jar = {}; r = await call('POST', '/api/login', { email: 'cora@example.com', password: 'Purple-Anchor-42' }); ok(r.s === 200, 'restricted user logs in');
+  r = await call('GET', '/api/state'); ok(r.s === 200 && r.j.DB.trucks.length === 1 && r.j.DB.trucks[0].id === 'tA', 'restricted user sees only own company trucks');
+  ok(r.j.DB.drivers.length === 1 && r.j.DB.drivers[0].id === 'dA', 'restricted user sees only own drivers');
+  ok(r.j.user.companies && r.j.user.companies[0] === 'cA' && r.j.team.some(x => x.test), 'user carries company list; team flags test');
+  r = await call('POST', '/api/sync', { upserts: [{ c: 'trucks', id: 'tX', d: { num: '9', company: 'cB' } }] }); ok(r.s === 403, 'cannot write truck into other company');
+  r = await call('POST', '/api/sync', { upserts: [{ c: 'trucks', id: 'tB', d: { num: '2', company: 'cA' } }] }); ok(r.s === 403, 'cannot steal another company truck');
+  r = await call('POST', '/api/sync', { deletes: [{ c: 'trucks', id: 'tB' }] }); ok(r.s === 403, 'cannot delete another company truck');
+  r = await call('POST', '/api/sync', { upserts: [{ c: 'trucks', id: 'tA', d: { num: '1', company: 'cA', note: 'ok' } }] }); ok(r.s === 200, 'can edit own truck');
+  r = await call('POST', '/api/sync', { kv: { comps: [] } }); ok(r.s === 403, 'member cannot change companies');
+  jar = admJ; r = await call('GET', '/api/state'); ok(r.s === 200 && r.j.DB.trucks.some(x => x.id === 'tB') && r.j.DB.trucks.some(x => x.id === 'tA'), 'admin still sees everything');
+  r = await call('GET', '/dashboard', undefined, { jar: {} }); ok(r.s === 200 && /<html/i.test(r.b), 'SPA route /dashboard');
+  r = await call('GET', '/fleet', undefined, { jar: {} }); ok(r.s === 200, 'SPA route /fleet');
+  r = await call('GET', '/nope', undefined, { jar: {} }); ok(r.s === 404, 'unknown path is 404');
   console.log(errs.length ? `\n${errs.length} FAILED of ${n}` : `\nALL ${n} CHECKS PASSED`);
   srv.close(); await pg.stop(); fs.rmSync(dir, { recursive: true, force: true }); process.exit(errs.length ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(1); });
