@@ -146,6 +146,7 @@ tr.rw{cursor:pointer}tr.rw:hover td{background:var(--p2)}
 .fg{grid-template-columns:1fr}.fd,.fd.h{grid-column:span 1}
 }
 @media print{body *{visibility:hidden}#prt,#prt *{visibility:visible}#prt{position:absolute;left:0;top:0;width:100%;color:#000;background:#fff}}
+.gr{cursor:grab;touch-action:none;user-select:none;color:var(--mu);font-size:18px;line-height:1;padding:4px 6px;border-radius:6px;flex:none}.gr:hover{color:var(--tx);background:color-mix(in srgb,var(--ac) 14%,transparent)}.dragging{opacity:.55}.dzt{box-shadow:0 -3px 0 var(--ac)}.dzb{box-shadow:0 3px 0 var(--ac)}
 </style></head><body>
 <div id="app"></div><div id="dr"></div><div id="md"></div><div id="ts" role="status"></div><div id="prt" class="hide"></div>
 <script>
@@ -633,7 +634,7 @@ const copyText=txt=>{const ok=()=>toast(t("copied"));const fb=()=>{const ta=docu
 const natCmp=(a,b)=>String(a).localeCompare(String(b),undefined,{numeric:true});
 
 /* ===== priorities editor (Today modal + Profile) ===== */
-function prioInner(){return `${S.prio.map((p,i)=>`<div class="pr"><button class="bi" data-a="prUp" data-i="${i}" ${i==0?"disabled":""} aria-label="up">${ic("up",14)}</button><button class="bi" data-a="prDown" data-i="${i}" ${i==S.prio.length-1?"disabled":""} aria-label="down">${ic("down",14)}</button><input type="color" value="${p.c}" data-c="prColor" data-i="${i}" aria-label="color"><input type="text" value="${esc(p.n)}" data-c="prName" data-i="${i}"><span class="n">${t("pr_issues",DB.issues.filter(x=>x.pr==p.id&&x.status!="closed").length)}</span><button class="bi" data-a="prDel" data-i="${i}" aria-label="${t("del")}">${ic("trash",15)}</button></div>`).join("")}
+function prioInner(){return `${S.prio.map((p,i)=>`<div class="pr" data-g="prio" data-n="${i}"><span class="gr" data-g="prio" data-n="${i}" title="${esc(t("drag"))}" aria-label="${esc(t("drag"))}">⠿</span><input type="color" value="${p.c}" data-c="prColor" data-i="${i}" aria-label="color"><input type="text" value="${esc(p.n)}" data-c="prName" data-i="${i}"><span class="n">${t("pr_issues",DB.issues.filter(x=>x.pr==p.id&&x.status!="closed").length)}</span><button class="bi" data-a="prDel" data-i="${i}" aria-label="${t("del")}">${ic("trash",15)}</button></div>`).join("")}
 <div class="pr"><span style="width:68px"></span><input type="color" id="npc" value="#3b82f6"><input type="text" id="npn" placeholder="${esc(t("pr_new"))}" data-enter="prAdd"><button class="b" data-a="prAdd">${t("pr_add")}</button></div>`}
 const prioRefresh=()=>{save();$$(".prioBox").forEach(b=>b.innerHTML=prioInner());if(V=="today"||V=="profile")page()};
 A.prUp=el=>{const i=+el.dataset.i;if(i>0){[S.prio[i-1],S.prio[i]]=[S.prio[i],S.prio[i-1]];prioRefresh()}};
@@ -742,7 +743,7 @@ A.syncM=()=>modal({title:t("t_syncm"),icon:"refresh",w:440,body:`<div class="not
 A.trFind=()=>toast(t("telem"),"er");
 /* statuses */
 const stWOpts=()=>[["",t("st_ns")],["1",t("st_w")],["0",t("st_nw")]];
-const stRows=()=>S.stat.map((s,i)=>{const used=DB.trucks.some(x=>x.status==s.id);return `<div class="pr"><span style="color:${s.c}">${ic(s.ic,16)}</span><input type="text" value="${esc(s.n)}" data-c="stName" data-i="${i}" aria-label="${t("st_name")}"><select class="sel" style="width:130px" data-c="stW" data-i="${i}">${optH(stWOpts(),s.w===true?"1":s.w===false?"0":"")}</select><button class="bi" data-a="stDel" data-i="${i}" ${used||S.stat.length<2?"disabled":""} title="${used?esc(t("st_used")):""}" aria-label="${t("del")}">${ic("trash",15)}</button></div>`}).join("");
+const stRows=()=>S.stat.map((s,i)=>{const used=DB.trucks.some(x=>x.status==s.id);return `<div class="pr" data-g="stat" data-n="${i}"><span class="gr" data-g="stat" data-n="${i}" title="${esc(t("drag"))}" aria-label="${esc(t("drag"))}">⠿</span><span style="color:${s.c}">${ic(s.ic,16)}</span><input type="text" value="${esc(s.n)}" data-c="stName" data-i="${i}" aria-label="${t("st_name")}"><select class="sel" style="width:130px" data-c="stW" data-i="${i}">${optH(stWOpts(),s.w===true?"1":s.w===false?"0":"")}</select><button class="bi" data-a="stDel" data-i="${i}" ${used||S.stat.length<2?"disabled":""} title="${used?esc(t("st_used")):""}" aria-label="${t("del")}">${ic("trash",15)}</button></div>`}).join("");
 A.stManage=()=>{PG.pop=null;modal({title:t("st_manage"),icon:"pen",w:520,body:`<p class="mu" style="margin-top:0">${t("st_hint")}</p><div id="stBox">${stRows()}</div>`,foot:`<button class="b" data-a="stNew">${ic("plus",14)} ${t("st_new")}</button><button class="b bp" data-a="mdClose">${t("done")}</button>`})};
 const stRefresh=()=>{save();const b=$("#stBox");if(b)b.innerHTML=stRows();if(V=="trucks"||V=="today")page()};
 C.stName=el=>{const v=el.value.trim();if(v)S.stat[+el.dataset.i].n=v;stRefresh()};C.stW=el=>{S.stat[+el.dataset.i].w=el.value===""?null:el.value=="1";stRefresh()};
@@ -1074,7 +1075,7 @@ ${secH("app","pf_app",`<p class="mu" style="margin-top:0">${t("pf_app_s")}</p><d
 <div class="lbl" style="margin-top:16px">${t("pf_col")}</div><p class="mu" style="margin-top:0">${t("pf_col_s")}</p><div class="sw">${USERC.map(c=>`<button class="${S.col==c?"on":""}" style="background:${c}" data-a="setCol" data-v="${c}" aria-label="${c}"></button>`).join("")}</div>`)}
 ${secH("lang","pf_lang",`<p class="mu" style="margin-top:0">${t("pf_lang_s")}</p>${tabsH(LG.map((l,i)=>[l,LN[i]]),S.lang,"lang")}`)}
 ${secH("int","pf_int",`<p class="mu" style="margin-top:0">${t("pf_int_s")}</p>${accs.length?accs.map((a,i)=>`<div class="row" style="padding:8px 0;border-top:1px solid var(--ln);flex-wrap:nowrap"><div style="flex:1"><b>${esc(a.n)}</b> <span class="mu">${a.p}</span></div><button class="bi" data-a="tmDel" data-n="${i}" aria-label="${t("del")}">${ic("trash",15)}</button></div>`).join(""):`<div class="mu">${t("pf_noacc")}</div>`}<button class="b" style="margin-top:10px" data-a="tmAdd">${ic("plus",14)} ${t("pf_addacc")}</button><div class="lbl" style="margin-top:20px">${ic("send",13)} Telegram</div>${tgSec()}`)}
-${secH("comp","pf_comp",`<p class="mu" style="margin-top:0">${t("co_s")}</p>${S.comps.map((c,i)=>{const used=DB.trucks.some(x=>x.company==c.id)||DB.trailers.some(x=>x.company==c.id);return `<div class="pr"><input type="color" value="${c.c}" data-c="coColor" data-n="${i}" aria-label="color"><input type="text" value="${esc(c.n)}" data-c="coName" data-n="${i}"><button class="bi" data-a="coDel" data-n="${i}" ${used||S.comps.length<2?"disabled":""} title="${used?esc(t("co_used")):""}" aria-label="${t("del")}">${ic("trash",15)}</button></div>`}).join("")}<div class="pr"><input type="color" id="ncc" value="#3b82f6"><input id="ncn" placeholder="${esc(t("co_new"))}" data-enter="coAdd"><button class="b" data-a="coAdd">${t("co_add")}</button></div>`)}
+${secH("comp","pf_comp",`<p class="mu" style="margin-top:0">${t("co_s")}</p>${S.comps.map((c,i)=>{const used=DB.trucks.some(x=>x.company==c.id)||DB.trailers.some(x=>x.company==c.id);return `<div class="pr" data-g="comps" data-n="${i}"><span class="gr" data-g="comps" data-n="${i}" title="${esc(t("drag"))}" aria-label="${esc(t("drag"))}">⠿</span><input type="color" value="${c.c}" data-c="coColor" data-n="${i}" aria-label="color"><input type="text" value="${esc(c.n)}" data-c="coName" data-n="${i}"><button class="bi" data-a="coDel" data-n="${i}" ${used||S.comps.length<2?"disabled":""} title="${used?esc(t("co_used")):""}" aria-label="${t("del")}">${ic("trash",15)}</button></div>`}).join("")}<div class="pr"><input type="color" id="ncc" value="#3b82f6"><input id="ncn" placeholder="${esc(t("co_new"))}" data-enter="coAdd"><button class="b" data-a="coAdd">${t("co_add")}</button></div>`)}
 ${secH("prio","pf_prio",`<p class="mu" style="margin-top:0">${t("pr_s")}</p><div class="prioBox">${prioInner()}</div><p class="mu" style="font-size:12px">${t("pr_s2")}</p>`)}
 ${secH("team","pf_team",teamBody())}
 ${secH("acc","pf_acc",accBody())}
@@ -1164,12 +1165,24 @@ PAGES.companies=()=>{const L=myComps(),cur=curCo(),adm=isAdm();
  return `<div class="pg"><div class="ph2"><div><h2 style="margin:0">${t("companies")}</h2><p class="mu" style="margin:4px 0 0">${t("cp_sub")}</p></div></div>
 ${adm?"":`<p class="mu">${t("cp_adm")}</p>`}
 <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:14px">${L.map((c,i)=>{const T=DB.trucks.filter(x=>x.company==c.id),R=DB.trailers.filter(x=>x.company==c.id),ids=new Set(T.map(x=>x.id)),Dn=DB.drivers.filter(d=>d.truck&&ids.has(d.truck)).length,idx=S.comps.indexOf(c),used=T.length||R.length;
-  return `<div class="card" style="padding:14px;border-left:4px solid ${c.c}">
-<div style="display:flex;align-items:center;gap:8px">${adm?`<input type="color" value="${c.c}" data-c="coColor" data-n="${idx}" aria-label="color"><input type="text" value="${esc(c.n)}" data-c="coName" data-n="${idx}" style="flex:1;min-width:0">`:`${dot(c.c)}<b>${esc(c.n)}</b>`}</div>
+  return `<div class="card" data-g="comps" data-n="${idx}" style="padding:14px;border-left:4px solid ${c.c}">
+<div style="display:flex;align-items:center;gap:8px">${adm&&L.length==S.comps.length?`<span class="gr" data-g="comps" data-n="${idx}" title="${esc(t("drag"))}" aria-label="${esc(t("drag"))}">⠿</span>`:""}${adm?`<input type="color" value="${c.c}" data-c="coColor" data-n="${idx}" aria-label="color"><input type="text" value="${esc(c.n)}" data-c="coName" data-n="${idx}" style="flex:1;min-width:0">`:`${dot(c.c)}<b>${esc(c.n)}</b>`}</div>
 <div style="display:flex;gap:16px;margin:12px 0"><span><b>${T.length}</b><br><small class="mu">${t("cp_tr")}</small></span><span><b>${R.length}</b><br><small class="mu">${t("cp_tl")}</small></span><span><b>${Dn}</b><br><small class="mu">${t("cp_dr")}</small></span></div>
 <div style="display:flex;gap:8px"><button class="b ${cur==c.id?"bp":""}" data-a="coPick" data-v="${c.id}" style="flex:1">${cur==c.id?t("cp_cur"):t("cp_open")}</button>${adm?`<button class="bi" data-a="coDel" data-n="${idx}" ${used||S.comps.length<2?"disabled":""} title="${used?esc(t("co_used")):""}" aria-label="${t("del")}">${ic("trash",15)}</button>`:""}</div></div>`}).join("")}</div>
 ${adm?`<div class="card" style="padding:14px;margin-top:14px"><div class="pr"><input type="color" id="ncc" value="#3b82f6"><input id="ncn" placeholder="${esc(t("cp_new"))}" data-enter="coAdd"><button class="b" data-a="coAdd">${t("cp_add")}</button></div></div>`:""}</div>`};
 A.coPick=el=>{setCur(el.dataset.v);closePops();if(V=="companies")go("trucks");else shellRefresh()};
+
+/* ===== drag to reorder (mouse + touch) via the ⠿ handle ===== */
+Object.assign(D,{drag:["Drag to reorder","Tartibni o‘zgartirish uchun suring","Перетащите, чтобы изменить порядок"]});
+(()=>{let st=null;const lists={comps:()=>S.comps,prio:()=>S.prio,stat:()=>S.stat},after={comps:()=>refresh(),prio:()=>prioRefresh(),stat:()=>stRefresh()};
+ const rowAt=(g,x,y)=>{const e=document.elementFromPoint(x,y),r=e&&e.closest&&e.closest('[data-g="'+g+'"]');return r&&r.dataset.n!==undefined?r:null};
+ const clear=()=>$$(".dzt,.dzb,.dragging").forEach(e=>e.classList.remove("dzt","dzb","dragging"));
+ document.addEventListener("pointerdown",e=>{const h=e.target.closest&&e.target.closest(".gr");if(!h||(e.button&&e.button!==0))return;e.preventDefault();
+  st={g:h.dataset.g,from:+h.dataset.n,to:+h.dataset.n};const r=h.closest('[data-g]');r&&r.classList.add("dragging");document.body.style.userSelect="none"});
+ document.addEventListener("pointermove",e=>{if(!st)return;const r=rowAt(st.g,e.clientX,e.clientY);$$(".dzt,.dzb").forEach(x=>x.classList.remove("dzt","dzb"));
+  if(r){const n=+r.dataset.n;st.to=n;if(n!==st.from)r.classList.add(n<st.from?"dzt":"dzb")}});
+ const end=()=>{if(!st)return;const s=st;st=null;document.body.style.userSelect="";clear();if(s.to!==s.from){const L=lists[s.g]();const[x]=L.splice(s.from,1);L.splice(s.to,0,x);after[s.g]()}};
+ document.addEventListener("pointerup",end);document.addEventListener("pointercancel",()=>{st=null;document.body.style.userSelect="";clear()})})();
 /* ===== EXPORT: real .xlsx and .pdf writers (no libraries) ===== */
 const CRCT=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
 const crc32=b=>{let c=~0;for(let i=0;i<b.length;i++)c=CRCT[(c^b[i])&255]^(c>>>8);return(~c)>>>0};
