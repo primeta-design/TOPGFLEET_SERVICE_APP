@@ -73,7 +73,7 @@ function setCookie(req, res, tok, maxAgeSec) {
 const clearCookie = (req, res) => setCookie(req, res, '', 0);
 const audit = (userId, action, target, detail, ip) =>
   q('INSERT INTO audit(user_id,action,target,detail,ip) VALUES($1,$2,$3,$4,$5)', [userId || null, action, target || null, detail ? JSON.stringify(detail) : null, ip || null]).catch(e => console.error('audit', e.message));
-const publicUser = u => ({ id: u.id, email: u.email, username: u.username, name: u.name, role: u.role, owner: u.is_owner, totp: u.totp_on, mustChange: u.must_change, color: u.color || null, companies: u.role === 'admin' ? null : (u.companies || null), test: !!u.is_test });
+const publicUser = u => ({ id: u.id, email: u.email, username: u.username, name: u.name, role: u.role, owner: u.is_owner, totp: u.totp_on, mustChange: u.must_change, color: u.color || null, noMail: /@no-email\.local$/i.test(u.email), companies: u.role === 'admin' ? null : (u.companies || null), test: !!u.is_test });
 const okId = s => typeof s === 'string' && /^[A-Za-z0-9_-]{1,40}$/.test(s);
 const cleanCompanies = v => v === null ? null : (Array.isArray(v) && v.length <= 200 && v.every(okId) ? [...new Set(v)] : undefined);
 const allowedOf = u => (u.role !== 'admin' && Array.isArray(u.companies)) ? new Set(u.companies) : null;   // null = sees everything
@@ -196,7 +196,7 @@ app.get('/api/users', auth(), admin, wrap(async (req, res) => {
   const r = await q('SELECT * FROM users ORDER BY created_at'); res.json({ users: r.rows.map(u => ({ ...publicUser(u), disabled: u.disabled })) });
 }));
 app.post('/api/users', auth(), admin, wrap(async (req, res) => {
-  const b = req.body, email = String(b.email || '').trim().toLowerCase(), username = String(b.username || '').trim().toLowerCase(), name = String(b.name || '').trim();
+  const b = req.body, username = String(b.username || '').trim().toLowerCase(), name = String(b.name || '').trim(), email = String(b.email || '').trim().toLowerCase() || (username + '@no-email.local');
   if (!/^[^@\s]{1,64}@[^@\s]{1,200}$/.test(email) || !/^[a-z0-9._-]{3,30}$/.test(username) || !name || name.length > 100 || !ROLES.has(b.role)) return res.status(400).json({ error: 'bad' });
   const bad = C.passwordProblem(b.password, { email, username, name }); if (bad) return res.status(400).json({ error: 'weak', why: bad });
   try {
@@ -214,7 +214,13 @@ app.patch('/api/users/:id', auth(), admin, wrap(async (req, res) => {
   const name = req.body.name ? String(req.body.name).trim().slice(0, 100) : t.name;
   let cos = t.companies; if (req.body.companies !== undefined) { cos = cleanCompanies(req.body.companies); if (cos === undefined) return res.status(400).json({ error: 'bad' }); }
   const color = req.body.color !== undefined && /^#[0-9a-fA-F]{6}$/.test(String(req.body.color)) ? String(req.body.color).toLowerCase() : t.color;
-  await q('UPDATE users SET role=$2, disabled=$3, name=$4, companies=$5, color=$6 WHERE id=$1', [t.id, role, disabled, name, cos ? JSON.stringify(cos) : null, color]);
+  let email = t.email;
+  if (req.body.email !== undefined) {
+    const e = String(req.body.email || '').trim().toLowerCase().slice(0, 200), nxt = e || (t.username + '@no-email.local');
+    if (!/^[^@\s]{1,64}@[^@\s]{1,200}$/.test(nxt)) return res.status(400).json({ error: 'bad' });
+    if (nxt !== t.email) { const d = await q('SELECT 1 FROM users WHERE lower(email)=$1 AND id<>$2', [nxt, t.id]); if (d.rows.length) return res.status(409).json({ error: 'dupe' }); email = nxt; }
+  }
+  await q('UPDATE users SET role=$2, disabled=$3, name=$4, companies=$5, color=$6, email=$7 WHERE id=$1', [t.id, role, disabled, name, cos ? JSON.stringify(cos) : null, color, email]);
   if (disabled || role !== t.role) await q('DELETE FROM sessions WHERE user_id=$1', [t.id]);
   audit(req.u.id, 'user.update', t.email, { role, disabled }, req.ip); res.json({ ok: true });
 }));
@@ -367,6 +373,14 @@ app.post('/api/tg/send-now', limit('tgnow', 20, 10 * 60e3), auth(), admin, wrap(
   if (!TG.enabled()) return res.status(503).json({ error: 'off' }); const { DB, S } = await loadAll(); const r = await TG.sendWorkersList(S, DB, true); res.json({ ok: !!r.ok, error: r.ok ? null : r.description });
 }));
 
+app.post('/api/invoices/:id/telegram', limit('tginv', 30, 10 * 60e3), auth(), staff, wrap(async (req, res) => {
+  if (!TG.enabled()) return res.json({ ok: false, error: 'off' });
+  let { DB, S } = await loadAll(); const A = allowedOf(req.u); if (A) DB = scopeState(DB, A);
+  const inv = (DB.inv || []).find(x => x.id === req.params.id); if (!inv) return res.status(404).json({ error: 'none' });
+  const tU = (DB.trucks || []).find(x => x.id === inv.truck), lU = (DB.trailers || []).find(x => x.id === inv.trailer), cU = (S.comps || []).find(c => c.id === ((tU && tU.company) || (lU && lU.company)));
+  if (!((cU && cU.inv) || (S.tg && S.tg.inv))) return res.json({ ok: false, error: 'nogroup' });
+  await TG.notifyNewInvoices([inv], 'https://' + req.get('host')); audit(req.u.id, 'invoice.telegram', inv.id, null, req.ip); res.json({ ok: true });
+}));
 app.get('/healthz', (req, res) => res.type('text').send('ok'));
 app.use('/api', (req, res) => res.status(404).json({ error: 'none' }));
 app.use(express.static(path.join(__dirname, 'public'), { index: 'index.html', maxAge: 0, setHeaders: r => r.setHeader('Cache-Control', 'no-cache') }));
