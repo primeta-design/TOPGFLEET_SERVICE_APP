@@ -526,6 +526,7 @@ function field(f){const v=f.val??"",id="f_"+f.k,rq=f.req?'<span class="rq"> *</s
  else if(f.t=="textarea")inp=`<textarea id="${id}" name="${f.k}" rows="${f.rows||3}" placeholder="${esc(f.ph||"")}">${esc(v)}</textarea>`;
  else if(f.t=="check")return `<label class="ck"><input type="checkbox" id="${id}" name="${f.k}" ${v?"checked":""}> ${f.l}</label>`;
  else if(f.t=="html")return `<div class="fd">${f.html}</div>`;
+ else if(f.t=="files")return attField(f);
  else if(f.t=="password")inp=`<div class="pwd"><input type="password" id="${id}" name="${f.k}" placeholder="${esc(f.ph||"")}" autocomplete="new-password" data-i="pw"><button type="button" class="bi" data-a="eye" aria-label="Show">${ic("eye",16)}</button></div><div class="bars"><i></i><i></i><i></i><i></i></div>`;
  else inp=`<input id="${id}" name="${f.k}" type="${f.t||"text"}" value="${esc(v)}" placeholder="${esc(f.ph||"")}" ${f.list?`list="${f.list}"`:""} ${f.min!=null?`min="${f.min}"`:""} ${f.step?`step="${f.step}"`:""} autocomplete="off">`;
  return `<div class="fd ${f.half?"h":""}"><label for="${id}">${f.l}${rq}${op}</label>${inp}${f.hint?`<div class="hn">${f.hint}</div>`:""}</div>`}
@@ -974,15 +975,15 @@ PAGES.documents=()=>{const s=dcS(),U=unitsDocs(),q=s.q.toLowerCase();
  const L=U.filter(u=>(s.f=="all"||(s.f=="exp"&&u.exp)||(s.f=="soon"&&u.soon)||(s.f=="miss"&&u.miss.length))&&(!q||(u.num+" "+u.docs.map(d=>d.title).join(" ")).toLowerCase().includes(q))).sort((a,b)=>natCmp(a.num,b.num));
  return `<div class="pg n"><div class="row" style="margin:4px 0 14px"><h1 style="margin:0;font-size:20px;flex:1">${t("documents")}</h1><div class="gs" style="width:220px;display:block">${ic("srch",15)}<input data-i="dcQ" value="${esc(s.q)}" placeholder="${esc(t("d_q"))}" aria-label="${esc(t("d_q"))}"></div><button class="b bp" data-a="addDoc">${ic("plus",14)} ${t("d_add")}</button></div>
 <div style="margin-bottom:12px">${tabsH([["all",t("d_units"),n.all],["exp",t("d_exp"),n.exp],["soon",t("d_30"),n.soon],["miss",t("d_miss"),n.miss]],s.f,"dcTab")}</div>
-${!U.length?`<div class="card">${empty("folder",t("d_empty"))}</div>`:L.length?L.map(u=>`<div class="card cp" style="margin-bottom:10px"><div class="row" style="margin-bottom:6px"><b>${ic(u.kind=="truck"?"truck":"box",15)} ${esc(u.num)}</b>${u.miss.length?tag(t("d_missing_l",u.miss.map(m=>t("dt_"+m)).join(", ")),"var(--am)"):""}</div>${u.docs.length?u.docs.map(d=>{const st=docSt(d);return `<div class="row" style="padding:6px 0;border-top:1px solid var(--ln);flex-wrap:nowrap;cursor:pointer" data-a="openDoc" data-id="${d.id}"><div style="flex:1"><b>${esc(d.title||t("dt_"+d.type))}</b> <span class="mu">${t("dt_"+d.type)}${d.file?" · "+esc(d.file):""}</span></div>${d.exp?tag(`${t("d_expires")} ${fd(d.exp)}`,st=="over"?"var(--rd)":st=="soon"?"var(--am)":"var(--gn)"):""}</div>`}).join(""):`<div class="mu">–</div>`}</div>`).join(""):`<div class="em" style="padding:40px">${t("d_nomatch")}</div>`}</div>`};
+${!U.length?`<div class="card">${empty("folder",t("d_empty"))}</div>`:L.length?L.map(u=>`<div class="card cp" style="margin-bottom:10px"><div class="row" style="margin-bottom:6px"><b>${ic(u.kind=="truck"?"truck":"box",15)} ${esc(u.num)}</b>${u.miss.length?tag(t("d_missing_l",u.miss.map(m=>t("dt_"+m)).join(", ")),"var(--am)"):""}</div>${u.docs.length?u.docs.map(d=>{const st=docSt(d);return `<div class="row" style="padding:6px 0;border-top:1px solid var(--ln);flex-wrap:nowrap;cursor:pointer" data-a="openDoc" data-id="${d.id}"><div style="flex:1"><b>${esc(d.title||t("dt_"+d.type))}</b> ${attBadge(d)} <span class="mu">${t("dt_"+d.type)}${d.file?" · "+esc(d.file):""}</span></div>${d.exp?tag(`${t("d_expires")} ${fd(d.exp)}`,st=="over"?"var(--rd)":st=="soon"?"var(--am)":"var(--gn)"):""}</div>`}).join(""):`<div class="mu">–</div>`}</div>`).join(""):`<div class="em" style="padding:40px">${t("d_nomatch")}</div>`}</div>`};
 A.dcTab=el=>{dcS().f=el.dataset.v;page()};I.dcQ=el=>{dcS().q=el.value;page()};A.addDoc=()=>docForm();A.openDoc=el=>docForm(el.dataset.id);
 function docForm(id){const d=id?byId(DB.docs,id):null,f=d||{};if(!DB.trucks.length&&!DB.trailers.length){toast(t("d_empty"),"er");return}
  const cur=d?(d.kind=="truck"?truckNum(d.uid):trailerNum(d.uid)):"";
  openForm({title:d?esc(d.title||t("dt_"+d.type)):t("d_add"),sub:t("d_add_s"),icon:"folder",save:d?t("save"):t("d_add"),
  fields:[{k:"unit",l:t("d_unit"),req:true,ph:t("d_unit_ph"),list:"units",val:cur},{k:"type",l:t("d_type"),half:true,t:"select",o:["reg","ins","perm","ann","other"].map(k=>[k,t("dt_"+k)]),val:f.type||"reg"},{k:"exp",l:t("d_expires"),half:true,t:"date",val:f.exp},
- {k:"title",l:t("d_title"),opt:true,ph:t("d_title_ph"),val:f.title},{k:"file",l:t("d_file"),opt:true,t:"text",ph:"registration-2026.pdf",val:f.file},{k:"vis",l:t("d_vis"),t:"check",val:f.vis!==false},{k:"notes",l:t("d_notes"),opt:true,t:"textarea",rows:2,val:f.notes}],
+ {k:"title",l:t("d_title"),opt:true,ph:t("d_title_ph"),val:f.title},{k:"files",t:"files",val:f.files,old:f.file},{k:"vis",l:t("d_vis"),t:"check",val:f.vis!==false},{k:"notes",l:t("d_notes"),opt:true,t:"textarea",rows:2,val:f.notes}],
  check:o=>unitByNum(o.unit)?null:t("iv_need"),del:d?()=>{DB.docs=DB.docs.filter(x=>x.id!=id);refresh()}:null,
- onSave:o=>{const u=unitByNum(o.unit),kind=DB.trucks.includes(u)?"truck":"trailer",{unit,...r}=o;const row={...r,kind,uid:u.id};if(d)Object.assign(d,row);else DB.docs.push({id:uid(),...row});closeDr();refresh()}})}
+ onSave:o=>{const u=unitByNum(o.unit),kind=DB.trucks.includes(u)?"truck":"trailer",{unit,files,...r}=o;const row={...r,files:parseFiles(files),kind,uid:u.id};if(d)Object.assign(d,row);else DB.docs.push({id:uid(),...row});closeDr();refresh()}})}
 
 /* ===== VIOLATION REPORT ===== */
 PAGES.violations=()=>{const p=PG.vp||"";const opts=[["today",t("v_today")],["yest",t("v_yest")],["3",t("v_3")],["7",t("v_7")],["c",t("v_c")]];
@@ -1012,7 +1013,7 @@ ${s.per=="custom"?`<input type="date" data-c="ivF" data-k="a" value="${s.a}" sty
 ${!DB.inv.length?`<div class="card">${empty("receipt",t("iv_noyet"),`<button class="b bp" data-a="addInv">${t("iv_first")}</button>`)}</div>`:`<div class="vl"><div class="card cp"><div class="lbl">${t("iv_exu")}</div>${top.length?top.map(([n,v])=>`<div class="row" style="justify-content:space-between;padding:5px 0;cursor:pointer" data-a="ivPick" data-n="${esc(n.split(" + ")[0])}"><b>${esc(n)}</b><span>${money(v)}</span></div>`).join(""):`<div class="mu">${t("iv_noyet")}</div>`}
 <div class="lbl" style="margin-top:18px">${t("iv_brk")}</div>${tabsH([["unit",t("iv_bu")],["reason",t("iv_br")],["month",t("iv_bm")],["who",t("iv_bp")],["pm",t("iv_bpm")]],s.tab,"ivTab")}
 <div style="margin-top:10px">${br.length?br.map(([n,v])=>`<div style="margin:6px 0"><div class="row" style="justify-content:space-between;font-size:12px"><span>${esc(n)}</span><b>${money(v)}</b></div><div style="height:6px;border-radius:3px;background:var(--p2)"><div style="height:6px;border-radius:3px;background:var(--ac);width:${Math.round(v/mx*100)}%"></div></div></div>`).join(""):`<div class="mu">${t("iv_nb")}</div>`}</div></div>
-<div><div class="lbl">${t("iv_list")}</div>${L.length?L.map(x=>{const a=invAlloc(x);return `<div class="card cp row" style="margin-bottom:8px;cursor:pointer;flex-wrap:nowrap" data-a="openInv" data-id="${x.id}"><div class="ico">${ic("receipt",15)}</div><div style="flex:1;min-width:0"><b>${esc(invUnits(x))}</b> · ${t("r_t_"+x.reason)}<div class="mu" style="font-size:12px">${esc(x.desc||"–")} · ${fd(x.date)}${x.num?" · #"+esc(x.num):""}</div></div><div style="text-align:right"><b>${money(x.amt)}</b><div class="mu" style="font-size:11px">${x.who=="sp"?t("w_sp"):t(WHO_L[x.who])}</div></div></div>`}).join(""):`<div class="em" style="padding:30px">${t("iv_none")}</div>`}</div></div>`}</div>`};
+<div><div class="lbl">${t("iv_list")}</div>${L.length?L.map(x=>{const a=invAlloc(x);return `<div class="card cp row" style="margin-bottom:8px;cursor:pointer;flex-wrap:nowrap" data-a="openInv" data-id="${x.id}"><div class="ico">${ic("receipt",15)}</div><div style="flex:1;min-width:0"><b>${esc(invUnits(x))}</b> · ${t("r_t_"+x.reason)}<div class="mu" style="font-size:12px">${esc(x.desc||"–")} · ${fd(x.date)}${x.num?" · #"+esc(x.num):""} ${attBadge(x)}</div></div><div style="text-align:right"><b>${money(x.amt)}</b><div class="mu" style="font-size:11px">${x.who=="sp"?t("w_sp"):t(WHO_L[x.who])}</div></div></div>`}).join(""):`<div class="em" style="padding:30px">${t("iv_none")}</div>`}</div></div>`}</div>`};
 I.ivQ=el=>{ivS().q=el.value;page()};I.ivUnit=el=>{ivS().unit=el.value.trim();page()};A.ivUnitClr=()=>{ivS().unit="";page()};A.ivPick=el=>{ivS().unit=el.dataset.n;page()};C.ivF=el=>{ivS()[el.dataset.k]=el.value;page()};A.ivTab=el=>{ivS().tab=el.dataset.v;page()};
 A.addInv=()=>invForm();A.openInv=el=>invForm(el.dataset.id);
 A.ivExport=()=>{const L=invFiltered();download("invoices.csv",csv([t("iv_date"),t("tl_unit"),t("iv_reason"),t("iv_desc"),t("iv_amt"),t("iv_method"),t("iv_who"),t("iv_num"),t("m_vendor")],L.map(x=>[x.date,invUnits(x),t("r_t_"+x.reason),x.desc,x.amt,t("pm_"+x.method),x.who=="sp"?t("w_sp"):t(WHO_L[x.who]),x.num,x.vendor])))};
@@ -1032,10 +1033,10 @@ function invForm(id){const x=id?byId(DB.inv,id):null,f=x||{};PG.sp={by:f.sby||"p
  {k:"reason",l:t("iv_reason"),half:true,t:"select",o:REASONS.map(k=>[k,t("r_t_"+k)]),val:f.reason||"truck"},{k:"method",l:t("iv_method"),half:true,t:"select",o:METHODS.map(k=>[k,t("pm_"+k)]),val:f.method||"efs"},
  {k:"desc",l:t("iv_desc"),t:"textarea",rows:2,ph:t("iv_desc_ph"),val:f.desc},{k:"who",l:t("iv_who"),t:"select",o:WHO.map(k=>[k,t(WHO_L[k])]),val:f.who||"co"},{k:"sp",t:"html",html:`<div id="spl"></div>`},
  {k:"mgr",l:t("iv_mgr"),opt:true,ph:t("iv_mgr_ph"),val:f.mgr},{k:"num",l:t("iv_num"),half:true,opt:true,val:f.num},{k:"vendor",l:t("m_vendor"),half:true,opt:true,val:f.vendor},{k:"notes",l:t("m_note"),opt:true,t:"textarea",rows:2,val:f.notes},
- {k:"file",l:t("iv_file"),opt:true,hint:t("iv_drop2"),ph:"invoice.pdf",val:f.file}],
+ {k:"files",t:"files",val:f.files,old:f.file}],
  check:o=>{if(!o.tn&&!o.tl)return t("iv_need");if(o.who=="sp"){const sum=PG.sp.rows.reduce((a,r)=>a+(+r.v||0),0),want=PG.sp.by=="pct"?100:+o.amt;if(Math.abs(sum-want)>0.009)return t("iv_bad")}return null},
  del:x?()=>{DB.inv=DB.inv.filter(y=>y.id!=id);refresh()}:null,
- onSave:o=>{const{tn,tl,sp,...r}=o,row={...r,truck:tn,trailer:tl,amt:+o.amt,split:o.who=="sp"?PG.sp.rows.map(q=>({p:q.p,v:+q.v||0})):[],sby:PG.sp.by};if(x)Object.assign(x,row);else DB.inv.push({id:uid(),...row});closeDr();refresh()}});
+ onSave:o=>{const{tn,tl,sp,files,...r}=o,row={...r,files:parseFiles(files),truck:tn,trailer:tl,amt:+o.amt,split:o.who=="sp"?PG.sp.rows.map(q=>({p:q.p,v:+q.v||0})):[],sby:PG.sp.by};if(x)Object.assign(x,row);else DB.inv.push({id:uid(),...row});closeDr();refresh()}});
  setTimeout(()=>{const w=$("#f_who"),am=$("#f_amt");if(w){w.onchange=spDraw;spDraw()}if(am)am.addEventListener("input",spBal)},50)}
 A.ivReport=()=>{const L=invFiltered();if(!L.length){modal({title:t("ir_t"),icon:"file",w:420,body:`<div class="em">${t("ir_none")}</div>`,foot:`<button class="b" data-a="mdClose">${t("close")}</button>`});return}
  const st=PG.ir={ord:"exp",det:true},draw=()=>{const m={};L.forEach(x=>{const k=invUnits(x);(m[k]=m[k]||[]).push(x)});let U=Object.entries(m).map(([k,a])=>[k,a,a.reduce((s,x)=>s+(+x.amt||0),0)]);U.sort(st.ord=="exp"?(a,b)=>b[2]-a[2]:(a,b)=>natCmp(a[0],b[0]));PG.irU=U;const mx=Math.max(1,...U.map(u=>u[2]));
@@ -1245,6 +1246,51 @@ A.trReport=()=>{const R=PG.rp=PG.rp||{scope:"board",sort:"status"},cols=[t("tl_u
   $("#rxl").onclick=()=>exportXlsx("trucks",cols,rows,t("tr_rep"),[t("tr_miles")]);
   $("#rpd").onclick=()=>exportPdf("trucks",t("tr_rep"),cols,rows,`TOPGFLEET · ${new Date().toLocaleString()} · ${rows.length} ${t("t_total")}`)};
  A.rpSet=el=>{R[el.dataset.k]=el.dataset.v;draw()};draw()};
+/* ===== ATTACHMENTS: choose / drag & drop / paste, upload to the server ===== */
+Object.assign(D,{
+att_t:["Attachments","Fayllar","Файлы"],att_pick:["Choose files","Fayl tanlash","Выбрать файлы"],
+att_hint:["Or drag & drop here, or paste a screenshot (Ctrl+V). PDF, JPG, PNG up to 20 MB.","Yoki shu yerga tashlang, yoki rasmni qo‘ying (Ctrl+V). PDF, JPG, PNG, 20 MB gacha.","Или перетащите сюда, или вставьте скриншот (Ctrl+V). PDF, JPG, PNG до 20 МБ."],
+att_up:["Uploading…","Yuklanmoqda…","Загрузка…"],att_bad:["Only PDF, JPG or PNG files can be attached.","Faqat PDF, JPG yoki PNG biriktiriladi.","Можно прикрепить только PDF, JPG или PNG."],
+att_big:["That file is too large (max 20 MB).","Fayl juda katta (20 MB gacha).","Файл слишком большой (макс. 20 МБ)."],att_wait:["Wait until the upload finishes.","Yuklash tugashini kuting.","Дождитесь окончания загрузки."],
+att_rm:["Remove","Olib tashlash","Убрать"],att_fail:["Upload failed. Try again.","Yuklab bo‘lmadi. Qayta urining.","Не удалось загрузить. Повторите."],att_open:["Open","Ochish","Открыть"],att_old:["Earlier file name","Avvalgi fayl nomi","Прежнее имя файла"]});
+P.paperclip='<path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>';
+let FS={items:[],busy:0};
+const fsz=n=>n<1024?n+" B":n<1048576?Math.round(n/1024)+" KB":(n/1048576).toFixed(1)+" MB";
+function attField(f){FS={items:Array.isArray(f.val)?f.val.map(x=>({...x,done:1})):[],busy:0,old:f.old||""};
+ return `<div class="fd"><label>${t("att_t")}</label><div id="dz" tabindex="0" style="border:1.5px dashed var(--bd);border-radius:12px;padding:12px;transition:.15s">
+<div class="row" style="gap:10px;flex-wrap:nowrap;align-items:center"><button type="button" class="b" data-a="fPick" style="flex:none">${ic("paperclip",15)} ${t("att_pick")}</button><span class="mu" style="font-size:12px">${t("att_hint")}</span></div>
+<input type="file" id="fin" multiple accept="application/pdf,image/*" hidden><input type="hidden" name="files" id="fval" value="[]"><div id="flist" style="margin-top:8px"></div></div></div>`}
+function fsDraw(){const L=$("#flist"),h=$("#fval");if(!L)return;
+ h.value=JSON.stringify(FS.items.filter(x=>x.done).map(({id,name,type,size})=>({id,name,type,size})));
+ L.innerHTML=(FS.old?`<div class="mu" style="font-size:12px;margin-bottom:6px">${t("att_old")}: ${esc(FS.old)}</div>`:"")+FS.items.map((x,i)=>`<div class="row" style="gap:10px;flex-wrap:nowrap;padding:6px 0;border-top:1px solid var(--ln)">
+${x.type&&x.type.startsWith("image/")?`<img src="${x.prev||"/api/files/"+x.id}" alt="" style="width:38px;height:38px;object-fit:cover;border-radius:7px;flex:none">`:`<span style="width:38px;height:38px;border-radius:7px;background:var(--cd2,rgba(127,127,127,.15));display:grid;place-items:center;flex:none">${ic("file",16)}</span>`}
+<div style="flex:1;min-width:0"><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b>${esc(x.name)}</b></div><small class="mu">${x.err?`<span style="color:var(--rd)">${esc(x.err)}</span>`:x.done?fsz(x.size):t("att_up")}</small></div>
+${x.done?`<a class="b bs" href="/api/files/${x.id}" target="_blank" rel="noopener" style="text-decoration:none">${t("att_open")}</a>`:""}<button type="button" class="bi" data-a="fDel" data-n="${i}" aria-label="${t("att_rm")}">${ic("x",14)}</button></div>`).join("")}
+function shrink(file){return new Promise(res=>{const ok=/^image\/(jpeg|png)$/.test(file.type);
+ if(!file.type.startsWith("image/")||(ok&&file.size<2.5e6))return res(file);
+ const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{try{const m=2400,k=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);
+  c.toBlob(b=>{URL.revokeObjectURL(u);res(b?new File([b],file.name.replace(/\.[^.]+$/,"")+".jpg",{type:"image/jpeg"}):file)},"image/jpeg",.85)}catch(e){URL.revokeObjectURL(u);res(file)}};
+ im.onerror=()=>{URL.revokeObjectURL(u);res(file)};im.src=u})}
+async function fsAdd(files){if(!$("#dz"))return;
+ for(const f0 of files){const isPdf=f0.type=="application/pdf"||/\.pdf$/i.test(f0.name),isImg=f0.type.startsWith("image/");
+  if(!isPdf&&!isImg){toast(t("att_bad"),"er");continue}
+  const file=isPdf?(f0.type?f0:new File([f0],f0.name,{type:"application/pdf"})):await shrink(f0);
+  if(!/^(application\/pdf|image\/jpeg|image\/png)$/.test(file.type)){toast(t("att_bad"),"er");continue}
+  if(file.size>20*1048576){toast(t("att_big"),"er");continue}
+  const it={name:file.name||"file",type:file.type,size:file.size,done:0,prev:file.type.startsWith("image/")?URL.createObjectURL(file):""};FS.items.push(it);FS.busy++;fsDraw();
+  try{const r=await fetch("/api/files",{method:"POST",credentials:"same-origin",headers:{"Content-Type":file.type,"X-Filename":encodeURIComponent(it.name),"X-Requested-With":"tf"},body:file});
+   if(!r.ok)throw 0;const j=await r.json();it.id=j.id;it.done=1}catch(e){it.err=t("att_fail")}
+  FS.busy--;if(it.err){setTimeout(()=>{FS.items=FS.items.filter(x=>x!==it);fsDraw()},2500)}fsDraw()}}
+A.fPick=()=>{const i=$("#fin");if(i)i.click()};
+A.fDel=el=>{FS.items.splice(+el.dataset.n,1);fsDraw()};
+document.addEventListener("change",e=>{if(e.target&&e.target.id=="fin"){fsAdd([...e.target.files]);e.target.value=""}});
+["dragenter","dragover"].forEach(ev=>document.addEventListener(ev,e=>{const z=$("#dz");if(!z||!e.dataTransfer||![...e.dataTransfer.types].includes("Files"))return;e.preventDefault();z.style.borderColor="var(--ac)";z.style.background="color-mix(in srgb,var(--ac) 8%,transparent)"}));
+["dragleave","drop"].forEach(ev=>document.addEventListener(ev,e=>{const z=$("#dz");if(!z)return;if(ev=="dragleave"&&e.relatedTarget&&document.body.contains(e.relatedTarget))return;z.style.borderColor="";z.style.background=""}));
+document.addEventListener("drop",e=>{if(!$("#dz")||!e.dataTransfer)return;e.preventDefault();fsAdd([...e.dataTransfer.files])});
+document.addEventListener("paste",e=>{if(!$("#dz")||!e.clipboardData)return;const fl=[...e.clipboardData.files];if(fl.length){e.preventDefault();fsAdd(fl)}});
+const _drSave=A.drSave;A.drSave=function(){if(FS.busy>0&&$("#dz")){toast(t("att_wait"),"er");return}return _drSave.apply(this,arguments)};
+const parseFiles=s=>{try{const a=JSON.parse(s||"[]");return Array.isArray(a)?a.filter(x=>x&&/^[A-Za-z0-9_-]{1,40}$/.test(x.id)).map(x=>({id:x.id,name:String(x.name||"file").slice(0,120),type:x.type,size:+x.size||0})):[]}catch(e){return[]}};
+const attBadge=x=>x.files&&x.files.length?`<span class="mu" title="${esc(t("att_t"))}" style="display:inline-flex;align-items:center;gap:3px;font-size:12px">${ic("paperclip",12)}${x.files.length}</span>`:"";
 /* ===== SERVER MODE: real login, shared data, sync =====
    When /api answers (the site is served by server.js) the app uses the server.
    Anywhere else (a preview, a file on disk) it falls back to the local demo mode. */
