@@ -37,7 +37,7 @@ a{color:var(--ac);text-decoration:none}a:hover{text-decoration:underline}svg{fle
 .usr{display:flex;gap:8px;align-items:center;border:1px solid var(--ln);border-radius:9px;padding:3px 10px 3px 4px;background:var(--pn);cursor:pointer}
 .av{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:10.5px;font-weight:700;color:#fff;flex:none}
 main{flex:1;overflow:auto;padding:18px 22px 90px}
-.pg{max-width:1160px;margin:0 auto}.pg.w{max-width:none}.pg.n{max-width:760px}
+.pg{max-width:1160px;margin:0 auto}.pg.w{max-width:none}.pg.n{max-width:760px}.pg.m{max-width:980px}
 .card{background:var(--pn);border:1px solid var(--ln);border-radius:12px;margin-bottom:14px}
 .cp{padding:16px 18px}
 .ch{display:flex;align-items:center;gap:10px;padding:12px 16px;flex-wrap:wrap}
@@ -84,7 +84,7 @@ tr.rw{cursor:pointer}tr.rw:hover td{background:var(--p2)}
 .tbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}.tbar input.q{width:260px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
 .tc{padding:13px 14px;cursor:pointer;margin:0}.tc:hover{border-color:var(--ac)}
-.tc .h{display:flex;align-items:center;gap:8px;margin-bottom:4px}.tc .h b{font-size:15px}
+.tc .h{display:flex;align-items:center;gap:8px;margin-bottom:4px}.tc .h b{font-size:15px}.tc .un{display:inline-flex;align-items:center;gap:6px;background:color-mix(in srgb,var(--ac) 14%,transparent);border-radius:7px;padding:2px 8px}.tc .un i{font-style:normal;font-size:10px;font-weight:800;color:var(--ac)}.tc .bd{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .bd{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
 .sec{margin:16px 0 8px;font-weight:700;display:flex;align-items:center}.sec span{color:var(--mu);margin-left:8px;font-weight:500}
 .tog{width:34px;height:20px;border-radius:10px;background:var(--ln);border:0;position:relative;padding:0;flex:none}.tog i{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .12s}
@@ -214,7 +214,7 @@ a_cab:["Cab card","Cab card","Cab card"],a_cab_exp:["expired","muddati tugagan",
 /* trucks */
 t_view_b:["Board","Taxta","Доска"],t_view_t:["Table","Jadval","Таблица"],t_work:["Working trucks","Ishlayotgan trucklar","Рабочие грузовики"],
 t_setup:["SET UP","SOZLASH","НАСТРОИТЬ"],t_dnw:["Driver, not working","Driver bor, ishlamaydi","Есть водитель, не работает"],
-t_nod:["No driver","Driver yo‘q","Нет водителя"],t_oi:["Open issues","Ochiq muammolar","Открытые проблемы"],t_total:["Trucks","Trucklar","Грузовики"],
+tc_since:["Since","Beri","Уже"],tc_notl:["No trailer","Treyler yo‘q","Нет трейлера"],tc_noloc:["No location","Joylashuv yo‘q","Нет локации"],tc_note:["Add a note…","Izoh qo‘shish…","Добавить заметку…"],tr_info:["Truck details","Truck ma‘lumoti","Данные трака"],t_nod:["No driver","Driver yo‘q","Нет водителя"],t_oi:["Open issues","Ochiq muammolar","Открытые проблемы"],t_total:["Trucks","Trucklar","Грузовики"],
 t_sync:["Sync vehicles","Mashinalarni sinxronlash","Синхр. машины"],t_syncm:["Sync mileage","Probegni sinxronlash","Синхр. пробег"],
 t_add:["Add truck","Truck qo‘shish","Добавить грузовик"],t_q:["Search by unit #, driver, VIN or plate","Unit, driver, VIN yoki raqam bo‘yicha izlash","Поиск по юниту, водителю, VIN или номеру"],
 t_adv:["Advanced filter","Qo‘shimcha filtr","Расширенный фильтр"],t_sort:["Sort","Saralash","Сортировка"],
@@ -569,21 +569,22 @@ function todayData(){const R={cant:[],blk:[],soon:[]};
 function effPrio(i){if(i.sched){const d=dd(i.sched),n=S.prio.length;const k=d<=0?0:d<=2?Math.min(1,n-1):n-1;return S.prio[k]}return prioOf(i.pr)||S.prio[S.prio.length-1]}
 
 /* ===== router / events ===== */
-const ROUTES={today:"today",alerts:"alerts",trucks:"trucks",trailers:"trailers",hookdrop:"hook-drop",drivers:"drivers",maintenance:"maintenance",pti:"pti",inspections:"inspections",documents:"documents",violations:"violation-report",invoices:"invoices",vendors:"vendors",profile:"profile"};
+const ROUTES={today:"dashboard",alerts:"alerts",trucks:"fleet",trailers:"trailers",hookdrop:"hook-drop",drivers:"drivers",maintenance:"maintenance",pti:"pti",inspections:"inspections",documents:"documents",violations:"violation-report",invoices:"invoices",vendors:"vendors",profile:"profile",companies:"companies"};
 const NAVS=[["g_operate",[["today","sun"],["trucks","truck"],["trailers","box"],["hookdrop","swap"],["drivers","card"]]],["g_maint",[["maintenance","wrench"],["pti","send"],["inspections","clip"],["documents","folder"],["violations","shield"]]],["g_records",[["invoices","receipt"],["vendors","store"]]]];
 let V="today",PG={};const PAGES={},A={},I={},C={};
-const viewFromHash=()=>{const h=(location.hash||"").replace(/^#\/?/,"");return Object.keys(ROUTES).find(k=>ROUTES[k]==h)||"today"};
-function go(v){V=v;PG={};const h="#"+ROUTES[v];if(location.hash!=h)history.replaceState(null,"",h);closeDr();closeMd();render()}
-function shell(){const n=alertList().length;
+const viewFromHash=()=>{const h=((typeof SERVER!="undefined"&&SERVER)?location.pathname:(location.hash||"")).replace(/^[#\/]+/,"").replace(/\/$/,"");return Object.keys(ROUTES).find(k=>ROUTES[k]==h)||"today"};
+function go(v){V=v;PG={};if(typeof SERVER!="undefined"&&SERVER){const p="/"+ROUTES[v];if(location.pathname!=p)history.pushState(null,"",p)}else{const h="#"+ROUTES[v];if(location.hash!=h)history.replaceState(null,"",h)}closeDr();closeMd();render()}
+function shell(){return scoped(shell0)}
+function shell0(){const n=alertList().length;
  return `<nav class="sb ${S.sm?"sm":""}" id="sd"><div class="brand"><div class="logo">${logo(20)}</div><span class="brt">TOPG<b>FLEET</b></span></div>${NAVS.map(([g,it])=>`<div class="gp">${t(g)}</div>${it.map(([k,i])=>`<button class="nv ${V==k?"on":""}" data-a="nav" data-v="${k}" title="${esc(t(k))}">${ic(i)}<span class="lb">${t(k)}</span>${k=="today"&&n?`<i>${n}</i>`:""}</button>`).join("")}`).join("")}<div class="sp"></div><button class="nv" data-a="collapse" title="${esc(t("collapse"))}">${ic("col")}<span class="lb">${t("collapse")}</span></button><button class="nv" data-a="logout" title="${esc(t("logout"))}">${ic("out")}<span class="lb">${t("logout")}</span></button></nav>
-<div class="wrap"><div class="top"><button class="bi" data-a="menu" aria-label="Menu">${ic("menu")}</button><h3>${t(V)}</h3><div class="gs pw">${ic("srch",15)}<input id="gq" data-i="gq" placeholder="${esc(t("find"))}" autocomplete="off" aria-label="${esc(t("find"))}"><kbd>/</kbd><div class="pop hide" id="gd" style="left:0;right:0;top:38px"></div></div><div class="sp"></div>
+<div class="wrap"><div class="top"><button class="bi" data-a="menu" aria-label="Menu">${ic("menu")}</button><h3>${t(V)}</h3>${coSwitch()}<div class="gs pw">${ic("srch",15)}<input id="gq" data-i="gq" placeholder="${esc(t("find"))}" autocomplete="off" aria-label="${esc(t("find"))}"><kbd>/</kbd><div class="pop hide" id="gd" style="left:0;right:0;top:38px"></div></div><div class="sp"></div>
 <div class="pw"><button class="bi" data-a="shpop" data-p="bellp" aria-label="${t("alerts")}">${ic("bell")}${n?`<span class="bg2">${n}</span>`:""}</button><div class="pop sh" id="bellp" style="width:300px"><div class="ph"><span>${t("alerts")}</span><span class="mu">${n}</span></div>${n?alertList().slice(0,5).map(a=>`<button class="pi" data-a="openTruck" data-id="${a.tid}"><span class="dt" style="background:${a.st=="over"?"var(--rd)":"var(--am)"}"></span><span><b>${esc(a.unit)}</b> ${esc(a.title)}<br><small class="mu">${esc(a.detail)}</small></span></button>`).join(""):`<div class="em" style="padding:22px">${t("a_caught")}</div>`}<a class="pi" href="#alerts" data-a="nav" data-v="alerts" style="justify-content:center;color:var(--ac)">${t("a_view")}</a></div></div>
-<div class="pw"><div class="usr" data-a="shpop" data-p="userp" tabindex="0" role="button"><span class="av" style="background:${S.col}">${ini(S.name)}</span><span>${esc(S.name)}</span>${ic("chev",14)}</div><div class="pop sh" id="userp" style="width:200px"><button class="pi" data-a="nav" data-v="profile">${ic("user",16)} ${t("profile")}</button><button class="pi dng" data-a="logout">${ic("out",16)} ${t("logout")}</button></div></div></div><main id="c"></main></div>`}
+<div class="pw"><div class="usr" data-a="shpop" data-p="userp" tabindex="0" role="button"><span class="av" style="background:${S.col}">${ini(S.name)}</span><span>${esc(S.name)}</span>${ic("chev",14)}</div><div class="pop sh" id="userp" style="width:200px"><button class="pi" data-a="nav" data-v="profile">${ic("user",16)} ${t("profile")}</button><button class="pi" data-a="nav" data-v="companies">${ic("store",16)} ${t("companies")}</button><button class="pi dng" data-a="logout">${ic("out",16)} ${t("logout")}</button></div></div></div><main id="c"></main></div>`}
 /* loginView(), A.login, A.logout live in g_server.js */
 function render(){theme();const a=$("#app");if(!S.in){a.innerHTML=loginView();a.style.justifyContent="center";return}
- a.style.justifyContent="";a.innerHTML=shell();page()}
+ if(typeof seedCompanies=="function"&&isAdm())seedCompanies();a.style.justifyContent="";a.innerHTML=shell();page()}
 function page(){const c=$("#c");if(!c)return;const ae=document.activeElement,id=ae&&ae.id,ss=ae&&ae.selectionStart,sc=c.scrollTop;
- c.innerHTML=(PAGES[V]||PAGES.today)();c.scrollTop=sc;if(id&&c.querySelector("#"+id)){const n=$("#"+id);n.focus();try{n.setSelectionRange(ss,ss)}catch(e){}}if(PG.after){PG.after()}}
+ c.innerHTML=scoped(PAGES[V]||PAGES.today);c.scrollTop=sc;if(id&&c.querySelector("#"+id)){const n=$("#"+id);n.focus();try{n.setSelectionRange(ss,ss)}catch(e){}}if(PG.after){PG.after()}}
 function shellRefresh(){const sd=$("#sd");if(!sd)return;const keep=sd.classList.contains("open");const a=$("#app");const sc=$("#c")?$("#c").scrollTop:0;a.innerHTML=shell();if(keep)$("#sd").classList.add("open");page();$("#c").scrollTop=sc}
 const refresh=()=>{save();shellRefresh()};
 function closePops(){$$(".pop.sh.open").forEach(p=>p.classList.remove("open"));$("#gd")&&$("#gd").classList.add("hide");if(PG.pop){PG.pop=null;page()}}
@@ -593,7 +594,7 @@ document.addEventListener("change",e=>{const el=e.target.closest("[data-c]");if(
 document.addEventListener("keydown",e=>{if(e.key=="Enter"){const el=e.target.closest("[data-enter]");if(el&&A[el.dataset.enter]){e.preventDefault();A[el.dataset.enter](el,e)}}
  if(e.key=="Escape"){if($("#md").innerHTML)closeMd();else if($("#dr").innerHTML)closeDr();else closePops()}
  if(e.key=="/"&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){const g=$("#gq");if(g){e.preventDefault();g.focus()}}});
-window.addEventListener("hashchange",()=>{const v=viewFromHash();if(S.in&&v!=V){V=v;PG={};render()}});
+const onNav=()=>{const v=viewFromHash();if(S.in&&v!=V){V=v;PG={};render()}};window.addEventListener("hashchange",onNav);window.addEventListener("popstate",onNav);
 
 /* ===== shared actions ===== */
 A.nav=el=>{go(el.dataset.v);$("#sd")&&$("#sd").classList.remove("open")};
@@ -656,7 +657,7 @@ PAGES.today=()=>{const R=todayData(),setup=S.stat.every(s=>s.w==null),on=DB.driv
  let rows;if(!L.length)rows=`<div class="em" style="padding:26px">${fl=="closed"?t("no_closed"):t("no_open")} ${fl!="open"?`<a href="#" data-a="issueTab" data-v="open">${t("show_open")}</a>`:""}</div>`;
  else if(PG.grp){const g={};L.forEach(i=>{const n=(member(i.owner)||{n:t("unassigned")}).n;(g[n]=g[n]||[]).push(i)});rows=Object.entries(g).map(([n,a])=>`<div class="gh">${esc(n)} · ${a.length}</div>${a.map(issueRow).join("")}`).join("")}
  else rows=L.map(issueRow).join("");
- return `<div class="pg"><div class="card"><div class="ch"><h2>${t("needs")}</h2></div><div class="nc3" style="border-top:1px solid var(--ln)">
+ return `<div class="pg m"><div class="card"><div class="ch"><h2>${t("needs")}</h2></div><div class="nc3" style="border-top:1px solid var(--ln)">
 ${col("cant","cantrun","var(--rd)",setup?`${t("cant_a")} <a href="#trucks" data-a="trSetup">${t("cant_b")}</a> ${t("cant_c")}`:t("cant_none"))}${col("blk","blocks","var(--rd)",t("blk_none"))}${col("soon","duesoon","var(--am)",t("soon_none"))}</div>
 <div class="nf"><span><b>${on}</b> ${t("on_duty")}</span><span><b>${off}</b> ${t("off_duty")}</span><span><b>${rev}</b> ${t("insp_rev")}</span><span class="sp"></span><a href="#alerts" data-a="nav" data-v="alerts">${t("every")}</a></div></div>
 <div class="card"><div class="ch"><h2>${t("issues")}</h2>${tabsH([["open",t("i_open"),cnt.open],["high",t("i_high"),cnt.high],["owner",t("i_owner"),cnt.owner],["sched",t("i_sched"),cnt.sched],["closed",t("i_closed"),cnt.closed]],fl,"issueTab")}<span class="sp"></span>
@@ -697,10 +698,19 @@ function trucksFiltered(){const s=trS(),q=s.q.toLowerCase(),a=s.adv;
  L.sort(s.sort=="unit"?(a,b)=>natCmp(a.num,b.num):s.sort=="driver"?(a,b)=>((driverOf(a.id)||{name:"~"}).name).localeCompare((driverOf(b.id)||{name:"~"}).name):s.sort=="miles"?(a,b)=>(+b.miles||0)-(+a.miles||0):s.sort=="comp"?(a,b)=>(compOf(a.company)||{n:"~"}).n.localeCompare((compOf(b.company)||{n:"~"}).n):(a,b)=>si(a)-si(b)||natCmp(a.num,b.num));return L}
 const advN=a=>(a.comp.length?1:0)+["drv","ins","cab","pm"].filter(k=>a[k]!="any").length;
 const pmTag=tr=>{const p=truckPM(tr);return p=="over"?tag(t("pm_over"),"var(--rd)"):p=="soon"?tag(t("pm_soon"),"var(--am)"):p=="ok"?tag(t("pm_ok"),"var(--gn)"):`<span class="mu">–</span>`};
-function truckCard(tr){const d=driverOf(tr.id),c=compOf(tr.company),s=statOf(tr.status),p=truckPM(tr),cab=cabState(tr),ni=DB.issues.filter(i=>i.status!="closed"&&(i.title||"").trim().toLowerCase()==tr.num.toLowerCase()).length;
- return `<div class="card tc" data-a="openTruck2" data-id="${tr.id}"><div class="h">${c?dot(c.c):""}<b>${esc(tr.num)}</b><span class="mu">${c?esc(c.n):""}</span><span class="sp"></span>${s?tag(s.n,s.c):""}</div><div class="mu">${esc([tr.year,tr.make,tr.model].filter(Boolean).join(" "))}</div>
-<div class="row" style="margin-top:8px;justify-content:space-between"><span>${d?`<span class="row" style="gap:6px;flex-wrap:nowrap">${avatar({n:d.name,c:S.col})}${esc(d.name)}</span>`:`<span class="mu">${t("t_nod")}</span>`}</span><span class="mu">${tr.miles!==""&&tr.miles!=null?nf(tr.miles)+" "+t("miles_u"):""}</span></div>
-<div class="bd">${p=="over"?tag(t("pm_over"),"var(--rd)"):p=="soon"?tag(t("pm_soon"),"var(--am)"):""}${cab=="over"?tag(t("cab_over"),"var(--rd)"):cab=="soon"?tag(t("cab_soon"),"var(--am)"):""}${tr.ins=="unc"?tag(t("unc"),"var(--rd)"):""}${ni?tag(t("tr_issues",ni),"var(--am)"):""}</div></div>`}
+const OWNL={co:"C",oo:"O/O",le:"L"};
+function sinceTxt(ts){if(!ts)return"";const m=Math.max(0,Math.round((Date.now()-ts)/60000)),w=m<60?m+"m":m<2880?Math.round(m/60)+"h":Math.round(m/1440)+"d";return t("tc_since")+" "+w}
+A.noop=()=>{};
+C.trStatus=el=>{const tr=byId(DB.trucks,el.dataset.id);if(!tr)return;tr.status=el.value;tr.stAt=Date.now();refresh()};
+C.trNote=el=>{const tr=byId(DB.trucks,el.dataset.id);if(!tr)return;tr.note=el.value.trim();save()};
+function truckCard(tr){const d=driverOf(tr.id),c=compOf(tr.company),s=statOf(tr.status),p=truckPM(tr),cab=cabState(tr),tl=DB.trailers.find(x=>x.truck==tr.id&&!x.archived),ni=DB.issues.filter(i=>i.status!="closed"&&(i.title||"").trim().toLowerCase()==tr.num.toLowerCase()).length,sc=s?s.c:"var(--mu)";
+ const mu=x=>`<span class="tg" style="border:1px dashed var(--bd);background:none;color:var(--mu)">${x}</span>`;
+ return `<div class="card tc" data-a="openTruck2" data-id="${tr.id}"><div class="h"><span class="un">${tr.own&&OWNL[tr.own]?`<i>${OWNL[tr.own]}</i>`:""}<b>${esc(tr.num)}</b></span><span class="mu" style="font-size:12px">${c?dot(c.c)+" "+esc(c.n):""}</span><span class="sp"></span><button class="bi" data-a="openTruck" data-id="${tr.id}" title="${esc(t("tr_info"))}" aria-label="${esc(t("tr_info"))}">${ic("info",16)}</button></div>
+<div class="mu">${esc([tr.year,tr.make,tr.model].filter(Boolean).join(" "))}</div>
+<div class="bd" style="margin-top:8px">${d?`<span class="row" style="gap:6px;flex-wrap:nowrap">${avatar({n:d.name,c:S.col})}${esc(d.name)}</span>`:mu(t("t_nod"))}${tl?tag(tl.num,"var(--ac)"):mu(t("tc_notl"))}${tr.loc?`<span class="tg">${ic("pin",12)} ${esc(tr.loc)}</span>`:mu(t("tc_noloc"))}</div>
+<div class="row" style="margin-top:9px;gap:8px;flex-wrap:nowrap" data-a="noop"><select class="sel" style="color:${sc};border-color:${sc}66;flex:1;min-width:0" data-c="trStatus" data-id="${tr.id}" aria-label="${t("tr_status")}">${S.stat.map(x=>`<option value="${x.id}" ${x.id==tr.status?"selected":""}>${esc(x.n)}</option>`).join("")}</select><small class="mu" style="white-space:nowrap" title="${tr.stAt?esc(new Date(tr.stAt).toLocaleString()):""}">${sinceTxt(tr.stAt)}${tr.stAt?" · "+esc(new Date(tr.stAt).toLocaleString([],{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"})):""}</small></div>
+<div class="bd">${p=="over"?tag(t("pm_over"),"var(--rd)"):p=="soon"?tag(t("pm_soon"),"var(--am)"):""}${cab=="over"?tag(t("cab_over"),"var(--rd)"):cab=="soon"?tag(t("cab_soon"),"var(--am)"):""}${tr.ins=="unc"?tag(t("unc"),"var(--rd)"):""}${ni?tag(t("tr_issues",ni),"var(--am)"):""}${tr.miles!==""&&tr.miles!=null?`<span class="mu" style="margin-left:auto;font-size:12px">${nf(tr.miles)} ${t("miles_u")}</span>`:""}</div>
+<div data-a="noop" style="margin-top:8px"><input type="text" data-c="trNote" data-id="${tr.id}" value="${esc(tr.note||"")}" placeholder="${esc(t("tc_note"))}" style="width:100%;font-size:12px" aria-label="${esc(t("tc_note"))}"></div></div>`}
 function truckTable(L){return `<div class="card tw"><table><tr><th>${t("tl_unit")}</th><th>${t("tr_status")}</th><th>${t("tr_comp")}</th><th>${t("tr_driver")}</th><th>${t("tr_vehicle")}</th><th>${t("tr_plate")}</th><th>${t("tr_miles")}</th><th>${t("tr_pm")}</th><th>${t("tr_cabs")}</th><th>${t("tr_ins2")}</th></tr>${L.map(tr=>{const d=driverOf(tr.id),c=compOf(tr.company),s=statOf(tr.status),cab=cabState(tr);
  return `<tr class="rw" data-a="openTruck2" data-id="${tr.id}"><td><b>${esc(tr.num)}</b></td><td>${s?tag(s.n,s.c):""}</td><td>${c?dot(c.c)+esc(c.n):"–"}</td><td>${d?esc(d.name):`<span class="mu">–</span>`}</td><td>${esc([tr.year,tr.make,tr.model].filter(Boolean).join(" "))}</td><td>${esc(tr.plate)||"–"}</td><td>${tr.miles!==""&&tr.miles!=null?nf(tr.miles):"–"}</td><td>${pmTag(tr)}</td><td>${tr.cab?tag(fd(tr.cab),cab=="over"?"var(--rd)":cab=="soon"?"var(--am)":"var(--gn)"):"–"}</td><td>${tr.ins=="cov"?tag(t("fl_cov"),"var(--gn)"):tr.ins=="unc"?tag(t("unc"),"var(--rd)"):`<span class="mu">–</span>`}</td></tr>`}).join("")}</table></div>`}
 PAGES.trucks=()=>{const s=trS(),L=trucksFiltered(),all=DB.trucks,w=S.stat.some(x=>x.w===true),setup=S.stat.every(x=>x.w==null);
@@ -730,11 +740,6 @@ setInterval(()=>{if(!S.in||V!="trucks"||!PG.tr||!PG.tr.auto)return;PG.tr.left--;
 A.syncV=()=>modal({title:t("t_sync"),sub:t("sync_sub",0,0),icon:"zap",w:440,body:`<input placeholder="${esc(t("sync_q"))}" aria-label="${esc(t("sync_q"))}"><div class="note er" style="margin-top:12px">${t("telem")}</div>`,foot:`<button class="b" data-a="mdClose">${t("cancel")}</button><button class="b bp" disabled>${t("sync_add")}</button>`});
 A.syncM=()=>modal({title:t("t_syncm"),icon:"refresh",w:440,body:`<div class="note er">${t("telem")}</div>`,foot:`<button class="b" data-a="mdClose">${t("close")}</button>`});
 A.trFind=()=>toast(t("telem"),"er");
-A.trReport=()=>{const L=trucksFiltered(),rows=L.map(tr=>{const d=driverOf(tr.id),s=statOf(tr.status),c=compOf(tr.company);return[tr.num,s?s.n:"",c?c.n:"",d?d.name:"",[tr.year,tr.make,tr.model].filter(Boolean).join(" "),tr.miles,tr.cab||""]}),cols=[t("tl_unit"),t("tr_status"),t("tr_comp"),t("tr_driver"),t("tr_vehicle"),t("tr_miles"),t("tr_cabs")];
- const txt=[cols.join("\t")].concat(rows.map(r=>r.join("\t"))).join("\n");
- modal({title:t("tr_rep"),icon:"file",w:760,sub:`${L.length} ${t("t_total")}`,body:`<div class="tw"><table style="min-width:600px"><tr>${cols.map(c=>`<th>${c}</th>`).join("")}</tr>${rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</table></div>`,
- foot:`<button class="b" id="rcp">${t("copy")}</button><button class="b" id="rcs">CSV</button><button class="b bp" id="rpr">${t("print")}</button>`});
- $("#rcp").onclick=()=>copyText(txt);$("#rcs").onclick=()=>download("trucks.csv",csv(cols,rows));$("#rpr").onclick=()=>printHTML(t("tr_rep"),`<table border="1" cellpadding="5" style="border-collapse:collapse;font-family:sans-serif;font-size:12px"><tr>${cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr>${rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</table>`)};
 /* statuses */
 const stWOpts=()=>[["",t("st_ns")],["1",t("st_w")],["0",t("st_nw")]];
 const stRows=()=>S.stat.map((s,i)=>{const used=DB.trucks.some(x=>x.status==s.id);return `<div class="pr"><span style="color:${s.c}">${ic(s.ic,16)}</span><input type="text" value="${esc(s.n)}" data-c="stName" data-i="${i}" aria-label="${t("st_name")}"><select class="sel" style="width:130px" data-c="stW" data-i="${i}">${optH(stWOpts(),s.w===true?"1":s.w===false?"0":"")}</select><button class="bi" data-a="stDel" data-i="${i}" ${used||S.stat.length<2?"disabled":""} title="${used?esc(t("st_used")):""}" aria-label="${t("del")}">${ic("trash",15)}</button></div>`}).join("");
@@ -756,15 +761,15 @@ function openTruck(id){const tr=id?byId(DB.trucks,id):null;if(!S.comps.length){t
  const post=tr?`<div class="lbl" style="margin-top:20px">${ic("wrench",13)} ${t("pl_title")}</div><div id="plans">${plansHTML(id)}</div><div class="note" style="margin-top:8px"><div class="fg" style="gap:8px"><div class="fd"><input id="pn" placeholder="${esc(t("pl_name_ph"))}" aria-label="${t("pl_name")}"></div><div class="fd h"><input id="pe" type="number" min="0" placeholder="${t("pl_emi")}" aria-label="${t("pl_emi")}"></div><div class="fd h"><input id="ped" type="number" min="0" placeholder="${t("pl_ed")}" aria-label="${t("pl_ed")}"></div><div class="fd h"><input id="pl" type="number" min="0" placeholder="${t("pl_lmi")}" aria-label="${t("pl_lmi")}"></div><div class="fd h"><input id="pld" type="date" aria-label="${t("pl_ld")}" title="${t("pl_ld")}"></div></div><button class="b bs" style="margin-top:10px" data-a="planAdd" data-id="${id}">${ic("plus",13)} ${t("pl_add")}</button></div>`:"";
  openForm({title:tr?`${t("tr_edit_t")} ${esc(tr.num)}`:t("tr_add_t"),icon:"truck",pre,post,save:tr?t("save"):t("tr_add_t"),
  fields:[{k:"num",l:t("tr_unit"),req:true,half:true,ph:"4382",val:f.num},{k:"status",l:t("tr_status"),t:"select",half:true,o:S.stat.map(s=>[s.id,s.n]),val:f.status||S.stat[0].id},
- {k:"company",l:t("tr_comp"),req:true,half:true,t:"select",o:[["",t("tr_choosec")],...S.comps.map(c=>[c.id,c.n])],val:f.company||(S.comps.length==1?S.comps[0].id:"")},{k:"ins",l:t("tr_ins"),half:true,t:"select",o:[["",t("notrec")],["cov",t("fl_cov")],["unc",t("fl_unc")]],val:f.ins},
- {k:"own",l:t("tr_own"),half:true,t:"select",o:[["",t("notrec")],["co",t("own_co")],["oo",t("own_oo")],["le",t("own_le")]],val:f.own},{k:"owner",l:t("tr_ownr"),half:true,ph:"John A. Smith",val:f.owner},
+ {k:"company",l:t("tr_comp"),req:true,half:true,t:"select",o:[["",t("tr_choosec")],...S.comps.map(c=>[c.id,c.n])],val:f.company||(curCo()!="all"?curCo():S.comps.length==1?S.comps[0].id:"")},{k:"ins",l:t("tr_ins"),half:true,t:"select",o:[["",t("notrec")],["cov",t("fl_cov")],["unc",t("fl_unc")]],val:f.ins},
+ {k:"own",l:t("tr_own"),half:true,t:"select",o:[["",t("notrec")],["oo","O/O · "+t("own_oo")],["le","L · "+t("own_le")],["co","C · "+t("own_co")]],val:f.own},{k:"owner",l:t("tr_ownr"),half:true,ph:"John A. Smith",val:f.owner},
  {k:"year",l:t("tr_year"),req:true,half:true,t:"number",ph:"2019",val:f.year},{k:"make",l:t("tr_make"),req:true,half:true,ph:"Freightliner",val:f.make},{k:"model",l:t("tr_model"),req:true,ph:"Cascadia",val:f.model},
  {k:"vin",l:t("tr_vin"),req:true,ph:"1FUJGHDV8KLKJ4382",val:f.vin},{k:"plate",l:t("tr_plate"),half:true,ph:"P1215429",val:f.plate},{k:"cab",l:t("tr_cab"),half:true,t:"date",val:f.cab},
  {k:"driver",l:t("tr_driver"),t:"select",o:[["",t("unassigned")],...DB.drivers.map(x=>[x.id,x.name])],val:d?d.id:""},{k:"miles",l:t("tr_miles"),t:"number",min:0,ph:"450000",val:f.miles},
  {k:"tg",l:t("tr_tg"),opt:true,ph:"-1001234567890",hint:t("tr_tg_h"),val:f.tg}],
  check:o=>DB.trucks.some(x=>x.id!=id&&x.num.toLowerCase()==o.num.toLowerCase())?t("dupe"):null,
  del:tr?()=>{DB.trucks=DB.trucks.filter(x=>x.id!=id);DB.plans=DB.plans.filter(p=>p.truck!=id);DB.drivers.forEach(x=>{if(x.truck==id)x.truck=""});DB.trailers.forEach(x=>{if(x.truck==id)x.truck=""});DB.docs=DB.docs.filter(x=>!(x.kind=="truck"&&x.uid==id));delete DB.pti[id];refresh()}:null,
- onSave:o=>{const{driver,...rest}=o;let row=tr;if(tr)Object.assign(tr,rest);else{row={id:uid(),...rest};DB.trucks.push(row)}
+ onSave:o=>{const{driver,...rest}=o;let row=tr;if(!tr||o.status!=tr.status)rest.stAt=Date.now();if(tr)Object.assign(tr,rest);else{row={id:uid(),...rest};DB.trucks.push(row)}
   DB.drivers.forEach(x=>{if(x.truck==row.id&&x.id!=driver)x.truck=""});const dv=byId(DB.drivers,driver);if(dv){DB.drivers.forEach(x=>{if(x.id!=dv.id&&x.truck==row.id)x.truck=""});dv.truck=row.id}
   closeDr();refresh()}});DR.tid=id}
 A.planAdd=el=>{const n=$("#pn").value.trim(),e=+$("#pe").value||0,ed=+$("#ped").value||0;if(!n||(!e&&!ed)){toast(t("pl_need"),"er");return}
@@ -799,13 +804,13 @@ Object.assign(D,{nomatch2:["Nothing matches these filters.","Filtrlarga mos nars
 I.tlq=el=>{tlS().q=el.value;page()};C.tlF=el=>{tlS()[el.dataset.k]=el.value;page()};A.tlChip=el=>{const s=tlS();s.st=s.st==el.dataset.v?"":el.dataset.v;page()};A.tlRefresh=()=>{if(PULL)PULL(true);else{Object.assign(DB,ld("tf2_d",DB));page()}};A.tlArch=()=>{const s=tlS();s.arch=!s.arch;page()};
 C.tlStatus=el=>{byId(DB.trailers,el.dataset.id).status=el.value;refresh()};A.tlRestore=el=>{byId(DB.trailers,el.dataset.id).archived=false;refresh()};
 A.tlAdd=el=>{const n=el.value.trim();if(!n)return;if(DB.trailers.some(x=>x.num.toLowerCase()==n.toLowerCase())){toast(t("dupe"),"er");return}if(!S.comps.length){toast(t("tr_noco"),"er");return}
- DB.trailers.push({id:uid(),num:n,type:"dry",status:"ready",truck:"",loc:"",pnote:"",company:S.comps[0].id,ins:"",year:"",model:"",plate:"",vin:"",notes:"",archived:false});save();page();$("#tla")&&$("#tla").focus()};
+ DB.trailers.push({id:uid(),num:n,type:"dry",status:"ready",truck:"",loc:"",pnote:"",company:curCo()!="all"?curCo():myComps()[0].id,ins:"",year:"",model:"",plate:"",vin:"",notes:"",archived:false});save();page();$("#tla")&&$("#tla").focus()};
 A.addTrailer=()=>openTrailer();A.openTrailer=el=>openTrailer(el.dataset.id);
 function openTrailer(id){const x=id?byId(DB.trailers,id):null,f=x||{};if(!S.comps.length){toast(t("tr_noco"),"er");return}
  openForm({title:x?`${t("tl_add_t").replace(/.*/,t("trailers"))} ${esc(x.num)}`:t("tl_add_t"),sub:x?"":t("tl_add_s"),icon:"box",save:x?t("save"):t("tl_add_t"),
  fields:[{k:"num",l:t("tr_unit"),req:true,half:true,ph:"T-101",val:f.num},{k:"type",l:t("tl_type"),half:true,t:"select",o:TLTY.map(k=>[k,t("ty_"+k)]),val:f.type||"dry"},
  {k:"status",l:t("tr_status"),half:true,t:"select",o:TLST.map(k=>[k,t(STAT_T[k])]),val:f.status||"ready"},{k:"truck",l:t("tl_assign"),half:true,t:"select",o:[["",t("unassigned")],...DB.trucks.map(y=>[y.id,y.num])],val:f.truck},
- {k:"company",l:t("tr_comp"),req:true,half:true,t:"select",o:[["",t("tr_choosec")],...S.comps.map(c=>[c.id,c.n])],val:f.company||S.comps[0].id},{k:"ins",l:t("tr_ins"),half:true,t:"select",o:[["",t("notrec")],["cov",t("fl_cov")],["unc",t("fl_unc")]],val:f.ins},
+ {k:"company",l:t("tr_comp"),req:true,half:true,t:"select",o:[["",t("tr_choosec")],...S.comps.map(c=>[c.id,c.n])],val:f.company||(curCo()!="all"?curCo():myComps()[0].id)},{k:"ins",l:t("tr_ins"),half:true,t:"select",o:[["",t("notrec")],["cov",t("fl_cov")],["unc",t("fl_unc")]],val:f.ins},
  {k:"year",l:t("tr_year"),half:true,t:"number",ph:"2019",val:f.year},{k:"model",l:t("tr_model"),half:true,ph:"Champion",val:f.model},{k:"plate",l:t("tr_plate"),half:true,ph:"TR12345",val:f.plate},{k:"vin",l:t("tr_vin"),half:true,ph:"1GRAA0628KB123456",val:f.vin},
  {k:"loc",l:t("tl_ploc"),ph:t("tl_ploc_ph"),val:f.loc},{k:"pnote",l:t("tl_pnote"),t:"textarea",rows:2,ph:t("tl_pn_ph"),val:f.pnote},{k:"notes",l:t("tl_notes"),t:"textarea",rows:3,ph:t("tl_nt_ph"),val:f.notes}],
  check:o=>DB.trailers.some(y=>y.id!=id&&y.num.toLowerCase()==o.num.toLowerCase())?t("dupe"):null,
@@ -1062,8 +1067,9 @@ function tgSec(){const g=S.tg;return `<p class="mu" style="margin-top:0">${t("tg
 <div class="fg"><div class="fd"><label>${t("tg_work")}</label><input value="${esc(g.work)}" data-i="tgF" data-k="work" placeholder="-1001234567890"></div><div class="fd h"><label>${t("tg_tz")}</label><input value="${esc(g.tz)}" data-i="tgF" data-k="tz"></div></div>
 <div class="row" style="margin-top:10px"><span class="mu">${t("tg_times")}</span>${g.times.map((x,i)=>`<span class="tg" style="gap:6px">${esc(x)} <button class="bi" style="padding:0" data-a="tgTimeDel" data-n="${i}" aria-label="${t("del")}">${ic("x",12)}</button></span>`).join("")}<input type="time" id="tgt" style="width:110px"><button class="b bs" data-a="tgTimeAdd">${ic("plus",13)} ${t("tg_addt")}</button></div>
 <div class="row" style="margin-top:12px"><button class="b" data-a="tgPrev">${t("tg_prev",DB.issues.filter(i=>i.status!="closed"&&effPrio(i).id==S.prio[0].id).length)}</button><button class="b" data-a="tplSend2">${t("tg_now")}</button><button class="b bp" data-a="tgSave">${t("tg_save")}</button></div>`}
-PAGES.profile=()=>{const accs=S.tmAcc||[];
+PAGES.profile=()=>{const accs=S.tmAcc||[],me=(typeof SERVER!="undefined"&&SERVER&&USER)?{name:USER.name,user:USER.username,mail:USER.email,role:USER.role,owner:USER.owner,co:USER.companies}:{name:S.name,user:S.user,mail:S.mail,role:"admin",owner:true,co:null};
  return `<div class="pg"><div class="pfw"><nav class="pfn" id="pfn">${PF.map(([id,k,i])=>`<button class="nv" data-a="pfGo" data-v="${id}" id="pn_${id}">${ic(i,16)}<span class="lb">${t(k)}</span></button>`).join("")}</nav><div>
+<div class="card" style="padding:16px;display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap"><span class="av" style="background:${S.col};width:54px;height:54px;font-size:19px">${ini(me.name)}</span><div style="flex:1;min-width:180px"><h2 style="margin:0;font-size:18px">${esc(me.name)}</h2><div class="mu">@${esc(me.user)} · ${esc(me.mail)}</div></div><div class="bd" style="margin:0">${tag(t(me.owner?"tm_owner":me.role=="admin"?"tm_admin":"tm_member"),"var(--ac)")}${(me.co&&me.co.length?me.co.map(id=>compOf(id)).filter(Boolean):[]).map(x=>tag(x.n,x.c)).join("")||tag(t("cp_all"),"var(--mu)")}</div></div>
 ${secH("app","pf_app",`<p class="mu" style="margin-top:0">${t("pf_app_s")}</p><div class="lbl">${t("th_dark")}</div><div class="ths">${["charcoal","midnight","forest"].map(thumb).join("")}</div><div class="lbl" style="margin-top:14px">${t("th_light")}</div><div class="ths">${["daylight","paper","mist"].map(thumb).join("")}</div>
 <div class="lbl" style="margin-top:16px">${t("pf_col")}</div><p class="mu" style="margin-top:0">${t("pf_col_s")}</p><div class="sw">${USERC.map(c=>`<button class="${S.col==c?"on":""}" style="background:${c}" data-a="setCol" data-v="${c}" aria-label="${c}"></button>`).join("")}</div>`)}
 ${secH("lang","pf_lang",`<p class="mu" style="margin-top:0">${t("pf_lang_s")}</p>${tabsH(LG.map((l,i)=>[l,LN[i]]),S.lang,"lang")}`)}
@@ -1114,10 +1120,123 @@ A.demoLoad=()=>{const co=S.comps[0].id,[sA,sS,sO]=S.stat.map(x=>x.id);S.stat.for
  DB.pti={};T.slice(0,2).forEach(x=>{DB.pti[x.id]={};for(let i=1;i<=5;i++)DB.pti[x.id][addDays(today(),-i)]=(i==2&&x==T[1])?"no":"yes"});
  save();render();toast(t("dm_done"))};
 
+/* ===== COMPANIES: switcher, scoping, page, seed ===== */
+Object.assign(D,{
+companies:["Companies","Kompaniyalar","Компании"],
+cp_all:["All companies","Barcha kompaniyalar","Все компании"],
+cp_sub:["Every carrier you run. Pick one to see only its trucks, trailers and drivers.","Siz yuritadigan barcha kompaniyalar. Birini tanlasangiz, faqat uning truck, treyler va haydovchilari ko‘rinadi.","Все ваши перевозчики. Выберите один, чтобы видеть только его траки, трейлеры и водителей."],
+cp_open:["Open","Ochish","Открыть"],cp_cur:["Viewing","Ko‘rilmoqda","Просмотр"],
+cp_tr:["Trucks","Truck","Траки"],cp_tl:["Trailers","Treyler","Трейлеры"],cp_dr:["Drivers","Haydovchi","Водители"],
+cp_manage:["Manage companies","Kompaniyalarni boshqarish","Управление компаниями"],
+cp_new:["Company name","Kompaniya nomi","Название компании"],cp_add:["Add company","Kompaniya qo‘shish","Добавить компанию"],
+cp_seed:["Add the 14 companies","14 ta kompaniyani qo‘shish","Добавить 14 компаний"],
+cp_adm:["Only administrators can add or edit companies.","Kompaniyani faqat administrator qo‘shadi va tahrirlaydi.","Компании добавляет и меняет только администратор."]});
+const SEED14=["XZYRIA XPRESS INC","DOCK 2 DOCK FREIGHT LLC","KAIZEN LEASING","JMJK TRANSPORT LLC","NOVI TRUCKING INC","TURAN CARGO","RAWDEAL LOGISTICS LLC","B ONE TRUCKING","BELTRANS MVP INC","ESL TRUCKING LLC","TRANZIFY INC","EFRATOV INC","BILLAD TRUCKING LLC","DORAT LOGISTICS LLC"];
+const CO_COLORS=["#3b82f6","#22c55e","#f59e0b","#ef4444","#a855f7","#14b8a6","#ec4899","#84cc16","#f97316","#06b6d4","#6366f1","#eab308","#10b981","#e11d48"];
+function seedCompanies(){
+ if(S.seed14)return;
+ const only=S.comps.length==1&&S.comps[0].n=="TOPGFLEET"&&!DB.trucks.some(x=>x.company==S.comps[0].id)&&!DB.trailers.some(x=>x.company==S.comps[0].id);
+ if(only)S.comps=[];
+ SEED14.forEach((n,i)=>{if(!S.comps.some(c=>c.n.toLowerCase()==n.toLowerCase()))S.comps.push({id:uid(),n,c:CO_COLORS[i%CO_COLORS.length]})});
+ S.seed14=1;save()}
+const myComps=()=>(typeof USER!="undefined"&&USER&&Array.isArray(USER.companies))?S.comps.filter(c=>USER.companies.includes(c.id)):S.comps;
+function curCo(){let v="all";try{v=localStorage.getItem("tf_cur")||"all"}catch(e){}return v!="all"&&myComps().some(c=>c.id==v)?v:"all"}
+function setCur(v){try{localStorage.setItem("tf_cur",v)}catch(e){}}
+function scopeDB(real,cur){
+ const low=x=>String(x||"").trim().toLowerCase();
+ const trucks=real.trucks.filter(x=>x.company==cur),trailers=real.trailers.filter(x=>x.company==cur),tid=new Set(trucks.map(x=>x.id)),rid=new Set(trailers.map(x=>x.id));
+ const mine=new Set([...trucks,...trailers].map(x=>low(x.num))),known=new Set([...real.trucks,...real.trailers].map(x=>low(x.num))),ok=n=>!known.has(low(n))||mine.has(low(n));
+ return Object.assign({},real,{trucks,trailers,
+  drivers:real.drivers.filter(x=>!x.truck||tid.has(x.truck)),issues:real.issues.filter(x=>ok(x.title)),plans:real.plans.filter(x=>tid.has(x.truck)),svc:real.svc.filter(x=>tid.has(x.truck)),
+  docs:real.docs.filter(x=>x.kind=="truck"?tid.has(x.uid):rid.has(x.uid)),inv:real.inv.filter(x=>(!x.truck||tid.has(x.truck))&&(!x.trailer||rid.has(x.trailer))),
+  links:real.links.filter(x=>rid.has(x.trailer)),hist:real.hist.filter(x=>rid.has(x.trailer)),insp:real.insp.filter(x=>ok(x.unit))})}
+function scoped(fn){const cur=curCo();if(cur=="all"||V=="companies"&&fn!==shell0)return fn();const real=DB;DB=scopeDB(real,cur);try{return fn()}finally{DB=real}}
+function coSwitch(){const L=myComps(),cur=curCo(),c=byId(S.comps,cur);if(L.length<2&&cur=="all"&&L.length<1)return"";
+ const n=co=>DB.trucks.filter(x=>x.company==co).length;
+ return `<div class="pw"><button class="chip" data-a="shpop" data-p="cop" style="display:flex;align-items:center;gap:7px;border:1px solid var(--bd);background:var(--cd);color:var(--tx);border-radius:9px;padding:6px 10px;font:600 13px inherit;cursor:pointer" aria-label="${esc(t("companies"))}">${c?dot(c.c)+esc(c.n):ic("store",15)+t("cp_all")}${ic("chev",14)}</button>
+<div class="pop sh" id="cop" style="width:290px;max-height:70vh;overflow:auto"><div class="ph"><span>${t("companies")}</span><span class="mu">${L.length}</span></div>
+<button class="pi" data-a="coPick" data-v="all">${ic("store",16)}<span style="flex:1">${t("cp_all")}</span>${cur=="all"?ic("check",15):""}</button>
+${L.map(x=>`<button class="pi" data-a="coPick" data-v="${x.id}">${dot(x.c)}<span style="flex:1">${esc(x.n)}</span><small class="mu">${n(x.id)}</small>${cur==x.id?ic("check",15):""}</button>`).join("")}
+<button class="pi" data-a="nav" data-v="companies" style="justify-content:center;color:var(--ac)">${t("cp_manage")}</button></div></div>`}
+A.coPick=el=>{setCur(el.dataset.v);closePops();shellRefresh()};
+const isAdm=()=>typeof USER=="undefined"||!USER||USER.role=="admin";
+PAGES.companies=()=>{const L=myComps(),cur=curCo(),adm=isAdm();
+ return `<div class="pg"><div class="ph2"><div><h2 style="margin:0">${t("companies")}</h2><p class="mu" style="margin:4px 0 0">${t("cp_sub")}</p></div></div>
+${adm?"":`<p class="mu">${t("cp_adm")}</p>`}
+<div class="grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:14px">${L.map((c,i)=>{const T=DB.trucks.filter(x=>x.company==c.id),R=DB.trailers.filter(x=>x.company==c.id),ids=new Set(T.map(x=>x.id)),Dn=DB.drivers.filter(d=>d.truck&&ids.has(d.truck)).length,idx=S.comps.indexOf(c),used=T.length||R.length;
+  return `<div class="card" style="padding:14px;border-left:4px solid ${c.c}">
+<div style="display:flex;align-items:center;gap:8px">${adm?`<input type="color" value="${c.c}" data-c="coColor" data-n="${idx}" aria-label="color"><input type="text" value="${esc(c.n)}" data-c="coName" data-n="${idx}" style="flex:1;min-width:0">`:`${dot(c.c)}<b>${esc(c.n)}</b>`}</div>
+<div style="display:flex;gap:16px;margin:12px 0"><span><b>${T.length}</b><br><small class="mu">${t("cp_tr")}</small></span><span><b>${R.length}</b><br><small class="mu">${t("cp_tl")}</small></span><span><b>${Dn}</b><br><small class="mu">${t("cp_dr")}</small></span></div>
+<div style="display:flex;gap:8px"><button class="b ${cur==c.id?"bp":""}" data-a="coPick" data-v="${c.id}" style="flex:1">${cur==c.id?t("cp_cur"):t("cp_open")}</button>${adm?`<button class="bi" data-a="coDel" data-n="${idx}" ${used||S.comps.length<2?"disabled":""} title="${used?esc(t("co_used")):""}" aria-label="${t("del")}">${ic("trash",15)}</button>`:""}</div></div>`}).join("")}</div>
+${adm?`<div class="card" style="padding:14px;margin-top:14px"><div class="pr"><input type="color" id="ncc" value="#3b82f6"><input id="ncn" placeholder="${esc(t("cp_new"))}" data-enter="coAdd"><button class="b" data-a="coAdd">${t("cp_add")}</button></div></div>`:""}</div>`};
+A.coPick=el=>{setCur(el.dataset.v);closePops();if(V=="companies")go("trucks");else shellRefresh()};
+/* ===== EXPORT: real .xlsx and .pdf writers (no libraries) ===== */
+const CRCT=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+const crc32=b=>{let c=~0;for(let i=0;i<b.length;i++)c=CRCT[(c^b[i])&255]^(c>>>8);return(~c)>>>0};
+const U8=s=>new TextEncoder().encode(s);
+function zipStore(files){const parts=[],cen=[];let off=0;
+ const le=(n,b)=>{const a=new Uint8Array(b);for(let i=0;i<b;i++)a[i]=(n>>>(8*i))&255;return a};
+ const cat=(...a)=>{const n=a.reduce((x,y)=>x+y.length,0),o=new Uint8Array(n);let p=0;a.forEach(y=>{o.set(y,p);p+=y.length});return o};
+ files.forEach(([name,data])=>{const nm=U8(name),crc=crc32(data),h=cat(le(0x04034b50,4),le(20,2),le(0,2),le(0,2),le(0,2),le(0x21,2),le(crc,4),le(data.length,4),le(data.length,4),le(nm.length,2),le(0,2),nm);
+  parts.push(h,data);cen.push(cat(le(0x02014b50,4),le(20,2),le(20,2),le(0,2),le(0,2),le(0,2),le(0x21,2),le(crc,4),le(data.length,4),le(data.length,4),le(nm.length,2),le(0,2),le(0,2),le(0,2),le(0,2),le(0,4),le(off,4),nm));off+=h.length+data.length});
+ const cd=cat(...cen);return cat(...parts,cd,le(0x06054b50,4),le(0,2),le(0,2),le(files.length,2),le(files.length,2),le(cd.length,4),le(off,4),le(0,2))}
+const xe=s=>String(s??"").replace(/[<>&"]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;"}[c])).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,"");
+const xcol=i=>{let s="";i++;while(i>0){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26)}return s};
+function xlsxBytes(cols,rows,sheet){
+ const cell=(v,r,c,h)=>{const ref=xcol(c)+(r+1);if(typeof v=="number"&&isFinite(v))return `<c r="${ref}"><v>${v}</v></c>`;return `<c r="${ref}" t="inlineStr"${h?' s="1"':""}><is><t xml:space="preserve">${xe(v)}</t></is></c>`};
+ const w=cols.map((c,i)=>Math.min(48,Math.max(8,String(c).length+2,...rows.map(r=>String(r[i]??"").length+2))));
+ const sh=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>${w.map((x,i)=>`<col min="${i+1}" max="${i+1}" width="${x}" customWidth="1"/>`).join("")}</cols><sheetData><row r="1">${cols.map((c,i)=>cell(String(c),0,i,1)).join("")}</row>${rows.map((r,ri)=>`<row r="${ri+2}">${r.map((v,ci)=>cell(typeof v=="string"&&v!==""&&/^-?\d{1,15}(\.\d+)?$/.test(v)&&!/^0\d/.test(v)&&ci>=0&&COLNUM.has(cols[ci])?+v:v,ri+1,ci)).join("")}</row>`).join("")}</sheetData></worksheet>`;
+ const F=[["[Content_Types].xml",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`],
+ ["_rels/.rels",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`],
+ ["xl/workbook.xml",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="${xe(String(sheet||"Sheet1").replace(/[\\\/?*\[\]:]/g,"").slice(0,31)||"Sheet1")}" sheetId="1" r:id="rId1"/></sheets></workbook>`],
+ ["xl/_rels/workbook.xml.rels",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`],
+ ["xl/styles.xml",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFE8EEF8"/></patternFill></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf/></cellStyleXfs><cellXfs count="2"><xf/><xf fontId="1" fillId="2" applyFont="1" applyFill="1"/></cellXfs></styleSheet>`],
+ ["xl/worksheets/sheet1.xml",sh]];
+ return zipStore(F.map(([n,s])=>[n,U8(s)]))}
+let COLNUM=new Set();
+const CYR={"а":"a","б":"b","в":"v","г":"g","д":"d","е":"e","ё":"yo","ж":"zh","з":"z","и":"i","й":"y","к":"k","л":"l","м":"m","н":"n","о":"o","п":"p","р":"r","с":"s","т":"t","у":"u","ф":"f","х":"kh","ц":"ts","ч":"ch","ш":"sh","щ":"shch","ъ":"","ы":"y","ь":"","э":"e","ю":"yu","я":"ya"};
+const asc=s=>String(s??"").replace(/[‘’ʻʼ`]/g,"'").replace(/[“”]/g,'"').replace(/[–—]/g,"-").replace(/[А-Яа-яЁё]/g,c=>{const l=c.toLowerCase(),r=CYR[l]||"";return c==l?r:r.charAt(0).toUpperCase()+r.slice(1)}).replace(/[oO]ʻ/g,"o'").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^\x20-\x7e]/g,"?");
+const pe=s=>asc(s).replace(/[\\()]/g,"\\$&");
+function pdfBytes(title,cols,rows,sub){
+ const W=842,H=595,M=34,fs=8.5,lh=14,CW=5.0;                       // A4 landscape, Helvetica 8.5pt (~avg glyph 5pt)
+ const want=cols.map((c,i)=>Math.min(34,Math.max(String(c).length,...rows.map(r=>asc(r[i]).length))+2)),tot=want.reduce((a,b)=>a+b,0),sc=Math.min(1,(W-2*M)/(tot*CW)),cw=want.map(x=>x*CW*sc);
+ const maxc=cw.map(x=>Math.max(3,Math.floor(x/(CW*sc))-1));
+ const pages=[];let cur=null,y=0;
+ const newPage=()=>{cur=[];pages.push(cur);y=H-M;cur.push(`BT /F2 14 Tf ${M} ${y} Td (${pe(title)}) Tj ET`);y-=16;if(sub){cur.push(`BT /F1 9 Tf ${M} ${y} Td (${pe(sub)}) Tj ET`);y-=16}head()};
+ const rowTxt=(r,f)=>{let x=M;r.forEach((v,i)=>{let s=asc(v);if(s.length>maxc[i])s=s.slice(0,maxc[i]-1)+".";cur.push(`BT /${f} ${fs} Tf ${x} ${y} Td (${pe(s)}) Tj ET`);x+=cw[i]})};
+ const head=()=>{cur.push(`0.9 0.93 0.97 rg ${M-3} ${y-4} ${W-2*M+6} ${lh} re f 0 g`);rowTxt(cols,"F2");y-=lh+2};
+ newPage();rows.forEach((r,ri)=>{if(y<M+10){newPage()}if(ri%2)cur.push(`0.97 0.97 0.98 rg ${M-3} ${y-4} ${W-2*M+6} ${lh} re f 0 g`);rowTxt(r,"F1");y-=lh});
+ pages.forEach((p,i)=>p.push(`BT /F1 7.5 Tf ${W-M-60} ${M-16} Td (${i+1} / ${pages.length}) Tj ET`));
+ const objs=[];const add=s=>(objs.push(s),objs.length);
+ add("<< /Type /Catalog /Pages 2 0 R >>");add("PAGES");const f1=add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>"),f2=add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>");
+ const kids=[];pages.forEach(p=>{const body=p.join("\n"),c=add(`<< /Length ${body.length} >>\nstream\n${body}\nendstream`),pg=add(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 ${f1} 0 R /F2 ${f2} 0 R >> >> /Contents ${c} 0 R >>`);kids.push(pg+" 0 R")});
+ objs[1]=`<< /Type /Pages /Kids [${kids.join(" ")}] /Count ${pages.length} >>`;
+ let out="%PDF-1.4\n";const offs=[];objs.forEach((o,i)=>{offs.push(out.length);out+=`${i+1} 0 obj\n${o}\nendobj\n`});
+ const xr=out.length;out+=`xref\n0 ${objs.length+1}\n0000000000 65535 f \n`+offs.map(o=>String(o).padStart(10,"0")+" 00000 n \n").join("")+`trailer\n<< /Size ${objs.length+1} /Root 1 0 R >>\nstartxref\n${xr}\n%%EOF`;
+ return Uint8Array.from(out,c=>c.charCodeAt(0)&255)}
+function saveBlob(name,bytes,type){try{const u=URL.createObjectURL(new Blob([bytes],{type})),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000)}catch(e){toast(t("srv"),"er")}}
+const XLSX_T="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+const fdate=()=>new Date().toISOString().slice(0,10);
+function exportXlsx(name,cols,rows,sheet,numCols){COLNUM=new Set(numCols||[]);saveBlob(name+"-"+fdate()+".xlsx",xlsxBytes(cols,rows,sheet),XLSX_T)}
+function exportPdf(name,title,cols,rows,sub){saveBlob(name+"-"+fdate()+".pdf",pdfBytes(title,cols,rows,sub),"application/pdf")}
+/* truck report: On the board / All trucks, sort, copy, Excel, PDF */
+Object.assign(D,{rp_scope:["Show","Ko‘rsatish","Показать"],rp_board:["On the board","Taxtada","На доске"],rp_all:["All trucks","Barcha truck","Все траки"],rp_sort:["Sort","Saralash","Сортировка"],rp_st:["Status","Status","Статус"],rp_un:["Unit #","Unit #","Unit #"],rp_copy:["Copy text","Matnni nusxalash","Копировать текст"],rp_xl:["Excel","Excel","Excel"],rp_pdf:["PDF","PDF","PDF"],rp_own:["Ownership","Egalik","Владение"]});
+function trReportRows(scope,sort){let L=scope=="all"?DB.trucks.slice():trucksFiltered();const si=x=>{const i=S.stat.findIndex(s=>s.id==x.status);return i<0?99:i};
+ L.sort(sort=="unit"?(a,b)=>natCmp(a.num,b.num):(a,b)=>si(a)-si(b)||natCmp(a.num,b.num));
+ return L.map(tr=>{const d=driverOf(tr.id),s=statOf(tr.status),c=compOf(tr.company),tl=DB.trailers.find(x=>x.truck==tr.id&&!x.archived);return[tr.num,s?s.n:"",c?c.n:"",d?d.name:"",tl?tl.num:"",[tr.year,tr.make,tr.model].filter(Boolean).join(" "),tr.plate||"",OWNL[tr.own]||"",tr.miles===""||tr.miles==null?"":+tr.miles,tr.cab||""]})}
+A.trReport=()=>{const R=PG.rp=PG.rp||{scope:"board",sort:"status"},cols=[t("tl_unit"),t("tr_status"),t("tr_comp"),t("tr_driver"),t("hd_trailer"),t("tr_vehicle"),t("tr_plate"),t("rp_own"),t("tr_miles"),t("tr_cabs")];
+ const draw=()=>{const rows=trReportRows(R.scope,R.sort);
+  modal({title:t("tr_rep"),icon:"file",w:900,sub:`${rows.length} ${t("t_total")}`,body:`<div class="row" style="gap:14px;margin-bottom:10px"><div class="tabs">${[["board",t("rp_board")],["all",t("rp_all")]].map(([k,l])=>`<button class="${R.scope==k?"on":""}" data-a="rpSet" data-k="scope" data-v="${k}">${l}</button>`).join("")}</div><div class="tabs">${[["status",t("rp_st")],["unit",t("rp_un")]].map(([k,l])=>`<button class="${R.sort==k?"on":""}" data-a="rpSet" data-k="sort" data-v="${k}">${t("rp_sort")}: ${l}</button>`).join("")}</div></div><div class="tw" style="max-height:52vh;overflow:auto"><table style="min-width:760px"><tr>${cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr>${rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</table></div>`,
+  foot:`<button class="b" id="rcp">${t("rp_copy")}</button><button class="b" id="rxl">${ic("dl",14)} ${t("rp_xl")}</button><button class="b bp" id="rpd">${ic("dl",14)} ${t("rp_pdf")}</button>`});
+  $("#rcp").onclick=()=>copyText([cols.join("\t")].concat(rows.map(r=>r.join("\t"))).join("\n"));
+  $("#rxl").onclick=()=>exportXlsx("trucks",cols,rows,t("tr_rep"),[t("tr_miles")]);
+  $("#rpd").onclick=()=>exportPdf("trucks",t("tr_rep"),cols,rows,`TOPGFLEET · ${new Date().toLocaleString()} · ${rows.length} ${t("t_total")}`)};
+ A.rpSet=el=>{R[el.dataset.k]=el.dataset.v;draw()};draw()};
 /* ===== SERVER MODE: real login, shared data, sync =====
    When /api answers (the site is served by server.js) the app uses the server.
    Anywhere else (a preview, a file on disk) it falls back to the local demo mode. */
 Object.assign(D,{
+sv_edit:["Edit","Tahrirlash","Изменить"],sv_cur:["Current password","Joriy parol","Текущий пароль"],tm_color:["Change colour","Rangni o‘zgartirish","Сменить цвет"],pw:["Password","Parol","Пароль"],
 sv_bad:["Wrong e-mail or password.","E-mail yoki parol noto‘g‘ri.","Неверный e-mail или пароль."],
 sv_locked:["Too many attempts. This account is locked for 15 minutes.","Juda ko‘p urinish. Akkaunt 15 daqiqaga bloklandi.","Слишком много попыток. Аккаунт заблокирован на 15 минут."],
 sv_rate:["Too many requests. Wait a few minutes and try again.","Juda ko‘p so‘rov. Bir necha daqiqa kutib, qayta urining.","Слишком много запросов. Подождите несколько минут."],
@@ -1156,7 +1275,7 @@ sv_roles:["Role","Rol","Роль"],sv_when:["When","Qachon","Когда"],sv_who
 sv_dupe:["That e-mail or username is already used.","Bu e-mail yoki username band.","Такой e-mail или логин уже используется."]
 });
 let SERVER=false,USER=null,PULL=null,LS={step:"pw",err:"",busy:false,email:""},SNAP={rec:{},kv:{}},SYNC={timer:null,busy:false,again:false,pending:false,retry:null},LASTR="";
-const COLLS=["trucks","trailers","drivers","issues","plans","svc","docs","inv","vend","links","hist","insp"],KVF=["pti","ck","ph"],KVS=["prio","comps","stat","tg","tpl","ptiOff","tmAcc"];
+const COLLS=["trucks","trailers","drivers","issues","plans","svc","docs","inv","vend","links","hist","insp"],KVF=["pti","ck","ph"],KVS=["prio","comps","stat","tg","tpl","ptiOff","tmAcc","seed14"];
 const hashN=s=>{let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))>>>0;return h};
 
 async function api(method,url,body,ms){const ac=new AbortController(),tm=ms?setTimeout(()=>ac.abort(),ms):null;let r;
@@ -1245,11 +1364,30 @@ A.tfOffGo=async()=>{const r=await api("POST","/api/2fa/disable",{password:$("#tf
 A.auditOpen=async()=>{const r=await api("GET","/api/audit");if(r.s!=200){toast(t("sv_forbid"),"er");return}
  modal({title:t("sv_audit"),sub:t("sv_audit_s"),icon:"clip",w:860,body:`<div class="tw"><table style="min-width:640px"><tr><th>${t("sv_when")}</th><th>${t("sv_who")}</th><th>${t("sv_what")}</th><th>IP</th></tr>${r.j.rows.map(x=>`<tr><td style="white-space:nowrap">${new Date(x.at).toLocaleString()}</td><td>${esc(x.who||x.target||"–")}</td><td><b>${esc(x.action)}</b>${x.detail&&x.action=="sync"?` <span class="mu">${x.detail.upN||0}↑ ${x.detail.delN||0}✕</span>`:""}</td><td class="mu">${esc(x.ip||"")}</td></tr>`).join("")}</table></div>`})};
 async function loadUsers(){PG.usersBusy=true;const r=await api("GET","/api/users");PG.usersBusy=false;if(r.s==200){PG.users=r.j.users;if(V=="profile")page()}}
-function srvUserForm(){openForm({title:t("tu_t"),icon:"user",save:t("tm_addu"),fields:[{k:"name",l:t("ac_full"),req:true},{k:"username",l:t("tu_user"),req:true,half:true,hint:t("tu_user_h")},{k:"email",l:t("ac_mail"),req:true,t:"email",half:true},
- {k:"role",l:t("tu_role"),t:"select",o:[["member",t("tm_member")],["admin",t("tm_admin")],["driver",t("sv_tm_drv")]],hint:t("tu_role_h")},{k:"password",l:t("dr_tmp"),t:"password",req:true,hint:t("dr_tmp_h")}],
- check:o=>!/^[a-z0-9._-]{3,30}$/.test(o.username)?t("tu_bad"):null,
- onSave:async o=>{const r=await api("POST","/api/users",o);if(r.s==200){closeDr();PG.users=null;toast(t("saved"));page();return}toast(r.s==409?t("sv_dupe"):r.j&&r.j.error=="weak"?pwWhy(r.j.why):t("sv_off"),"er")}})}
-A.tmUser=()=>SERVER?srvUserForm():userForm(false);
+function userModal(u,test){const add=!u,cos=u?u.companies:null;
+ const coBox=`<div class="fd"><label>${t("companies")}</label><label class="ck"><input type="checkbox" id="um_all" ${cos?"":"checked"}><span style="color:var(--tx)">${t("cp_all")}</span></label><div id="um_cos" style="max-height:170px;overflow:auto;margin-top:6px;${cos?"":"opacity:.45;pointer-events:none"}">${S.comps.map(c=>`<label class="ck" style="margin-bottom:5px"><input type="checkbox" name="co_${c.id}" data-co="${c.id}" ${cos&&cos.includes(c.id)?"checked":""}>${dot(c.c)}<span style="color:var(--tx)">${esc(c.n)}</span></label>`).join("")}</div></div>`;
+ modal({title:add?t(test?"tm_tests":"tu_t"):t("sv_edit"),sub:add?"":esc(u.email),icon:"user",w:480,body:`<div class="fg"><div class="fd"><label>${t("ac_full")}</label><input id="um_n" value="${esc(u?u.name:test?"Test User":"")}"></div>
+${add?`<div class="fd h"><label>${t("tu_user")}</label><input id="um_u" value="${test?"test"+Math.floor(Math.random()*900+100):""}"></div><div class="fd h"><label>${t("ac_mail")}</label><input id="um_e" type="email" value="${test?"test"+Date.now().toString(36)+"@test.local":""}"></div>`:""}
+<div class="fd"><label>${t("tu_role")}</label><select id="um_r">${optH([["member",t("tm_member")],["admin",t("tm_admin")],["driver",t("sv_tm_drv")]],u?u.role:"member")}</select></div>
+${add?`<div class="fd"><label>${t("dr_tmp")}</label><input id="um_p" type="password" autocomplete="new-password"><div class="hn">${t("dr_tmp_h")}</div></div>`:""}${coBox}</div><div class="note er hide" id="um_x" style="grid-column:auto;margin-top:10px"></div>`,
+ foot:`<button class="b" data-a="mdClose">${t("cancel")}</button><button class="b bp" id="um_s">${t("save")}</button>`});
+ $("#um_all").onchange=e=>{const b=$("#um_cos");b.style.opacity=e.target.checked?".45":"";b.style.pointerEvents=e.target.checked?"none":""};
+ $("#um_s").onclick=async()=>{const cos=$("#um_all").checked?null:[...$$("#um_cos [data-co]")].filter(x=>x.checked).map(x=>x.dataset.co),body={name:$("#um_n").value.trim(),role:$("#um_r").value,companies:cos};
+  if(add){body.username=($("#um_u").value||"").trim().toLowerCase();body.email=$("#um_e").value.trim();body.password=$("#um_p").value;body.test=!!test;if(!/^[a-z0-9._-]{3,30}$/.test(body.username)){const e=$("#um_x");e.textContent=t("tu_bad");e.classList.remove("hide");return}}
+  const r=await api(add?"POST":"PATCH",add?"/api/users":"/api/users/"+u.id,body);
+  if(r.s==200){closeMd();PG.users=null;await loadRemote();toast(t("saved"));shellRefresh();return}
+  const e=$("#um_x");e.textContent=r.s==409?t("sv_dupe"):r.j&&r.j.error=="weak"?pwWhy(r.j.why):t("sv_off");e.classList.remove("hide")}}
+function srvUserForm(test){userModal(null,test)}
+A.usrEdit=el=>userModal(PG.users.find(x=>x.id==el.dataset.id));
+A.usrAdm=async el=>{const u=PG.users.find(x=>x.id==el.dataset.id),nr=u.role=="admin"?"member":"admin",r=await api("PATCH","/api/users/"+u.id,{role:nr});if(r.s==200){PG.users=null;await loadRemote();shellRefresh()}else toast(t("sv_forbid"),"er")};
+C.usrColor=async el=>{const me=USER&&el.dataset.id==USER.id,r=me?await api("PATCH","/api/me",{color:el.value}):await api("PATCH","/api/users/"+el.dataset.id,{color:el.value});if(r.s==200){if(me)USER=r.j.user;PG.users=null;await loadRemote();shellRefresh()}else toast(t("sv_forbid"),"er")};
+A.acEdit=el=>{const k=el.dataset.k,lab={name:t("ac_full"),username:t("ac_user"),email:t("ac_mail")}[k];
+ modal({title:lab,icon:"pen",w:420,body:`<div class="fd"><label>${lab}</label><input id="ae_v" value="${esc(USER[k])}" ${k=="email"?'type="email"':""}></div>${k=="email"?`<div class="fd" style="margin-top:10px"><label>${t("sv_cur")}</label><input id="ae_p" type="password" autocomplete="current-password"></div>`:""}<div class="note er hide" id="ae_x" style="grid-column:auto;margin-top:10px"></div>`,foot:`<button class="b" data-a="mdClose">${t("cancel")}</button><button class="b bp" id="ae_s">${t("save")}</button>`});
+ setTimeout(()=>$("#ae_v")&&$("#ae_v").focus(),40);
+ $("#ae_s").onclick=async()=>{const body={[k]:$("#ae_v").value.trim()};if(k=="email")body.current=$("#ae_p").value;const r=await api("PATCH","/api/me",body);
+  if(r.s==200){USER=r.j.user;closeMd();await loadRemote();toast(t("saved"));shellRefresh();return}
+  const e=$("#ae_x");e.textContent=r.s==409?t("sv_dupe"):r.s==401?t("sv_bad"):t("tu_bad");e.classList.remove("hide")}};
+A.tmUser=()=>SERVER?srvUserForm(false):userForm(false);A.tmTest=()=>SERVER?srvUserForm(true):userForm(true);
 A.usrToggle=async el=>{const u=PG.users.find(x=>x.id==el.dataset.id);const r=await api("PATCH","/api/users/"+u.id,{disabled:!u.disabled});if(r.s==200){PG.users=null;page()}else toast(t("sv_forbid"),"er")};
 A.usrReset=el=>{const u=PG.users.find(x=>x.id==el.dataset.id);modal({title:t("sv_reset"),sub:esc(u.email),icon:"key",w:420,body:`<div class="fd"><label>${t("sv_tmp")}</label><input id="rpw" type="password" autocomplete="new-password" data-i="pw"><div class="bars"><i></i><i></i><i></i><i></i></div></div><div class="note er hide" id="rpe" style="grid-column:auto;margin-top:10px"></div>`,foot:`<button class="b" data-a="mdClose">${t("cancel")}</button><button class="b bp" id="rpg">${t("save")}</button>`});
  $("#rpg").onclick=async()=>{const r=await api("POST","/api/users/"+u.id+"/reset",{password:$("#rpw").value});if(r.s==200){closeMd();toast(t("saved"));PG.users=null;page();return}const e=$("#rpe");e.textContent=r.j&&r.j.error=="weak"?pwWhy(r.j.why):t("sv_off");e.classList.remove("hide")}};
@@ -1257,19 +1395,20 @@ A.usrDel=el=>{const u=PG.users.find(x=>x.id==el.dataset.id);ask(t("confirm"),asy
 A.usrRole=async el=>{const r=await api("PATCH","/api/users/"+el.dataset.id,{role:el.value});if(r.s==200){PG.users=null;page()}else{toast(t("sv_forbid"),"er");page()}};
 C.usrRole=el=>A.usrRole(el);
 
+const coNames=u=>!u.co?t("cp_all"):(u.co.map(id=>(compOf(id)||{n:"?"}).n).join(", ")||"–");
 function teamBody(){
  if(SERVER){const isA=USER&&USER.role=="admin";if(isA&&!PG.users&&!PG.usersBusy)loadUsers();
-  const L=isA?(PG.users||[]):S.team.map(u=>({id:u.id,name:u.n,email:u.m,role:u.r,owner:u.owner}));
+  const L=isA?(PG.users||[]).map(u=>({id:u.id,name:u.name,email:u.email,role:u.role,owner:u.owner,disabled:u.disabled,color:u.color,co:u.companies,test:u.test})):S.team.map(u=>({id:u.id,name:u.n,email:u.m,role:u.r,owner:u.owner,color:u.c,co:u.co,test:u.test}));
   return `<p class="mu" style="margin-top:0">${t("tm_s")} <a href="#drivers" data-a="nav" data-v="drivers">${t("drivers")}</a> ${t("tm_s2")}</p>${isA?"":`<p class="mu">${t("sv_member_note")}</p>`}
-${L.map(u=>`<div class="row" style="padding:8px 0;border-top:1px solid var(--ln);flex-wrap:nowrap">${avatar({n:u.name,c:USERC[hashN(u.id)%USERC.length]})}<div style="flex:1;min-width:0"><b>${esc(u.name)}</b> ${USER&&u.id==USER.id?`<span class="mu">(${t("tm_you")})</span>`:""}${u.disabled?tag(t("sv_dis_t"),"var(--rd)"):""}<div class="mu" style="font-size:12px">${esc(u.email||"")}</div></div>
-${isA&&!u.owner?`<select class="sel" style="width:120px" data-c="usrRole" data-id="${u.id}" aria-label="${t("sv_roles")}">${optH([["member",t("tm_member")],["admin",t("tm_admin")],["driver",t("sv_tm_drv")]],u.role)}</select><button class="b bs" data-a="usrToggle" data-id="${u.id}">${t(u.disabled?"sv_ena":"sv_dis")}</button><button class="b bs" data-a="usrReset" data-id="${u.id}">${t("sv_reset")}</button><button class="bi" data-a="usrDel" data-id="${u.id}" aria-label="${t("tm_remove")}">${ic("trash",15)}</button>`:`<span class="tag">${u.owner?t("tm_owner"):t(u.role=="admin"?"tm_admin":"tm_member")}</span>`}</div>`).join("")||`<div class="mu">–</div>`}
-${isA?`<div class="row" style="margin-top:12px"><button class="b" data-a="tmInvite">${ic("link",14)} ${t("tm_inv")}</button><button class="b bp" data-a="tmUser">${ic("plus",14)} ${t("tm_addu")}</button></div>`:""}`}
+${L.map(u=>{const me=USER&&u.id==USER.id,col=u.color||USERC[hashN(u.id)%USERC.length];return `<div class="row" style="padding:10px 0;border-top:1px solid var(--ln);flex-wrap:nowrap;gap:10px">${isA||me?`<label style="cursor:pointer;display:inline-flex" title="${esc(t("tm_color"))}">${avatar({n:u.name,c:col})}<input type="color" value="${col}" data-c="usrColor" data-id="${u.id}" style="position:absolute;opacity:0;width:0;height:0"></label>`:avatar({n:u.name,c:col})}<div style="flex:1;min-width:0"><b>${esc(u.name)}</b> ${me?`<span class="mu">(${t("tm_you")})</span>`:""}${u.owner?tag(t("tm_owner"),"var(--ac)"):""}${u.test?tag("test","var(--am)"):""}${u.disabled?tag(t("sv_dis_t"),"var(--rd)"):""}<div class="mu" style="font-size:12px">${esc(u.email||"")}</div><div class="mu" style="font-size:12px">${ic("store",11)} ${esc(u.role=="admin"?t("cp_all"):coNames(u))}</div></div>
+${isA&&!u.owner?`<div class="row" style="gap:6px;flex-wrap:nowrap"><button class="b bs ${u.role=="admin"?"bp":""}" data-a="usrAdm" data-id="${u.id}" title="${esc(t("sv_roles"))}">${t(u.role=="admin"?"tm_admin":u.role=="driver"?"sv_tm_drv":"tm_member")}</button><button class="bi" data-a="usrEdit" data-id="${u.id}" aria-label="${t("sv_edit")}">${ic("pen",15)}</button><button class="b bs" data-a="usrReset" data-id="${u.id}">${t("sv_reset")}</button><button class="bi" data-a="usrDel" data-id="${u.id}" aria-label="${t("tm_remove")}">${ic("trash",15)}</button></div>`:me?`<button class="bi" data-a="acEdit" data-k="name" aria-label="${t("sv_edit")}">${ic("pen",15)}</button>`:""}</div>`}).join("")||`<div class="mu">–</div>`}
+${isA?`<div class="row" style="margin-top:12px"><button class="b" data-a="tmInvite">${ic("link",14)} ${t("tm_inv")}</button><button class="b" data-a="tmTest">${t("tm_tests")}</button><button class="b bp" data-a="tmUser">${ic("plus",14)} ${t("tm_addu")}</button></div>`:""}`}
  return `<p class="mu" style="margin-top:0">${t("tm_s")} <a href="#drivers" data-a="nav" data-v="drivers">${t("drivers")}</a> ${t("tm_s2")}</p>${S.team.map((m,i)=>`<div class="row" style="padding:8px 0;border-top:1px solid var(--ln);flex-wrap:nowrap">${avatar(m)}<div style="flex:1"><b>${esc(m.n)}</b> ${m.id=="u1"||m.u==S.user?`<span class="mu">(${t("tm_you")})</span>`:""}${m.test?tag("test","var(--am)"):""}<div class="mu" style="font-size:12px">${esc(m.m)} · ${m.owner?t("tm_owner"):t(m.r=="admin"?"tm_admin":"tm_member")}</div></div><button class="bi" data-a="tmRemove" data-n="${i}" aria-label="${t("tm_remove")}">${ic("trash",15)}</button></div>`).join("")}<div class="row" style="margin-top:12px"><button class="b" data-a="tmInvite">${ic("link",14)} ${t("tm_inv")}</button><button class="b" data-a="tmTest">${t("tm_tests")}</button><button class="b bp" data-a="tmUser">${ic("plus",14)} ${t("tm_addu")}</button></div>`}
 function accBody(){
- if(SERVER)return `<p class="mu" style="margin-top:0">${t("sv_srv")}</p><div class="fg"><div class="fd h"><label>${t("ac_full")}</label><input value="${esc(USER.name)}" disabled></div><div class="fd h"><label>${t("ac_user")}</label><input value="${esc(USER.username)}" disabled></div><div class="fd"><label>${t("ac_mail")}</label><input value="${esc(USER.email)}" disabled></div></div>
-<div class="row" style="margin-top:12px"><button class="b" data-a="acPw">${ic("key",14)} ${t("ac_change")}</button></div>
+ if(SERVER){const row=(k,l,v)=>`<div class="row" style="padding:10px 0;border-top:1px solid var(--ln);flex-wrap:nowrap"><div style="flex:1;min-width:0"><small class="mu">${l}</small><div><b>${esc(v)}</b></div></div><button class="b bs" data-a="acEdit" data-k="${k}">${ic("pen",13)} ${t("sv_edit")}</button></div>`;
+ return `<p class="mu" style="margin-top:0">${t("sv_srv")}</p>${row("name",t("ac_full"),USER.name)}${row("username",t("ac_user"),USER.username)}${row("email",t("ac_mail"),USER.email)}<div class="row" style="padding:10px 0;border-top:1px solid var(--ln);border-bottom:1px solid var(--ln);flex-wrap:nowrap"><div style="flex:1"><small class="mu">${t("pw")}</small><div><b>••••••••••</b></div></div><button class="b bs" data-a="acPw">${ic("key",13)} ${t("ac_change")}</button></div>
 <div class="lbl" style="margin-top:22px">${ic("shield",13)} ${t("sv_2fa_t")}</div><p class="mu" style="margin-top:0">${t(USER.totp?"sv_2fa_on":"sv_2fa_off")}</p><button class="b ${USER.totp?"":"bp"}" data-a="${USER.totp?"tfOff":"tfStart"}">${t(USER.totp?"sv_2fa_disable":"sv_2fa_start")}</button>
-${USER.role=="admin"?`<div class="lbl" style="margin-top:22px">${ic("clip",13)} ${t("sv_audit")}</div><p class="mu" style="margin-top:0">${t("sv_audit_s")}</p><button class="b" data-a="auditOpen">${t("sv_audit")}</button>`:""}`;
+${USER.role=="admin"?`<div class="lbl" style="margin-top:22px">${ic("clip",13)} ${t("sv_audit")}</div><p class="mu" style="margin-top:0">${t("sv_audit_s")}</p><button class="b" data-a="auditOpen">${t("sv_audit")}</button>`:""}`}
  return `<div class="lbl">${t("ac_det")}</div><div class="fg"><div class="fd h"><label>${t("ac_full")}</label><input value="${esc(S.name)}" data-i="acF" data-k="name"></div><div class="fd h"><label>${t("ac_user")}</label><input value="${esc(S.user)}" data-i="acF" data-k="user"></div><div class="fd"><label>${t("ac_mail")}</label><input type="email" value="${esc(S.mail)}" data-i="acF" data-k="mail"></div></div><div class="row" style="margin-top:12px"><button class="b bp" data-a="acSave">${t("save")}</button><button class="b" data-a="acPw">${ic("key",14)} ${t("ac_change")}</button></div>
 <div class="lbl" style="margin-top:22px">${t("dm_t")}</div><p class="mu" style="margin-top:0">${t("dm_s")}</p><div class="row"><button class="b" data-a="demoLoad">${ic("flask",14)} ${t("dm_load")}</button><button class="b dng" data-a="demoReset">${t("dm_reset")}</button></div>`}
 
@@ -1280,7 +1419,7 @@ async function boot(){
   // never reuse data left in this browser by the local demo mode
   const keep={lang:S.lang,theme:S.theme,col:S.col,sm:S.sm},p=ld("tf2_p",{});S=Object.assign(DEF_S(),keep,p);S.in=false;DB=DEF_D();save=serverSave;
   if(r.s==200&&r.j&&r.j.user){USER=r.j.user;if(await loadRemote()){S.in=true}else USER=null}}
- V=viewFromHash();render();
+ V=viewFromHash();if(SERVER&&S.in&&location.pathname=="/")history.replaceState(null,"","/"+ROUTES[V]);render();
  if(SERVER&&S.in&&USER){if(USER.mustChange)setTimeout(()=>pwModal(true),200)}}
 boot();
 </script></body></html>
