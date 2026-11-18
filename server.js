@@ -12,7 +12,7 @@ const LOGIN_MAX = +process.env.RATE_LOGIN_MAX || 12;
 const SESSION_HOURS = 12, PW_STAGE_MIN = 10, LOCK_AFTER = 5, LOCK_MIN = 15;
 const COLLS = new Set(['trucks', 'trailers', 'drivers', 'issues', 'plans', 'svc', 'docs', 'inv', 'vend', 'links', 'hist', 'insp']);
 const KV_FLEET = new Set(['pti', 'ck', 'ph']);          // fleet-wide documents (members may write)
-const SETTING_KEYS = ['prio', 'comps', 'stat', 'tg', 'tpl', 'ptiOff', 'tmAcc'];   // admin-only
+const SETTING_KEYS = ['prio', 'comps', 'stat', 'tg', 'tpl', 'ptiOff', 'tmAcc', 'seed14'];   // admin-only
 const ROLES = new Set(['admin', 'member', 'driver']);
 
 const app = express();
@@ -72,7 +72,10 @@ function setCookie(req, res, tok, maxAgeSec) {
 const clearCookie = (req, res) => setCookie(req, res, '', 0);
 const audit = (userId, action, target, detail, ip) =>
   q('INSERT INTO audit(user_id,action,target,detail,ip) VALUES($1,$2,$3,$4,$5)', [userId || null, action, target || null, detail ? JSON.stringify(detail) : null, ip || null]).catch(e => console.error('audit', e.message));
-const publicUser = u => ({ id: u.id, email: u.email, username: u.username, name: u.name, role: u.role, owner: u.is_owner, totp: u.totp_on, mustChange: u.must_change });
+const publicUser = u => ({ id: u.id, email: u.email, username: u.username, name: u.name, role: u.role, owner: u.is_owner, totp: u.totp_on, mustChange: u.must_change, color: u.color || null, companies: u.role === 'admin' ? null : (u.companies || null), test: !!u.is_test });
+const okId = s => typeof s === 'string' && /^[A-Za-z0-9_-]{1,40}$/.test(s);
+const cleanCompanies = v => v === null ? null : (Array.isArray(v) && v.length <= 200 && v.every(okId) ? [...new Set(v)] : undefined);
+const allowedOf = u => (u.role !== 'admin' && Array.isArray(u.companies)) ? new Set(u.companies) : null;   // null = sees everything
 const wrap = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(e => { console.error(e); res.status(500).json({ error: 'server' }); });
 
 async function newSession(req, res, userId, stage) {
@@ -140,6 +143,23 @@ app.post('/api/logout', wrap(async (req, res) => {
 }));
 app.get('/api/me', auth(), (req, res) => res.json({ user: publicUser(req.u) }));
 
+
+app.patch('/api/me', limit('login', LOGIN_MAX, 10 * 60e3), auth(), wrap(async (req, res) => {
+  const b = req.body || {}, u = req.u, set = {};
+  if (b.name !== undefined) { const n = String(b.name).trim(); if (!n || n.length > 100) return res.status(400).json({ error: 'bad' }); set.name = n; }
+  if (b.username !== undefined) { const x = String(b.username).trim().toLowerCase(); if (!/^[a-z0-9._-]{3,30}$/.test(x)) return res.status(400).json({ error: 'bad' }); set.username = x; }
+  if (b.email !== undefined) {
+    const e = String(b.email).trim().toLowerCase(); if (!/^[^@\s]{1,64}@[^@\s]{1,200}$/.test(e)) return res.status(400).json({ error: 'bad' });
+    if (e !== u.email) { if (!(await C.verifyPassword(String(b.current || ''), u.pass_hash))) return res.status(401).json({ error: 'creds' }); set.email = e; }
+  }
+  if (b.color !== undefined) { if (!/^#[0-9a-fA-F]{6}$/.test(String(b.color))) return res.status(400).json({ error: 'bad' }); set.color = String(b.color).toLowerCase(); }
+  const keys = Object.keys(set); if (!keys.length) return res.json({ user: publicUser(u) });
+  try {
+    const r = await q(`UPDATE users SET ${keys.map((k, i) => k + '=$' + (i + 2)).join(',')} WHERE id=$1 RETURNING *`, [u.id, ...keys.map(k => set[k])]);
+    audit(u.id, 'profile.update', u.email, { fields: keys }, req.ip); res.json({ user: publicUser(r.rows[0]) });
+  } catch (e) { if (e.code === '23505') return res.status(409).json({ error: 'dupe' }); throw e; }
+}));
+
 // ---------- 2FA + password ----------
 app.post('/api/2fa/start', auth(), wrap(async (req, res) => {
   if (req.u.totp_on) return res.status(409).json({ error: 'already' });
@@ -180,7 +200,8 @@ app.post('/api/users', auth(), admin, wrap(async (req, res) => {
   const bad = C.passwordProblem(b.password, { email, username, name }); if (bad) return res.status(400).json({ error: 'weak', why: bad });
   try {
     const id = C.uid();
-    await q('INSERT INTO users(id,email,username,name,role,pass_hash,must_change) VALUES($1,$2,$3,$4,$5,$6,TRUE)', [id, email, username, name, b.role, await C.hashPassword(b.password)]);
+    const cos = b.companies === undefined ? null : cleanCompanies(b.companies); if (cos === undefined) return res.status(400).json({ error: 'bad' });
+    await q('INSERT INTO users(id,email,username,name,role,pass_hash,must_change,is_test,companies,color) VALUES($1,$2,$3,$4,$5,$6,TRUE,$7,$8,$9)', [id, email, username, name, b.role, await C.hashPassword(b.password), !!b.test, cos ? JSON.stringify(cos) : null, /^#[0-9a-fA-F]{6}$/.test(String(b.color || '')) ? b.color : null]);
     audit(req.u.id, 'user.create', email, { role: b.role }, req.ip); res.json({ id });
   } catch (e) { if (e.code === '23505') return res.status(409).json({ error: 'dupe' }); throw e; }
 }));
@@ -190,7 +211,9 @@ app.patch('/api/users/:id', auth(), admin, wrap(async (req, res) => {
   if (t.id === req.u.id && req.body.disabled) return res.status(400).json({ error: 'self' });
   const role = req.body.role && ROLES.has(req.body.role) ? req.body.role : t.role, disabled = typeof req.body.disabled === 'boolean' ? req.body.disabled : t.disabled;
   const name = req.body.name ? String(req.body.name).trim().slice(0, 100) : t.name;
-  await q('UPDATE users SET role=$2, disabled=$3, name=$4 WHERE id=$1', [t.id, role, disabled, name]);
+  let cos = t.companies; if (req.body.companies !== undefined) { cos = cleanCompanies(req.body.companies); if (cos === undefined) return res.status(400).json({ error: 'bad' }); }
+  const color = req.body.color !== undefined && /^#[0-9a-fA-F]{6}$/.test(String(req.body.color)) ? String(req.body.color).toLowerCase() : t.color;
+  await q('UPDATE users SET role=$2, disabled=$3, name=$4, companies=$5, color=$6 WHERE id=$1', [t.id, role, disabled, name, cos ? JSON.stringify(cos) : null, color]);
   if (disabled || role !== t.role) await q('DELETE FROM sessions WHERE user_id=$1', [t.id]);
   audit(req.u.id, 'user.update', t.email, { role, disabled }, req.ip); res.json({ ok: true });
 }));
@@ -208,17 +231,39 @@ app.delete('/api/users/:id', auth(), admin, wrap(async (req, res) => {
 }));
 
 // ---------- fleet data ----------
+// narrow the data a company-restricted member is allowed to see
+function scopeState(DB, A) {
+  const low = x => String(x || '').trim().toLowerCase();
+  const allT = DB.trucks, allR = DB.trailers;
+  const trucks = allT.filter(x => A.has(x.company)), trailers = allR.filter(x => A.has(x.company));
+  const tids = new Set(trucks.map(x => x.id)), rids = new Set(trailers.map(x => x.id));
+  const okNums = new Set([...trucks, ...trailers].map(x => low(x.num)));
+  const knownNums = new Set([...allT, ...allR].map(x => low(x.num)));
+  const unitOk = n => !knownNums.has(low(n)) || okNums.has(low(n));      // text that names no unit stays visible
+  const out = { ...DB, trucks, trailers };
+  out.drivers = DB.drivers.filter(x => !x.truck || tids.has(x.truck));
+  out.issues = DB.issues.filter(x => unitOk(x.title));
+  out.plans = DB.plans.filter(x => tids.has(x.truck));
+  out.svc = DB.svc.filter(x => tids.has(x.truck));
+  out.docs = DB.docs.filter(x => x.kind === 'truck' ? tids.has(x.uid) : rids.has(x.uid));
+  out.inv = DB.inv.filter(x => (!x.truck || tids.has(x.truck)) && (!x.trailer || rids.has(x.trailer)));
+  out.links = DB.links.filter(x => rids.has(x.trailer));
+  out.hist = DB.hist.filter(x => rids.has(x.trailer));
+  out.insp = DB.insp.filter(x => unitOk(x.unit));
+  if (DB.pti) out.pti = Object.fromEntries(Object.entries(DB.pti).filter(([k]) => tids.has(k)));
+  return out;
+}
 app.get('/api/state', auth(), staff, wrap(async (req, res) => {
   const [rec, kv] = await Promise.all([q('SELECT coll,data FROM records'), q('SELECT key,value FROM kv')]);
-  const DB = {}; COLLS.forEach(c => DB[c] = []);
+  let DB = {}; COLLS.forEach(c => DB[c] = []);
   rec.rows.forEach(r => DB[r.coll] && DB[r.coll].push(r.data));
   const S = {}; kv.rows.forEach(r => { if (KV_FLEET.has(r.key)) DB[r.key] = r.value; else if (SETTING_KEYS.includes(r.key)) S[r.key] = r.value; });
-  const tm = (await q("SELECT id,name,username,email,role,is_owner FROM users WHERE role<>'driver' AND NOT disabled ORDER BY created_at")).rows;
-  const team = tm.map(u => ({ id: u.id, n: u.name, u: u.username, m: req.u.role === 'admin' ? u.email : '', r: u.role, owner: u.is_owner }));
+  const A = allowedOf(req.u); if (A) DB = scopeState(DB, A);
+  const tm = (await q("SELECT id,name,username,email,role,is_owner,color,companies,is_test FROM users WHERE role<>'driver' AND NOT disabled ORDER BY created_at")).rows;
+  const team = tm.map(u => ({ id: u.id, n: u.name, u: u.username, m: req.u.role === 'admin' ? u.email : '', r: u.role, owner: u.is_owner, c: u.color, co: u.role === 'admin' ? null : (u.companies || null), test: u.is_test }));
   res.json({ DB, S, team, user: publicUser(req.u) });
 }));
 
-const okId = s => typeof s === 'string' && /^[A-Za-z0-9_-]{1,40}$/.test(s);
 app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, res) => {
   const { upserts = [], deletes = [], kv = {} } = req.body || {};
   if (!Array.isArray(upserts) || !Array.isArray(deletes) || typeof kv !== 'object' || upserts.length + deletes.length > 2000) return res.status(400).json({ error: 'bad' });
@@ -229,6 +274,22 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
     if (KV_FLEET.has(k)) { if (JSON.stringify(kv[k]).length > 400000) return res.status(400).json({ error: 'bad' }); }
     else if (SETTING_KEYS.includes(k)) { if (req.u.role !== 'admin') return res.status(403).json({ error: 'role' }); if (JSON.stringify(kv[k]).length > 100000) return res.status(400).json({ error: 'bad' }); }
     else return res.status(400).json({ error: 'bad' });
+  }
+  const A = allowedOf(req.u);
+  if (A) {
+    for (const x of upserts) if ((x.c === 'trucks' || x.c === 'trailers') && !A.has(x.d.company)) return res.status(403).json({ error: 'scope' });
+    const guard = [...upserts, ...deletes].filter(x => x.c === 'trucks' || x.c === 'trailers');
+    for (const x of guard) {
+      const ex = (await q('SELECT data FROM records WHERE coll=$1 AND id=$2', [x.c, x.id])).rows[0];
+      if (ex && !A.has(ex.data.company)) return res.status(403).json({ error: 'scope' });
+    }
+    if (kv.pti) {   // keep the PTI of trucks this member cannot see
+      const old = (await q("SELECT value FROM kv WHERE key='pti'")).rows[0], oldV = old ? old.value : {};
+      const trucks = (await q("SELECT id,data FROM records WHERE coll='trucks'")).rows, mine = new Set(trucks.filter(r => A.has(r.data.company)).map(r => r.id));
+      const merged = {}; for (const k of Object.keys(oldV)) if (!mine.has(k)) merged[k] = oldV[k];
+      for (const k of Object.keys(kv.pti)) if (mine.has(k)) merged[k] = kv.pti[k];
+      kv.pti = merged;
+    }
   }
   const cl = await pool.connect();
   try {
@@ -272,6 +333,8 @@ app.get('/api/files/:id', auth(), wrap(async (req, res) => {
 app.get('/healthz', (req, res) => res.type('text').send('ok'));
 app.use('/api', (req, res) => res.status(404).json({ error: 'none' }));
 app.use(express.static(path.join(__dirname, 'public'), { index: 'index.html', maxAge: 0, setHeaders: r => r.setHeader('Cache-Control', 'no-cache') }));
+const PAGES = new Set(['dashboard', 'alerts', 'fleet', 'trailers', 'hook-drop', 'drivers', 'maintenance', 'pti', 'inspections', 'documents', 'violation-report', 'invoices', 'vendors', 'profile', 'companies']);
+app.get('/:page', (req, res, next) => PAGES.has(req.params.page) ? (res.setHeader('Cache-Control', 'no-cache'), res.sendFile(path.join(__dirname, 'public', 'index.html'))) : next());
 app.use((req, res) => res.status(404).type('text').send('Not found'));
 
 // ---------- start ----------
