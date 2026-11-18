@@ -73,7 +73,9 @@ function setCookie(req, res, tok, maxAgeSec) {
 const clearCookie = (req, res) => setCookie(req, res, '', 0);
 const audit = (userId, action, target, detail, ip) =>
   q('INSERT INTO audit(user_id,action,target,detail,ip) VALUES($1,$2,$3,$4,$5)', [userId || null, action, target || null, detail ? JSON.stringify(detail) : null, ip || null]).catch(e => console.error('audit', e.message));
-const publicUser = u => ({ id: u.id, email: u.email, username: u.username, name: u.name, role: u.role, owner: u.is_owner, totp: u.totp_on, mustChange: u.must_change, color: u.color || null, noMail: /@no-email\.local$/i.test(u.email), companies: u.role === 'admin' ? null : (u.companies || null), test: !!u.is_test });
+let REQ2FA = false;   // policy: staff sign in only with a code from the OWNER's authenticator (owner approves every sign-in)
+const viaOwner = u => REQ2FA && !u.is_owner && u.role !== 'driver';
+const publicUser = u => ({ need2fa: REQ2FA && !!u.is_owner && !u.totp_on, viaOwner: viaOwner(u), id: u.id, email: u.email, username: u.username, name: u.name, role: u.role, owner: u.is_owner, totp: u.totp_on, mustChange: u.must_change, color: u.color || null, noMail: /@no-email\.local$/i.test(u.email), companies: u.role === 'admin' ? null : (u.companies || null), test: !!u.is_test });
 const okId = s => typeof s === 'string' && /^[A-Za-z0-9_-]{1,40}$/.test(s);
 const cleanCompanies = v => v === null ? null : (Array.isArray(v) && v.length <= 200 && v.every(okId) ? [...new Set(v)] : undefined);
 const allowedOf = u => (u.role !== 'admin' && Array.isArray(u.companies)) ? new Set(u.companies) : null;   // null = sees everything
@@ -93,11 +95,23 @@ async function sessionOf(req) {
 const auth = (stage = 'full') => wrap(async (req, res, next) => {
   const s = await sessionOf(req);
   if (!s || s.stage !== stage) return res.status(401).json({ error: 'auth' });
+  if (REQ2FA && s.is_owner && !s.totp_on && stage === 'full' && !(req.path === '/api/me' && req.method === 'GET') && !req.path.startsWith('/api/2fa/') && req.path !== '/api/password') return res.status(403).json({ error: '2fa_setup' });
   req.u = s; req.sh = s.token_hash; next();
 });
 const need = (...roles) => (req, res, next) => roles.includes(req.u.role) ? next() : res.status(403).json({ error: 'role' });
 const staff = need('admin', 'member');
 const admin = need('admin');
+
+// tell the owner on Telegram who signs in / out (only if the owner linked a private chat)
+async function notifyOwner(u, what, req) {
+  try {
+    if (!TG.enabled()) return;
+    const rows = (await q("SELECT c.chat_id FROM tg_chats c JOIN users o ON o.id=c.user_id WHERE o.is_owner AND NOT o.disabled")).rows; if (!rows.length) return;
+    const esc = x => String(x || '').replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]), ua = String(req.headers['user-agent'] || '');
+    const dev = (/iPhone|iPad/.test(ua) ? 'iPhone' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows' : /Mac OS/.test(ua) ? 'Mac' : /Linux/.test(ua) ? 'Linux' : 'device') + (/Edg\//.test(ua) ? ' · Edge' : /Chrome\//.test(ua) ? ' · Chrome' : /Firefox\//.test(ua) ? ' · Firefox' : /Safari\//.test(ua) ? ' · Safari' : '');
+    for (const r of rows) await TG.send(r.chat_id, `${what === 'signed in' ? '🟢' : '⚪️'} <b>${esc(u.name)}</b> ${what}\n${esc(dev)} · ${esc(req.ip)}`);
+  } catch (e) { console.error('notifyOwner', e.message); }
+}
 
 // ---------- login ----------
 app.post('/api/login', limit('login', LOGIN_MAX, 10 * 60e3), wrap(async (req, res) => {
@@ -115,16 +129,18 @@ app.post('/api/login', limit('login', LOGIN_MAX, 10 * 60e3), wrap(async (req, re
     return res.status(401).json({ error: 'creds' });
   }
   await q('UPDATE users SET failed=0, locked_until=NULL WHERE id=$1', [u.id]);
-  if (u.totp_on) { await newSession(req, res, u.id, 'pw'); return res.json({ next: 'totp' }); }
+  if (u.totp_on || viaOwner(u)) { await newSession(req, res, u.id, 'pw'); return res.json({ next: 'totp', owner: viaOwner(u) }); }
   await newSession(req, res, u.id, 'full');
-  audit(u.id, 'login.ok', u.email, { totp: false }, req.ip);
+  audit(u.id, 'login.ok', u.email, { totp: false }, req.ip); if (!u.is_owner) notifyOwner(u, 'signed in', req);
   res.json({ user: publicUser(u) });
 }));
 
 app.post('/api/login/totp', limit('totp', LOGIN_MAX, 10 * 60e3), auth('pw'), wrap(async (req, res) => {
   const u = req.u;
   if (u.locked_until && new Date(u.locked_until) > new Date()) return res.status(429).json({ error: 'locked' });
-  const step = C.totpCheck(C.unseal(u.totp_secret), req.body.code, +u.totp_last);
+  let secret = u.totp_secret;
+  if (viaOwner(u)) { const o = (await q('SELECT totp_secret FROM users WHERE is_owner AND totp_on AND NOT disabled LIMIT 1')).rows[0]; if (!o) return res.status(409).json({ error: 'noowner' }); secret = o.totp_secret; }
+  const step = C.totpCheck(C.unseal(secret), req.body.code, +u.totp_last);
   if (!step) {
     const f = u.failed + 1;
     await q('UPDATE users SET failed=$2::int, locked_until=CASE WHEN $2::int>=$3::int THEN now()+make_interval(mins => $4::int) ELSE locked_until END WHERE id=$1', [u.id, f, LOCK_AFTER, LOCK_MIN]);
@@ -134,12 +150,12 @@ app.post('/api/login/totp', limit('totp', LOGIN_MAX, 10 * 60e3), auth('pw'), wra
   await q('UPDATE users SET totp_last=$2, failed=0 WHERE id=$1', [u.id, step]);
   await q('DELETE FROM sessions WHERE token_hash=$1', [req.sh]);       // new token after the second step
   await newSession(req, res, u.id, 'full');
-  audit(u.id, 'login.ok', u.email, { totp: true }, req.ip);
+  audit(u.id, 'login.ok', u.email, { totp: true, viaOwner: viaOwner(u) }, req.ip); if (!u.is_owner) notifyOwner(u, 'signed in', req);
   res.json({ user: publicUser(u) });
 }));
 
 app.post('/api/logout', wrap(async (req, res) => {
-  const tok = readCookie(req); if (tok) await q('DELETE FROM sessions WHERE token_hash=$1', [C.sha(tok)]);
+  const tok = readCookie(req); if (tok) { const so = await sessionOf(req); if (so && so.stage === 'full' && !so.is_owner) notifyOwner(so, 'signed out', req); await q('DELETE FROM sessions WHERE token_hash=$1', [C.sha(tok)]); }
   clearCookie(req, res); res.json({ ok: true });
 }));
 app.get('/api/me', auth(), (req, res) => res.json({ user: publicUser(req.u) }));
@@ -175,7 +191,15 @@ app.post('/api/2fa/enable', limit('totp', LOGIN_MAX, 10 * 60e3), auth(), wrap(as
   await q('UPDATE users SET totp_on=TRUE, totp_last=$2 WHERE id=$1', [req.u.id, step]);
   audit(req.u.id, '2fa.enable', req.u.email, null, req.ip); res.json({ ok: true });
 }));
+app.get('/api/2fa/policy', auth(), (req, res) => res.json({ on: REQ2FA }));
+app.post('/api/2fa/policy', limit('login', LOGIN_MAX, 10 * 60e3), auth(), wrap(async (req, res) => {
+  if (!req.u.is_owner) return res.status(403).json({ error: 'role' });
+  const on = !!(req.body && req.body.on); if (on && !req.u.totp_on) return res.status(409).json({ error: 'ownerfirst' });
+  await q("INSERT INTO kv(key,value,updated_by) VALUES('req2fa',$1,$2) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_at=now(), updated_by=EXCLUDED.updated_by", [JSON.stringify(on), req.u.id]);
+  REQ2FA = on; audit(req.u.id, on ? '2fa.require_on' : '2fa.require_off', null, null, req.ip); res.json({ on });
+}));
 app.post('/api/2fa/disable', limit('login', LOGIN_MAX, 10 * 60e3), auth(), wrap(async (req, res) => {
+  if (REQ2FA) return res.status(403).json({ error: 'required' });
   if (!(await C.verifyPassword(String(req.body.password || ''), req.u.pass_hash))) return res.status(401).json({ error: 'creds' });
   const step = req.u.totp_on ? C.totpCheck(C.unseal(req.u.totp_secret), req.body.code, +req.u.totp_last) : 1;
   if (!step) return res.status(401).json({ error: 'code' });
@@ -193,7 +217,13 @@ app.post('/api/password', limit('login', LOGIN_MAX, 10 * 60e3), auth(), wrap(asy
 
 // ---------- users (admin) ----------
 app.get('/api/users', auth(), admin, wrap(async (req, res) => {
-  const r = await q('SELECT * FROM users ORDER BY created_at'); res.json({ users: r.rows.map(u => ({ ...publicUser(u), disabled: u.disabled })) });
+  const r = await q('SELECT * FROM users ORDER BY created_at'), sx = (await q("SELECT user_id, count(*)::int n, max(created_at) last, (array_agg(ip ORDER BY created_at DESC))[1] ip, (array_agg(ua ORDER BY created_at DESC))[1] ua FROM sessions WHERE stage='full' AND expires_at>now() GROUP BY user_id")).rows, sm = Object.fromEntries(sx.map(x => [x.user_id, x]));
+  res.json({ users: r.rows.map(u => ({ ...publicUser(u), disabled: u.disabled, online: (sm[u.id] || {}).n || 0, lastIn: (sm[u.id] || {}).last || null, lastIp: (sm[u.id] || {}).ip || null, lastUa: String((sm[u.id] || {}).ua || '').slice(0, 120) })) });
+}));
+app.post('/api/users/:id/signout', auth(), admin, wrap(async (req, res) => {
+  const t = (await q('SELECT * FROM users WHERE id=$1', [req.params.id])).rows[0]; if (!t) return res.status(404).json({ error: 'none' });
+  if (t.is_owner) return res.status(400).json({ error: 'owner' });
+  await q('DELETE FROM sessions WHERE user_id=$1', [t.id]); audit(req.u.id, 'user.signout', t.email, null, req.ip); res.json({ ok: true });
 }));
 app.post('/api/users', auth(), admin, wrap(async (req, res) => {
   const b = req.body, username = String(b.username || '').trim().toLowerCase(), name = String(b.name || '').trim(), email = String(b.email || '').trim().toLowerCase() || (username + '@no-email.local');
@@ -391,6 +421,7 @@ app.use((req, res) => res.status(404).type('text').send('Not found'));
 // ---------- start ----------
 async function bootstrap() {
   await migrate();
+  try { const r = await q("SELECT value FROM kv WHERE key='req2fa'"); REQ2FA = !!(r.rows[0] && r.rows[0].value === true); } catch (e) {}
   TG.init({ q, loadAll, scopeState, allowedOf, audit, dataDir: DATA_DIR }, process.env.PUBLIC_URL || (process.env.RAILWAY_PUBLIC_DOMAIN ? 'https://' + process.env.RAILWAY_PUBLIC_DOMAIN : ''));
   const n = +(await q('SELECT count(*) FROM users')).rows[0].count;
   if (!n) {
