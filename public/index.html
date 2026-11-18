@@ -374,7 +374,7 @@ sp_by:["Split by","Bo‘lish usuli","Делить по"],sp_pct:["Percent","Foiz
 sp_addo:["Add owner","Egasini qo‘shish","Добавить владельца"],sp_bal:["Balance","Tenglashtirish","Выровнять"],sp_ok:["Adds up to {0}","Yig‘indisi {0}","Сумма {0}"],sp_over:["{0} over the total","Umumiydan {0} ortiq","Превышает на {0}"],sp_left:["{0} left to split","Bo‘linmagan {0}","Осталось разделить {0}"],
 iv_chg:["{0} charged to owner.","{0} egasiga yoziladi.","{0} записывается на владельца."],iv_chg_c:["{0} charged to the company.","{0} kompaniyaga yoziladi.","{0} записывается на компанию."],iv_chg_d:["{0} charged to the driver.","{0} driverga yoziladi.","{0} записывается на водителя."],
 iv_bad:["The split has to add up to the total.","Bo‘linma umumiy summaga teng bo‘lishi kerak.","Сумма частей должна равняться общей."],iv_need:["Pick a truck or a trailer.","Truck yoki treylerni tanlang.","Выберите грузовик или прицеп."],
-ir_t:["Invoice report","Hisob hisoboti","Отчёт по счетам"],ir_units:["Units","Unitlar","Юниты"],ir_exp1:["Most expensive first","Eng qimmati birinchi","Сначала дорогие"],ir_num:["By unit number","Unit raqami bo‘yicha","По номеру юнита"],
+ir_reason:["By reason","Sabab bo‘yicha","По причине"],ir_month:["By month","Oy bo‘yicha","По месяцам"],ir_t:["Invoice report","Hisob hisoboti","Отчёт по счетам"],ir_units:["Units","Unitlar","Юниты"],ir_exp1:["Most expensive first","Eng qimmati birinchi","Сначала дорогие"],ir_num:["By unit number","Unit raqami bo‘yicha","По номеру юнита"],
 ir_pdf:["PDF","PDF","PDF"],ir_with:["With each unit’s invoices","Har bir unit hisoblari bilan","С счетами каждого юнита"],ir_diag:["Diagram and totals only","Faqat diagramma va jami","Только диаграмма и итоги"],
 ir_note:["The report shows the invoices listed on the page now. To change what is in it, close this, and change the dates, who pays or the other filters.","Hisobot sahifadagi hisoblarni ko‘rsatadi. O‘zgartirish uchun buni yoping va sana, kim to‘lashi yoki boshqa filtrlarni o‘zgartiring.","Отчёт включает счета, показанные на странице. Чтобы изменить состав, закройте окно и поменяйте даты, плательщика или другие фильтры."],
 ir_none:["No invoices match the page filters, so there is nothing to report.","Sahifa filtrlariga mos hisob yo‘q, hisobot bo‘sh.","Нет счетов под фильтры страницы, отчёт пуст."],ir_dl:["Download PDF","PDF yuklab olish","Скачать PDF"],
@@ -1040,9 +1040,12 @@ function invForm(id){const x=id?byId(DB.inv,id):null,f=x||{};PG.sp={by:f.sby||"p
  setTimeout(()=>{const w=$("#f_who"),am=$("#f_amt");if(w){w.onchange=spDraw;spDraw()}if(am)am.addEventListener("input",spBal)},50)}
 A.ivReport=()=>{const L=invFiltered();if(!L.length){modal({title:t("ir_t"),icon:"file",w:420,body:`<div class="em">${t("ir_none")}</div>`,foot:`<button class="b" data-a="mdClose">${t("close")}</button>`});return}
  const st=PG.ir={ord:"exp",det:true},draw=()=>{const m={};L.forEach(x=>{const k=invUnits(x);(m[k]=m[k]||[]).push(x)});let U=Object.entries(m).map(([k,a])=>[k,a,a.reduce((s,x)=>s+(+x.amt||0),0)]);U.sort(st.ord=="exp"?(a,b)=>b[2]-a[2]:(a,b)=>natCmp(a[0],b[0]));PG.irU=U;const mx=Math.max(1,...U.map(u=>u[2]));
-  $("#irb").innerHTML=`<div class="mu" style="margin-bottom:8px">${t("iv_n",L.length)} · ${money(L.reduce((s,x)=>s+(+x.amt||0),0))}</div>`+U.map(([k,a,v])=>`<div style="margin:10px 0"><div class="row" style="justify-content:space-between"><b>${esc(k)}</b><b>${money(v)}</b></div><div style="height:6px;border-radius:3px;background:var(--p2);margin:4px 0"><div style="height:6px;border-radius:3px;background:var(--ac);width:${Math.round(v/mx*100)}%"></div></div>${st.det?a.map(x=>`<div class="mu" style="font-size:12px">${fd(x.date)} · ${t("r_t_"+x.reason)} · ${esc(x.desc||"")} · ${money(x.amt)}</div>`).join(""):""}</div>`).join("")};
+  $("#irb").innerHTML=`<div class="mu" style="margin-bottom:8px">${t("iv_n",L.length)} · ${money(L.reduce((s,x)=>s+(+x.amt||0),0))}</div>`+U.map(([k,a,v])=>`<div style="margin:10px 0"><div class="row" style="justify-content:space-between"><b>${esc(k)}</b><b>${money(v)}</b></div><div style="height:6px;border-radius:3px;background:var(--p2);margin:4px 0"><div style="height:6px;border-radius:3px;background:var(--ac);width:${Math.round(v/mx*100)}%"></div></div>${st.det?a.map(x=>`<div class="mu" style="font-size:12px">${fd(x.date)} · ${t("r_t_"+x.reason)} · ${esc(x.desc||"")} · ${money(x.amt)}</div>`).join(""):""}</div>`).join("")+irMore(L)};
  modal({title:t("ir_t"),icon:"file",w:700,body:`<div class="row" style="margin-bottom:10px"><span class="mu">${t("ir_units")}</span>${sgH([["exp",t("ir_exp1")],["num",t("ir_num")]],"exp","irOrd")}${sgH([["1",t("ir_with")],["0",t("ir_diag")]],"1","irDet")}</div><div id="irb"></div><p class="mu" style="font-size:12px">${t("ir_note")}</p>`,foot:`<button class="b bp" id="irp">${t("ir_dl")}</button>`});
- PG.irRe=draw;draw();$("#irp").onclick=()=>printHTML(t("ir_t"),$("#irb").innerHTML)};
+ PG.irRe=draw;draw();$("#irp").onclick=()=>saveBlob("invoice-report-"+fdate()+".pdf",invoiceReportPdf(L,st.ord,st.det,{units:PG.irU,reasonOf:x=>t("r_t_"+x.reason)}),"application/pdf")};
+function irMore(L){const sum=L.reduce((s,x)=>s+(+x.amt||0),0)||1,R={},M={};L.forEach(x=>{R[x.reason]=(R[x.reason]||0)+(+x.amt||0);const k=(x.date||"").slice(0,7)||"?";M[k]=(M[k]||0)+(+x.amt||0)});
+ const re=Object.entries(R).sort((a,b)=>b[1]-a[1]),mk=Object.keys(M).sort().slice(-12),mm=Math.max(1,...mk.map(k=>M[k]));
+ return `<div class="sec" style="margin:18px 0 6px">${t("ir_reason")}</div>`+re.map(([k,v])=>`<div class="row" style="justify-content:space-between;font-size:13px"><span>${t("r_t_"+k)}</span><b>${money(v)} · ${Math.round(v/sum*100)}%</b></div><div style="height:6px;border-radius:3px;background:var(--p2);margin:3px 0 8px"><div style="height:6px;border-radius:3px;background:var(--ac);width:${Math.round(v/re[0][1]*100)}%"></div></div>`).join("")+(mk.length>1?`<div class="sec" style="margin:18px 0 6px">${t("ir_month")}</div><div style="display:flex;align-items:flex-end;gap:8px;height:120px">${mk.map(k=>`<div style="flex:1;text-align:center;font-size:11px"><div style="font-weight:700">${money(M[k]).replace(/\.00$/,"")}</div><div style="background:var(--ac);border-radius:4px 4px 0 0;height:${Math.max(2,Math.round(M[k]/mm*80))}px"></div><div class="mu">${k.slice(2)}</div></div>`).join("")}</div>`:"")}
 A.irOrd=el=>{PG.ir.ord=el.dataset.v;el.parentElement.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b==el));PG.irRe()};A.irDet=el=>{PG.ir.det=el.dataset.v=="1";el.parentElement.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b==el));PG.irRe()};
 
 /* ===== VENDORS ===== */
@@ -1209,7 +1212,7 @@ function xlsxBytes(cols,rows,sheet){
  return zipStore(F.map(([n,s])=>[n,U8(s)]))}
 let COLNUM=new Set();
 const CYR={"а":"a","б":"b","в":"v","г":"g","д":"d","е":"e","ё":"yo","ж":"zh","з":"z","и":"i","й":"y","к":"k","л":"l","м":"m","н":"n","о":"o","п":"p","р":"r","с":"s","т":"t","у":"u","ф":"f","х":"kh","ц":"ts","ч":"ch","ш":"sh","щ":"shch","ъ":"","ы":"y","ь":"","э":"e","ю":"yu","я":"ya"};
-const asc=s=>String(s??"").replace(/[‘’ʻʼ`]/g,"'").replace(/[“”]/g,'"').replace(/[–—]/g,"-").replace(/[А-Яа-яЁё]/g,c=>{const l=c.toLowerCase(),r=CYR[l]||"";return c==l?r:r.charAt(0).toUpperCase()+r.slice(1)}).replace(/[oO]ʻ/g,"o'").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^\x20-\x7e]/g,"?");
+const asc=s=>String(s??"").replace(/[·•]/g,"-").replace(/[‘’ʻʼ`]/g,"'").replace(/[“”]/g,'"').replace(/[–—]/g,"-").replace(/[А-Яа-яЁё]/g,c=>{const l=c.toLowerCase(),r=CYR[l]||"";return c==l?r:r.charAt(0).toUpperCase()+r.slice(1)}).replace(/[oO]ʻ/g,"o'").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^\x20-\x7e]/g,"?");
 const pe=s=>asc(s).replace(/[\\()]/g,"\\$&");
 function pdfBytes(title,cols,rows,sub){
  const W=842,H=595,M=34,fs=8.5,lh=14,CW=5.0;                       // A4 landscape, Helvetica 8.5pt (~avg glyph 5pt)
@@ -1246,6 +1249,48 @@ A.trReport=()=>{const R=PG.rp=PG.rp||{scope:"board",sort:"status"},cols=[t("tl_u
   $("#rxl").onclick=()=>exportXlsx("trucks",cols,rows,t("tr_rep"),[t("tr_miles")]);
   $("#rpd").onclick=()=>exportPdf("trucks",t("tr_rep"),cols,rows,`TOPGFLEET · ${new Date().toLocaleString()} · ${rows.length} ${t("t_total")}`)};
  A.rpSet=el=>{R[el.dataset.k]=el.dataset.v;draw()};draw()};
+
+/* ===== PDF documents with charts (invoice report) ===== */
+function PDFDoc(){const W=595,H=842,M=40,pages=[];let cur=null,y=0;
+ const rgb=h=>{h=String(h||"#000000").replace("#","");return[0,2,4].map(i=>(parseInt(h.substr(i,2),16)/255).toFixed(3)).join(" ")};
+ const tw=(s,sz,b)=>{let w=0;for(const ch of asc(s))w+=/\d/.test(ch)?.556:/[A-Z]/.test(ch)?.68:ch==" "?.278:/[ilI.,:;'|!]/.test(ch)?.26:/[mwMW]/.test(ch)?.8:.52;return w*sz*(b?1.06:1)};
+ const d={W,H,M,get y(){return y},set y(v){y=v},
+  page(){cur=[];pages.push(cur);y=H-M;return d},
+  need(h){if(!cur||y-h<M+16)d.page()},
+  text(s,x,sz,o){o=o||{};let X=x;if(o.right)X=x-tw(s,sz,o.b);else if(o.center)X=x-tw(s,sz,o.b)/2;cur.push(`BT /${o.b?"F2":"F1"} ${sz} Tf ${rgb(o.c||"#111111")} rg ${X.toFixed(1)} ${y.toFixed(1)} Td (${pe(s)}) Tj ET`)},
+  rect(x,yy,w,h,c){if(w>0&&h>0)cur.push(`${rgb(c)} rg ${x.toFixed(1)} ${yy.toFixed(1)} ${w.toFixed(1)} ${h.toFixed(1)} re f`)},
+  hr(c){cur.push(`${rgb(c||"#dddddd")} RG 0.6 w ${M} ${y.toFixed(1)} m ${W-M} ${y.toFixed(1)} l S`)},
+  fit(s,w,sz,b){s=asc(s);if(tw(s,sz,b)<=w)return s;while(s.length>1&&tw(s+"...",sz,b)>w)s=s.slice(0,-1);return s+"..."},
+  tw,
+  bytes(footer){const objs=[];const add=s=>(objs.push(s),objs.length);add("<< /Type /Catalog /Pages 2 0 R >>");add("PAGES");const f1=add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>"),f2=add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>"),kids=[];
+   pages.forEach((p,i)=>{const ft=[`BT /F1 8 Tf ${rgb("#888888")} rg ${M} 24 Td (${pe(footer||"")}) Tj ET`,`BT /F1 8 Tf ${rgb("#888888")} rg ${W-M-40} 24 Td (${i+1} / ${pages.length}) Tj ET`],body=p.concat(ft).join("\n"),c=add(`<< /Length ${body.length} >>\nstream\n${body}\nendstream`),pg=add(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 ${f1} 0 R /F2 ${f2} 0 R >> >> /Contents ${c} 0 R >>`);kids.push(pg+" 0 R")});
+   objs[1]=`<< /Type /Pages /Kids [${kids.join(" ")}] /Count ${pages.length} >>`;let out="%PDF-1.4\n";const offs=[];objs.forEach((o,i)=>{offs.push(out.length);out+=`${i+1} 0 obj\n${o}\nendobj\n`});
+   const xr=out.length;out+=`xref\n0 ${objs.length+1}\n0000000000 65535 f \n`+offs.map(o=>String(o).padStart(10,"0")+" 00000 n \n").join("")+`trailer\n<< /Size ${objs.length+1} /Root 1 0 R >>\nstartxref\n${xr}\n%%EOF`;return Uint8Array.from(out,c=>c.charCodeAt(0)&255)}};
+ return d}
+const BARC=["#6d5ae6","#3b82f6","#14b8a6","#f59e0b","#ec4899","#22c55e","#a855f7","#ef4444"];
+function pdfHBars(doc,title,rows,fmt){ // rows: [label, value]
+ if(!rows.length)return;const tot=rows.reduce((s,r)=>s+r[1],0)||1,mx=Math.max(1,...rows.map(r=>r[1])),lw=120,rw=118,bx=doc.M+lw+8,bw=doc.W-doc.M-rw-bx;
+ doc.need(40);doc.text(title,doc.M,11,{b:1});doc.y-=8;doc.hr();doc.y-=14;
+ rows.forEach(([k,v],i)=>{doc.need(20);doc.text(doc.fit(k,lw,9,1),doc.M,9,{b:1});doc.rect(bx,doc.y-3,bw,10,"#eceef3");doc.rect(bx,doc.y-3,Math.max(1.5,bw*v/mx),10,BARC[i%BARC.length]);doc.text(fmt(v)+"  "+Math.round(v/tot*100)+"%",doc.W-doc.M,9,{right:1,b:1});doc.y-=19});
+ doc.y-=6}
+function pdfVBars(doc,title,rows,fmt){ // months
+ if(!rows.length)return;const mx=Math.max(1,...rows.map(r=>r[1])),ch=110,n=rows.length,gap=10,bw=Math.min(54,(doc.W-2*doc.M-gap*(n-1))/n);
+ doc.need(ch+60);doc.text(title,doc.M,11,{b:1});doc.y-=8;doc.hr();doc.y-=16;const base=doc.y-ch,x0=doc.M+((doc.W-2*doc.M)-(n*bw+(n-1)*gap))/2;
+ rows.forEach(([k,v],i)=>{const h=Math.max(1.5,ch*v/mx),x=x0+i*(bw+gap);doc.rect(x,base,bw,h,BARC[0]);const sv=doc.y;doc.y=base+h+4;doc.text(fmt(v),x+bw/2,8,{center:1,b:1});doc.y=base-12;doc.text(k,x+bw/2,8,{center:1,c:"#555555"});doc.y=sv});
+ doc.y=base-30}
+function invoiceReportPdf(L,ord,det,m){ // m = {units:[[label,[inv],total]], reasonOf, unitOf}
+ const doc=PDFDoc().page(),sum=L.reduce((s,x)=>s+(+x.amt||0),0),$$=n=>"$"+(+n||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+ doc.text("Invoice report",doc.M,20,{b:1});doc.y-=18;doc.text("TOPGFLEET  ·  "+new Date().toLocaleDateString("en-US",{year:"numeric",month:"short",day:"numeric"}),doc.M,9,{c:"#777777"});doc.y-=22;
+ const kp=[["Total",$$(sum)],["Invoices",String(L.length)],["Units",String(m.units.length)],["Average",$$(L.length?sum/L.length:0)]],kw=(doc.W-2*doc.M-3*10)/4;
+ kp.forEach(([k,v],i)=>{const x=doc.M+i*(kw+10);doc.rect(x,doc.y-30,kw,44,"#f3f4f8");const sv=doc.y;doc.y=sv-2;doc.text(k,x+10,8,{c:"#777777"});doc.y=sv-20;doc.text(v,x+10,13,{b:1});doc.y=sv});doc.y-=52;
+ pdfHBars(doc,"By unit",m.units.map(u=>[u[0],u[2]]),$$);
+ const R={};L.forEach(x=>{const k=m.reasonOf(x);R[k]=(R[k]||0)+(+x.amt||0)});pdfHBars(doc,"By reason",Object.entries(R).sort((a,b)=>b[1]-a[1]),$$);
+ const M2={};L.forEach(x=>{const k=(x.date||"").slice(0,7)||"?";M2[k]=(M2[k]||0)+(+x.amt||0)});const mk=Object.keys(M2).sort().slice(-12);
+ if(mk.length>1)pdfVBars(doc,"By month",mk.map(k=>[k=="?"?"?":new Date(k+"-15").toLocaleDateString("en-US",{month:"short",year:"2-digit"}),M2[k]]),$$);
+ if(det){doc.page();doc.text("Invoices by unit",doc.M,14,{b:1});doc.y-=22;
+  m.units.forEach(([k,a,v])=>{doc.need(46);doc.rect(doc.M-4,doc.y-5,doc.W-2*doc.M+8,17,"#eef0f6");doc.text(doc.fit(k,300,10,1),doc.M,10,{b:1});doc.text($$(v),doc.W-doc.M,10,{right:1,b:1});doc.y-=20;
+   a.slice().sort((p,q)=>String(p.date).localeCompare(q.date)).forEach(x=>{doc.need(14);doc.text(x.date||"",doc.M,8.5,{c:"#555555"});doc.text(doc.fit(m.reasonOf(x),90,8.5),doc.M+62,8.5);doc.text(doc.fit(x.desc||"",doc.W-2*doc.M-62-90-80-70,8.5),doc.M+160,8.5,{c:"#555555"});doc.text(doc.fit(x.num?"#"+x.num:"",70,8.5),doc.W-doc.M-85,8.5,{right:1,c:"#777777"});doc.text($$(x.amt),doc.W-doc.M,8.5,{right:1});doc.y-=13});doc.y-=8})}
+ return doc.bytes("TOPGFLEET · Invoice report")}
 /* ===== ATTACHMENTS: choose / drag & drop / paste, upload to the server ===== */
 Object.assign(D,{
 att_t:["Attachments","Fayllar","Файлы"],att_pick:["Choose files","Fayl tanlash","Выбрать файлы"],
