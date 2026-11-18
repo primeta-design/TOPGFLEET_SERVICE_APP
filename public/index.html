@@ -168,7 +168,7 @@ tr.rw{cursor:pointer}tr.rw:hover td{background:var(--p2)}
 .tmb{display:inline-flex;gap:0;border:1px solid var(--ln);border-radius:9px;overflow:hidden}.tmb button{padding:6px 14px;font-size:12.5px;background:var(--bg);color:var(--mu);border:0}.tmb button.on{background:var(--ac);color:#fff;font-weight:600}.tmb button:not(.on):hover{background:var(--p2)}
 .tmro{font-size:10px;letter-spacing:.05em;font-weight:700;padding:1px 7px;border-radius:6px;text-transform:uppercase}
 #ts button{margin-left:12px;background:none;border:0;color:inherit;text-decoration:underline;font-weight:700;cursor:pointer}
-.tmadd{border-style:dashed;color:var(--mu)}.tmadd:hover{color:var(--tx);border-color:var(--ac)}.tmpop{margin-top:8px;padding:10px;border:1px solid var(--ln);border-radius:10px;background:var(--pn)}.tmc svg{opacity:.6}.coinv{max-width:210px;font-size:12.5px}.pr:has(.coinv){flex-wrap:wrap}@media(max-width:700px){.coinv{max-width:none;flex-basis:100%}}</style></head><body>
+.tmadd{border-style:dashed;color:var(--mu)}.tmadd:hover{color:var(--tx);border-color:var(--ac)}.tmpop{margin-top:8px;padding:10px;border:1px solid var(--ln);border-radius:10px;background:var(--pn)}.tmc svg{opacity:.6}.coinv{max-width:210px;font-size:12.5px}.pr:has(.coinv){flex-wrap:wrap}@media(max-width:700px){.coinv{max-width:none;flex-basis:100%}}.pwd input{padding-right:40px}.pwd .bi{display:flex;align-items:center;justify-content:center}.pwd .bi:focus-visible{outline:2px solid var(--ac)}</style></head><body>
 <div id="app"></div><div id="dr"></div><div id="md"></div><div id="ts" role="status"></div><div id="prt" class="hide"></div>
 <script>
 "use strict";
@@ -1764,6 +1764,11 @@ A.tplSend2=async()=>{if(!SERVER||USER.role!="admin"){toast(t("tg_nosend"),"er");
 function deepOpen(){if(!SERVER||!S.in)return;let id=null;try{id=new URLSearchParams(location.search).get("id")}catch(e){}if(!id)return;
  if(V=="invoices"&&byId(DB.inv,id)){try{history.replaceState(null,"",location.pathname)}catch(e){}A.openInv({dataset:{id}})}else if(V=="invoices"){try{history.replaceState(null,"",location.pathname)}catch(e){}toast(t("dl_gone"),"er")}}
 Object.assign(D,{dl_gone:["That invoice was not found. It may have been deleted, or it belongs to another company.","Bu invoice topilmadi. U o‘chirilgan yoki boshqa kompaniyaniki bo‘lishi mumkin.","Этот счёт не найден. Возможно, он удалён или относится к другой компании."]});
+/* ----- show/hide eye on every password field ----- */
+P.eyeoff='<path d="M3 3l18 18M10.6 6.2A9.6 9.6 0 0 1 12 6c6 0 10 6 10 6a17 17 0 0 1-3.2 3.9M6.1 7.6C3.6 9.3 2 12 2 12s4 7 10 7c1.5 0 2.9-.4 4.1-1M9.9 9.9a3 3 0 0 0 4.2 4.2"/>';
+A.eye=el=>{const i=el.parentElement.querySelector("input");if(!i)return;const show=i.type=="password";i.type=show?"text":"password";el.innerHTML=ic(show?"eyeoff":"eye",16);el.setAttribute("aria-label",show?"Hide":"Show");el.title=show?"Hide":"Show";i.focus()};
+function addEyes(){document.querySelectorAll('input[type=password]:not([data-eye])').forEach(i=>{i.dataset.eye=1;if(i.closest(".pwd"))return;const w=document.createElement("div");w.className="pwd";i.parentNode.insertBefore(w,i);w.appendChild(i);const b=document.createElement("button");b.type="button";b.className="bi";b.dataset.a="eye";b.title="Show";b.setAttribute("aria-label","Show");b.tabIndex=-1;b.innerHTML=ic("eye",16);w.appendChild(b)})}
+try{new MutationObserver(addEyes).observe(document.body,{childList:true,subtree:true});addEyes()}catch(e){}
 /* ----- start ----- */
 async function boot(){
  const r=await api("GET","/api/me",undefined,4000);
