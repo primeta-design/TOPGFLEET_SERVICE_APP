@@ -584,7 +584,7 @@ function shell0(){const n=alertList().length;
 <div class="pw"><div class="usr" data-a="shpop" data-p="userp" tabindex="0" role="button"><span class="av" style="background:${S.col}">${ini(S.name)}</span><span>${esc(S.name)}</span>${ic("chev",14)}</div><div class="pop sh" id="userp" style="width:200px"><button class="pi" data-a="nav" data-v="profile">${ic("user",16)} ${t("profile")}</button><button class="pi" data-a="nav" data-v="companies">${ic("store",16)} ${t("companies")}</button><button class="pi dng" data-a="logout">${ic("out",16)} ${t("logout")}</button></div></div></div><main id="c"></main></div>`}
 /* loginView(), A.login, A.logout live in g_server.js */
 function render(){theme();const a=$("#app");if(!S.in){a.innerHTML=loginView();a.style.justifyContent="center";return}
- if(typeof seedCompanies=="function"&&isAdm())seedCompanies();a.style.justifyContent="";a.innerHTML=shell();page()}
+ if(typeof seedCompanies=="function"&&isAdm())seedCompanies();a.style.justifyContent="";a.innerHTML=shell();page();if(typeof deepOpen=="function")deepOpen()}
 function page(){const c=$("#c");if(!c)return;const ae=document.activeElement,id=ae&&ae.id,ss=ae&&ae.selectionStart,sc=c.scrollTop;
  c.innerHTML=scoped(PAGES[V]||PAGES.today);c.scrollTop=sc;if(id&&c.querySelector("#"+id)){const n=$("#"+id);n.focus();try{n.setSelectionRange(ss,ss)}catch(e){}}if(PG.after){PG.after()}}
 function shellRefresh(){const sd=$("#sd");if(!sd)return;const keep=sd.classList.contains("open");const a=$("#app");const sc=$("#c")?$("#c").scrollTop:0;a.innerHTML=shell();if(keep)$("#sd").classList.add("open");page();$("#c").scrollTop=sc}
@@ -1545,6 +1545,10 @@ A.tgReconn=async()=>{const r=await api("POST","/api/tg/reconnect");toast(r.s==20
 A.tgSave=async()=>{save();if(SERVER&&USER.role=="admin"){await flushNow();const r=await api("POST","/api/tg/test");if(r.s==200){const L=r.j.results;toast(L.length?L.map(x=>x.group+": "+(x.ok?"OK":x.error)).join(" · "):t("tgc_none"),L.every(x=>x.ok)&&L.length?"":"er");return}}toast(t("tg_saved"))};
 A.tplSend2=async()=>{if(!SERVER||USER.role!="admin"){toast(t("tg_nosend"),"er");return}await flushNow();const r=await api("POST","/api/tg/send-now");toast(r.s==200&&r.j.ok?t("tgc_sent"):(r.j&&r.j.error)||t("tgc_none"),r.s==200&&r.j.ok?"":"er")};
 
+/* ----- deep link: /invoices?id=... opens that invoice once ----- */
+function deepOpen(){if(!SERVER||!S.in)return;let id=null;try{id=new URLSearchParams(location.search).get("id")}catch(e){}if(!id)return;
+ if(V=="invoices"&&byId(DB.inv,id)){try{history.replaceState(null,"",location.pathname)}catch(e){}A.openInv({dataset:{id}})}else if(V=="invoices"){try{history.replaceState(null,"",location.pathname)}catch(e){}toast(t("dl_gone"),"er")}}
+Object.assign(D,{dl_gone:["That invoice was not found. It may have been deleted, or it belongs to another company.","Bu invoice topilmadi. U o‘chirilgan yoki boshqa kompaniyaniki bo‘lishi mumkin.","Этот счёт не найден. Возможно, он удалён или относится к другой компании."]});
 /* ----- start ----- */
 async function boot(){
  const r=await api("GET","/api/me",undefined,4000);
