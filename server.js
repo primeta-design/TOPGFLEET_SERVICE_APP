@@ -296,8 +296,9 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
       kv.pti = merged;
     }
   }
-  const issueUps = upserts.filter(x => x.c === 'issues');
-  const had = issueUps.length ? new Set((await q("SELECT id FROM records WHERE coll='issues' AND id=ANY($1)", [issueUps.map(x => x.id)])).rows.map(r => r.id)) : new Set();
+  const issueUps = upserts.filter(x => x.c === 'issues'), invUps = upserts.filter(x => x.c === 'inv');
+  const existing = async (coll, L) => L.length ? new Set((await q('SELECT id FROM records WHERE coll=$1 AND id=ANY($2)', [coll, L.map(x => x.id)])).rows.map(r => r.id)) : new Set();
+  const had = await existing('issues', issueUps), hadInv = await existing('inv', invUps);
   const cl = await pool.connect();
   try {
     await cl.query('BEGIN');
@@ -312,6 +313,7 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
   if (upserts.length || deletes.length || kvKeys.length)
     audit(req.u.id, 'sync', null, { up: upserts.slice(0, 50).map(x => x.c + '/' + x.id), upN: upserts.length, del: deletes.slice(0, 50).map(x => x.c + '/' + x.id), delN: deletes.length, kv: kvKeys }, req.ip);
   const fresh = issueUps.filter(x => !had.has(x.id)).map(x => x.d); if (fresh.length) TG.notifyNewIssues(fresh);
+  const freshInv = invUps.filter(x => !hadInv.has(x.id)).map(x => x.d); if (freshInv.length) TG.notifyNewInvoices(freshInv);
   res.json({ ok: true });
 }));
 
