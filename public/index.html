@@ -240,7 +240,7 @@ tr_ins:["Insurance","Sug‘urta","Страховка"],tr_own:["Ownership","Egal
 tr_year:["Year","Yil","Год"],tr_make:["Make","Marka","Марка"],tr_model:["Model","Model","Модель"],tr_vin:["VIN","VIN","VIN"],tr_plate:["License plate","Davlat raqami","Госномер"],
 tr_cab:["Cab card expiry","Cab card muddati","Срок cab card"],tr_driver:["Driver","Driver","Водитель"],tr_miles:["Current mileage","Joriy probeg","Текущий пробег"],
 tr_tg:["Telegram group chat id","Telegram guruh chat id","ID чата Telegram-группы"],tr_tg_h:["Connects this truck to the PTI Board. Add the bot to the group first.","Truckni PTI taxtasiga ulaydi. Avval botni guruhga qo‘shing.","Подключает грузовик к доске PTI. Сначала добавьте бота в группу."],
-own_co:["Company-owned","Kompaniyaniki","Собственность компании"],own_oo:["Owner-operator","Owner-operator","Owner-operator"],own_le:["Leased","Lizing","Лизинг"],
+own_co:["Company","Kompaniya","Компания"],own_oo:["Owner operator","Owner operator","Owner operator"],own_le:["Vendor","Vendor","Вендор"],
 tr_add_t:["Add Truck","Truck qo‘shish","Добавить грузовик"],tr_edit_t:["Truck","Truck","Грузовик"],
 tr_noco:["Add a company first (Profile → Companies).","Avval kompaniya qo‘shing (Profil → Kompaniyalar).","Сначала добавьте компанию (Профиль → Компании)."],
 pl_title:["Service plans","Servis rejalari","Планы обслуживания"],pl_none:["No plans yet. Add one for oil change, brakes or any service.","Reja yo‘q. Oil change, tormoz yoki boshqa servis uchun qo‘shing.","Планов пока нет. Добавьте для замены масла, тормозов или другого сервиса."],
@@ -698,7 +698,7 @@ function trucksFiltered(){const s=trS(),q=s.q.toLowerCase(),a=s.adv;
  L.sort(s.sort=="unit"?(a,b)=>natCmp(a.num,b.num):s.sort=="driver"?(a,b)=>((driverOf(a.id)||{name:"~"}).name).localeCompare((driverOf(b.id)||{name:"~"}).name):s.sort=="miles"?(a,b)=>(+b.miles||0)-(+a.miles||0):s.sort=="comp"?(a,b)=>(compOf(a.company)||{n:"~"}).n.localeCompare((compOf(b.company)||{n:"~"}).n):(a,b)=>si(a)-si(b)||natCmp(a.num,b.num));return L}
 const advN=a=>(a.comp.length?1:0)+["drv","ins","cab","pm"].filter(k=>a[k]!="any").length;
 const pmTag=tr=>{const p=truckPM(tr);return p=="over"?tag(t("pm_over"),"var(--rd)"):p=="soon"?tag(t("pm_soon"),"var(--am)"):p=="ok"?tag(t("pm_ok"),"var(--gn)"):`<span class="mu">–</span>`};
-const OWNL={co:"C",oo:"O/O",le:"L"};
+const OWNL={co:"C",le:"V",oo:"O/O"};
 function sinceTxt(ts){if(!ts)return"";const m=Math.max(0,Math.round((Date.now()-ts)/60000)),w=m<60?m+"m":m<2880?Math.round(m/60)+"h":Math.round(m/1440)+"d";return t("tc_since")+" "+w}
 A.noop=()=>{};
 C.trStatus=el=>{const tr=byId(DB.trucks,el.dataset.id);if(!tr)return;tr.status=el.value;tr.stAt=Date.now();refresh()};
@@ -762,7 +762,7 @@ function openTruck(id){const tr=id?byId(DB.trucks,id):null;if(!S.comps.length){t
  openForm({title:tr?`${t("tr_edit_t")} ${esc(tr.num)}`:t("tr_add_t"),icon:"truck",pre,post,save:tr?t("save"):t("tr_add_t"),
  fields:[{k:"num",l:t("tr_unit"),req:true,half:true,ph:"4382",val:f.num},{k:"status",l:t("tr_status"),t:"select",half:true,o:S.stat.map(s=>[s.id,s.n]),val:f.status||S.stat[0].id},
  {k:"company",l:t("tr_comp"),req:true,half:true,t:"select",o:[["",t("tr_choosec")],...S.comps.map(c=>[c.id,c.n])],val:f.company||(curCo()!="all"?curCo():S.comps.length==1?S.comps[0].id:"")},{k:"ins",l:t("tr_ins"),half:true,t:"select",o:[["",t("notrec")],["cov",t("fl_cov")],["unc",t("fl_unc")]],val:f.ins},
- {k:"own",l:t("tr_own"),half:true,t:"select",o:[["",t("notrec")],["oo","O/O · "+t("own_oo")],["le","L · "+t("own_le")],["co","C · "+t("own_co")]],val:f.own},{k:"owner",l:t("tr_ownr"),half:true,ph:"John A. Smith",val:f.owner},
+ {k:"own",l:t("tr_own"),half:true,t:"select",o:[["",t("notrec")],["co","C · "+t("own_co")],["le","V · "+t("own_le")],["oo","O/O · "+t("own_oo")]],val:f.own},{k:"owner",l:t("tr_ownr"),half:true,ph:"John A. Smith",val:f.owner},
  {k:"year",l:t("tr_year"),req:true,half:true,t:"number",ph:"2019",val:f.year},{k:"make",l:t("tr_make"),req:true,half:true,ph:"Freightliner",val:f.make},{k:"model",l:t("tr_model"),req:true,ph:"Cascadia",val:f.model},
  {k:"vin",l:t("tr_vin"),req:true,ph:"1FUJGHDV8KLKJ4382",val:f.vin},{k:"plate",l:t("tr_plate"),half:true,ph:"P1215429",val:f.plate},{k:"cab",l:t("tr_cab"),half:true,t:"date",val:f.cab},
  {k:"driver",l:t("tr_driver"),t:"select",o:[["",t("unassigned")],...DB.drivers.map(x=>[x.id,x.name])],val:d?d.id:""},{k:"miles",l:t("tr_miles"),t:"number",min:0,ph:"450000",val:f.miles},
@@ -1236,6 +1236,7 @@ A.trReport=()=>{const R=PG.rp=PG.rp||{scope:"board",sort:"status"},cols=[t("tl_u
    When /api answers (the site is served by server.js) the app uses the server.
    Anywhere else (a preview, a file on disk) it falls back to the local demo mode. */
 Object.assign(D,{
+sv_noconn:["Connection problem","Ulanishda muammo","Проблема соединения"],sv_noconn_s:["The server is not responding. Please try again in a moment.","Server javob bermayapti. Birozdan keyin qayta urinib ko‘ring.","Сервер не отвечает. Повторите попытку через минуту."],sv_retry:["Try again","Qayta urinish","Повторить"],
 sv_edit:["Edit","Tahrirlash","Изменить"],sv_cur:["Current password","Joriy parol","Текущий пароль"],tm_color:["Change colour","Rangni o‘zgartirish","Сменить цвет"],pw:["Password","Parol","Пароль"],
 sv_bad:["Wrong e-mail or password.","E-mail yoki parol noto‘g‘ri.","Неверный e-mail или пароль."],
 sv_locked:["Too many attempts. This account is locked for 15 minutes.","Juda ko‘p urinish. Akkaunt 15 daqiqaga bloklandi.","Слишком много попыток. Аккаунт заблокирован на 15 минут."],
@@ -1284,6 +1285,7 @@ async function api(method,url,body,ms){const ac=new AbortController(),tm=ms?setT
 
 /* ----- login screen (server + local demo) ----- */
 function loginView(){const sv_=SERVER,tot=sv_&&LS.step=="totp";
+ if(!sv_)return `<div style="margin:auto;width:min(380px,92vw)"><div class="card cp" style="padding:26px;text-align:center"><div class="brand" style="font-size:22px;padding:0 0 10px;justify-content:center"><div class="logo" style="width:44px;height:44px">${logo(28)}</div><span>TOPG<b style="color:var(--ac)">FLEET</b></span></div><h3 style="margin:6px 0">${t("sv_noconn")}</h3><p class="mu" style="font-size:12.5px">${t("sv_noconn_s")}</p><button class="b bp" data-a="retry" style="width:100%;padding:10px;margin-top:10px">${t("sv_retry")}</button></div><div class="row" style="justify-content:center;margin-top:14px">${tabsH(LG.map((l,i)=>[l,LN[i]]),S.lang,"lang")}</div></div>`;
  return `<div style="margin:auto;width:min(360px,92vw)"><div class="card cp" style="padding:26px"><div class="brand" style="font-size:22px;padding:0 0 4px"><div class="logo" style="width:44px;height:44px">${logo(28)}</div><span>TOPG<b style="color:var(--ac)">FLEET</b></span></div><p class="mu" style="margin:0 0 18px;font-size:12px">${t("signto")}</p>
 ${LS.err?`<div class="note er" style="grid-column:auto;margin-bottom:12px" role="alert">${esc(LS.err)}</div>`:""}
 ${tot?`<p class="mu" style="margin:0 0 10px">${t("sv_code_s")}</p><div class="fd" style="margin-bottom:14px"><input id="lcode" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456" aria-label="${t("sv_code")}" data-enter="login" style="font-size:20px;letter-spacing:.3em;text-align:center"></div><button class="b bp" data-a="login" style="width:100%;padding:10px">${t("sv_verify")}</button><button class="b" data-a="loginBack" style="width:100%;margin-top:8px;border:0;background:none;color:var(--mu)">${t("sv_back")}</button>`
@@ -1421,5 +1423,6 @@ async function boot(){
   if(r.s==200&&r.j&&r.j.user){USER=r.j.user;if(await loadRemote()){S.in=true}else USER=null}}
  V=viewFromHash();if(SERVER&&S.in&&location.pathname=="/")history.replaceState(null,"","/"+ROUTES[V]);render();
  if(SERVER&&S.in&&USER){if(USER.mustChange)setTimeout(()=>pwModal(true),200)}}
+A.retry=()=>location.reload();
 boot();
 </script></body></html>
