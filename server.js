@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const { pool, q, migrate } = require('./lib/db');
 const C = require('./lib/crypto');
+const TG = require('./lib/telegram');
 
 const PROD = process.env.NODE_ENV === 'production';
 const PORT = +process.env.PORT || 3000;
@@ -253,11 +254,15 @@ function scopeState(DB, A) {
   if (DB.pti) out.pti = Object.fromEntries(Object.entries(DB.pti).filter(([k]) => tids.has(k)));
   return out;
 }
-app.get('/api/state', auth(), staff, wrap(async (req, res) => {
+async function loadAll() {
   const [rec, kv] = await Promise.all([q('SELECT coll,data FROM records'), q('SELECT key,value FROM kv')]);
-  let DB = {}; COLLS.forEach(c => DB[c] = []);
+  const DB = {}; COLLS.forEach(c => DB[c] = []);
   rec.rows.forEach(r => DB[r.coll] && DB[r.coll].push(r.data));
   const S = {}; kv.rows.forEach(r => { if (KV_FLEET.has(r.key)) DB[r.key] = r.value; else if (SETTING_KEYS.includes(r.key)) S[r.key] = r.value; });
+  return { DB, S };
+}
+app.get('/api/state', auth(), staff, wrap(async (req, res) => {
+  let { DB, S } = await loadAll();
   const A = allowedOf(req.u); if (A) DB = scopeState(DB, A);
   const tm = (await q("SELECT id,name,username,email,role,is_owner,color,companies,is_test FROM users WHERE role<>'driver' AND NOT disabled ORDER BY created_at")).rows;
   const team = tm.map(u => ({ id: u.id, n: u.name, u: u.username, m: req.u.role === 'admin' ? u.email : '', r: u.role, owner: u.is_owner, c: u.color, co: u.role === 'admin' ? null : (u.companies || null), test: u.is_test }));
@@ -291,6 +296,8 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
       kv.pti = merged;
     }
   }
+  const issueUps = upserts.filter(x => x.c === 'issues');
+  const had = issueUps.length ? new Set((await q("SELECT id FROM records WHERE coll='issues' AND id=ANY($1)", [issueUps.map(x => x.id)])).rows.map(r => r.id)) : new Set();
   const cl = await pool.connect();
   try {
     await cl.query('BEGIN');
@@ -304,6 +311,7 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
   } catch (e) { await cl.query('ROLLBACK').catch(() => {}); throw e; } finally { cl.release(); }
   if (upserts.length || deletes.length || kvKeys.length)
     audit(req.u.id, 'sync', null, { up: upserts.slice(0, 50).map(x => x.c + '/' + x.id), upN: upserts.length, del: deletes.slice(0, 50).map(x => x.c + '/' + x.id), delN: deletes.length, kv: kvKeys }, req.ip);
+  const fresh = issueUps.filter(x => !had.has(x.id)).map(x => x.d); if (fresh.length) TG.notifyNewIssues(fresh);
   res.json({ ok: true });
 }));
 
@@ -330,6 +338,33 @@ app.get('/api/files/:id', auth(), wrap(async (req, res) => {
   fs.createReadStream(path.join(DATA_DIR, f.path)).on('error', () => res.status(404).end()).pipe(res);
 }));
 
+
+// ---------- Telegram ----------
+app.post('/tg/hook', express.json({ limit: '1mb' }), (req, res) => { if (!TG.verify(req)) return res.sendStatus(403); res.sendStatus(200); TG.handleUpdate(req.body); });
+app.get('/api/tg/info', auth(), staff, wrap(async (req, res) => {
+  const i = await TG.info(), mine = (await q('SELECT chat_id,digest FROM tg_chats WHERE user_id=$1', [req.u.id])).rows;
+  res.json({ enabled: i.enabled, bot: i.bot || null, webhook: req.u.role === 'admin' ? i.webhook : undefined, linked: mine.length > 0, digest: mine.length ? mine[0].digest : null });
+}));
+app.post('/api/tg/code', limit('tgcode', 20, 10 * 60e3), auth(), staff, wrap(async (req, res) => {
+  if (!TG.enabled()) return res.status(503).json({ error: 'off' }); const b = await TG.me(); if (!b) return res.status(503).json({ error: 'off' });
+  const code = await TG.linkCode(req.u.id); res.json({ code, bot: b.username, link: `https://t.me/${b.username}?start=${code}`, minutes: 10 });
+}));
+app.post('/api/tg/unlink', auth(), staff, wrap(async (req, res) => { await q('DELETE FROM tg_chats WHERE user_id=$1', [req.u.id]); res.json({ ok: true }); }));
+app.post('/api/tg/digest', auth(), staff, wrap(async (req, res) => { await q('UPDATE tg_chats SET digest=$2 WHERE user_id=$1', [req.u.id, !!(req.body || {}).on]); res.json({ ok: true }); }));
+app.post('/api/tg/reconnect', limit('tgre', 10, 10 * 60e3), auth(), admin, wrap(async (req, res) => {
+  const r = await TG.setWebhook('https://' + req.get('host')); audit(req.u.id, 'telegram.webhook', req.get('host'), { ok: !!r.ok }, req.ip); res.json({ ok: !!r.ok, error: r.ok ? null : r.description });
+}));
+app.post('/api/tg/test', limit('tgtest', 20, 10 * 60e3), auth(), admin, wrap(async (req, res) => {
+  if (!TG.enabled()) return res.status(503).json({ error: 'off' });
+  const { S } = await loadAll(), g = S.tg || {}, out = [];
+  for (const [k, id] of [['managers', g.mgr], ['workers', g.work], ['invoices', g.inv]]) if (id) { const r = await TG.send(id, '✅ TOPGFLEET test message'); out.push({ group: k, ok: !!r.ok, error: r.ok ? null : r.description }); }
+  const mine = (await q('SELECT chat_id FROM tg_chats WHERE user_id=$1', [req.u.id])).rows; for (const m of mine) { const r = await TG.send(m.chat_id, '✅ TOPGFLEET test message'); out.push({ group: 'you', ok: !!r.ok, error: r.ok ? null : r.description }); }
+  res.json({ results: out });
+}));
+app.post('/api/tg/send-now', limit('tgnow', 20, 10 * 60e3), auth(), admin, wrap(async (req, res) => {
+  if (!TG.enabled()) return res.status(503).json({ error: 'off' }); const { DB, S } = await loadAll(); const r = await TG.sendWorkersList(S, DB, true); res.json({ ok: !!r.ok, error: r.ok ? null : r.description });
+}));
+
 app.get('/healthz', (req, res) => res.type('text').send('ok'));
 app.use('/api', (req, res) => res.status(404).json({ error: 'none' }));
 app.use(express.static(path.join(__dirname, 'public'), { index: 'index.html', maxAge: 0, setHeaders: r => r.setHeader('Cache-Control', 'no-cache') }));
@@ -340,6 +375,7 @@ app.use((req, res) => res.status(404).type('text').send('Not found'));
 // ---------- start ----------
 async function bootstrap() {
   await migrate();
+  TG.init({ q, loadAll, scopeState, allowedOf, audit }, process.env.PUBLIC_URL || (process.env.RAILWAY_PUBLIC_DOMAIN ? 'https://' + process.env.RAILWAY_PUBLIC_DOMAIN : ''));
   const n = +(await q('SELECT count(*) FROM users')).rows[0].count;
   if (!n) {
     const email = (process.env.ADMIN_EMAIL || '').trim().toLowerCase(), pw = process.env.ADMIN_PASSWORD || '';
