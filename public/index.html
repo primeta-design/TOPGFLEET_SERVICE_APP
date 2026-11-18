@@ -1427,6 +1427,33 @@ ${USER.role=="admin"?`<div class="lbl" style="margin-top:22px">${ic("clip",13)} 
  return `<div class="lbl">${t("ac_det")}</div><div class="fg"><div class="fd h"><label>${t("ac_full")}</label><input value="${esc(S.name)}" data-i="acF" data-k="name"></div><div class="fd h"><label>${t("ac_user")}</label><input value="${esc(S.user)}" data-i="acF" data-k="user"></div><div class="fd"><label>${t("ac_mail")}</label><input type="email" value="${esc(S.mail)}" data-i="acF" data-k="mail"></div></div><div class="row" style="margin-top:12px"><button class="b bp" data-a="acSave">${t("save")}</button><button class="b" data-a="acPw">${ic("key",14)} ${t("ac_change")}</button></div>
 <div class="lbl" style="margin-top:22px">${t("dm_t")}</div><p class="mu" style="margin-top:0">${t("dm_s")}</p><div class="row"><button class="b" data-a="demoLoad">${ic("flask",14)} ${t("dm_load")}</button><button class="b dng" data-a="demoReset">${t("dm_reset")}</button></div>`}
 
+
+/* ----- Telegram: connect, test, send now ----- */
+Object.assign(D,{
+tgc_t:["Your Telegram","Sizning Telegram","Ваш Telegram"],
+tgc_off:["The bot is not switched on yet: the server needs TELEGRAM_BOT_TOKEN and TELEGRAM_WEBHOOK_SECRET.","Bot hali yoqilmagan: serverda TELEGRAM_BOT_TOKEN va TELEGRAM_WEBHOOK_SECRET kerak.","Бот ещё не включён: на сервере нужны TELEGRAM_BOT_TOKEN и TELEGRAM_WEBHOOK_SECRET."],
+tgc_s:["Link your account to get a morning summary and urgent alerts in a private chat with the bot, and to ask /status and /alerts any time.","Akkauntni ulang: bot bilan shaxsiy chatda ertalabki xulosa va shoshilinch ogohlantirishlar keladi, /status va /alerts buyruqlari ishlaydi.","Привяжите аккаунт: утренняя сводка и срочные оповещения придут в личный чат с ботом, а /status и /alerts работают в любое время."],
+tgc_conn:["Connect Telegram","Telegramni ulash","Подключить Telegram"],tgc_ok:["Connected","Ulangan","Подключено"],tgc_un:["Unlink","Uzish","Отключить"],
+tgc_dg:["Morning summary","Ertalabki xulosa","Утренняя сводка"],tgc_code:["Your one-time code","Bir martalik kod","Ваш одноразовый код"],
+tgc_how:["Tap the button to open the bot and press Start. Or send it this message: /start {0}. The code works for 10 minutes.","Tugmani bosib botni oching va Start bosing. Yoki botga shuni yuboring: /start {0}. Kod 10 daqiqa ishlaydi.","Нажмите кнопку, откройте бота и нажмите Start. Или отправьте ему: /start {0}. Код действует 10 минут."],
+tgc_open:["Open Telegram","Telegramni ochish","Открыть Telegram"],tgc_wh:["Reconnect the bot to this address","Botni shu manzilga qayta ulash","Переподключить бота к этому адресу"],
+tgc_whok:["Bot connected to this address.","Bot shu manzilga ulandi.","Бот подключён к этому адресу."],tgc_sent:["Sent.","Yuborildi.","Отправлено."],tgc_none:["Nothing to send: set a group id first.","Yuboradigan joy yo‘q: avval guruh id sini kiriting.","Некуда отправлять: сначала укажите id группы."]});
+function tgConnect(){if(!SERVER||!USER)return"";const i=PG.tgi;
+ if(!i){if(!PG.tgiBusy){PG.tgiBusy=1;api("GET","/api/tg/info").then(r=>{PG.tgi=r.s==200?r.j:{enabled:false};PG.tgiBusy=0;if(V=="profile")page()})}return`<div class="mu">…</div>`}
+ if(!i.enabled||!i.bot)return`<div class="note" style="grid-column:auto;margin-bottom:14px">${t("tgc_off")}</div>`;
+ return `<div class="card" style="padding:14px;margin-bottom:16px"><div class="lbl" style="margin-top:0">${ic("send",13)} ${t("tgc_t")} · @${esc(i.bot)}</div><p class="mu" style="margin-top:0">${t("tgc_s")}</p>
+${i.linked?`<div class="row" style="gap:10px">${tag(t("tgc_ok"),"var(--gr)")}<label class="ck"><input type="checkbox" data-c="tgDigest" ${i.digest?"checked":""}><span style="color:var(--tx)">${t("tgc_dg")}</span></label><button class="b" data-a="tgUnlink">${t("tgc_un")}</button></div>`:`<button class="b bp" data-a="tgCode">${ic("send",14)} ${t("tgc_conn")}</button>`}
+${USER.role=="admin"?`<div style="margin-top:12px"><button class="b bs" data-a="tgReconn">${t("tgc_wh")}</button>${i.webhook&&i.webhook.error?` <span class="mu" style="color:var(--rd)">${esc(i.webhook.error)}</span>`:""}</div>`:""}</div>`}
+const _tgSec=tgSec;tgSec=function(){return tgConnect()+_tgSec()};
+A.tgCode=async()=>{const r=await api("POST","/api/tg/code");if(r.s!=200){toast(t("sv_off"),"er");return}
+ modal({title:t("tgc_conn"),icon:"send",w:440,body:`<div class="lbl" style="margin-top:0">${t("tgc_code")}</div><div style="font:800 28px ui-monospace,monospace;letter-spacing:.2em;margin:6px 0 12px">${esc(r.j.code)}</div><p class="mu">${t("tgc_how",esc(r.j.code))}</p><a class="b bp" href="${esc(r.j.link)}" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none">${t("tgc_open")}</a>`,foot:`<button class="b" data-a="mdClose">${t("close")}</button>`});
+ const poll=setInterval(async()=>{if(!$("#md")||!$("#md").children.length){clearInterval(poll);return}const q=await api("GET","/api/tg/info");if(q.s==200&&q.j.linked){clearInterval(poll);PG.tgi=q.j;closeMd();toast(t("tgc_ok"));if(V=="profile")page()}},3000)};
+A.tgUnlink=async()=>{await api("POST","/api/tg/unlink");PG.tgi=null;page()};
+C.tgDigest=async el=>{await api("POST","/api/tg/digest",{on:el.checked});PG.tgi.digest=el.checked};
+A.tgReconn=async()=>{const r=await api("POST","/api/tg/reconnect");toast(r.s==200&&r.j.ok?t("tgc_whok"):(r.j&&r.j.error)||t("sv_off"),r.s==200&&r.j.ok?"":"er");PG.tgi=null;page()};
+A.tgSave=async()=>{save();if(SERVER&&USER.role=="admin"){await flushNow();const r=await api("POST","/api/tg/test");if(r.s==200){const L=r.j.results;toast(L.length?L.map(x=>x.group+": "+(x.ok?"OK":x.error)).join(" · "):t("tgc_none"),L.every(x=>x.ok)&&L.length?"":"er");return}}toast(t("tg_saved"))};
+A.tplSend2=async()=>{if(!SERVER||USER.role!="admin"){toast(t("tg_nosend"),"er");return}await flushNow();const r=await api("POST","/api/tg/send-now");toast(r.s==200&&r.j.ok?t("tgc_sent"):(r.j&&r.j.error)||t("tgc_none"),r.s==200&&r.j.ok?"":"er")};
+
 /* ----- start ----- */
 async function boot(){
  const r=await api("GET","/api/me",undefined,4000);
