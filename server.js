@@ -313,7 +313,7 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
   if (upserts.length || deletes.length || kvKeys.length)
     audit(req.u.id, 'sync', null, { up: upserts.slice(0, 50).map(x => x.c + '/' + x.id), upN: upserts.length, del: deletes.slice(0, 50).map(x => x.c + '/' + x.id), delN: deletes.length, kv: kvKeys }, req.ip);
   const fresh = issueUps.filter(x => !had.has(x.id)).map(x => x.d); if (fresh.length) TG.notifyNewIssues(fresh);
-  const freshInv = invUps.filter(x => !hadInv.has(x.id)).map(x => x.d); if (freshInv.length) TG.notifyNewInvoices(freshInv);
+  const freshInv = invUps.filter(x => !hadInv.has(x.id)).map(x => x.d); if (freshInv.length) TG.notifyNewInvoices(freshInv, 'https://' + req.get('host'));
   res.json({ ok: true });
 }));
 
