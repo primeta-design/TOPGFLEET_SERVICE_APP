@@ -377,7 +377,7 @@ app.use((req, res) => res.status(404).type('text').send('Not found'));
 // ---------- start ----------
 async function bootstrap() {
   await migrate();
-  TG.init({ q, loadAll, scopeState, allowedOf, audit }, process.env.PUBLIC_URL || (process.env.RAILWAY_PUBLIC_DOMAIN ? 'https://' + process.env.RAILWAY_PUBLIC_DOMAIN : ''));
+  TG.init({ q, loadAll, scopeState, allowedOf, audit, dataDir: DATA_DIR }, process.env.PUBLIC_URL || (process.env.RAILWAY_PUBLIC_DOMAIN ? 'https://' + process.env.RAILWAY_PUBLIC_DOMAIN : ''));
   const n = +(await q('SELECT count(*) FROM users')).rows[0].count;
   if (!n) {
     const email = (process.env.ADMIN_EMAIL || '').trim().toLowerCase(), pw = process.env.ADMIN_PASSWORD || '';
