@@ -14,7 +14,7 @@ const LOGIN_MAX = +process.env.RATE_LOGIN_MAX || 12;
 const SESSION_HOURS = 12, PW_STAGE_MIN = 10, LOCK_AFTER = 5, LOCK_MIN = 15;
 const COLLS = new Set(['trucks', 'trailers', 'drivers', 'issues', 'plans', 'svc', 'docs', 'inv', 'vend', 'links', 'hist', 'insp']);
 const KV_FLEET = new Set(['pti', 'ck', 'ph']);          // fleet-wide documents (members may write)
-const SETTING_KEYS = ['prio', 'comps', 'stat', 'tg', 'tpl', 'ptiOff', 'tmAcc', 'seed14'];   // admin-only
+const SETTING_KEYS = ['prio', 'prioEd', 'comps', 'stat', 'tg', 'tpl', 'ptiOff', 'tmAcc', 'seed14'];   // admin-only
 const ROLES = new Set(['admin', 'member', 'driver']);
 
 const app = express();
@@ -410,7 +410,11 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
   const kvKeys = Object.keys(kv);
   for (const k of kvKeys) {
     if (KV_FLEET.has(k)) { if (JSON.stringify(kv[k]).length > 400000) return res.status(400).json({ error: 'bad' }); }
-    else if (SETTING_KEYS.includes(k)) { if (req.u.role !== 'admin') return res.status(403).json({ error: 'role' }); if (JSON.stringify(kv[k]).length > 100000) return res.status(400).json({ error: 'bad' }); }
+    else if (SETTING_KEYS.includes(k)) {
+      let okk = req.u.role === 'admin';
+      if (k === 'prioEd') { okk = !!req.u.is_owner; if (!(Array.isArray(kv[k]) && kv[k].length <= 200 && kv[k].every(okId))) return res.status(400).json({ error: 'bad' }); }
+      else if (k === 'prio') { const pe = (await q("SELECT value FROM kv WHERE key='prioEd'")).rows[0]; okk = !!req.u.is_owner || (!!pe && Array.isArray(pe.value) && pe.value.includes(req.u.id)); }   // priorities: owner, or people the owner allowed
+      if (!okk) return res.status(403).json({ error: 'role' }); if (JSON.stringify(kv[k]).length > 100000) return res.status(400).json({ error: 'bad' }); }
     else return res.status(400).json({ error: 'bad' });
   }
   const A = allowedOf(req.u);
