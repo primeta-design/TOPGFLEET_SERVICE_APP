@@ -5,6 +5,7 @@ const fs = require('fs');
 const { pool, q, migrate } = require('./lib/db');
 const C = require('./lib/crypto');
 const TG = require('./lib/telegram');
+const MAIL = require('./lib/mail');
 
 const PROD = process.env.NODE_ENV === 'production';
 const PORT = +process.env.PORT || 3000;
@@ -78,7 +79,7 @@ const cleanAvatar = x => { if (x === null || x === '') return null; x = String(x
 const avUrl = u => u.avatar ? '/api/avatar/' + u.id + '?v=' + C.sha(u.avatar).slice(0, 10) : null;
 const THEMES = new Set(['charcoal', 'midnight', 'forest', 'daylight', 'paper', 'mist']), LANGS = new Set(['en', 'uz', 'ru']);   // policy: staff sign in only with a code from the OWNER's authenticator (owner approves every sign-in)
 const viaOwner = u => REQ2FA && !u.is_owner && u.role !== 'driver';
-const publicUser = u => ({ prefs: u.prefs || {}, avatar: avUrl(u), avLock: !!u.av_lock, need2fa: REQ2FA && !!u.is_owner && !u.totp_on, viaOwner: viaOwner(u), id: u.id, email: u.email, username: u.username, name: u.name, role: u.role, owner: u.is_owner, totp: u.totp_on, mustChange: u.must_change, color: u.color || null, noMail: /@no-email\.local$/i.test(u.email), companies: u.role === 'admin' ? null : (u.companies || null), test: !!u.is_test });
+const publicUser = u => ({ tg: u.tg_user || '', emailOk: u.email_ok !== false, pend: u.pend_email || null, permEdit: !!u.perm_edit, mailOn: MAIL.enabled(), prefs: u.prefs || {}, avatar: avUrl(u), avLock: !!u.av_lock, need2fa: REQ2FA && !!u.is_owner && !u.totp_on, viaOwner: viaOwner(u), id: u.id, email: u.email, username: u.username, name: u.name, role: u.role, owner: u.is_owner, totp: u.totp_on, mustChange: u.must_change, color: u.color || null, noMail: /@no-email\.local$/i.test(u.email), companies: u.role === 'admin' ? null : (u.companies || null), test: !!u.is_test });
 const okId = s => typeof s === 'string' && /^[A-Za-z0-9_-]{1,40}$/.test(s);
 const cleanCompanies = v => v === null ? null : (Array.isArray(v) && v.length <= 200 && v.every(okId) ? [...new Set(v)] : undefined);
 const allowedOf = u => (u.role !== 'admin' && Array.isArray(u.companies)) ? new Set(u.companies) : null;   // null = sees everything
@@ -104,6 +105,25 @@ const auth = (stage = 'full') => wrap(async (req, res, next) => {
 const need = (...roles) => (req, res, next) => roles.includes(req.u.role) ? next() : res.status(403).json({ error: 'role' });
 const staff = need('admin', 'member');
 const admin = need('admin');
+const ownerOnly = (req, res, next) => req.u.is_owner ? next() : res.status(403).json({ error: 'role' });
+const baseUrl = req => (process.env.PUBLIC_URL || (process.env.RAILWAY_PUBLIC_DOMAIN ? 'https://' + process.env.RAILWAY_PUBLIC_DOMAIN : (PROD ? 'https' : req.protocol) + '://' + req.get('host'))).replace(/\/$/, '');
+const cleanTg = v => { const x = String(v == null ? '' : v).trim().replace(/^https?:\/\/t\.me\//i, '').replace(/^@/, ''); return !x ? '' : /^[A-Za-z0-9_]{5,32}$/.test(x) ? x : undefined; };
+const okMail = e => /^[^@\s]{1,64}@[^@\s]{1,200}$/.test(e);
+// the person may manage (sign out, reset, remove, role, block) this account / may edit its details
+const canManage = (me, t) => me.is_owner ? true : (me.role === 'admin' && t.role === 'driver');
+const canEditInfo = (me, t) => canManage(me, t) || (me.role === 'admin' && !!me.perm_edit && t.role === 'member' && !t.is_owner);
+// start an e-mail change: with mail configured the new address must be confirmed first, otherwise it is saved and marked unconfirmed
+async function changeEmail(u, e, req) {
+  const dupe = await q('SELECT 1 FROM users WHERE lower(email)=$1 AND id<>$2', [e, u.id]); if (dupe.rows.length) return 'dupe';
+  if (MAIL.enabled()) {
+    const tok = C.token(), url = baseUrl(req) + '/verify/' + tok;
+    await q("UPDATE users SET pend_email=$2, pend_tok=$3, pend_exp=now()+interval '1 day' WHERE id=$1", [u.id, e, C.sha(tok)]);
+    const ok = await MAIL.send(e, 'Confirm your email · TOPGFLEET', MAIL.wrap('Confirm your email', 'Press the button to confirm this address for your TOPGFLEET account. The link works for 24 hours.', url, 'Confirm email'), 'Confirm your email: ' + url);
+    return ok ? 'pending' : 'mailfail';
+  }
+  await q('UPDATE users SET email=$2, email_ok=FALSE, pend_email=NULL, pend_tok=NULL, pend_exp=NULL WHERE id=$1', [u.id, e]);
+  return 'applied';
+}
 
 // tell the owner on Telegram who signs in / out (only if the owner linked a private chat)
 async function notifyOwner(u, what, req) {
@@ -170,20 +190,21 @@ app.get('/api/me', auth(), (req, res) => res.json({ user: publicUser(req.u) }));
 
 
 app.patch('/api/me', limit('login', LOGIN_MAX, 10 * 60e3), auth(), wrap(async (req, res) => {
-  const b = req.body || {}, u = req.u, set = {};
+  const b = req.body || {}, u = req.u, set = {}; let pendMsg = null;
   if (b.name !== undefined) { const n = String(b.name).trim(); if (!n || n.length > 100) return res.status(400).json({ error: 'bad' }); set.name = n; }
   if (b.username !== undefined) { const x = String(b.username).trim().toLowerCase(); if (!/^[a-z0-9._-]{3,30}$/.test(x)) return res.status(400).json({ error: 'bad' }); set.username = x; }
   if (b.email !== undefined) {
     const e = String(b.email).trim().toLowerCase(); if (!/^[^@\s]{1,64}@[^@\s]{1,200}$/.test(e)) return res.status(400).json({ error: 'bad' });
-    if (e !== u.email) { if (!(await C.verifyPassword(String(b.current || ''), u.pass_hash))) return res.status(401).json({ error: 'creds' }); set.email = e; }
+    if (e !== u.email) { const st = await changeEmail(u, e, req); if (st === 'dupe') return res.status(409).json({ error: 'dupe' }); if (st === 'mailfail') return res.status(502).json({ error: 'mail' }); pendMsg = st; audit(u.id, 'email.change', e, { how: st }, req.ip); }
   }
+  if (b.tg !== undefined) { const g = cleanTg(b.tg); if (g === undefined) return res.status(400).json({ error: 'bad' }); set.tg_user = g || null; }
   if (b.color !== undefined) { if (!/^#[0-9a-fA-F]{6}$/.test(String(b.color))) return res.status(400).json({ error: 'bad' }); set.color = String(b.color).toLowerCase(); }
   if (b.avatar !== undefined) { if (u.av_lock && !u.is_owner) return res.status(403).json({ error: 'locked' }); const a = cleanAvatar(b.avatar); if (a === undefined) return res.status(400).json({ error: 'bad' }); set.avatar = a; }
   if (b.prefs && typeof b.prefs === 'object') { const pr = { ...(u.prefs || {}) }; if (THEMES.has(b.prefs.theme)) pr.theme = b.prefs.theme; if (LANGS.has(b.prefs.lang)) pr.lang = b.prefs.lang; set.prefs = JSON.stringify(pr); }
-  const keys = Object.keys(set); if (!keys.length) return res.json({ user: publicUser(u) });
+  const keys = Object.keys(set); if (!keys.length) { const f = (await q('SELECT * FROM users WHERE id=$1', [u.id])).rows[0]; return res.json({ user: publicUser(f), email: pendMsg }); }
   try {
     const r = await q(`UPDATE users SET ${keys.map((k, i) => k + '=$' + (i + 2)).join(',')} WHERE id=$1 RETURNING *`, [u.id, ...keys.map(k => set[k])]);
-    audit(u.id, 'profile.update', u.email, { fields: keys }, req.ip); res.json({ user: publicUser(r.rows[0]) });
+    audit(u.id, 'profile.update', u.email, { fields: keys }, req.ip); res.json({ user: publicUser(r.rows[0]), email: pendMsg });
   } catch (e) { if (e.code === '23505') return res.status(409).json({ error: 'dupe' }); throw e; }
 }));
 
@@ -221,23 +242,28 @@ app.post('/api/password', limit('login', LOGIN_MAX, 10 * 60e3), auth(), wrap(asy
   if (!(await C.verifyPassword(String(current || ''), req.u.pass_hash))) return res.status(401).json({ error: 'creds' });
   const bad = C.passwordProblem(next, req.u); if (bad) return res.status(400).json({ error: 'weak', why: bad });
   await q('UPDATE users SET pass_hash=$2, must_change=FALSE WHERE id=$1', [req.u.id, await C.hashPassword(next)]);
-  await q('DELETE FROM sessions WHERE user_id=$1 AND token_hash<>$2', [req.u.id, req.sh]);
+  if (req.body.signoutOthers !== false) await q('DELETE FROM sessions WHERE user_id=$1 AND token_hash<>$2', [req.u.id, req.sh]);
   audit(req.u.id, 'password.change', req.u.email, null, req.ip); res.json({ ok: true });
 }));
 
-// ---------- users (admin) ----------
+// ---------- users: owner manages everyone; an admin sees members (and edits them only if the owner allows); members see nobody ----------
+const getUser = async id => (await q('SELECT * FROM users WHERE id=$1', [id])).rows[0];
 app.get('/api/users', auth(), admin, wrap(async (req, res) => {
-  const r = await q('SELECT * FROM users ORDER BY created_at'), sx = (await q("SELECT user_id, count(*)::int n, max(created_at) last, (array_agg(ip ORDER BY created_at DESC))[1] ip, (array_agg(ua ORDER BY created_at DESC))[1] ua FROM sessions WHERE stage='full' AND expires_at>now() GROUP BY user_id")).rows, sm = Object.fromEntries(sx.map(x => [x.user_id, x]));
-  res.json({ users: r.rows.map(u => ({ ...publicUser(u), disabled: u.disabled, online: (sm[u.id] || {}).n || 0, lastIn: (sm[u.id] || {}).last || null, lastIp: (sm[u.id] || {}).ip || null, lastUa: String((sm[u.id] || {}).ua || '').slice(0, 120) })) });
+  const own = req.u.is_owner;
+  const r = await q(own ? 'SELECT * FROM users ORDER BY created_at' : "SELECT * FROM users WHERE id=$1 OR role IN ('member','driver') ORDER BY created_at", own ? [] : [req.u.id]);
+  const sx = (await q("SELECT user_id, count(*)::int n, max(created_at) last, (array_agg(ip ORDER BY created_at DESC))[1] ip, (array_agg(ua ORDER BY created_at DESC))[1] ua FROM sessions WHERE stage='full' AND expires_at>now() GROUP BY user_id")).rows, sm = Object.fromEntries(sx.map(x => [x.user_id, x]));
+  res.json({ users: r.rows.map(u => ({ ...publicUser(u), disabled: u.disabled, online: (sm[u.id] || {}).n || 0, lastIn: (sm[u.id] || {}).last || null, lastIp: own ? (sm[u.id] || {}).ip || null : null, lastUa: own ? String((sm[u.id] || {}).ua || '').slice(0, 120) : '' })) });
 }));
 app.post('/api/users/:id/signout', auth(), admin, wrap(async (req, res) => {
-  const t = (await q('SELECT * FROM users WHERE id=$1', [req.params.id])).rows[0]; if (!t) return res.status(404).json({ error: 'none' });
+  const t = await getUser(req.params.id); if (!t) return res.status(404).json({ error: 'none' });
   if (t.is_owner) return res.status(400).json({ error: 'owner' });
+  if (!canManage(req.u, t)) return res.status(403).json({ error: 'role' });
   await q('DELETE FROM sessions WHERE user_id=$1', [t.id]); audit(req.u.id, 'user.signout', t.email, null, req.ip); res.json({ ok: true });
 }));
 app.post('/api/users', auth(), admin, wrap(async (req, res) => {
   const b = req.body, username = String(b.username || '').trim().toLowerCase(), name = String(b.name || '').trim(), email = String(b.email || '').trim().toLowerCase() || (username + '@no-email.local');
-  if (!/^[^@\s]{1,64}@[^@\s]{1,200}$/.test(email) || !/^[a-z0-9._-]{3,30}$/.test(username) || !name || name.length > 100 || !ROLES.has(b.role)) return res.status(400).json({ error: 'bad' });
+  if (!okMail(email) || !/^[a-z0-9._-]{3,30}$/.test(username) || !name || name.length > 100 || !ROLES.has(b.role)) return res.status(400).json({ error: 'bad' });
+  if (b.role === 'admin' && !req.u.is_owner) return res.status(403).json({ error: 'role' });
   const bad = C.passwordProblem(b.password, { email, username, name }); if (bad) return res.status(400).json({ error: 'weak', why: bad });
   try {
     const id = C.uid();
@@ -247,36 +273,93 @@ app.post('/api/users', auth(), admin, wrap(async (req, res) => {
   } catch (e) { if (e.code === '23505') return res.status(409).json({ error: 'dupe' }); throw e; }
 }));
 app.patch('/api/users/:id', auth(), admin, wrap(async (req, res) => {
-  const t = (await q('SELECT * FROM users WHERE id=$1', [req.params.id])).rows[0]; if (!t) return res.status(404).json({ error: 'none' });
-  if (t.is_owner && (req.body.disabled || (req.body.role && req.body.role !== 'admin'))) return res.status(400).json({ error: 'owner' });
-  if (t.id === req.u.id && req.body.disabled) return res.status(400).json({ error: 'self' });
-  const role = req.body.role && ROLES.has(req.body.role) ? req.body.role : t.role, disabled = typeof req.body.disabled === 'boolean' ? req.body.disabled : t.disabled;
-  const name = req.body.name ? String(req.body.name).trim().slice(0, 100) : t.name;
-  let cos = t.companies; if (req.body.companies !== undefined) { cos = cleanCompanies(req.body.companies); if (cos === undefined) return res.status(400).json({ error: 'bad' }); }
-  const color = req.body.color !== undefined && /^#[0-9a-fA-F]{6}$/.test(String(req.body.color)) ? String(req.body.color).toLowerCase() : t.color;
-  let email = t.email;
-  if (req.body.email !== undefined) {
-    const e = String(req.body.email || '').trim().toLowerCase().slice(0, 200), nxt = e || (t.username + '@no-email.local');
-    if (!/^[^@\s]{1,64}@[^@\s]{1,200}$/.test(nxt)) return res.status(400).json({ error: 'bad' });
-    if (nxt !== t.email) { const d = await q('SELECT 1 FROM users WHERE lower(email)=$1 AND id<>$2', [nxt, t.id]); if (d.rows.length) return res.status(409).json({ error: 'dupe' }); email = nxt; }
+  const t = await getUser(req.params.id); if (!t) return res.status(404).json({ error: 'none' });
+  const b = req.body || {}, own = req.u.is_owner, mng = canManage(req.u, t);
+  if (!own && t.id === req.u.id) return res.status(403).json({ error: 'role' });
+  if (!canEditInfo(req.u, t)) return res.status(403).json({ error: 'role' });
+  if (!mng && ['role', 'disabled', 'color', 'avatar', 'avLock', 'permEdit'].some(k => b[k] !== undefined)) return res.status(403).json({ error: 'role' });
+  if (t.is_owner && (b.disabled || (b.role && b.role !== 'admin'))) return res.status(400).json({ error: 'owner' });
+  if (t.id === req.u.id && b.disabled) return res.status(400).json({ error: 'self' });
+  const role = b.role && ROLES.has(b.role) ? b.role : t.role, disabled = typeof b.disabled === 'boolean' ? b.disabled : t.disabled;
+  if (role === 'admin' && t.role !== 'admin' && !own) return res.status(403).json({ error: 'role' });
+  const name = b.name ? String(b.name).trim().slice(0, 100) : t.name;
+  let cos = t.companies; if (b.companies !== undefined) { cos = cleanCompanies(b.companies); if (cos === undefined) return res.status(400).json({ error: 'bad' }); }
+  const color = b.color !== undefined && /^#[0-9a-fA-F]{6}$/.test(String(b.color)) ? String(b.color).toLowerCase() : t.color;
+  let email = t.email, emailOk = t.email_ok !== false;
+  if (b.email !== undefined) {
+    const e = String(b.email || '').trim().toLowerCase().slice(0, 200), nxt = e || (t.username + '@no-email.local');
+    if (!okMail(nxt)) return res.status(400).json({ error: 'bad' });
+    if (nxt !== t.email) { const d = await q('SELECT 1 FROM users WHERE lower(email)=$1 AND id<>$2', [nxt, t.id]); if (d.rows.length) return res.status(409).json({ error: 'dupe' }); email = nxt; emailOk = true; }
   }
-  let avatar = t.avatar; if (req.body.avatar !== undefined) { avatar = cleanAvatar(req.body.avatar); if (avatar === undefined) return res.status(400).json({ error: 'bad' }); }
-  let avLock = !!t.av_lock; if (typeof req.body.avLock === 'boolean') { if (!req.u.is_owner || t.is_owner) return res.status(403).json({ error: 'role' }); avLock = req.body.avLock; }
-  await q('UPDATE users SET role=$2, disabled=$3, name=$4, companies=$5, color=$6, email=$7, avatar=$8, av_lock=$9 WHERE id=$1', [t.id, role, disabled, name, cos ? JSON.stringify(cos) : null, color, email, avatar, avLock]);
+  let username = t.username; if (b.username !== undefined) { const x = String(b.username).trim().toLowerCase(); if (!/^[a-z0-9._-]{3,30}$/.test(x)) return res.status(400).json({ error: 'bad' }); if (x !== t.username) { const d = await q('SELECT 1 FROM users WHERE lower(username)=$1 AND id<>$2', [x, t.id]); if (d.rows.length) return res.status(409).json({ error: 'dupe' }); username = x; } }
+  let tg = t.tg_user; if (b.tg !== undefined) { const g = cleanTg(b.tg); if (g === undefined) return res.status(400).json({ error: 'bad' }); tg = g || null; }
+  let avatar = t.avatar; if (b.avatar !== undefined) { avatar = cleanAvatar(b.avatar); if (avatar === undefined) return res.status(400).json({ error: 'bad' }); }
+  let avLock = !!t.av_lock; if (typeof b.avLock === 'boolean') { if (!own || t.is_owner) return res.status(403).json({ error: 'role' }); avLock = b.avLock; }
+  let perm = !!t.perm_edit; if (typeof b.permEdit === 'boolean') { if (!own || t.role !== 'admin' || t.is_owner) return res.status(403).json({ error: 'role' }); perm = b.permEdit; }
+  await q('UPDATE users SET role=$2, disabled=$3, name=$4, companies=$5, color=$6, email=$7, avatar=$8, av_lock=$9, username=$10, tg_user=$11, perm_edit=$12, email_ok=$13 WHERE id=$1', [t.id, role, disabled, name, cos ? JSON.stringify(cos) : null, color, email, avatar, avLock, username, tg, perm, emailOk]);
   if (disabled || role !== t.role) await q('DELETE FROM sessions WHERE user_id=$1', [t.id]);
-  audit(req.u.id, 'user.update', t.email, { role, disabled }, req.ip); res.json({ ok: true });
+  audit(req.u.id, 'user.update', t.email, { role, disabled, perm }, req.ip); res.json({ ok: true });
 }));
 app.post('/api/users/:id/reset', auth(), admin, wrap(async (req, res) => {
-  const t = (await q('SELECT * FROM users WHERE id=$1', [req.params.id])).rows[0]; if (!t) return res.status(404).json({ error: 'none' });
+  const t = await getUser(req.params.id); if (!t) return res.status(404).json({ error: 'none' });
+  if (!canManage(req.u, t)) return res.status(403).json({ error: 'role' });
   const bad = C.passwordProblem(req.body.password, t); if (bad) return res.status(400).json({ error: 'weak', why: bad });
   await q('UPDATE users SET pass_hash=$2, must_change=TRUE, failed=0, locked_until=NULL, totp_on=FALSE, totp_secret=NULL WHERE id=$1', [t.id, await C.hashPassword(req.body.password)]);
   await q('DELETE FROM sessions WHERE user_id=$1', [t.id]);
   audit(req.u.id, 'user.reset', t.email, null, req.ip); res.json({ ok: true });
 }));
 app.delete('/api/users/:id', auth(), admin, wrap(async (req, res) => {
-  const t = (await q('SELECT * FROM users WHERE id=$1', [req.params.id])).rows[0]; if (!t) return res.status(404).json({ error: 'none' });
+  const t = await getUser(req.params.id); if (!t) return res.status(404).json({ error: 'none' });
   if (t.is_owner || t.id === req.u.id) return res.status(400).json({ error: 'owner' });
+  if (!canManage(req.u, t)) return res.status(403).json({ error: 'role' });
   await q('DELETE FROM users WHERE id=$1', [t.id]); audit(req.u.id, 'user.delete', t.email, null, req.ip); res.json({ ok: true });
+}));
+
+// ---------- invites: owner (any role) and admins (members only) send a one-time link ----------
+const INVITE_DAYS = 7;
+app.get('/api/invites', auth(), admin, wrap(async (req, res) => {
+  const r = await q("SELECT id,email,role,expires_at FROM invites WHERE used_at IS NULL AND expires_at>now() " + (req.u.is_owner ? '' : "AND role='member' ") + 'ORDER BY created_at DESC');
+  res.json({ invites: r.rows });
+}));
+app.post('/api/invites', limit('invite', 30, 3600e3), auth(), admin, wrap(async (req, res) => {
+  const b = req.body || {}, email = String(b.email || '').trim().toLowerCase().slice(0, 200), role = req.u.is_owner && b.role === 'admin' ? 'admin' : 'member';
+  if (!okMail(email)) return res.status(400).json({ error: 'bad' });
+  const cos = b.companies === undefined ? null : cleanCompanies(b.companies); if (cos === undefined) return res.status(400).json({ error: 'bad' });
+  if ((await q('SELECT 1 FROM users WHERE lower(email)=$1', [email])).rows.length) return res.status(409).json({ error: 'dupe' });
+  await q('DELETE FROM invites WHERE lower(email)=$1 AND used_at IS NULL', [email]);
+  const tok = C.token(), id = C.uid(), link = baseUrl(req) + '/invite/' + tok;
+  const ex = (await q("INSERT INTO invites(id,token_hash,email,role,companies,created_by,expires_at) VALUES($1,$2,$3,$4,$5,$6,now()+make_interval(days => $7::int)) RETURNING expires_at", [id, C.sha(tok), email, role, cos ? JSON.stringify(cos) : null, req.u.id, INVITE_DAYS])).rows[0].expires_at;
+  const mailed = await MAIL.send(email, "You're invited to TOPGFLEET", MAIL.wrap("You're invited to TOPGFLEET", `${req.u.name} invited you as ${role}. Choose your name and password, then sign in with this email. The link works once, for ${INVITE_DAYS} days.`, link, 'Accept invite'), 'Accept your TOPGFLEET invite: ' + link);
+  audit(req.u.id, 'invite.create', email, { role }, req.ip);
+  res.json({ id, link, email, role, expires: ex, mailed });
+}));
+app.delete('/api/invites/:id', auth(), admin, wrap(async (req, res) => {
+  const r = await q("DELETE FROM invites WHERE id=$1 AND used_at IS NULL " + (req.u.is_owner ? '' : "AND role='member'") + ' RETURNING email', [req.params.id]);
+  if (!r.rows.length) return res.status(404).json({ error: 'none' }); audit(req.u.id, 'invite.revoke', r.rows[0].email, null, req.ip); res.json({ ok: true });
+}));
+const inviteOf = async t => (await q('SELECT * FROM invites WHERE token_hash=$1 AND used_at IS NULL AND expires_at>now()', [C.sha(String(t).slice(0, 100))])).rows[0];
+app.get('/api/invite/:t', limit('invget', 60, 600e3), wrap(async (req, res) => {
+  const i = await inviteOf(req.params.t); if (!i) return res.status(404).json({ error: 'none' }); res.json({ email: i.email, role: i.role });
+}));
+app.post('/api/invite/:t/accept', limit('invacc', 20, 600e3), wrap(async (req, res) => {
+  const i = await inviteOf(req.params.t); if (!i) return res.status(404).json({ error: 'none' });
+  const name = String((req.body || {}).name || '').trim(), pw = String((req.body || {}).password || '');
+  if (!name || name.length > 100) return res.status(400).json({ error: 'bad' });
+  let base = i.email.split('@')[0].toLowerCase().replace(/[^a-z0-9._-]/g, '').slice(0, 24); if (base.length < 3) base = (base + 'user').slice(0, 24);
+  const bad = C.passwordProblem(pw, { email: i.email, username: base, name }); if (bad) return res.status(400).json({ error: 'weak', why: bad });
+  let username = base; for (let n = 1; (await q('SELECT 1 FROM users WHERE lower(username)=$1', [username])).rows.length; n++) username = base + n;
+  try {
+    await q('INSERT INTO users(id,email,username,name,role,pass_hash,must_change,companies) VALUES($1,$2,$3,$4,$5,$6,FALSE,$7)', [C.uid(), i.email, username, name, i.role, await C.hashPassword(pw), i.companies ? JSON.stringify(i.companies) : null]);
+  } catch (e) { if (e.code === '23505') return res.status(409).json({ error: 'dupe' }); throw e; }
+  await q('UPDATE invites SET used_at=now() WHERE id=$1', [i.id]); audit(null, 'invite.accept', i.email, { role: i.role }, req.ip);
+  res.json({ ok: true, email: i.email });
+}));
+app.get('/verify/:t', limit('verify', 30, 600e3), wrap(async (req, res) => {
+  const u = (await q('SELECT * FROM users WHERE pend_tok=$1 AND pend_exp>now()', [C.sha(String(req.params.t).slice(0, 100))])).rows[0];
+  if (!u) return res.redirect('/profile?email=bad');
+  try { await q('UPDATE users SET email=pend_email, email_ok=TRUE, pend_email=NULL, pend_tok=NULL, pend_exp=NULL WHERE id=$1', [u.id]); }
+  catch (e) { if (e.code === '23505') return res.redirect('/profile?email=bad'); throw e; }
+  audit(u.id, 'email.verified', u.pend_email, null, req.ip); res.redirect('/profile?email=ok');
 }));
 
 // ---------- fleet data ----------
@@ -313,7 +396,7 @@ app.get('/api/state', auth(), staff, wrap(async (req, res) => {
   let { DB, S } = await loadAll();
   const A = allowedOf(req.u); if (A) DB = scopeState(DB, A);
   const tm = (await q("SELECT id,name,username,email,role,is_owner,color,companies,is_test,avatar FROM users WHERE role<>'driver' AND NOT disabled ORDER BY created_at")).rows;
-  const team = tm.map(u => ({ id: u.id, n: u.name, u: u.username, m: req.u.role === 'admin' ? u.email : '', r: u.role, owner: u.is_owner, c: u.color, av: avUrl(u), co: u.role === 'admin' ? null : (u.companies || null), test: u.is_test }));
+  const team = tm.map(u => ({ id: u.id, n: u.name, u: u.username, m: (req.u.is_owner || (req.u.role === 'admin' && (u.role === 'member' || u.id === req.u.id)) || u.id === req.u.id) ? u.email : '', r: u.role, owner: u.is_owner, c: u.color, av: avUrl(u), co: u.role === 'admin' ? null : (u.companies || null), test: u.is_test }));
   res.json({ DB, S, team, user: publicUser(req.u) });
 }));
 
@@ -365,8 +448,8 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
   res.json({ ok: true });
 }));
 
-app.get('/api/audit', auth(), admin, wrap(async (req, res) => {
-  const r = await q('SELECT a.id,a.at,a.action,a.target,a.detail,a.ip,u.email AS who FROM audit a LEFT JOIN users u ON u.id=a.user_id ORDER BY a.id DESC LIMIT 300'); res.json({ rows: r.rows });
+app.get('/api/audit', auth(), ownerOnly, wrap(async (req, res) => {
+  const r = await q('SELECT a.id,a.at,a.action,a.target,a.detail,a.ip,u.email AS who, u.name AS wname FROM audit a LEFT JOIN users u ON u.id=a.user_id ORDER BY a.id DESC'); res.json({ rows: r.rows });
 }));
 
 // ---------- files (stored on the Railway volume) ----------
@@ -429,6 +512,7 @@ app.get('/healthz', (req, res) => res.type('text').send('ok'));
 app.use('/api', (req, res) => res.status(404).json({ error: 'none' }));
 app.use(express.static(path.join(__dirname, 'public'), { index: 'index.html', maxAge: 0, setHeaders: r => r.setHeader('Cache-Control', 'no-cache') }));
 const PAGES = new Set(['dashboard', 'alerts', 'fleet', 'trailers', 'hook-drop', 'drivers', 'maintenance', 'pti', 'inspections', 'documents', 'violation-report', 'invoices', 'vendors', 'profile', 'companies']);
+app.get('/invite/:t', (req, res) => { res.setHeader('Cache-Control', 'no-cache'); res.sendFile(path.join(__dirname, 'public', 'index.html')); });
 app.get('/:page', (req, res, next) => PAGES.has(req.params.page) ? (res.setHeader('Cache-Control', 'no-cache'), res.sendFile(path.join(__dirname, 'public', 'index.html'))) : next());
 app.use((req, res) => res.status(404).type('text').send('Not found'));
 
