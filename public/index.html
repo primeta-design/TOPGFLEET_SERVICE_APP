@@ -1165,7 +1165,7 @@ companies:["Companies","Kompaniyalar","Компании"],
 cp_all:["All companies","Barcha kompaniyalar","Все компании"],
 cp_sub:["Every carrier you run. Pick one to see only its trucks, trailers and drivers.","Siz yuritadigan barcha kompaniyalar. Birini tanlasangiz, faqat uning truck, treyler va haydovchilari ko‘rinadi.","Все ваши перевозчики. Выберите один, чтобы видеть только его траки, трейлеры и водителей."],
 cp_open:["Open","Ochish","Открыть"],cp_cur:["Viewing","Ko‘rilmoqda","Просмотр"],
-cp_tr:["Trucks","Truck","Траки"],cp_tl:["Trailers","Treyler","Трейлеры"],cp_dr:["Drivers","Haydovchi","Водители"],
+cp_iss:["Open issues","Ochiq issue","Открытые задачи"],cp_iss_s:["open issues","ochiq issue","открытых задач"],cp_tr:["Trucks","Truck","Траки"],cp_tl:["Trailers","Treyler","Трейлеры"],cp_dr:["Drivers","Haydovchi","Водители"],
 cp_manage:["Manage companies","Kompaniyalarni boshqarish","Управление компаниями"],
 cp_new:["Company name","Kompaniya nomi","Название компании"],cp_add:["Add company","Kompaniya qo‘shish","Добавить компанию"],
 cp_seed:["Add the 14 companies","14 ta kompaniyani qo‘shish","Добавить 14 компаний"],
@@ -1180,6 +1180,9 @@ function seedCompanies(){
  S.seed14=1;save()}
 const myComps=()=>(typeof USER!="undefined"&&USER&&Array.isArray(USER.companies))?S.comps.filter(c=>USER.companies.includes(c.id)):S.comps;
 const canComp=()=>!(typeof SERVER!="undefined"&&SERVER&&USER)||USER.owner||(S.compEd||[]).includes(USER.id);
+let DBR=null;const RD=()=>DBR||DB;
+function issN(cid){const low=x=>String(x||"").trim().toLowerCase(),d=RD(),nums=new Set([...d.trucks,...d.trailers].filter(x=>x.company==cid).map(x=>low(x.num)));return d.issues.filter(x=>x.status!="closed"&&nums.has(low(x.title))).length}
+const issPill=(n,txt)=>n?`<span class="tg" style="background:color-mix(in srgb,var(--rd) 18%,transparent);color:var(--rd)">${txt}</span>`:"";
 const respsOf=tm=>Array.isArray(tm.resps)?tm.resps:(tm.resp?[tm.resp]:[]);
 const teamOf=id=>(S.teams||[]).find(x=>x.id==id),teamIds=id=>{const tm=teamOf(id);return tm?tm.cos.filter(i=>myComps().some(c=>c.id==i)):[]};
 function curSel(){let v="all";try{v=localStorage.getItem("tf_cur")||"all"}catch(e){}if(v.slice(0,2)=="t:")return teamIds(v.slice(2)).length?v:"all";return v!="all"&&myComps().some(c=>c.id==v)?v:"all"}
@@ -1193,10 +1196,10 @@ function scopeDB(real,cur){
   drivers:real.drivers.filter(x=>!x.truck||tid.has(x.truck)),issues:real.issues.filter(x=>ok(x.title)),plans:real.plans.filter(x=>tid.has(x.truck)),svc:real.svc.filter(x=>tid.has(x.truck)),
   docs:real.docs.filter(x=>x.kind=="truck"?tid.has(x.uid):rid.has(x.uid)),inv:real.inv.filter(x=>(!x.truck||tid.has(x.truck))&&(!x.trailer||rid.has(x.trailer))),
   links:real.links.filter(x=>rid.has(x.trailer)),hist:real.hist.filter(x=>rid.has(x.trailer)),insp:real.insp.filter(x=>ok(x.unit))})}
-function scoped(fn){const cur=curSel();if(cur=="all"||V=="companies"&&fn!==shell0)return fn();const real=DB;DB=scopeDB(real,cur);try{return fn()}finally{DB=real}}
+function scoped(fn){const cur=curSel();if(cur=="all"||V=="companies"&&fn!==shell0)return fn();const real=DB;DBR=real;DB=scopeDB(real,cur);try{return fn()}finally{DB=real;DBR=null}}
 function coSwitch(){const L=myComps(),cur=curSel(),c=byId(S.comps,cur),tc=cur.slice(0,2)=="t:"?teamOf(cur.slice(2)):null;if(L.length<2&&cur=="all"&&L.length<1)return"";
- const n=co=>DB.trucks.filter(x=>x.company==co).length,tms=(S.teams||[]).filter(x=>teamIds(x.id).length),inTeam=new Set(tms.flatMap(x=>teamIds(x.id))),rest=L.filter(x=>!inTeam.has(x.id));
- const row=(x,ind)=>`<button class="pi" data-a="coPick" data-v="${x.id}" style="${ind?"padding-left:30px":""}">${dot(x.c)}<span style="flex:1">${esc(x.n)}</span><small class="mu">${n(x.id)}</small>${cur==x.id?ic("check",15):""}</button>`;
+ const n=co=>RD().trucks.filter(x=>x.company==co).length,tms=(S.teams||[]).filter(x=>teamIds(x.id).length),inTeam=new Set(tms.flatMap(x=>teamIds(x.id))),rest=L.filter(x=>!inTeam.has(x.id));
+ const row=(x,ind)=>`<button class="pi" data-a="coPick" data-v="${x.id}" style="${ind?"padding-left:30px":""}">${dot(x.c)}<span style="flex:1">${esc(x.n)}</span><small class="mu">${n(x.id)}</small>${issPill(issN(x.id),issN(x.id))}${cur==x.id?ic("check",15):""}</button>`;
  return `<div class="pw"><button class="chip" data-a="shpop" data-p="cop" style="display:flex;align-items:center;gap:7px;border:1px solid var(--bd);background:var(--cd);color:var(--tx);border-radius:9px;padding:6px 10px;font:600 13px inherit;cursor:pointer" aria-label="${esc(t("companies"))}">${tc?ic("users",15)+esc(tc.n):c?dot(c.c)+esc(c.n):ic("store",15)+t("cp_all")}${ic("chev",14)}</button>
 <div class="pop sh" id="cop" style="width:310px;max-height:70vh;overflow:auto"><div class="ph"><span>${t("companies")}</span><span class="mu">${L.length}</span></div>
 <button class="pi" data-a="coPick" data-v="all">${ic("store",16)}<span style="flex:1">${t("cp_all")}</span>${cur=="all"?ic("check",15):""}</button>
@@ -1206,13 +1209,13 @@ ${tms.length&&rest.length?`<div class="mu" style="padding:8px 12px 2px;border-to
 A.coPick=el=>{setCur(el.dataset.v);closePops();shellRefresh()};
 const isAdm=()=>typeof USER=="undefined"||!USER||USER.role=="admin";
 PAGES.companies=()=>{const L=myComps(),cur=curSel(),adm=isAdm()&&canComp(),tms=(S.teams||[]).filter(x=>teamIds(x.id).length),inT=new Set(tms.flatMap(x=>teamIds(x.id))),rest=L.filter(c=>!inT.has(c.id));
- const card=c=>{const T=DB.trucks.filter(x=>x.company==c.id),R=DB.trailers.filter(x=>x.company==c.id),ids=new Set(T.map(x=>x.id)),Dn=DB.drivers.filter(d=>d.truck&&ids.has(d.truck)).length,idx=S.comps.indexOf(c),used=T.length||R.length;
+ const card=c=>{const T=DB.trucks.filter(x=>x.company==c.id),R=DB.trailers.filter(x=>x.company==c.id),ids=new Set(T.map(x=>x.id)),Dn=DB.drivers.filter(d=>d.truck&&ids.has(d.truck)).length,idx=S.comps.indexOf(c),used=T.length||R.length,iss=issN(c.id);
   return `<div class="card" data-g="comps" data-n="${idx}" style="padding:14px;border-left:4px solid ${c.c}">
 <div style="display:flex;align-items:center;gap:8px;min-height:36px">${adm&&L.length==S.comps.length?`<span class="gr" data-g="comps" data-n="${idx}" title="${esc(t("drag"))}" aria-label="${esc(t("drag"))}">⠿</span>`:""}${adm?`<input type="color" value="${c.c}" data-c="coColor" data-n="${idx}" aria-label="color"><input type="text" value="${esc(c.n)}" data-c="coName" data-n="${idx}" style="flex:1;min-width:0">`:`${dot(c.c)}<b style="flex:1;min-width:0;overflow-wrap:anywhere">${esc(c.n)}</b>`}</div>
-<div style="display:flex;gap:18px;margin:12px 0"><span><b>${T.length}</b><br><small class="mu">${t("cp_tr")}</small></span><span><b>${R.length}</b><br><small class="mu">${t("cp_tl")}</small></span><span><b>${Dn}</b><br><small class="mu">${t("cp_dr")}</small></span></div>
+<div style="display:flex;gap:18px;margin:12px 0"><span><b>${T.length}</b><br><small class="mu">${t("cp_tr")}</small></span><span><b>${R.length}</b><br><small class="mu">${t("cp_tl")}</small></span><span><b>${Dn}</b><br><small class="mu">${t("cp_dr")}</small></span><span><b style="${iss?"color:var(--rd)":""}">${iss}</b><br><small class="mu">${t("cp_iss")}</small></span></div>
 <div style="display:flex;gap:8px"><button class="b ${cur==c.id?"bp":""}" data-a="coPick" data-v="${c.id}" style="flex:1">${cur==c.id?t("cp_cur"):t("cp_open")}</button>${adm?`<button class="bi" data-a="coDel" data-n="${idx}" ${used||S.comps.length<2?"disabled":""} title="${used?esc(t("co_used")):""}" aria-label="${t("del")}">${ic("trash",15)}</button>`:""}</div></div>`};
  const grid=a=>`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px">${a.map(card).join("")}</div>`;
- const head=tm=>{const rs=respsOf(tm).map(id=>S.team.find(x=>x.id==id)).filter(Boolean),ids=teamIds(tm.id);return `<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:22px 0 10px"><span style="display:flex;align-items:center;gap:8px;font-size:15px">${ic("users",17)}<b>${esc(tm.n)}</b></span>${rs.length?`<span class="mu">— ${rs.map(r=>esc(r.n)).join(", ")}</span>`:""}${rs.filter(r=>r.tg).map(r=>`<a href="https://t.me/${esc(r.tg)}" target="_blank" rel="noopener" style="color:var(--ac);font-size:12.5px;white-space:nowrap">${ic("send",11)} @${esc(r.tg)}</a>`).join("")}<span class="tg">${ids.length}</span><button class="b bs ${cur=="t:"+tm.id?"bp":""}" data-a="coPick" data-v="t:${tm.id}" style="margin-left:auto">${cur=="t:"+tm.id?t("cp_cur"):t("gt_open")}</button></div>`};
+ const head=tm=>{const rs=respsOf(tm).map(id=>S.team.find(x=>x.id==id)).filter(Boolean),ids=teamIds(tm.id);return `<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:22px 0 10px"><span style="display:flex;align-items:center;gap:8px;font-size:15px">${ic("users",17)}<b>${esc(tm.n)}</b></span>${rs.length?`<span class="mu">— ${rs.map(r=>esc(r.n)).join(", ")}</span>`:""}${rs.filter(r=>r.tg).map(r=>`<a href="https://t.me/${esc(r.tg)}" target="_blank" rel="noopener" style="color:var(--ac);font-size:12.5px;white-space:nowrap">${ic("send",11)} @${esc(r.tg)}</a>`).join("")}<span class="tg">${ids.length}</span>${issPill(ids.reduce((a,id)=>a+issN(id),0),ids.reduce((a,id)=>a+issN(id),0)+" "+t("cp_iss_s"))}<button class="b bs ${cur=="t:"+tm.id?"bp":""}" data-a="coPick" data-v="t:${tm.id}" style="margin-left:auto">${cur=="t:"+tm.id?t("cp_cur"):t("gt_open")}</button></div>`};
  return `<div class="pg"><div class="ph2"><div><h2 style="margin:0">${t("companies")}</h2><p class="mu" style="margin:4px 0 0">${t("cp_sub")}</p></div></div>
 ${adm?"":`<p class="mu">${t("cp_adm")}</p>`}
 ${tms.map(tm=>head(tm)+grid(teamIds(tm.id).map(id=>byId(S.comps,id)))).join("")}
