@@ -81,3 +81,22 @@ CREATE TABLE IF NOT EXISTS tg_codes (
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   expires TIMESTAMPTZ NOT NULL
 );
+
+-- v4: Telegram username, admin may edit members (owner grants), verified e-mail, invites
+ALTER TABLE users ADD COLUMN IF NOT EXISTS tg_user TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS perm_edit BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS email_ok BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS pend_email TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS pend_tok TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS pend_exp TIMESTAMPTZ;
+CREATE TABLE IF NOT EXISTS invites (
+  id         TEXT PRIMARY KEY,
+  token_hash TEXT NOT NULL UNIQUE,
+  email      TEXT NOT NULL,
+  role       TEXT NOT NULL CHECK (role IN ('admin','member')),
+  companies  JSONB,
+  created_by TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  expires_at TIMESTAMPTZ NOT NULL,
+  used_at    TIMESTAMPTZ
+);
