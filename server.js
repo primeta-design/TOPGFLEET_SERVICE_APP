@@ -415,7 +415,7 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
       if (k === 'prioEd' || k === 'compEd') { okk = !!req.u.is_owner; if (!(Array.isArray(kv[k]) && kv[k].length <= 200 && kv[k].every(okId))) return res.status(400).json({ error: 'bad' }); }
       else if (k === 'prio') { const pe = (await q("SELECT value FROM kv WHERE key='prioEd'")).rows[0]; okk = !!req.u.is_owner || (!!pe && Array.isArray(pe.value) && pe.value.includes(req.u.id)); }   // priorities: owner, or people the owner allowed
       else if (k === 'comps' || k === 'teams') { const pe = (await q("SELECT value FROM kv WHERE key='compEd'")).rows[0]; okk = !!req.u.is_owner || (!!pe && Array.isArray(pe.value) && pe.value.includes(req.u.id)); }   // companies and teams: owner, or people the owner allowed
-      if (k === 'teams' && !(Array.isArray(kv[k]) && kv[k].length <= 100 && kv[k].every(x => x && okId(x.id) && typeof x.n === 'string' && x.n.length <= 80 && (!x.resp || okId(x.resp)) && Array.isArray(x.cos) && x.cos.every(okId)))) return res.status(400).json({ error: 'bad' });
+      if (k === 'teams' && !(Array.isArray(kv[k]) && kv[k].length <= 100 && kv[k].every(x => x && okId(x.id) && typeof x.n === 'string' && x.n.length <= 80 && (!x.resp || okId(x.resp)) && (x.resps === undefined || (Array.isArray(x.resps) && x.resps.length <= 20 && x.resps.every(okId))) && Array.isArray(x.cos) && x.cos.every(okId)))) return res.status(400).json({ error: 'bad' });
       if (!okk) return res.status(403).json({ error: 'role' }); if (JSON.stringify(kv[k]).length > 100000) return res.status(400).json({ error: 'bad' }); }
     else return res.status(400).json({ error: 'bad' });
   }
