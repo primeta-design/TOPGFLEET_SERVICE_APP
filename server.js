@@ -74,7 +74,7 @@ const clearCookie = (req, res) => setCookie(req, res, '', 0);
 const audit = (userId, action, target, detail, ip) =>
   q('INSERT INTO audit(user_id,action,target,detail,ip) VALUES($1,$2,$3,$4,$5)', [userId || null, action, target || null, detail ? JSON.stringify(detail) : null, ip || null]).catch(e => console.error('audit', e.message));
 let REQ2FA = false;
-const cleanAvatar = x => { if (x === null || x === '') return null; x = String(x); return /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/.test(x) && x.length <= 120000 ? x : undefined; };
+const cleanAvatar = x => { if (x === null || x === '') return null; x = String(x); return /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/.test(x) && x.length <= 220000 ? x : undefined; };
 const THEMES = new Set(['charcoal', 'midnight', 'forest', 'daylight', 'paper', 'mist']), LANGS = new Set(['en', 'uz', 'ru']);   // policy: staff sign in only with a code from the OWNER's authenticator (owner approves every sign-in)
 const viaOwner = u => REQ2FA && !u.is_owner && u.role !== 'driver';
 const publicUser = u => ({ prefs: u.prefs || {}, avatar: u.avatar || null, avLock: !!u.av_lock, need2fa: REQ2FA && !!u.is_owner && !u.totp_on, viaOwner: viaOwner(u), id: u.id, email: u.email, username: u.username, name: u.name, role: u.role, owner: u.is_owner, totp: u.totp_on, mustChange: u.must_change, color: u.color || null, noMail: /@no-email\.local$/i.test(u.email), companies: u.role === 'admin' ? null : (u.companies || null), test: !!u.is_test });
