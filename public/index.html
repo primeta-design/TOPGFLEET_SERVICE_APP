@@ -1607,7 +1607,7 @@ function applyPrefs(u){const p=(u&&u.prefs)||{};let ch=false;if(p.theme&&TH[p.th
 function savePrefs(){if(SERVER&&USER&&S.in)api("PATCH","/api/me",{prefs:{theme:S.theme,lang:S.lang}}).then(r=>{if(r.s==200&&r.j&&r.j.user)USER.prefs=r.j.user.prefs})}
 async function afterLogin(user){USER=user;applyPrefs(user);if(user.need2fa){S.in=true;V=viewFromHash();render();force2fa();return}const ok=await loadRemote();if(!ok){render();return}
  S.in=true;V=viewFromHash();render();
- if(user.mustChange)setTimeout(()=>pwModal(true),200);else if(!user.totp&&user.role=="admin")setTimeout(()=>toast(t("sv_no2fa")),900)}
+ if(!user.totp&&user.role=="admin")setTimeout(()=>toast(t("sv_no2fa")),900)}
 A.logout=async()=>{if(SERVER){await flushNow();await api("POST","/api/logout",{})}S.in=false;USER=null;if(SERVER){DB=DEF_D();LASTR="";SNAP={rec:{},kv:{}}}else save();LS={step:"pw",err:"",busy:false,email:""};PG={};closeDr();closeMd();render()};
 const expired=()=>{S.in=false;USER=null;LS.err=t("sv_sess");LS.step="pw";closeDr();closeMd();render()};
 
@@ -1904,7 +1904,7 @@ async function boot(){
  if(im){S.in=false;USER=null;const ir=await api("GET","/api/invite/"+im[1]);INV=ir.s==200&&ir.j?{tok:im[1],email:ir.j.email,role:ir.j.role}:{bad:true}}
  V=viewFromHash();if(SERVER&&S.in&&location.pathname=="/")history.replaceState(null,"","/"+ROUTES[V]);render();
  if(SERVER&&S.in&&USER){const em=new URLSearchParams(location.search).get("email");if(em){history.replaceState(null,"","/profile");setTimeout(()=>toast(t(em=="ok"?"ac_verified":"ac_verbad"),em=="ok"?"":"er"),500)}}
- if(SERVER&&S.in&&USER){if(USER.need2fa)setTimeout(force2fa,100);else if(USER.mustChange)setTimeout(()=>pwModal(true),200)}}
+ if(SERVER&&S.in&&USER){if(USER.need2fa)setTimeout(force2fa,100);}}
 A.retry=()=>location.reload();
 boot();
 </script></body></html>
