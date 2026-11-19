@@ -14,7 +14,7 @@ const LOGIN_MAX = +process.env.RATE_LOGIN_MAX || 12;
 const SESSION_HOURS = 12, PW_STAGE_MIN = 10, LOCK_AFTER = 5, LOCK_MIN = 15;
 const COLLS = new Set(['trucks', 'trailers', 'drivers', 'issues', 'plans', 'svc', 'docs', 'inv', 'vend', 'links', 'hist', 'insp']);
 const KV_FLEET = new Set(['pti', 'ck', 'ph']);          // fleet-wide documents (members may write)
-const SETTING_KEYS = ['prio', 'prioEd', 'comps', 'stat', 'tg', 'tpl', 'ptiOff', 'tmAcc', 'seed14'];   // admin-only
+const SETTING_KEYS = ['prio', 'prioEd', 'compEd', 'teams', 'comps', 'stat', 'tg', 'tpl', 'ptiOff', 'tmAcc', 'seed14'];   // admin-only
 const ROLES = new Set(['admin', 'member', 'driver']);
 
 const app = express();
@@ -412,8 +412,10 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
     if (KV_FLEET.has(k)) { if (JSON.stringify(kv[k]).length > 400000) return res.status(400).json({ error: 'bad' }); }
     else if (SETTING_KEYS.includes(k)) {
       let okk = req.u.role === 'admin';
-      if (k === 'prioEd') { okk = !!req.u.is_owner; if (!(Array.isArray(kv[k]) && kv[k].length <= 200 && kv[k].every(okId))) return res.status(400).json({ error: 'bad' }); }
+      if (k === 'prioEd' || k === 'compEd') { okk = !!req.u.is_owner; if (!(Array.isArray(kv[k]) && kv[k].length <= 200 && kv[k].every(okId))) return res.status(400).json({ error: 'bad' }); }
       else if (k === 'prio') { const pe = (await q("SELECT value FROM kv WHERE key='prioEd'")).rows[0]; okk = !!req.u.is_owner || (!!pe && Array.isArray(pe.value) && pe.value.includes(req.u.id)); }   // priorities: owner, or people the owner allowed
+      else if (k === 'comps' || k === 'teams') { const pe = (await q("SELECT value FROM kv WHERE key='compEd'")).rows[0]; okk = !!req.u.is_owner || (!!pe && Array.isArray(pe.value) && pe.value.includes(req.u.id)); }   // companies and teams: owner, or people the owner allowed
+      if (k === 'teams' && !(Array.isArray(kv[k]) && kv[k].length <= 100 && kv[k].every(x => x && okId(x.id) && typeof x.n === 'string' && x.n.length <= 80 && (!x.resp || okId(x.resp)) && Array.isArray(x.cos) && x.cos.every(okId)))) return res.status(400).json({ error: 'bad' });
       if (!okk) return res.status(403).json({ error: 'role' }); if (JSON.stringify(kv[k]).length > 100000) return res.status(400).json({ error: 'bad' }); }
     else return res.status(400).json({ error: 'bad' });
   }
