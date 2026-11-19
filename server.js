@@ -73,9 +73,10 @@ function setCookie(req, res, tok, maxAgeSec) {
 const clearCookie = (req, res) => setCookie(req, res, '', 0);
 const audit = (userId, action, target, detail, ip) =>
   q('INSERT INTO audit(user_id,action,target,detail,ip) VALUES($1,$2,$3,$4,$5)', [userId || null, action, target || null, detail ? JSON.stringify(detail) : null, ip || null]).catch(e => console.error('audit', e.message));
-let REQ2FA = false;   // policy: staff sign in only with a code from the OWNER's authenticator (owner approves every sign-in)
+let REQ2FA = false;
+const THEMES = new Set(['charcoal', 'midnight', 'forest', 'daylight', 'paper', 'mist']), LANGS = new Set(['en', 'uz', 'ru']);   // policy: staff sign in only with a code from the OWNER's authenticator (owner approves every sign-in)
 const viaOwner = u => REQ2FA && !u.is_owner && u.role !== 'driver';
-const publicUser = u => ({ need2fa: REQ2FA && !!u.is_owner && !u.totp_on, viaOwner: viaOwner(u), id: u.id, email: u.email, username: u.username, name: u.name, role: u.role, owner: u.is_owner, totp: u.totp_on, mustChange: u.must_change, color: u.color || null, noMail: /@no-email\.local$/i.test(u.email), companies: u.role === 'admin' ? null : (u.companies || null), test: !!u.is_test });
+const publicUser = u => ({ prefs: u.prefs || {}, need2fa: REQ2FA && !!u.is_owner && !u.totp_on, viaOwner: viaOwner(u), id: u.id, email: u.email, username: u.username, name: u.name, role: u.role, owner: u.is_owner, totp: u.totp_on, mustChange: u.must_change, color: u.color || null, noMail: /@no-email\.local$/i.test(u.email), companies: u.role === 'admin' ? null : (u.companies || null), test: !!u.is_test });
 const okId = s => typeof s === 'string' && /^[A-Za-z0-9_-]{1,40}$/.test(s);
 const cleanCompanies = v => v === null ? null : (Array.isArray(v) && v.length <= 200 && v.every(okId) ? [...new Set(v)] : undefined);
 const allowedOf = u => (u.role !== 'admin' && Array.isArray(u.companies)) ? new Set(u.companies) : null;   // null = sees everything
@@ -170,6 +171,7 @@ app.patch('/api/me', limit('login', LOGIN_MAX, 10 * 60e3), auth(), wrap(async (r
     if (e !== u.email) { if (!(await C.verifyPassword(String(b.current || ''), u.pass_hash))) return res.status(401).json({ error: 'creds' }); set.email = e; }
   }
   if (b.color !== undefined) { if (!/^#[0-9a-fA-F]{6}$/.test(String(b.color))) return res.status(400).json({ error: 'bad' }); set.color = String(b.color).toLowerCase(); }
+  if (b.prefs && typeof b.prefs === 'object') { const pr = { ...(u.prefs || {}) }; if (THEMES.has(b.prefs.theme)) pr.theme = b.prefs.theme; if (LANGS.has(b.prefs.lang)) pr.lang = b.prefs.lang; set.prefs = JSON.stringify(pr); }
   const keys = Object.keys(set); if (!keys.length) return res.json({ user: publicUser(u) });
   try {
     const r = await q(`UPDATE users SET ${keys.map((k, i) => k + '=$' + (i + 2)).join(',')} WHERE id=$1 RETURNING *`, [u.id, ...keys.map(k => set[k])]);
@@ -409,7 +411,9 @@ app.post('/api/invoices/:id/telegram', limit('tginv', 30, 10 * 60e3), auth(), st
   const inv = (DB.inv || []).find(x => x.id === req.params.id); if (!inv) return res.status(404).json({ error: 'none' });
   const tU = (DB.trucks || []).find(x => x.id === inv.truck), lU = (DB.trailers || []).find(x => x.id === inv.trailer), cU = (S.comps || []).find(c => c.id === ((tU && tU.company) || (lU && lU.company)));
   if (!((cU && cU.inv) || (S.tg && S.tg.inv))) return res.json({ ok: false, error: 'nogroup' });
-  await TG.notifyNewInvoices([inv], 'https://' + req.get('host')); audit(req.u.id, 'invoice.telegram', inv.id, null, req.ip); res.json({ ok: true });
+  const sent = await TG.notifyNewInvoices([inv], 'https://' + req.get('host')); audit(req.u.id, 'invoice.telegram', inv.id, null, req.ip);
+  if (!sent.length) return res.json({ ok: false, error: 'fail' });
+  res.json({ ok: true, tg: sent[0].at, tgm: sent[0] });
 }));
 app.get('/healthz', (req, res) => res.type('text').send('ok'));
 app.use('/api', (req, res) => res.status(404).json({ error: 'none' }));
