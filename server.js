@@ -74,10 +74,11 @@ const clearCookie = (req, res) => setCookie(req, res, '', 0);
 const audit = (userId, action, target, detail, ip) =>
   q('INSERT INTO audit(user_id,action,target,detail,ip) VALUES($1,$2,$3,$4,$5)', [userId || null, action, target || null, detail ? JSON.stringify(detail) : null, ip || null]).catch(e => console.error('audit', e.message));
 let REQ2FA = false;
-const cleanAvatar = x => { if (x === null || x === '') return null; x = String(x); return /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/.test(x) && x.length <= 220000 ? x : undefined; };
+const cleanAvatar = x => { if (x === null || x === '') return null; x = String(x); return /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/.test(x) && x.length <= 450000 ? x : undefined; };
+const avUrl = u => u.avatar ? '/api/avatar/' + u.id + '?v=' + C.sha(u.avatar).slice(0, 10) : null;
 const THEMES = new Set(['charcoal', 'midnight', 'forest', 'daylight', 'paper', 'mist']), LANGS = new Set(['en', 'uz', 'ru']);   // policy: staff sign in only with a code from the OWNER's authenticator (owner approves every sign-in)
 const viaOwner = u => REQ2FA && !u.is_owner && u.role !== 'driver';
-const publicUser = u => ({ prefs: u.prefs || {}, avatar: u.avatar || null, avLock: !!u.av_lock, need2fa: REQ2FA && !!u.is_owner && !u.totp_on, viaOwner: viaOwner(u), id: u.id, email: u.email, username: u.username, name: u.name, role: u.role, owner: u.is_owner, totp: u.totp_on, mustChange: u.must_change, color: u.color || null, noMail: /@no-email\.local$/i.test(u.email), companies: u.role === 'admin' ? null : (u.companies || null), test: !!u.is_test });
+const publicUser = u => ({ prefs: u.prefs || {}, avatar: avUrl(u), avLock: !!u.av_lock, need2fa: REQ2FA && !!u.is_owner && !u.totp_on, viaOwner: viaOwner(u), id: u.id, email: u.email, username: u.username, name: u.name, role: u.role, owner: u.is_owner, totp: u.totp_on, mustChange: u.must_change, color: u.color || null, noMail: /@no-email\.local$/i.test(u.email), companies: u.role === 'admin' ? null : (u.companies || null), test: !!u.is_test });
 const okId = s => typeof s === 'string' && /^[A-Za-z0-9_-]{1,40}$/.test(s);
 const cleanCompanies = v => v === null ? null : (Array.isArray(v) && v.length <= 200 && v.every(okId) ? [...new Set(v)] : undefined);
 const allowedOf = u => (u.role !== 'admin' && Array.isArray(u.companies)) ? new Set(u.companies) : null;   // null = sees everything
@@ -159,6 +160,11 @@ app.post('/api/login/totp', limit('totp', LOGIN_MAX, 10 * 60e3), auth('pw'), wra
 app.post('/api/logout', wrap(async (req, res) => {
   const tok = readCookie(req); if (tok) { const so = await sessionOf(req); if (so && so.stage === 'full' && !so.is_owner) notifyOwner(so, 'signed out', req); await q('DELETE FROM sessions WHERE token_hash=$1', [C.sha(tok)]); }
   clearCookie(req, res); res.json({ ok: true });
+}));
+app.get('/api/avatar/:id', auth(), wrap(async (req, res) => {
+  const r = (await q('SELECT avatar FROM users WHERE id=$1', [req.params.id])).rows[0], m = r && r.avatar && /^data:(image\/(?:jpeg|png|webp));base64,(.+)$/.exec(r.avatar);
+  if (!m) return res.sendStatus(404);
+  res.setHeader('Content-Type', m[1]); res.setHeader('Cache-Control', 'private, max-age=604800, immutable'); res.send(Buffer.from(m[2], 'base64'));
 }));
 app.get('/api/me', auth(), (req, res) => res.json({ user: publicUser(req.u) }));
 
@@ -307,7 +313,7 @@ app.get('/api/state', auth(), staff, wrap(async (req, res) => {
   let { DB, S } = await loadAll();
   const A = allowedOf(req.u); if (A) DB = scopeState(DB, A);
   const tm = (await q("SELECT id,name,username,email,role,is_owner,color,companies,is_test,avatar FROM users WHERE role<>'driver' AND NOT disabled ORDER BY created_at")).rows;
-  const team = tm.map(u => ({ id: u.id, n: u.name, u: u.username, m: req.u.role === 'admin' ? u.email : '', r: u.role, owner: u.is_owner, c: u.color, av: u.avatar || null, co: u.role === 'admin' ? null : (u.companies || null), test: u.is_test }));
+  const team = tm.map(u => ({ id: u.id, n: u.name, u: u.username, m: req.u.role === 'admin' ? u.email : '', r: u.role, owner: u.is_owner, c: u.color, av: avUrl(u), co: u.role === 'admin' ? null : (u.companies || null), test: u.is_test }));
   res.json({ DB, S, team, user: publicUser(req.u) });
 }));
 
