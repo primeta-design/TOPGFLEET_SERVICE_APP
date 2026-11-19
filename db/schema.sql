@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS files (
 -- v2: company access per user, own colour, test accounts
 ALTER TABLE users ADD COLUMN IF NOT EXISTS companies JSONB;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS color TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS prefs JSONB NOT NULL DEFAULT '{}';
 ALTER TABLE users ADD COLUMN IF NOT EXISTS is_test BOOLEAN NOT NULL DEFAULT FALSE;
 
 -- v3: Telegram bot (private chats linked to users; one-time link codes)
