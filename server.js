@@ -276,8 +276,10 @@ app.patch('/api/users/:id', auth(), admin, wrap(async (req, res) => {
   const t = await getUser(req.params.id); if (!t) return res.status(404).json({ error: 'none' });
   const b = req.body || {}, own = req.u.is_owner, mng = canManage(req.u, t);
   if (!own && t.id === req.u.id) return res.status(403).json({ error: 'role' });
-  if (!canEditInfo(req.u, t)) return res.status(403).json({ error: 'role' });
-  if (!mng && ['role', 'disabled', 'color', 'avatar', 'avLock', 'permEdit'].some(k => b[k] !== undefined)) return res.status(403).json({ error: 'role' });
+  const onlyDis = Object.keys(b).length > 0 && Object.keys(b).every(k => k === 'disabled' && typeof b[k] === 'boolean');   // any admin may block / unblock a member or driver
+  const disOk = onlyDis && req.u.role === 'admin' && t.role !== 'admin' && !t.is_owner;
+  if (!canEditInfo(req.u, t) && !disOk) return res.status(403).json({ error: 'role' });
+  if (!mng && !onlyDis && ['role', 'disabled', 'color', 'avatar', 'avLock', 'permEdit'].some(k => b[k] !== undefined)) return res.status(403).json({ error: 'role' });
   if (t.is_owner && (b.disabled || (b.role && b.role !== 'admin'))) return res.status(400).json({ error: 'owner' });
   if (t.id === req.u.id && b.disabled) return res.status(400).json({ error: 'self' });
   const role = b.role && ROLES.has(b.role) ? b.role : t.role, disabled = typeof b.disabled === 'boolean' ? b.disabled : t.disabled;
@@ -311,7 +313,7 @@ app.post('/api/users/:id/reset', auth(), admin, wrap(async (req, res) => {
 app.delete('/api/users/:id', auth(), admin, wrap(async (req, res) => {
   const t = await getUser(req.params.id); if (!t) return res.status(404).json({ error: 'none' });
   if (t.is_owner || t.id === req.u.id) return res.status(400).json({ error: 'owner' });
-  if (!canManage(req.u, t)) return res.status(403).json({ error: 'role' });
+  if (!req.u.is_owner) return res.status(403).json({ error: 'role' });
   await q('DELETE FROM users WHERE id=$1', [t.id]); audit(req.u.id, 'user.delete', t.email, null, req.ip); res.json({ ok: true });
 }));
 
