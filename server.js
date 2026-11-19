@@ -200,7 +200,7 @@ app.patch('/api/me', limit('login', LOGIN_MAX, 10 * 60e3), auth(), wrap(async (r
   if (b.tg !== undefined) { const g = cleanTg(b.tg); if (g === undefined) return res.status(400).json({ error: 'bad' }); set.tg_user = g || null; }
   if (b.color !== undefined) { if (!/^#[0-9a-fA-F]{6}$/.test(String(b.color))) return res.status(400).json({ error: 'bad' }); set.color = String(b.color).toLowerCase(); }
   if (b.avatar !== undefined) { if (u.av_lock && !u.is_owner) return res.status(403).json({ error: 'locked' }); const a = cleanAvatar(b.avatar); if (a === undefined) return res.status(400).json({ error: 'bad' }); set.avatar = a; }
-  if (b.prefs && typeof b.prefs === 'object') { const pr = { ...(u.prefs || {}) }; if (THEMES.has(b.prefs.theme)) pr.theme = b.prefs.theme; if (LANGS.has(b.prefs.lang)) pr.lang = b.prefs.lang; set.prefs = JSON.stringify(pr); }
+  if (b.prefs && typeof b.prefs === 'object') { const pr = { ...(u.prefs || {}) }; if (THEMES.has(b.prefs.theme)) pr.theme = b.prefs.theme; if (LANGS.has(b.prefs.lang)) pr.lang = b.prefs.lang; if (b.prefs.sz && typeof b.prefs.sz === 'object') { const c = v => Math.max(70, Math.min(150, Math.round(+v) || 100)); pr.sz = { fz: c(b.prefs.sz.fz), mz: c(b.prefs.sz.mz), pz: c(b.prefs.sz.pz) }; } set.prefs = JSON.stringify(pr); }
   const keys = Object.keys(set); if (!keys.length) { const f = (await q('SELECT * FROM users WHERE id=$1', [u.id])).rows[0]; return res.json({ user: publicUser(f), email: pendMsg }); }
   try {
     const r = await q(`UPDATE users SET ${keys.map((k, i) => k + '=$' + (i + 2)).join(',')} WHERE id=$1 RETURNING *`, [u.id, ...keys.map(k => set[k])]);
