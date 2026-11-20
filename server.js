@@ -482,6 +482,28 @@ app.get('/api/files/:id', auth(), wrap(async (req, res) => {
 
 // ---------- Telegram ----------
 app.post('/tg/hook', express.json({ limit: '1mb' }), (req, res) => { if (!TG.verify(req)) return res.sendStatus(403); res.sendStatus(200); TG.handleUpdate(req.body); });
+const KML_CACHE = new Map();
+const unxml = x => String(x || '').replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&amp;/g, '&');
+function parseKml(x) {
+  const out = [];
+  (String(x).match(/<Placemark[\s\S]*?<\/Placemark>/g) || []).forEach(b => {
+    const g = b.match(/<Point>[\s\S]*?<coordinates>\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)/); if (!g) return;
+    const nm = unxml((b.match(/<name>([\s\S]*?)<\/name>/) || [])[1]).trim();
+    const ds = unxml((b.match(/<description>([\s\S]*?)<\/description>/) || [])[1]).replace(/<br\s*\/?>/gi, ' · ').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    if (nm) out.push({ name: nm.slice(0, 120), lat: +g[2], lng: +g[1], note: ds.slice(0, 160) });
+  });
+  return out;
+}
+app.get('/api/mymap', auth(), staff, wrap(async (req, res) => {
+  const r = (await q("SELECT value FROM kv WHERE key='myMap'")).rows[0], mid = r && typeof r.value === 'string' ? r.value : '';
+  if (!/^[A-Za-z0-9_-]{10,}$/.test(mid)) return res.json({ places: [] });
+  const c = KML_CACHE.get(mid); if (c && Date.now() - c.t < 600000) return res.json({ places: c.p });
+  try {
+    const f = await fetch('https://www.google.com/maps/d/kml?mid=' + encodeURIComponent(mid) + '&forcekml=1', { redirect: 'follow' });
+    if (!f.ok) return res.json({ places: c ? c.p : [], error: 'google' });
+    const p = parseKml(await f.text()).slice(0, 3000); KML_CACHE.set(mid, { t: Date.now(), p }); res.json({ places: p });
+  } catch (e) { res.json({ places: c ? c.p : [], error: 'net' }); }
+}));
 app.get('/api/maps-key', auth(), (req, res) => res.json({ key: process.env.GOOGLE_MAPS_KEY || '' }));
 app.get('/api/tg/info', auth(), staff, wrap(async (req, res) => {
   const i = await TG.info(), mine = (await q('SELECT chat_id,digest FROM tg_chats WHERE user_id=$1', [req.u.id])).rows;
@@ -546,4 +568,4 @@ if (require.main === module) {
   C.seal('x'); // fail fast when APP_SECRET is missing
   bootstrap().then(() => app.listen(PORT, () => console.log('TOPGFLEET listening on', PORT))).catch(e => { console.error(e); process.exit(1); });
 }
-module.exports = { app, bootstrap };
+module.exports = { app, bootstrap, parseKml };
