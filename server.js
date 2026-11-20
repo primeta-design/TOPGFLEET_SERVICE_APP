@@ -14,7 +14,7 @@ const LOGIN_MAX = +process.env.RATE_LOGIN_MAX || 12;
 const SESSION_HOURS = 12, PW_STAGE_MIN = 10, LOCK_AFTER = 5, LOCK_MIN = 15;
 const COLLS = new Set(['trucks', 'trailers', 'drivers', 'issues', 'plans', 'svc', 'docs', 'inv', 'vend', 'links', 'hist', 'insp']);
 const KV_FLEET = new Set(['pti', 'ck', 'ph']);          // fleet-wide documents (members may write)
-const SETTING_KEYS = ['prio', 'prioEd', 'compEd', 'teams', 'comps', 'stat', 'tg', 'tpl', 'ptiOff', 'tmAcc', 'seed14', 'myMap'];   // admin-only
+const SETTING_KEYS = ['prio', 'prioEd', 'compEd', 'teams', 'comps', 'stat', 'tg', 'tpl', 'ptiOff', 'tmAcc', 'seed14', 'myMap', 'vnLay'];   // admin-only
 const ROLES = new Set(['admin', 'member', 'driver']);
 
 const app = express();
@@ -200,7 +200,7 @@ app.patch('/api/me', limit('login', LOGIN_MAX, 10 * 60e3), auth(), wrap(async (r
   if (b.tg !== undefined) { const g = cleanTg(b.tg); if (g === undefined) return res.status(400).json({ error: 'bad' }); set.tg_user = g || null; }
   if (b.color !== undefined) { if (!/^#[0-9a-fA-F]{6}$/.test(String(b.color))) return res.status(400).json({ error: 'bad' }); set.color = String(b.color).toLowerCase(); }
   if (b.avatar !== undefined) { if (u.av_lock && !u.is_owner) return res.status(403).json({ error: 'locked' }); const a = cleanAvatar(b.avatar); if (a === undefined) return res.status(400).json({ error: 'bad' }); set.avatar = a; }
-  if (b.prefs && typeof b.prefs === 'object') { const pr = { ...(u.prefs || {}) }; if (THEMES.has(b.prefs.theme)) pr.theme = b.prefs.theme; if (LANGS.has(b.prefs.lang)) pr.lang = b.prefs.lang; if (b.prefs.sz && typeof b.prefs.sz === 'object') { const c = v => Math.max(30, Math.min(120, Math.round(+v) || 100)); pr.sz = { fz: c(b.prefs.sz.fz), mz: c(b.prefs.sz.mz), pz: c(b.prefs.sz.pz) }; } set.prefs = JSON.stringify(pr); }
+  if (b.prefs && typeof b.prefs === 'object') { const pr = { ...(u.prefs || {}) }; if (THEMES.has(b.prefs.theme)) pr.theme = b.prefs.theme; if (LANGS.has(b.prefs.lang)) pr.lang = b.prefs.lang; if (b.prefs.sz && typeof b.prefs.sz === 'object') { const c = (v, lo, hi) => Math.max(lo, Math.min(hi, Math.round(+v) || 100)); pr.sz = { fz: c(b.prefs.sz.fz, 50, 150), mz: c(b.prefs.sz.mz, 50, 120), pz: c(b.prefs.sz.pz, 50, 100) }; } set.prefs = JSON.stringify(pr); }
   const keys = Object.keys(set); if (!keys.length) { const f = (await q('SELECT * FROM users WHERE id=$1', [u.id])).rows[0]; return res.json({ user: publicUser(f), email: pendMsg }); }
   try {
     const r = await q(`UPDATE users SET ${keys.map((k, i) => k + '=$' + (i + 2)).join(',')} WHERE id=$1 RETURNING *`, [u.id, ...keys.map(k => set[k])]);
@@ -415,6 +415,8 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
       if (k === 'prioEd' || k === 'compEd') { okk = !!req.u.is_owner; if (!(Array.isArray(kv[k]) && kv[k].length <= 200 && kv[k].every(okId))) return res.status(400).json({ error: 'bad' }); }
       else if (k === 'prio') { const pe = (await q("SELECT value FROM kv WHERE key='prioEd'")).rows[0]; okk = !!req.u.is_owner || (!!pe && Array.isArray(pe.value) && pe.value.includes(req.u.id)); }   // priorities: owner, or people the owner allowed
       else if (k === 'comps' || k === 'teams') { const pe = (await q("SELECT value FROM kv WHERE key='compEd'")).rows[0]; okk = !!req.u.is_owner || (!!pe && Array.isArray(pe.value) && pe.value.includes(req.u.id)); }   // companies and teams: owner, or people the owner allowed
+      if (k === 'myMap') { okk = !!req.u.is_owner; if (!(kv[k] === '' || (typeof kv[k] === 'string' && /^[A-Za-z0-9_-]{10,80}$/.test(kv[k])))) return res.status(400).json({ error: 'bad' }); }
+      if (k === 'vnLay') { okk = !!req.u.is_owner; const L = kv[k], num = v => typeof v === 'number' && isFinite(v) && Math.abs(v) < 5000; if (!(L && typeof L === 'object' && !Array.isArray(L) && Object.keys(L).every(w => ['list', 'bar', 'exit', 'back'].includes(w) && L[w] && typeof L[w] === 'object' && Object.values(L[w]).every(num)))) return res.status(400).json({ error: 'bad' }); }
       if (k === 'teams' && !(Array.isArray(kv[k]) && kv[k].length <= 100 && kv[k].every(x => x && okId(x.id) && typeof x.n === 'string' && x.n.length <= 80 && (!x.resp || okId(x.resp)) && (x.resps === undefined || (Array.isArray(x.resps) && x.resps.length <= 20 && x.resps.every(okId))) && Array.isArray(x.cos) && x.cos.every(okId)))) return res.status(400).json({ error: 'bad' });
       if (!okk) return res.status(403).json({ error: 'role' }); if (JSON.stringify(kv[k]).length > 100000) return res.status(400).json({ error: 'bad' }); }
     else return res.status(400).json({ error: 'bad' });
@@ -490,7 +492,8 @@ function parseKml(x) {
     const g = b.match(/<Point>[\s\S]*?<coordinates>\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)/); if (!g) return;
     const nm = unxml((b.match(/<name>([\s\S]*?)<\/name>/) || [])[1]).trim();
     const ds = unxml((b.match(/<description>([\s\S]*?)<\/description>/) || [])[1]).replace(/<br\s*\/?>/gi, ' · ').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-    if (nm) out.push({ name: nm.slice(0, 120), lat: +g[2], lng: +g[1], note: ds.slice(0, 160) });
+    const note = ds.split(' · ').map(x => x.trim()).filter(x => x && !/^(shop name|info|longitude|latitude|name)\s*:?\s*$/i.test(x)).join(' · ');
+    if (nm) out.push({ name: nm.slice(0, 120), lat: +g[2], lng: +g[1], note: note.slice(0, 160) });
   });
   return out;
 }
