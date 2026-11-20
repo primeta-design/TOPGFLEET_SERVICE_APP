@@ -14,7 +14,7 @@ const LOGIN_MAX = +process.env.RATE_LOGIN_MAX || 12;
 const SESSION_HOURS = 12, PW_STAGE_MIN = 10, LOCK_AFTER = 5, LOCK_MIN = 15;
 const COLLS = new Set(['trucks', 'trailers', 'drivers', 'issues', 'plans', 'svc', 'docs', 'inv', 'vend', 'links', 'hist', 'insp']);
 const KV_FLEET = new Set(['pti', 'ck', 'ph']);          // fleet-wide documents (members may write)
-const SETTING_KEYS = ['prio', 'prioEd', 'compEd', 'teams', 'comps', 'stat', 'tg', 'tpl', 'ptiOff', 'tmAcc', 'seed14'];   // admin-only
+const SETTING_KEYS = ['prio', 'prioEd', 'compEd', 'teams', 'comps', 'stat', 'tg', 'tpl', 'ptiOff', 'tmAcc', 'seed14', 'myMap'];   // admin-only
 const ROLES = new Set(['admin', 'member', 'driver']);
 
 const app = express();
@@ -24,8 +24,8 @@ app.disable('x-powered-by');
 // ---------- security headers ----------
 app.use((req, res, next) => {
   res.setHeader('Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-    "font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'");
+    "default-src 'self'; script-src 'self' 'unsafe-inline' https://maps.googleapis.com https://maps.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+    "font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://*.ggpht.com https://*.googleusercontent.com https://*.google.com; connect-src 'self' https://*.googleapis.com; worker-src blob:; frame-src https://www.google.com; child-src blob:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'");
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('Referrer-Policy', 'no-referrer');
@@ -482,6 +482,7 @@ app.get('/api/files/:id', auth(), wrap(async (req, res) => {
 
 // ---------- Telegram ----------
 app.post('/tg/hook', express.json({ limit: '1mb' }), (req, res) => { if (!TG.verify(req)) return res.sendStatus(403); res.sendStatus(200); TG.handleUpdate(req.body); });
+app.get('/api/maps-key', auth(), (req, res) => res.json({ key: process.env.GOOGLE_MAPS_KEY || '' }));
 app.get('/api/tg/info', auth(), staff, wrap(async (req, res) => {
   const i = await TG.info(), mine = (await q('SELECT chat_id,digest FROM tg_chats WHERE user_id=$1', [req.u.id])).rows;
   res.json({ enabled: i.enabled, bot: i.bot || null, webhook: req.u.role === 'admin' ? i.webhook : undefined, linked: mine.length > 0, digest: mine.length ? mine[0].digest : null });
