@@ -568,6 +568,14 @@ app.post('/api/access', limit('access', 120, 60e3), auth(), ownerOnly, wrap(asyn
   await q("INSERT INTO kv(key,value,updated_by) VALUES('pageDeny',$1,$2) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_at=now(), updated_by=EXCLUDED.updated_by", [JSON.stringify(all), req.u.id]);
   audit(req.u.id, 'access.sections', user, { deny: list }, req.ip); res.json({ ok: true, deny: all });
 }));
+app.post('/api/access/section', limit('access', 120, 60e3), auth(), ownerOnly, wrap(async (req, res) => {
+  const { section, allow } = req.body || {}; if (!SECTIONS.includes(section) || !Array.isArray(allow) || allow.length > 500 || !allow.every(okId)) return res.status(400).json({ error: 'bad' });
+  const staffIds = (await q("SELECT id FROM users WHERE NOT is_owner AND role<>'driver' AND NOT disabled")).rows.map(r => r.id);
+  const cur = (await q("SELECT value FROM kv WHERE key='pageDeny'")).rows[0], all = Object.assign({}, cur && cur.value), ok = new Set(allow);
+  for (const id of staffIds) { const l = new Set(Array.isArray(all[id]) ? all[id] : []); if (ok.has(id)) l.delete(section); else l.add(section); if (l.size) all[id] = [...l]; else delete all[id]; }
+  await q("INSERT INTO kv(key,value,updated_by) VALUES('pageDeny',$1,$2) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_at=now(), updated_by=EXCLUDED.updated_by", [JSON.stringify(all), req.u.id]);
+  audit(req.u.id, 'access.section', section, { allow: [...ok] }, req.ip); res.json({ ok: true, deny: all });
+}));
 app.get('/api/ai/admin', auth(), ownerOnly, wrap(async (req, res) => res.json(await TG.ai().adminData())));
 app.post('/api/ai/config', limit('aicfg', 60, 60e3), auth(), ownerOnly, wrap(async (req, res) => {
   let c; try { c = await TG.ai().saveCfg(req.body || {}, req.u.id); } catch (e) { return res.status(400).json({ error: 'bad' }); }
