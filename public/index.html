@@ -1684,7 +1684,7 @@ A.vnEdit=el=>{closeDr();vendorForm(el.dataset.id)};
 const vnMid=()=>{const m=String(S.myMap||"").match(/^[A-Za-z0-9_-]{10,}$/);return m?m[0]:""};
 const vnAdm=()=>!!(USER&&USER.role=="admin");
 const vnEmb=(mid,ll,z)=>`https://www.google.com/maps/d/embed?mid=${encodeURIComponent(mid)}&ehbc=2E312F${ll?"&ll="+ll+"&z="+(z||15):""}`;
-function vnFrame(ll,z){const mid=vnMid();if(!mid)return vnFree();vnShow("my",vnEmb(mid,ll,z))}
+function vnFrame(ll,z,bounds){const mid=vnMid();if(!mid)return vnFree();vnLive(ll,z,bounds)}
 function vnFree(){VM.free=true;$$(".vnTabs [data-v=found]").forEach(x=>x.style.display="none");if(VM.tab=="found"){VM.tab="pl";vnList()}const mid=vnMid();
  if(mid){vnMsg("");const m=$("#vmsg");if(m)m.style.display="none";vnFrame();vnPlLoad();return}
  vnMsg(vnOwn()?`<b style="color:var(--tx)">${t("vm_free_t")}</b><p>${t("vm_free_s")}</p><input id="vmmid" placeholder="${esc(t("vm_free_ph"))}" style="width:100%;margin:6px 0" data-enter="vnMapSave"><p style="font-size:calc(12px*var(--fz,1))">${t("vm_free_h")}</p><button class="b bp" data-a="vnMapSave">${t("save")}</button>`:t("vm_free_only"))}
@@ -1699,7 +1699,7 @@ const vnPlMatch=(p,ws)=>{const h=(p.name+" "+vnClean(p.note)).toLowerCase();retu
 async function vnWhere(txt){txt=String(txt||"").trim();const x=vnLL(txt);if(x)return x;
  const v=vnFindV(txt);if(v&&v.lat!=null)return{lat:+v.lat,lng:+v.lng,label:v.name};
  const p=(VM.pl||[]).find(p=>p.name.toLowerCase()==txt.toLowerCase());if(p)return{lat:p.lat,lng:p.lng,label:p.name};
- const r=await api("GET","/api/geo?q="+encodeURIComponent(txt));return r.s==200&&r.j&&r.j.lat!=null?{lat:r.j.lat,lng:r.j.lng,label:txt}:null}
+ const r=await api("GET","/api/geo?q="+encodeURIComponent(txt));VM.geoSt=r.s;VM.geoErr=r.j&&r.j.error;return r.s==200&&r.j&&r.j.lat!=null?{lat:r.j.lat,lng:r.j.lng,label:txt}:null}
 async function vnFreeSearch(q0){const q=(q0||"").trim(),nr=(($("#vmn")||{}).value||"").trim();vnRecAdd(nr&&!/ near /i.test(q)?q+" near "+nr:q);
  if(!VM.plLoaded)vnPlLoad();
  let near=null,ws=vnWords(q);
@@ -1709,45 +1709,71 @@ async function vnFreeSearch(q0){const q=(q0||"").trim(),nr=(($("#vmn")||{}).valu
  VM.near=near;VM.plq=ws.length&&(VM.pl||[]).some(p=>vnPlMatch(p,ws))?ws.join(" "):"";
  $$(".vnPlQ").forEach(x=>x.value=VM.plq);
  VM.tab="pl";vnList();vnPlDraw();
- if(near)vnFrame(near.lat+","+near.lng,9);else vnFrame();}
+ if(near)vnFrame(near.lat+","+near.lng,9);else{const m=VM.plq?(VM.pl||[]).filter(p=>vnPlMatch(p,vnWords(VM.plq))).map(p=>[p.lat,p.lng]):[];vnFrame(null,null,m.length?m:null)}}
 async function vnFreeRoute(){const fE=$("#vrf"),dE=$("#vrt"),f=((fE&&fE.value)||"").trim(),d=((dE&&dE.value)||"").trim();if(!d)return toast(t("vm_to"),"er");
  vnMsg("…");
  const o=f?await vnWhere(f):vnLL(await vnGeo()),dd=VM.dest&&VM.dest.label==d&&vnLL(VM.dest.ll)?vnLL(VM.dest.ll):await vnWhere(d);
- if(!o){vnMsg("");return toast(f?t("vm_nf"):t("vm_from_need"),"er")}
- if(!dd){vnMsg("");return toast(t("vm_nf"),"er")}
+ const why=()=>VM.geoSt==404?t("vm_srv_old"):VM.geoErr?t("vm_net"):t("vm_nf");
+ if(!o){vnMsg("");return toast(f?why():t("vm_from_need"),"er")}
+ if(!dd){vnMsg("");return toast(why(),"er")}
  PG.vrf=f;PG.vrt=d;vnRecAdd("\u2192 "+d);
  const r=await api("GET","/api/eta?full=1&a="+o.lat+","+o.lng+"&b="+dd.lat+","+dd.lng);
  vnMsg("");
- if(!(r.s==200&&r.j&&r.j.routes&&r.j.routes.length))return toast(t("vm_eta_err"),"er");
- try{await vnLeaflet()}catch(e){vnFrame(dd.lat+","+dd.lng,10);return toast(t("vm_eta_err"),"er")}
- VM.rt={o,dd,of:f||t("vm_you"),df:d,rs:r.j.routes,sel:0};vnRouteDraw()}
+ if(!(r.s==200&&r.j&&r.j.routes&&r.j.routes.length))return toast(r.s==404?t("vm_srv_old"):r.j&&r.j.error=="net"?t("vm_net"):t("vm_eta_err"),"er");
+ try{await vnLeaflet()}catch(e){return toast(t("vm_lf_err"),"er")}
+ VM.rt={o,dd,of:f||t("vm_you"),df:d,rs:r.j.routes,sel:0,fresh:true};vnRouteDraw()}
 function vnLeaflet(){if(window.L&&L.map)return Promise.resolve();if(VM.lf)return VM.lf;
  VM.lf=new Promise((res,rej)=>{const l=document.createElement("link");l.rel="stylesheet";l.href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";document.head.appendChild(l);const s=document.createElement("script");s.src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";s.onload=()=>res();s.onerror=()=>{VM.lf=null;rej(new Error("lf"))};document.head.appendChild(s)});return VM.lf}
-function vnRouteDraw(first){const R=VM.rt,b=$("#vmap");if(!R||!b)return;
- if(!$("#vlf")||first!==false){if(VM.lmap){try{VM.lmap.remove()}catch(e){}VM.lmap=null}VM.view="route";const m=$("#vmsg");if(m)m.style.display="none";const bk=$("#vback");if(bk)bk.classList.add("show");
-  b.innerHTML=`<div class="vnFrm"><div id="vlf" style="position:absolute;inset:0"></div><div id="vrp" style="position:absolute;z-index:1000;top:10px;left:10px;width:min(320px,calc(100% - 20px));max-height:calc(100% - 70px);overflow:auto;background:var(--pn);color:var(--tx);border:1px solid var(--ln);border-radius:12px;padding:12px;box-shadow:0 6px 20px #0009;font:13px Inter,system-ui,sans-serif"></div></div>`;
-  const mp=L.map("vlf",{zoomControl:true}).setView([R.o.lat,R.o.lng],6);L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"\u00a9 OpenStreetMap"}).addTo(mp);VM.lmap=mp;VM.llines=[];
-  R.rs.forEach((x,i)=>{const pl=L.polyline(x.line,{color:"#4f8cff",weight:6,opacity:.9}).addTo(mp);pl.on("click",()=>{R.sel=i;vnRouteDraw(false)});VM.llines.push(pl)});
-  const mk=(p,c,l)=>L.marker([p.lat,p.lng],{icon:L.divIcon({className:"",html:`<div style="width:26px;height:26px;border-radius:50%;background:${c};color:#fff;font:700 13px Inter,sans-serif;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 2px 6px #0009">${l}</div>`,iconSize:[26,26],iconAnchor:[13,13]})}).addTo(mp);
-  mk(R.o,"#16a34a","A");mk(R.dd,"#dc2626","B");mp.fitBounds(L.latLngBounds(R.rs.flatMap(x=>x.line)),{padding:[40,40]});
-  try{new ResizeObserver(()=>{try{mp.invalidateSize()}catch(e){}}).observe(b)}catch(e){}}
- (VM.llines||[]).forEach((pl,i)=>{pl.setStyle({color:i==R.sel?"#4f8cff":"#8a94ad",weight:i==R.sel?6:4,opacity:i==R.sel?.95:.7});if(i==R.sel)pl.bringToFront()});
- const x=R.rs[R.sel],tmf=m=>(m>=60?Math.floor(m/60)+" h ":"")+(m%60)+" min",gm="https://www.google.com/maps/dir/?api=1&travelmode=driving&origin="+encodeURIComponent(R.o.lat+","+R.o.lng)+"&destination="+encodeURIComponent(R.dd.lat+","+R.dd.lng);
- $("#vrp").innerHTML=`<div style="font-weight:700">${esc(R.of)} \u2192 ${esc(R.df)}</div>
- ${R.rs.map((y,i)=>`<button data-a="vnRtSel" data-i="${i}" style="display:block;width:100%;text-align:left;margin:6px 0 0;padding:8px 10px;border-radius:9px;border:1px solid ${i==R.sel?"#4f8cff":"var(--ln)"};background:${i==R.sel?"#4f8cff22":"none"};color:var(--tx);cursor:pointer"><b style="font-size:16px">${tmf(y.min)}</b> <span style="color:var(--mu)">\u00b7 ${y.mi} mi${i==0?" \u00b7 "+t("vm_fastest"):""}</span></button>`).join("")}
+function vnLiveBuild(){const b=$("#vmap");if(!b)return null;if(VM.lmap){try{VM.lmap.remove()}catch(e){}VM.lmap=null}
+ VM.view="live";const m=$("#vmsg");if(m)m.style.display="none";
+ b.innerHTML=`<div class="vnFrm"><div id="vlf" style="position:absolute;inset:0"></div><div id="vrp" style="display:none;position:absolute;z-index:1000;top:10px;left:56px;width:min(320px,calc(100% - 70px));max-height:calc(100% - 70px);overflow:auto;background:var(--pn);color:var(--tx);border:1px solid var(--ln);border-radius:12px;padding:12px;box-shadow:0 6px 20px #0009;font:13px Inter,system-ui,sans-serif"></div></div>`;
+ const mp=L.map("vlf",{preferCanvas:true}).setView([39.5,-98.35],4);L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(mp);
+ VM.lmap=mp;VM.lpins=L.layerGroup().addTo(mp);VM.lrt=L.layerGroup().addTo(mp);VM.llines=[];
+ const lc=L.control({position:"topleft"});lc.onAdd=()=>{const d=L.DomUtil.create("div","leaflet-bar"),a=L.DomUtil.create("a","",d);a.href="#";a.title=t("vm_loc");a.setAttribute("aria-label",t("vm_loc"));a.textContent="◎";a.style.cssText="font-size:18px;line-height:30px;text-align:center;width:30px;height:30px;display:block;cursor:pointer";L.DomEvent.on(a,"click",e=>{L.DomEvent.preventDefault(e);vnLocate()});return d};lc.addTo(mp);
+ try{new ResizeObserver(()=>{try{mp.invalidateSize()}catch(e){}}).observe(b)}catch(e){}
+ vnPinsDraw();return mp}
+async function vnLocate(){const g=vnLL(await vnGeo());if(!g||!VM.lmap)return toast(t("vm_from_need"),"er");
+ if(VM.me)VM.me.remove();VM.me=L.circleMarker([g.lat,g.lng],{radius:8,color:"#fff",weight:2,fillColor:"#2563eb",fillOpacity:1}).addTo(VM.lmap);VM.lmap.setView([g.lat,g.lng],11)}
+async function vnLive(ll,z,bounds){
+ try{await vnLeaflet()}catch(e){toast(t("vm_lf_err"),"er");const mid=vnMid();return mid&&vnShow("my",vnEmb(mid,ll,z))}
+ if(!VM.lmap||!$("#vlf")||!document.body.contains(VM.lmap.getContainer()))vnLiveBuild();
+ const mp=VM.lmap;if(!mp)return;
+ if(bounds&&bounds.length)mp.fitBounds(L.latLngBounds(bounds),{padding:[40,40],maxZoom:12});else if(ll){const c=vnLL(ll);if(c)mp.setView([c.lat,c.lng],z||14)}
+ VM.view=VM.rt?"route":"live"}
+function vnPinsDraw(){if(!VM.lmap||!VM.lpins||!window.L)return;VM.lpins.clearLayers();
+ const ws=vnWords(VM.plq),all=(VM.pl||[]).filter(p=>!ws.length||vnPlMatch(p,ws));
+ all.forEach(p=>{const c=L.circleMarker([p.lat,p.lng],{radius:5,color:"#fff",weight:1,fillColor:"#8b5cf6",fillOpacity:.9}).addTo(VM.lpins);c.on("click",()=>vnPinPop(p,[p.lat,p.lng],(VM.pl||[]).indexOf(p)))});
+ DB.vend.filter(v=>v.lat!=null).forEach(v=>{const c=L.circleMarker([+v.lat,+v.lng],{radius:8,color:"#fff",weight:2,fillColor:"#16a34a",fillOpacity:1}).addTo(VM.lpins);c.on("click",()=>vnPinPop({name:v.name,note:"",_v:v},[+v.lat,+v.lng],-1))})}
+function vnPinPop(p,ll,i){const x=p._v?{addr:p._v.addr,phone:p._v.phone,web:p._v.web}:vnParts(p.note),btn="display:inline-block;margin:6px 6px 0 0;padding:6px 10px;border-radius:8px;border:0;background:#6d5df6;color:#fff;font:600 12px Inter,system-ui,sans-serif;cursor:pointer;text-decoration:none",lk="color:#2563eb";
+ const h=`<div style="font:13px Inter,system-ui,sans-serif;color:#111;min-width:190px"><b style="font-size:14px">${esc(p.name)}</b>${x.addr?`<div style="margin-top:3px">${esc(x.addr)}</div>`:""}${x.phone?`<div><a style="${lk}" href="tel:${esc(x.phone)}">${esc(x.phone)}</a></div>`:""}${x.web?`<div><a style="${lk}" target="_blank" rel="noopener" href="${esc(/^https?:/.test(x.web)?x.web:"https://"+x.web)}">${esc(x.web)}</a></div>`:""}
+ <button style="${btn}" data-a="vnDir" data-ll="${ll[0]},${ll[1]}" data-n="${esc(p.name)}">${t("vm_dir")}</button>${i>=0?`<button style="${btn};background:#16a34a" data-a="vnPlSave" data-i="${i}">${t("vm_save")}</button>`:""}</div>`;
+ VM.lmap.once("popupopen",e=>{const el=e.popup.getElement();el&&el.querySelectorAll("[data-a]").forEach(b=>b.addEventListener("click",ev=>{ev.preventDefault();if(typeof roGuard=="function"&&roGuard(b.dataset.a))return;const f=A[b.dataset.a];if(f){VM.lmap.closePopup();f(b)}}))});
+ L.popup({maxWidth:300}).setLatLng(ll).setContent(h).openOn(VM.lmap)}
+function vnRouteDraw(){const R=VM.rt;if(!R)return;
+ if(!VM.lmap||!$("#vlf"))vnLiveBuild();const mp=VM.lmap;if(!mp)return;
+ VM.lrt.clearLayers();VM.llines=[];VM.view="route";mp.closePopup();const bk=$("#vback");if(bk)bk.classList.add("show");
+ R.rs.forEach((x,i)=>{const pl=L.polyline(x.line,{color:"#4f8cff",weight:6,opacity:.9}).addTo(VM.lrt);pl.on("click",()=>{R.sel=i;vnRouteDraw()});VM.llines.push(pl)});
+ const mk=(p,c,l)=>L.marker([p.lat,p.lng],{icon:L.divIcon({className:"",html:`<div style="width:26px;height:26px;border-radius:50%;background:${c};color:#fff;font:700 13px Inter,sans-serif;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 2px 6px #0009">${l}</div>`,iconSize:[26,26],iconAnchor:[13,13]})}).addTo(VM.lrt);
+ mk(R.o,"#16a34a","A");mk(R.dd,"#dc2626","B");
+ if(R.fresh){R.fresh=false;mp.fitBounds(L.latLngBounds(R.rs.flatMap(x=>x.line)),{padding:[40,40]})}
+ VM.llines.forEach((pl,i)=>{pl.setStyle({color:i==R.sel?"#4f8cff":"#8a94ad",weight:i==R.sel?6:4,opacity:i==R.sel?.95:.7});if(i==R.sel)pl.bringToFront()});
+ const x=R.rs[R.sel],tmf=m=>(m>=60?Math.floor(m/60)+" h ":"")+(m%60)+" min",gm="https://www.google.com/maps/dir/?api=1&travelmode=driving&origin="+encodeURIComponent(R.o.lat+","+R.o.lng)+"&destination="+encodeURIComponent(R.dd.lat+","+R.dd.lng),pn=$("#vrp");
+ pn.style.display="block";
+ pn.innerHTML=`<div class="row" style="flex-wrap:nowrap;gap:8px;align-items:flex-start"><div style="font-weight:700;flex:1">${esc(R.of)} → ${esc(R.df)}</div><button class="bi" data-a="vnBackMy" aria-label="${esc(t("close"))}" title="${esc(t("close"))}" style="font-size:18px;line-height:1">×</button></div>
+ ${R.rs.map((y,i)=>`<button data-a="vnRtSel" data-i="${i}" style="display:block;width:100%;text-align:left;margin:6px 0 0;padding:8px 10px;border-radius:9px;border:1px solid ${i==R.sel?"#4f8cff":"var(--ln)"};background:${i==R.sel?"#4f8cff22":"none"};color:var(--tx);cursor:pointer"><b style="font-size:16px">${tmf(y.min)}</b> <span style="color:var(--mu)">· ${y.mi} mi${i==0?" · "+t("vm_fastest"):""}</span></button>`).join("")}
  <p style="color:var(--mu);margin:8px 0">${t("vm_eta_note")}</p>
  <div class="row" style="gap:6px"><a class="b bp bs" target="_blank" rel="noopener" href="${gm}">${t("vm_eta_open")}</a><button class="b bs" data-a="vnStepsTog">${t("vm_steps")}</button></div>
  <ol id="vsteps" style="display:${VM.stepsOn?"block":"none"};margin:10px 0 0;padding-left:20px">${(x.steps||[]).map(st=>`<li style="margin:4px 0">${esc(st.t)} <span style="color:var(--mu)">${st.mi} mi</span></li>`).join("")}</ol>`}
-A.vnRtSel=el=>{if(VM.rt){VM.rt.sel=+el.dataset.i;vnRouteDraw(false)}};
+A.vnRtSel=el=>{if(VM.rt){VM.rt.sel=+el.dataset.i;vnRouteDraw()}};
 A.vnStepsTog=()=>{VM.stepsOn=!VM.stepsOn;const o=$("#vsteps");if(o)o.style.display=VM.stepsOn?"block":"none"};
-Object.assign(D,{vm_full:["Open full Google map","To‘liq Google xarita","Открыть полную карту Google"],vm_fastest:["fastest","eng tez","быстрее всего"],vm_steps:["Turn-by-turn","Burilishlar","Пошагово"]});
+Object.assign(D,{vm_loc:["My location","Mening joylashuvim","Моё местоположение"],vm_lf_err:["The map could not load. Check the internet connection and try again.","Xarita yuklanmadi. Internetni tekshirib qayta urinib ko‘ring.","Карта не загрузилась. Проверьте интернет и повторите."],vm_srv_old:["The server is not updated yet. Upload the new server.js to GitHub and wait for Railway to redeploy.","Server hali yangilanmagan. Yangi server.js ni GitHub’ga yuklab, Railway qayta deploy qilishini kuting.","Сервер ещё не обновлён. Загрузите новый server.js в GitHub и дождитесь деплоя Railway."],vm_net:["The free map service did not answer. Try again in a minute.","Bepul xarita xizmati javob bermadi. Bir daqiqadan keyin qayta urinib ko‘ring.","Бесплатный картографический сервис не ответил. Повторите через минуту."],vm_full:["Open full Google map","To‘liq Google xarita","Открыть полную карту Google"],vm_fastest:["fastest","eng tez","быстрее всего"],vm_steps:["Turn-by-turn","Burilishlar","Пошагово"]});
 A.vnMsgX=()=>vnMsg("");
 Object.assign(D,{vm_nf:["Place not found. Try a city, address or ZIP.","Joy topilmadi. Shahar, manzil yoki ZIP yozing.","Место не найдено. Введите город, адрес или ZIP."],vm_eta_err:["Could not calculate the route right now.","Hozir yo‘nalishni hisoblab bo‘lmadi.","Сейчас не удалось рассчитать маршрут."],vm_eta_note:["Driving time for a car. A loaded truck usually takes 15–25% longer.","Yengil mashina uchun vaqt. Yuklangan truck odatda 15–25% uzoqroq ketadi.","Время для легковой. Гружёному траку обычно на 15–25% дольше."],vm_eta_open:["Open in Google Maps","Google Maps’da ochish","Открыть в Google Maps"],vm_you:["Your location","Joylashuvingiz","Ваше местоположение"],vm_away:["mi away","mil uzoqlikda","миль"]});
 function vnPlHtml(){const ws=vnWords(VM.plq);let L=(VM.pl||[]).filter(p=>!ws.length||vnPlMatch(p,ws));
  if(VM.near){L=L.map(p=>({p,d:vnHav(VM.near,p)})).sort((a,b)=>a.d-b.d).map(x=>(x.p._d=x.d,x.p))}
  const sv=p=>DB.vend.some(v=>(v.name||"").toLowerCase()==p.name.toLowerCase()&&v.lat!=null&&Math.abs(v.lat-p.lat)<.001&&Math.abs(v.lng-p.lng)<.001);
  return L.length?L.slice(0,300).map(p=>`<div class="vnC" data-a="vnPlGo" data-ll="${p.lat},${p.lng}"><div class="row" style="flex-wrap:nowrap;gap:8px;align-items:flex-start"><span class="vnDot"></span><div style="flex:1;min-width:0"><b>${esc(p.name)}</b>${VM.near&&p._d!=null?` <span class="mu vnS">${Math.round(p._d)} ${t("vm_away")}</span>`:""}${vnClean(p.note)?`<div class="mu vnS">${esc(vnClean(p.note))}</div>`:""}<div class="vnS" style="margin-top:4px"><button class="vnLk" data-a="vnDir" data-ll="${p.lat},${p.lng}" data-n="${esc(p.name)}">${ic("pin",11)} ${t("vm_dir")}</button>${sv(p)?`<span class="vnLk" style="cursor:default">${ic("check",11)} ${t("vm_saved")}</span>`:`<button class="vnLk" data-a="vnPlSave" data-i="${(VM.pl||[]).indexOf(p)}">${ic("plus",11)} ${t("vm_save")}</button>`}</div></div></div></div>`).join(""):`<p class="mu" style="padding:14px">${VM.pl===undefined?t("vm_load"):VM.plErr?t("vm_pl_err"):t("vm_pl_none")}</p>`}
-function vnPlDraw(){const h=vnPlHtml(),a=$("#vplist"),b=$("#vpanlist");if(a)a.innerHTML=h;if(b)b.innerHTML=h;const n=$("#vnN3");if(n)n.textContent=(VM.pl||[]).length}
+function vnPlDraw(){const h=vnPlHtml(),a=$("#vplist"),b=$("#vpanlist");if(a)a.innerHTML=h;if(b)b.innerHTML=h;const n=$("#vnN3");if(n)n.textContent=(VM.pl||[]).length;vnPinsDraw()}
 I.vnPlQ=el=>{VM.plq=el.value;$$(".vnPlQ").forEach(x=>{if(x!==el)x.value=el.value});vnPlDraw()};
 A.vnPlGo=el=>{vnFrame(el.dataset.ll)};
 A.vnPlSave=el=>{const p=(VM.pl||[])[+el.dataset.i];if(!p)return;if(DB.vend.some(v=>(v.name||"").toLowerCase()==p.name.toLowerCase()&&v.lat!=null&&Math.abs(v.lat-p.lat)<.001))return toast(t("vm_saved"));{const x=vnParts(p.note);DB.vend.push({id:uid(),name:p.name,addr:x.addr,phone:x.phone,web:x.web,notes:"",lat:p.lat,lng:p.lng,pid:""})};save();vnList();vnPlDraw();toast(t("vm_saved"))};
@@ -1796,7 +1822,7 @@ A.vnRoute=async()=>{if(!(await vnKey()))return vnFreeRoute();const fE=$("#vrf"),
  PG.vrf=f;PG.vrt=d;vnRecAdd("→ "+d);
  const u=await vnEmbUrl("directions","origin="+encodeURIComponent(o)+"&destination="+encodeURIComponent(dd||loc(vnFindV(d),d))+"&mode=driving&units=imperial");if(u)vnShow("route",u)};
 A.vnDir=el=>{const n=el.dataset.n||"",ll=el.dataset.ll||"";closeDr();A.vnMode({dataset:{v:"r"}});const dE=$("#vrt");if(dE){dE.value=n||ll;PG.vrt=dE.value}VM.dest=ll?{label:n||ll,ll}:null;A.vnRoute()};
-A.vnBackMy=()=>{VM.view="my";const b=$("#vback");if(b)b.classList.remove("show");vnFrame()};
+A.vnBackMy=()=>{if(VM.lmap&&$("#vlf")){VM.rt=null;if(VM.lrt)VM.lrt.clearLayers();const p=$("#vrp");if(p)p.style.display="none";VM.view="live";const bk=$("#vback");if(bk)bk.classList.remove("show");return}VM.view="my";const b=$("#vback");if(b)b.classList.remove("show");vnFrame()};
 /* fullscreen with floating widgets */
 const VL0={list:{x:.012,y:.02,w:340,h:520},bar:{x:.27,y:.02,w:640},exit:{x:.44,y:.9},back:{x:.03,y:.9}};
 const vnLay=w=>({...VL0[w],...((S.vnLay||{})[w]||{})});
