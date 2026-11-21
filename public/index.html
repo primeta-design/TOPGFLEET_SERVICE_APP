@@ -501,6 +501,7 @@ wrench:'<path d="M14 6l4-4 3 3-4 4M3 21l9-9M12 12l3-3"/>',send:'<path d="M3 11l1
 clip:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/>',
 folder:'<path d="M3 6h7l2 2h9v11H3z"/>',shield:'<path d="M12 3l8 3v6c0 5-4 8-8 9-4-1-8-4-8-9V6z"/><path d="M12 8v5M12 16h.01"/>',
 receipt:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 7v10M9 15c0 2 6 2 6-1s-6-1-6-3 6-2 6 0"/>',
+wallet:'<path d="M3 7a2 2 0 012-2h13v3"/><path d="M3 7v10a2 2 0 002 2h14a1 1 0 001-1V9a1 1 0 00-1-1H5a2 2 0 01-2-2z"/><circle cx="16.5" cy="13.5" r="1"/>',
 spark:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M18 15l.8 2.2L21 18l-2.2.8L18 21l-.8-2.2L15 18l2.2-.8z"/>',
 store:'<path d="M4 9l1-5h14l1 5M4 9v11h16V9M4 9c0 2 4 2 4 0 0 2 4 2 4 0 0 2 4 2 4 0 0 2 4 2 4 0"/>',
 bell:'<path d="M6 9a6 6 0 0112 0c0 6 2 7 2 7H4s2-1 2-7M10 20h4"/>',menu:'<path d="M4 6h16M4 12h16M4 18h16"/>',
@@ -621,14 +622,14 @@ function todayData(){const R={cant:[],blk:[],soon:[]};
 function effPrio(i){if(i.sched){const d=dd(i.sched),n=S.prio.length;const k=d<=0?0:d<=2?Math.min(1,n-1):n-1;return S.prio[k]}return prioOf(i.pr)||S.prio[S.prio.length-1]}
 
 /* ===== router / events ===== */
-const ROUTES={today:"dashboard",alerts:"alerts",trucks:"fleet",trailers:"trailers",hookdrop:"hook-drop",drivers:"drivers",maintenance:"maintenance",pti:"pti",inspections:"inspections",documents:"documents",violations:"violation-report",invoices:"invoices",vendors:"vendors",ai:"ai",profile:"profile",companies:"companies"};
-const NAVS=[["g_operate",[["today","sun"],["trucks","truck"],["trailers","box"],["hookdrop","swap"],["drivers","card"]]],["g_maint",[["maintenance","wrench"],["pti","send"],["inspections","clip"],["documents","folder"],["violations","shield"]]],["g_records",[["invoices","receipt"],["vendors","store"],["ai","spark"]]]];
+const ROUTES={today:"dashboard",alerts:"alerts",trucks:"fleet",trailers:"trailers",hookdrop:"hook-drop",drivers:"drivers",maintenance:"maintenance",pti:"pti",inspections:"inspections",documents:"documents",violations:"violation-report",invoices:"invoices",vendors:"vendors",aibot:"ai",aiexp:"ai-expenses",profile:"profile",companies:"companies"};
+const NAVS=[["g_operate",[["today","sun"],["trucks","truck"],["trailers","box"],["hookdrop","swap"],["drivers","card"]]],["g_maint",[["maintenance","wrench"],["pti","send"],["inspections","clip"],["documents","folder"],["violations","shield"]]],["g_records",[["invoices","receipt"],["vendors","store"]]],["g_ai",[["aibot","spark"],["aiexp","wallet"]]]];
 let V="today",PG={};const PAGES={},A={},I={},C={};
-const viewFromHash=()=>{const h=((typeof SERVER!="undefined"&&SERVER)?location.pathname:(location.hash||"")).replace(/^[#\/]+/,"").replace(/\/$/,"");return Object.keys(ROUTES).find(k=>ROUTES[k]==h)||"today"};
-function go(v){V=v;PG={};if(typeof SERVER!="undefined"&&SERVER){const p="/"+ROUTES[v];if(location.pathname!=p)history.pushState(null,"",p)}else{const h="#"+ROUTES[v];if(location.hash!=h)history.replaceState(null,"",h)}closeDr();closeMd();render()}
+const viewFromHash=()=>{const h=((typeof SERVER!="undefined"&&SERVER)?location.pathname:(location.hash||"")).replace(/^[#\/]+/,"").replace(/\/$/,"");const k=Object.keys(ROUTES).find(k=>ROUTES[k]==h)||"today";return typeof pageAllowed=="function"?pageAllowed(k):k};
+function go(v){if(typeof pageAllowed=="function")v=pageAllowed(v);V=v;PG={};if(typeof SERVER!="undefined"&&SERVER){const p="/"+ROUTES[v];if(location.pathname!=p)history.pushState(null,"",p)}else{const h="#"+ROUTES[v];if(location.hash!=h)history.replaceState(null,"",h)}closeDr();closeMd();render()}
 function shell(){return scoped(shell0)}
 function shell0(){const n=alertList().length;
- return `<nav class="sb ${S.sm?"sm":""}" id="sd"><div class="brand"><div class="logo">${logo(20)}</div><span class="brt">TOPG<b>FLEET</b></span></div>${NAVS.map(([g,it])=>`<div class="gp">${t(g)}</div>${it.filter(([k])=>k!="ai"||(typeof aiNav=="function"&&aiNav())).map(([k,i])=>`<button class="nv ${V==k?"on":""}" data-a="nav" data-v="${k}" title="${esc(t(k))}">${ic(i)}<span class="lb">${t(k)}</span>${k=="today"&&n?`<i>${n}</i>`:""}</button>`).join("")}`).join("")}<div class="sp"></div><button class="nv" data-a="logout" title="${esc(t("logout"))}">${ic("out")}<span class="lb">${t("logout")}</span></button></nav>
+ return `<nav class="sb ${S.sm?"sm":""}" id="sd"><div class="brand"><div class="logo">${logo(20)}</div><span class="brt">TOPG<b>FLEET</b></span></div>${NAVS.map(([g,it])=>{const L=it.filter(([k])=>typeof aiNavOk!="function"?!/^ai/.test(k):aiNavOk(k));return L.length?`<div class="gp">${t(g)}</div>${L.map(([k,i])=>`<button class="nv ${V==k?"on":""}" data-a="nav" data-v="${k}" title="${esc(t(k))}">${ic(i)}<span class="lb">${t(k)}</span>${k=="today"&&n?`<i>${n}</i>`:""}</button>`).join("")}`:""}).join("")}<div class="sp"></div><button class="nv" data-a="logout" title="${esc(t("logout"))}">${ic("out")}<span class="lb">${t("logout")}</span></button></nav>
 <div class="wrap"><div class="top"><button class="bi" data-a="menu" aria-label="Menu">${ic("menu")}</button><h3>${t(V)}</h3>${coSwitch()}<div class="gs pw">${ic("srch",15)}<input id="gq" data-i="gq" placeholder="${esc(t("find"))}" autocomplete="off" aria-label="${esc(t("find"))}"><kbd>/</kbd><div class="pop hide" id="gd" style="left:0;right:0;top:38px"></div></div><div class="sp"></div>
 <div class="pw"><button class="bi" data-a="shpop" data-p="bellp" aria-label="${t("alerts")}">${ic("bell")}${n?`<span class="bg2">${n}</span>`:""}</button><div class="pop sh" id="bellp" style="width:300px"><div class="ph"><span>${t("alerts")}</span><span class="mu">${n}</span></div>${n?alertList().slice(0,5).map(a=>`<button class="pi" data-a="openTruck" data-id="${a.tid}"><span class="dt" style="background:${a.st=="over"?"var(--rd)":"var(--am)"}"></span><span><b>${esc(a.unit)}</b> ${esc(a.title)}<br><small class="mu">${esc(a.detail)}</small></span></button>`).join(""):`<div class="em" style="padding:22px">${t("a_caught")}</div>`}<a class="pi" href="#alerts" data-a="nav" data-v="alerts" style="justify-content:center;color:var(--ac)">${t("a_view")}</a></div></div>
 <div class="pw"><div class="usr" data-a="shpop" data-p="userp" tabindex="0" role="button">${avHtml(S.name,S.col,0,1)}<span>${esc(S.name)}</span>${ic("chev",14)}</div><div class="pop sh" id="userp" style="width:200px"><button class="pi" data-a="nav" data-v="profile">${ic("user",16)} ${t("profile")}</button><button class="pi" data-a="nav" data-v="companies">${ic("store",16)} ${t("companies")}</button></div></div></div><main id="c"></main></div>`}
@@ -1115,8 +1116,8 @@ function vendorForm(id){const v=id?byId(DB.vend,id):null,f=v||{};
  del:v?()=>{DB.vend=DB.vend.filter(x=>x.id!=id);refresh()}:null,onSave:o=>{if(v)Object.assign(v,o);else DB.vend.push({id:uid(),...o});closeDr();refresh()}})}
 
 /* ===== PROFILE ===== */
-const PF=[["app","pf_app","pal"],["lang","pf_lang","lang"],["int","pf_int","zap"],["comp","pf_comp","bld"],["prio","pf_prio","flag"],["team","pf_team","users"],["acc","pf_acc","user"],["disp","pf_disp","eye"]];
-const pfL=()=>PF;
+const PF=[["app","pf_app","pal"],["lang","pf_lang","lang"],["int","pf_int","zap"],["comp","pf_comp","bld"],["prio","pf_prio","flag"],["team","pf_team","users"],["acc","pf_acc","user"],["pacc","pf_pacc","shield"],["disp","pf_disp","eye"]];
+const pfL=()=>PF.filter(x=>x[0]!="pacc"||(typeof SERVER!="undefined"&&SERVER&&USER&&USER.owner));
 const THN={charcoal:"Charcoal",midnight:"Midnight",forest:"Forest",daylight:"Daylight",paper:"Paper",mist:"Mist"};
 const secH=(id,ti,body)=>`<section id="pf_${id}" class="card cp" style="margin-bottom:16px"><h3 style="margin:0 0 12px;font-size:calc(15px*var(--fz,1))">${t(ti)}</h3>${body}</section>`;
 const thumb=k=>{const c=TH[k];return `<button class="thc ${S.theme==k?"on":""}" data-a="setTheme" data-v="${k}" aria-label="${THN[k]}"><div style="height:44px;border-radius:6px;background:${c[0]};border:1px solid ${c[3]};position:relative"><div style="position:absolute;left:6px;top:6px;width:18px;bottom:6px;border-radius:3px;background:${c[1]}"></div><div style="position:absolute;right:8px;top:10px;width:30px;height:6px;border-radius:3px;background:${c[7]}"></div></div><small style="display:block;margin-top:6px">${THN[k]}</small></button>`};
@@ -1144,6 +1145,7 @@ ${secH("comp","pf_comp",`<p class="mu" style="margin-top:0">${t("co_s")}</p><p c
 ${secH("prio","pf_prio",`<p class="mu" style="margin-top:0">${t("pr_s")}</p><div class="prioBox">${prioInner()}</div><p class="mu" style="font-size:calc(12px*var(--fz,1))">${t("pr_s2")}</p>${typeof prEdPanel=="function"?prEdPanel():""}`)}
 ${pfL().some(x=>x[0]=="team")?secH("team","pf_team",teamBody()):""}
 ${secH("acc","pf_acc",accBody())}
+${pfL().some(x=>x[0]=="pacc")&&typeof paccBody=="function"?secH("pacc","pf_pacc",paccBody()):""}
 ${secH("disp","pf_disp",dispBody())}
 </div></div></div>`};
 A.setTheme=el=>{S.theme=el.dataset.v;save();theme();page()};A.setCol=el=>{S.col=el.dataset.v;const m=S.team.find(x=>x.u==S.user)||S.team[0];if(m)m.c=el.dataset.v;refresh();toast(t("pf_upd"))};
@@ -1767,7 +1769,7 @@ document.addEventListener("pointerdown",e=>{const g=e.target.closest&&e.target.c
  const mv=ev=>{w.style.left=Math.max(0,Math.min(R.width-40,ev.clientX-R.left-dx))+"px";w.style.top=Math.max(0,Math.min(R.height-30,ev.clientY-R.top-dy))+"px"};
  const up=()=>{g.removeEventListener("pointermove",mv);g.removeEventListener("pointerup",up)};g.addEventListener("pointermove",mv);g.addEventListener("pointerup",up)});
 /* ===== AI page: Telegram AI bot access, usage log (PDF) and expenses ===== */
-Object.assign(D,{ai:["AI","AI","ИИ"],
+Object.assign(D,{g_ai:["AI","AI","ИИ"],aibot:["Telegram AI bot","Telegram AI bot","Telegram ИИ-бот"],aiexp:["Expenses","Xarajatlar","Расходы"],
 ai_srv:["The AI page works on the live site only.","AI sahifasi faqat jonli saytda ishlaydi.","Страница ИИ работает только на живом сайте."],
 ai_h1:["Telegram AI bot","Telegram AI bot","Telegram ИИ-бот"],
 ai_s1:["Write to the bot in plain words and it looks things up or changes data on the site. You decide who may use it and what they may do.","Botga oddiy so‘zlar bilan yozasiz: u saytdan ma’lumot topadi yoki o‘zgartiradi. Kim foydalanishi va nima qila olishini siz hal qilasiz.","Пишите боту обычными словами: он найдёт данные или изменит их на сайте. Кто и что может делать — решаете вы."],
@@ -1800,14 +1802,20 @@ ai_tools:["What the AI did","AI nima qildi","Что делал ИИ"],
 ai_noc:["No access to this section.","Bu bo‘limga ruxsat yo‘q.","Нет доступа к этому разделу."],ai_saved:["Saved","Saqlandi","Сохранено"],ai_err:["Could not save. Try again.","Saqlab bo‘lmadi. Qayta urining.","Не удалось сохранить. Повторите."],
 ai_pdf_t:["AI requests","AI so‘rovlari","Запросы к ИИ"],ai_pdf_n:["{0} requests · total ${1}","{0} so‘rov · jami ${1}","{0} запросов · всего ${1}"]});
 const AI_TL={fleet_overview:["Overview","Umumiy ko‘rinish","Обзор"],list_records:["Looked up records","Yozuv qidirdi","Искал записи"],save_record:["Added / changed a record","Yozuv qo‘shdi / o‘zgartirdi","Добавил / изменил запись"],delete_record:["Deleted a record","Yozuv o‘chirdi","Удалил запись"],get_setting:["Read a setting","Sozlama o‘qidi","Прочитал настройку"],set_setting:["Changed a setting","Sozlama o‘zgartirdi","Изменил настройку"],list_users:["Looked up the team","Jamoani ko‘rdi","Смотрел команду"],send_telegram:["Sent a Telegram message","Telegram xabar yubordi","Отправил сообщение в Telegram"],send_workers_list:["Sent the workers list","Ishchilar ro‘yxatini yubordi","Отправил список работникам"]};
-const aiNav=()=>!!(typeof SERVER!="undefined"&&SERVER&&USER&&(USER.owner||(USER.ai&&(USER.ai.access||USER.ai.costOk))));
+const aiSrv=()=>!!(typeof SERVER!="undefined"&&SERVER&&USER);
+const aiBotOk=()=>aiSrv()&&!!(USER.owner||(USER.ai&&USER.ai.access));
+const aiExpOk=()=>aiSrv()&&!!(USER.owner||(USER.ai&&USER.ai.costOk));
+const pageOk=k=>!(aiSrv()&&!USER.owner&&(USER.deny||[]).includes(k));
+const aiNavOk=k=>pageOk(k)&&(k=="aibot"?aiBotOk():k=="aiexp"?aiExpOk():true);
+const NAV_KEYS=()=>NAVS.flatMap(g=>g[1].map(x=>x[0]));
+function pageAllowed(v){if(!aiSrv()||!NAV_KEYS().includes(v)||aiNavOk(v))return v;const f=NAV_KEYS().find(aiNavOk);return f||"profile"}
 const aiM=n=>{n=+n||0;return "$"+n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:n&&n<0.1?3:2})};
 const aiTz=()=>(PG.aiA&&PG.aiA.tz)||(PG.aiC&&PG.aiC.tz)||"America/Chicago";
 const aiDT=(x,o)=>{try{return new Date(x).toLocaleString("en-US",Object.assign({timeZone:aiTz(),month:"short",day:"numeric",hour:"numeric",minute:"2-digit"},o||{}))}catch(e){return String(x)}};
 const aiDay=x=>{const d=new Date(x+"T12:00:00");return d.toLocaleDateString("en-US",{month:"short",day:"numeric"})};
 const aiLabel=k=>{const v=AI_TL[k];return v?v[LG.indexOf(S.lang)>=0?LG.indexOf(S.lang):0]:k};
 function aiLoad(){if(PG.aiLoad)return;PG.aiLoad=1;const own=USER.owner,ok=USER.ai&&USER.ai.costOk;
- Promise.all([own?api("GET","/api/ai/admin"):null,ok?api("GET","/api/ai/costs"):null,own?api("GET","/api/tg/info"):null]).then(([a,c,i])=>{if(a&&a.s==200)PG.aiA=a.j;if(c&&c.s==200)PG.aiC=c.j;if(i&&i.s==200)PG.aiI=i.j;PG.aiDone=1;if(V=="ai")page()})}
+ Promise.all([own?api("GET","/api/ai/admin"):null,ok?api("GET","/api/ai/costs"):null,own?api("GET","/api/tg/info"):null]).then(([a,c,i])=>{if(a&&a.s==200)PG.aiA=a.j;if(c&&c.s==200)PG.aiC=c.j;if(i&&i.s==200)PG.aiI=i.j;PG.aiDone=1;if(V=="aibot"||V=="aiexp")page()})}
 async function aiSave(b){const r=await api("POST","/api/ai/config",b);if(r.s==200){toast(t("ai_saved"));PG.aiLoad=0;page()}else toast(t("ai_err"),"er")}
 function aiBar(p,c){return `<div style="height:8px;border-radius:4px;background:var(--ln);overflow:hidden"><div style="height:100%;width:${Math.max(1,Math.min(100,p))}%;background:${c||"var(--ac)"}"></div></div>`}
 function aiAccessCard(){const a=USER.ai||{},own=USER.owner,lv=own?"owner":a.access||"none";
@@ -1845,10 +1853,11 @@ ${parts.map(([k,v,h,c])=>`<div style="margin:10px 0"><div class="row" style="jus
 <div class="card" style="padding:14px;margin-bottom:12px"><div class="lbl" style="margin-top:0">${t("ai_byu")}</div>${C.byUser.length?C.byUser.map(u=>`<div class="row" style="padding:7px 0;border-top:1px solid var(--ln);justify-content:space-between"><span><b>${esc(u.name)}</b> <span class="mu">${u.n} ${t("ai_req").toLowerCase()} · ${u.tok.toLocaleString("en-US")} ${t("ai_tok").toLowerCase()}</span></span><b>${aiM(u.cost)}</b></div>`).join(""):`<div class="mu">${t("ai_none")}</div>`}</div>
 ${C.top.length?`<div class="card" style="padding:14px;margin-bottom:12px"><div class="lbl" style="margin-top:0">${t("ai_top")}</div>${C.top.map(x=>`<div style="padding:7px 0;border-top:1px solid var(--ln);display:flex;gap:10px"><div style="flex:1;min-width:0"><b>${esc(x.who)}</b> <span class="mu">${aiDT(x.at)} · ${t("ai_steps",x.steps)} · ${(x.inTok+x.outTok).toLocaleString("en-US")} ${t("ai_tok").toLowerCase()}</span>${x.q?`<div style="overflow-wrap:anywhere">${esc(x.q)}</div>`:""}</div><b>${aiM(x.cost)}</b></div>`).join("")}</div>`:""}
 ${tl.length?`<div class="card" style="padding:14px;margin-bottom:12px"><div class="lbl" style="margin-top:0">${t("ai_tools")}</div>${tl.map(([k,n])=>`<div class="row" style="padding:6px 0;border-top:1px solid var(--ln);justify-content:space-between"><span>${esc(aiLabel(k))}</span><b>${n}</b></div>`).join("")}</div>`:""}`}
-PAGES.ai=()=>{if(!(typeof SERVER!="undefined"&&SERVER&&USER))return `<div class="pg"><div class="em">${t("ai_srv")}</div></div>`;
- if(!aiNav())return `<div class="pg"><div class="em">${t("ai_noc")}</div></div>`;aiLoad();const own=USER.owner,ok=USER.ai&&USER.ai.costOk;
- const h=(ti,s,body)=>`<section class="card cp" style="margin-bottom:16px"><h3 style="margin:0 0 6px;font-size:calc(15px*var(--fz,1))">${t(ti)}</h3><p class="mu" style="margin-top:0">${t(s)}</p>${body}</section>`;
- return `<div class="pg" style="max-width:920px">${h("ai_h1","ai_s1",own?aiCtlCard()+aiUseCard():aiAccessCard())}${ok?h("ai_h2","ai_s2",aiCostWho()+aiCostBody()):""}</div>`};
+const aiSec=(ti,sub,body)=>`<section class="card cp" style="margin-bottom:16px"><h3 style="margin:0 0 6px;font-size:calc(15px*var(--fz,1))">${t(ti)}</h3><p class="mu" style="margin-top:0">${t(sub)}</p>${body}</section>`;
+PAGES.aibot=()=>{if(!aiSrv())return `<div class="pg"><div class="em">${t("ai_srv")}</div></div>`;if(!aiBotOk())return `<div class="pg"><div class="em">${t("ai_noc")}</div></div>`;aiLoad();
+ return `<div class="pg" style="max-width:920px">${aiSec("ai_h1","ai_s1",USER.owner?aiCtlCard()+aiUseCard():aiAccessCard())}</div>`};
+PAGES.aiexp=()=>{if(!aiSrv())return `<div class="pg"><div class="em">${t("ai_srv")}</div></div>`;if(!aiExpOk())return `<div class="pg"><div class="em">${t("ai_noc")}</div></div>`;aiLoad();
+ return `<div class="pg" style="max-width:920px">${aiSec("ai_h2","ai_s2",aiCostWho()+aiCostBody())}</div>`};
 C.aiOn=el=>aiSave({on:el.checked});C.aiOpen=el=>aiSave({open:el.checked});C.aiLevel=el=>aiSave({level:el.value});C.aiCostAll=el=>aiSave({costAll:el.checked});
 C.aiCap=el=>aiSave({cap:Math.max(0,+el.value||0)});
 C.aiUser=el=>aiSave({users:{[el.dataset.id]:el.value}});
@@ -1867,6 +1876,22 @@ A.aiPdf=async el=>{const id=el.dataset.id,days=PG.aiDays==null?30:PG.aiDays;el.d
   doc.text(dt(x.at)+"  ·  "+(x.who||"-")+(x.level&&x.level!="owner"?" ("+x.level+")":"")+"  ·  "+aiM(x.cost)+"  ·  "+x.steps+" step"+(x.steps==1?"":"s"),doc.M,8.5,{b:1,c:"#6d5ae6"});doc.y-=13;
   put("Q: "+x.q,9.5,{b:1});put("A: "+(x.a||"-").replace(/<[^>]+>/g,""),9,{c:"#333333",ind:0});doc.y-=4;doc.hr("#eeeeee");doc.y-=10});
  saveBlob("ai-requests-"+(id=="all"?"everyone":who.replace(/[^A-Za-z0-9]+/g,"-").toLowerCase())+"-"+fdate()+".pdf",doc.bytes("TOPGFLEET · AI requests · "+who),"application/pdf")};
+
+/* ----- section access: the owner switches any section on/off for any person ----- */
+Object.assign(D,{pf_pacc:["Section access","Bo‘limlarga ruxsat","Доступ к разделам"],
+pacc_s:["Choose which sections each person can open. A blocked section disappears from their menu and they cannot change its data. Tap a section to switch it for that person.","Har odam qaysi bo‘limlarni ochishini tanlang. Yopilgan bo‘lim menyudan yo‘qoladi va uning ma’lumotini o‘zgartira olmaydi. Bo‘limni bosing: shu odam uchun yoqiladi/o‘chadi.","Выберите, какие разделы может открывать каждый человек. Закрытый раздел пропадает из меню, его данные менять нельзя. Нажмите на раздел, чтобы включить/выключить."],
+pacc_all:["Allow all","Hammasiga ruxsat","Разрешить всё"],pacc_none:["Block all","Hammasini yopish","Закрыть всё"],
+pacc_on:["{0} can open {1}","{0} {1} ni ocha oladi","{0} может открыть {1}"],pacc_off:["{0} can no longer open {1}","{0} endi {1} ni ocha olmaydi","{0} больше не может открыть {1}"],
+pacc_err:["Could not save. Try again.","Saqlab bo‘lmadi. Qayta urining.","Не удалось сохранить. Повторите."],pacc_none_p:["No other people yet.","Hozircha boshqa odam yo‘q.","Других людей пока нет."]});
+const PACC=["today","trucks","trailers","hookdrop","drivers","maintenance","pti","inspections","documents","violations","invoices","vendors"];
+function paccBody(){if(!(aiSrv()&&USER.owner))return "";
+ if(!PG.pacc&&!PG.paccBusy){PG.paccBusy=1;api("GET","/api/access").then(r=>{PG.pacc=r.s==200?r.j.deny:{};PG.paccBusy=0;if(V=="profile")page()})}
+ if(!PG.pacc)return `<div class="mu">…</div>`;
+ const people=(S.team||[]).filter(m=>!m.owner&&m.r!="driver");
+ return `<p class="mu" style="margin-top:0">${t("pacc_s")}</p>${people.map(m=>{const d=PG.pacc[m.id]||[];return `<div style="padding:12px 0;border-top:1px solid var(--ln)"><div class="row" style="justify-content:space-between;gap:8px;margin-bottom:8px"><span><b>${esc(m.n)}</b> <span class="mu">${t(m.r=="admin"?"tm_admin":"tm_member")}</span></span><span class="row" style="gap:6px"><button class="b bs" data-a="paccAll" data-id="${m.id}" data-v="1">${t("pacc_all")}</button><button class="b bs" data-a="paccAll" data-id="${m.id}" data-v="0">${t("pacc_none")}</button></span></div><div style="display:flex;flex-wrap:wrap;gap:6px">${PACC.map(k=>{const on=!d.includes(k);return `<button class="tmc ${on?"":"off"}" data-a="paccTog" data-id="${m.id}" data-k="${k}">${on?ic("check",11):""}<span>${esc(t(k))}</span></button>`}).join("")}</div></div>`}).join("")||`<div class="mu">${t("pacc_none_p")}</div>`}`}
+async function paccSave(id,list,msgKey,name,sec){const r=await api("POST","/api/access",{user:id,deny:list});if(r.s==200){PG.pacc=r.j.deny;if(msgKey)toast(t(msgKey,name,sec));page()}else toast(t("pacc_err"),"er")}
+A.paccTog=el=>{const id=el.dataset.id,k=el.dataset.k,m=(S.team||[]).find(x=>x.id==id),d=((PG.pacc||{})[id]||[]).slice(),i=d.indexOf(k);if(!m)return;if(i<0)d.push(k);else d.splice(i,1);paccSave(id,d,i<0?"pacc_off":"pacc_on",m.n,t(k))};
+A.paccAll=el=>{const id=el.dataset.id;paccSave(id,el.dataset.v=="1"?[]:PACC.slice())};
 /* ===== SERVER MODE: real login, shared data, sync =====
    When /api answers (the site is served by server.js) the app uses the server.
    Anywhere else (a preview, a file on disk) it falls back to the local demo mode. */
@@ -1917,7 +1942,7 @@ sv_dupe:["That e-mail or username is already used.","Bu e-mail yoki username ban
 });
 let SERVER=false,USER=null,INV=null,PULL=null,LS={step:"pw",err:"",busy:false,email:""},SNAP={rec:{},kv:{}},SYNC={timer:null,busy:false,again:false,pending:false,retry:null},LASTR="";
 const COLLS=["trucks","trailers","drivers","issues","plans","svc","docs","inv","vend","links","hist","insp"],KVF=["pti","ck","ph"],KVS=["prio","prioEd","compEd","teams","comps","stat","tg","tpl","ptiOff","tmAcc","seed14","myMap","vnLay","intEd"];
-const uSig=u=>u&&[u.permEdit,u.role,u.tg,u.avLock,JSON.stringify(u.ai||null)];
+const uSig=u=>u&&[u.permEdit,u.role,u.tg,u.avLock,JSON.stringify(u.ai||null),JSON.stringify(u.deny||[])];
 const hashN=s=>{let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))>>>0;return h};
 
 async function api(method,url,body,ms){const ac=new AbortController(),tm=ms?setTimeout(()=>ac.abort(),ms):null;let r;
@@ -1976,7 +2001,7 @@ function applyRemote(st){const d0=DEF_D();DB=Object.assign(d0,st.DB||{});CK_TYPE
 async function loadRemote(){const r=await api("GET","/api/state");
  if(r.s==403){toast(t("sv_driver"),"er");await api("POST","/api/logout",{});LS.err=t("sv_driver");USER=null;return false}
  if(r.s!=200||!r.j){LS.err=r.s==401?t("sv_sess"):t("sv_off");USER=null;return false}
- LASTR=JSON.stringify([r.j.DB,r.j.S,r.j.team,uSig(r.j.user)]);applyRemote(r.j);if(r.j.user&&r.j.user.ai)USER.ai=r.j.user.ai;S.name=USER.name;S.user=USER.username;S.mail=USER.email;return true}
+ LASTR=JSON.stringify([r.j.DB,r.j.S,r.j.team,uSig(r.j.user)]);applyRemote(r.j);if(r.j.user){if(r.j.user.ai)USER.ai=r.j.user.ai;USER.deny=r.j.user.deny||[]}S.name=USER.name;S.user=USER.username;S.mail=USER.email;return true}
 
 /* ----- saving: send only what changed ----- */
 function diff(){const up=[],del=[],kv={},isA=USER&&USER.role=="admin";
@@ -2283,7 +2308,7 @@ async function boot(){
   if(r.s==200&&r.j&&r.j.user){USER=r.j.user;applyPrefs(USER);if(USER.need2fa)S.in=true;else if(await loadRemote()){S.in=true}else USER=null}}
  const im=SERVER&&location.pathname.match(/^\/invite\/([A-Za-z0-9_-]{20,100})$/);
  if(im){S.in=false;USER=null;const ir=await api("GET","/api/invite/"+im[1]);INV=ir.s==200&&ir.j?{tok:im[1],email:ir.j.email,role:ir.j.role}:{bad:true}}
- V=viewFromHash();if(SERVER&&S.in&&location.pathname=="/")history.replaceState(null,"","/"+ROUTES[V]);render();
+ V=viewFromHash();if(SERVER&&S.in&&(location.pathname=="/"||(Object.values(ROUTES).includes(location.pathname.slice(1))&&location.pathname!="/"+ROUTES[V])))history.replaceState(null,"","/"+ROUTES[V]);render();
  if(SERVER&&S.in&&USER){const em=new URLSearchParams(location.search).get("email");if(em){history.replaceState(null,"","/profile");setTimeout(()=>toast(t(em=="ok"?"ac_verified":"ac_verbad"),em=="ok"?"":"er"),500)}}
  if(SERVER&&S.in&&USER){if(USER.need2fa)setTimeout(force2fa,100);}}
 A.retry=()=>location.reload();
