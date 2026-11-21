@@ -25,7 +25,7 @@ app.disable('x-powered-by');
 app.use((req, res, next) => {
   res.setHeader('Content-Security-Policy',
     "default-src 'self'; script-src 'self' 'unsafe-inline' https://maps.googleapis.com https://maps.gstatic.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; " +
-    "font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://unpkg.com https://*.googleapis.com https://*.gstatic.com https://*.ggpht.com https://*.googleusercontent.com https://*.google.com; connect-src 'self' https://*.googleapis.com; worker-src blob:; frame-src https://www.google.com; child-src blob:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'");
+    "font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://unpkg.com https://*.googleapis.com https://*.gstatic.com https://*.ggpht.com https://*.googleusercontent.com https://*.google.com; connect-src 'self' https://*.googleapis.com; worker-src blob:; frame-src https://www.google.com; child-src blob:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'");
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('Referrer-Policy', 'no-referrer');
