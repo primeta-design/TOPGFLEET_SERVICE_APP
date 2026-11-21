@@ -641,7 +641,7 @@ function page(){const c=$("#c");if(!c)return;const ae=document.activeElement,id=
 function shellRefresh(){const sd=$("#sd");if(!sd)return;const keep=sd.classList.contains("open");const a=$("#app");const sc=$("#c")?$("#c").scrollTop:0;a.innerHTML=shell();if(keep)$("#sd").classList.add("open");page();$("#c").scrollTop=sc}
 const refresh=()=>{save();shellRefresh()};
 function closePops(){$$(".pop.sh.open").forEach(p=>p.classList.remove("open"));$("#gd")&&$("#gd").classList.add("hide");if(PG.pop){PG.pop=null;page()}}
-document.addEventListener("click",e=>{if(!e.target.closest(".pw"))closePops();const el=e.target.closest("[data-a]");if(!el)return;const f=A[el.dataset.a];if(f){if(el.tagName=="A"&&el.getAttribute("href"))e.preventDefault();f(el,e)}});
+document.addEventListener("click",e=>{if(!e.target.closest(".pw"))closePops();const el=e.target.closest("[data-a]");if(!el)return;const f=A[el.dataset.a];if(f){if(typeof roGuard=="function"&&roGuard(el.dataset.a))return;if(el.tagName=="A"&&el.getAttribute("href"))e.preventDefault();f(el,e)}});
 document.addEventListener("input",e=>{const el=e.target.closest("[data-i]");if(el&&I[el.dataset.i])I[el.dataset.i](el,e)});
 document.addEventListener("change",e=>{const el=e.target.closest("[data-c]");if(el&&C[el.dataset.c])C[el.dataset.c](el,e)});
 document.addEventListener("keydown",e=>{if(e.key=="Enter"){const el=e.target.closest("[data-enter]");if(el&&A[el.dataset.enter]){e.preventDefault();A[el.dataset.enter](el,e)}}
@@ -1805,6 +1805,7 @@ const AI_TL={fleet_overview:["Overview","Umumiy ko‘rinish","Обзор"],list_
 const aiSrv=()=>!!(typeof SERVER!="undefined"&&SERVER&&USER);
 const aiBotOk=()=>aiSrv()&&!!(USER.owner||(USER.ai&&USER.ai.access));
 const aiExpOk=()=>aiSrv()&&!!(USER.owner||(USER.ai&&USER.ai.costOk));
+const pageMode=k=>!aiSrv()||USER.owner||!NAV_KEYS().includes(k)?"edit":(USER.deny||[]).includes(k)?"none":(USER.ro||[]).includes(k)?"read":"edit";
 const pageOk=k=>!(aiSrv()&&!USER.owner&&(USER.deny||[]).includes(k));
 const aiNavOk=k=>pageOk(k)&&(k=="aibot"?aiBotOk():k=="aiexp"?aiExpOk():true);
 const NAV_KEYS=()=>NAVS.flatMap(g=>g[1].map(x=>x[0]));
@@ -1883,36 +1884,48 @@ pacc_s:["Choose which sections each person can open. A blocked section disappear
 pacc_all:["Allow all","Hammasiga ruxsat","Разрешить всё"],pacc_none:["Block all","Hammasini yopish","Закрыть всё"],
 pacc_on:["{0} can open {1}","{0} {1} ni ocha oladi","{0} может открыть {1}"],pacc_off:["{0} can no longer open {1}","{0} endi {1} ni ocha olmaydi","{0} больше не может открыть {1}"],
 pacc_err:["Could not save. Try again.","Saqlab bo‘lmadi. Qayta urining.","Не удалось сохранить. Повторите."],pacc_none_p:["No other people yet.","Hozircha boshqa odam yo‘q.","Других людей пока нет."]});
-Object.assign(D,{pacc_s:["Every section of the menu is listed here. Tap the pencil next to a section, then tick the people who may open it. A section that is not ticked for someone disappears from their menu and they cannot change its data.","Menyudagi hamma bo‘lim shu yerda. Bo‘lim yonidagi qalamchani bosing va uni ocha oladigan odamlarni belgilang. Odam uchun belgilanmagan bo‘lim uning menyusidan yo‘qoladi va ma’lumotini o‘zgartira olmaydi.","Здесь все разделы меню. Нажмите на карандаш рядом с разделом и отметьте людей, которым он доступен. Неотмеченный раздел пропадает из меню и его данные менять нельзя."],
+Object.assign(D,{pacc_s:["Every section of the menu is listed here. Tap the pencil next to a section and choose, for each person, No access, Only read or Can edit. A section with no access disappears from that person’s menu.","Menyudagi hamma bo‘lim shu yerda. Bo‘lim yonidagi qalamchani bosing va har odam uchun tanlang: Ruxsat yo‘q, Faqat o‘qish yoki Tahrirlay oladi. Ruxsat berilmagan bo‘lim odamning menyusidan yo‘qoladi.","Здесь все разделы меню. Нажмите на карандаш рядом с разделом и выберите для каждого: Нет доступа, Только чтение или Может менять. Раздел без доступа пропадает из меню человека."],
 pacc_every:["Everyone","Hamma","Все"],pacc_only:["Only you","Faqat siz","Только вы"],pacc_n:["{0} of {1} people","{0} / {1} odam","{0} из {1}"],pacc_edit:["Choose who sees it","Kimga ko‘rinishini tanlang","Выбрать, кому показывать"],
 pacc_selall:["Select all","Hammasini belgilash","Выбрать всех"],pacc_clear:["Clear all","Hammasini olib tashlash","Снять всех"],pacc_done:["Done","Tayyor","Готово"],pacc_md_s:["Tick the people who may open this section. Saved at once.","Bu bo‘limni ocha oladigan odamlarni belgilang. Darrov saqlanadi.","Отметьте людей, которым разрешён раздел. Сохраняется сразу."],
 pacc_aib:["Set what each person may do with the bot. Default follows the “open for everyone” switch on the AI page.","Har odam bot bilan nima qila olishini belgilang. Umumiy qoida AI sahifasidagi “hamma uchun ochiq” tugmasiga bog‘liq.","Задайте, что каждый может делать с ботом. По умолчанию — по переключателю «открыто всем» на странице ИИ."],pacc_open_ai:["Open the AI page for bot on/off and budget","Bot yoqish/o‘chirish va byudjet uchun AI sahifasini oching","Откройте страницу ИИ: включение бота и бюджет"]});
-function paccLoad(){if(!PG.pacc&&!PG.paccBusy){PG.paccBusy=1;api("GET","/api/access").then(r=>{PG.pacc=r.s==200?r.j.deny:{};PG.paccBusy=0;if(V=="profile")page()})}
+Object.assign(D,{pacc_lv_none:["No access","Ruxsat yo‘q","Нет доступа"],pacc_lv_read:["Only read","Faqat o‘qish","Только чтение"],pacc_lv_edit:["Can edit","Tahrirlay oladi","Может менять"],pacc_all_edit:["All can edit","Hammasi tahrirlasin","Всем менять"],pacc_all_ro:["All only read","Hammasi faqat o‘qisin","Всем только чтение"],pacc_ro:["read only","faqat o‘qish","только чтение"],
+pacc_banner:["Read only: you can look at this section but not change anything in it.","Faqat o‘qish: bu bo‘limni ko‘rasiz, lekin hech narsani o‘zgartira olmaysiz.","Только чтение: раздел можно смотреть, но нельзя ничего менять."],
+pacc_md_s:["Choose for each person: No access, Only read (can look, cannot change) or Can edit. Saved at once.","Har odam uchun tanlang: Ruxsat yo‘q, Faqat o‘qish (ko‘radi, o‘zgartira olmaydi) yoki Tahrirlay oladi. Darrov saqlanadi.","Для каждого выберите: Нет доступа, Только чтение (смотрит, не меняет) или Может менять. Сохраняется сразу."]});
+const NAVRO=/^(add|new)[A-Z]|(Add|Del|Save|Arch|Done|Invite|Create|Make|Record|Revoke|Import)$|^(toggleIssue|ptiCell|trSt|trNote|phLock|stNew|stDel)$/;
+function roGuard(name){if(!aiSrv()||USER.owner||pageMode(V)!="read"||!NAVRO.test(name))return false;toast(t("pacc_banner"),"er");return true}
+const roBanner=()=>`<div class="note" style="margin:0 0 12px;grid-column:auto">${ic("eye",14)} ${t("pacc_banner")}</div>`;
+NAV_KEYS().forEach(k=>{const f=PAGES[k];if(typeof f=="function")PAGES[k]=(...a)=>{const h=f(...a);return typeof h=="string"&&pageMode(k)=="read"?roBanner()+h:h}});
+function paccLoad(){if(!PG.pacc&&!PG.paccBusy){PG.paccBusy=1;api("GET","/api/access").then(r=>{PG.pacc=r.s==200?r.j.deny:{};PG.paccR=r.s==200?r.j.read||{}:{};PG.paccBusy=0;if(V=="profile")page()})}
  if(!PG.aiA&&!PG.paccAiBusy){PG.paccAiBusy=1;api("GET","/api/ai/admin").then(r=>{if(r.s==200)PG.aiA=r.j;PG.paccAiBusy=0;if(V=="profile")page()})}}
 const paccPeople=()=>(S.team||[]).filter(m=>!m.owner&&m.r!="driver");
+const paccLv=(k,id)=>((PG.pacc||{})[id]||[]).includes(k)?"none":((PG.paccR||{})[id]||[]).includes(k)?"read":"edit";
 function paccAllowed(k){const P=paccPeople();
  if(k=="aiexp"){const c=PG.aiA&&PG.aiA.cfg;if(!c)return null;return c.costAll?P.map(m=>m.id):P.filter(m=>(c.costUsers||[]).includes(m.id)).map(m=>m.id)}
  if(k=="aibot"){const A0=PG.aiA;if(!A0)return null;return P.filter(m=>{const u=A0.users.find(x=>x.id==m.id),st=u?u.setting:"default";return st=="read"||st=="edit"||(st=="default"&&A0.cfg.open)}).map(m=>m.id)}
- return P.filter(m=>!((PG.pacc||{})[m.id]||[]).includes(k)).map(m=>m.id)}
+ return P.filter(m=>paccLv(k,m.id)!="none").map(m=>m.id)}
 function paccBody(){if(!(aiSrv()&&USER.owner))return "";paccLoad();if(!PG.pacc)return `<div class="mu">…</div>`;
  const P=paccPeople();
- return `<p class="mu" style="margin-top:0">${t("pacc_s")}</p>${NAVS.map(([g,it])=>`<div class="lbl">${t(g)}</div>${it.map(([k,i])=>{const a=paccAllowed(k),n=a?a.length:0,txt=a==null?"…":!P.length?"–":n>=P.length?t("pacc_every"):n==0?t("pacc_only"):t("pacc_n",n,P.length);
+ return `<p class="mu" style="margin-top:0">${t("pacc_s")}</p>${NAVS.map(([g,it])=>`<div class="lbl">${t(g)}</div>${it.map(([k,i])=>{const a=paccAllowed(k),n=a?a.length:0,rn=a&&k!="aibot"&&k!="aiexp"?a.filter(id=>paccLv(k,id)=="read").length:0,ro=rn?" · "+(rn==n&&n==P.length?t("pacc_ro"):rn+" "+t("pacc_ro")):"",txt=a==null?"…":!P.length?"–":n>=P.length?t("pacc_every")+ro:n==0?t("pacc_only"):t("pacc_n",n,P.length)+ro;
   return `<div class="row" style="padding:9px 0;border-top:1px solid var(--ln);flex-wrap:nowrap;gap:10px"><span style="display:flex;color:var(--mu)">${ic(i,16)}</span><b style="flex:1;min-width:0">${esc(t(k))}</b><span class="mu" style="white-space:nowrap">${txt}</span><button class="bi" data-a="paccEd" data-k="${k}" title="${esc(t("pacc_edit"))}" aria-label="${esc(t("pacc_edit"))}">${ic("pen",14)}</button></div>`}).join("")}`).join("")}`}
 function paccModal(k){const P=paccPeople(),a=paccAllowed(k)||[],ai=PG.aiA;let body;
  const nm=m=>`<span style="flex:1;min-width:0"><b>${esc(m.n)}</b> <span class="mu">${t(m.r=="admin"?"tm_admin":"tm_member")}</span></span>`;
  if(k=="aibot"){const lv=id=>{const u=ai&&ai.users.find(x=>x.id==id);return u?u.setting:"default"};
-  body=`<p class="mu" style="margin-top:0">${t("pacc_aib")}</p>${P.map(m=>`<div class="row" style="padding:8px 0;border-top:1px solid var(--ln);flex-wrap:nowrap">${nm(m)}<select data-c="paccAiB" data-id="${m.id}">${[["default","ai_def"],["none","ai_no"],["read","ai_ro"],["edit","ai_ed"]].map(([v,l])=>`<option value="${v}"${lv(m.id)==v?" selected":""}>${t(l)}</option>`).join("")}</select></div>`).join("")||`<div class="mu">${t("pacc_none_p")}</div>`}<div style="margin-top:12px"><button class="b" data-a="paccGoAi">${t("pacc_open_ai")}</button></div>`}
- else{body=`<p class="mu" style="margin-top:0">${t("pacc_md_s")}</p>${k=="aiexp"?`<label class="ck" style="display:flex;gap:8px;margin:8px 0"><input type="checkbox" data-c="paccAiXAll" ${ai&&ai.cfg.costAll?"checked":""}><span style="color:var(--tx)">${t("ai_xall")}</span></label>`:""}
-  <div class="row" style="gap:8px;margin:6px 0"><button class="b bs" data-a="paccSet" data-k="${k}" data-v="1">${t("pacc_selall")}</button><button class="b bs" data-a="paccSet" data-k="${k}" data-v="0">${t("pacc_clear")}</button></div>
+  body=`<p class="mu" style="margin-top:0">${t("pacc_aib")}</p>${P.map(m=>`<div class="row" style="padding:8px 0;border-top:1px solid var(--ln);flex-wrap:nowrap">${nm(m)}<select data-c="paccAiB" data-id="${m.id}" style="width:170px;flex:none">${[["default","ai_def"],["none","ai_no"],["read","ai_ro"],["edit","ai_ed"]].map(([v,l])=>`<option value="${v}"${lv(m.id)==v?" selected":""}>${t(l)}</option>`).join("")}</select></div>`).join("")||`<div class="mu">${t("pacc_none_p")}</div>`}<div style="margin-top:12px"><button class="b" data-a="paccGoAi">${t("pacc_open_ai")}</button></div>`}
+else if(k=="aiexp"){body=`<p class="mu" style="margin-top:0">${t("pacc_md_s")}</p><label class="ck" style="display:flex;gap:8px;margin:8px 0"><input type="checkbox" data-c="paccAiXAll" ${ai&&ai.cfg.costAll?"checked":""}><span style="color:var(--tx)">${t("ai_xall")}</span></label>
   ${P.map(m=>`<label class="ck row" style="padding:8px 0;border-top:1px solid var(--ln);flex-wrap:nowrap;gap:10px;cursor:pointer"><input type="checkbox" data-c="paccChk" data-k="${k}" data-id="${m.id}" ${a.includes(m.id)?"checked":""}>${nm(m)}</label>`).join("")||`<div class="mu">${t("pacc_none_p")}</div>`}`}
+ else{body=`<p class="mu" style="margin-top:0">${t("pacc_md_s")}</p>
+  <div class="row" style="gap:8px;margin:6px 0"><button class="b bs" data-a="paccSet" data-k="${k}" data-v="edit">${t("pacc_all_edit")}</button><button class="b bs" data-a="paccSet" data-k="${k}" data-v="read">${t("pacc_all_ro")}</button><button class="b bs" data-a="paccSet" data-k="${k}" data-v="none">${t("pacc_clear")}</button></div>
+  ${P.map(m=>`<div class="row" style="padding:8px 0;border-top:1px solid var(--ln);flex-wrap:nowrap;gap:10px">${nm(m)}<select data-c="paccLv" data-k="${k}" data-id="${m.id}" style="width:150px;flex:none">${[["none","pacc_lv_none"],["read","pacc_lv_read"],["edit","pacc_lv_edit"]].map(([v,l])=>`<option value="${v}"${paccLv(k,m.id)==v?" selected":""}>${t(l)}</option>`).join("")}</select></div>`).join("")||`<div class="mu">${t("pacc_none_p")}</div>`}`}
  modal({title:esc(t(k)),sub:esc(t("pf_pacc")),icon:"shield",w:480,body,foot:`<button class="b bp" data-a="mdClose">${t("pacc_done")}</button>`})}
 async function paccSaveSec(k,ids){
  if(k=="aiexp"){const r=await api("POST","/api/ai/config",{costUsers:ids});return r.s==200&&paccAiRefresh()}
- const r=await api("POST","/api/access/section",{section:k,allow:ids});if(r.s!=200)return false;PG.pacc=r.j.deny;return true}
+ return false}
+async function paccSaveLv(k,lv){const allow=Object.keys(lv).filter(id=>lv[id]!="none"),read=allow.filter(id=>lv[id]=="read");const r=await api("POST","/api/access/section",{section:k,allow,read});if(r.s!=200)return false;PG.pacc=r.j.deny;PG.paccR=r.j.read||{};return true}
 async function paccAiRefresh(){const r=await api("GET","/api/ai/admin");if(r.s==200){PG.aiA=r.j;return true}return false}
 async function paccDone(k,ok){if(!ok){toast(t("pacc_err"),"er");return}paccModal(k);if(V=="profile")page();toast(t("ai_saved"))}
 C.paccChk=async el=>{const k=el.dataset.k,id=el.dataset.id,cur=new Set(paccAllowed(k)||[]);if(el.checked)cur.add(id);else cur.delete(id);paccDone(k,await paccSaveSec(k,[...cur]))};
-A.paccSet=async el=>{const k=el.dataset.k;paccDone(k,await paccSaveSec(k,el.dataset.v=="1"?paccPeople().map(m=>m.id):[]))};
+A.paccSet=async el=>{const k=el.dataset.k,v=el.dataset.v,lv={};paccPeople().forEach(m=>lv[m.id]=v);paccDone(k,await paccSaveLv(k,lv))};
+C.paccLv=async el=>{const k=el.dataset.k,lv={};paccPeople().forEach(m=>lv[m.id]=paccLv(k,m.id));lv[el.dataset.id]=el.value;paccDone(k,await paccSaveLv(k,lv))};
 C.paccAiXAll=async el=>{const r=await api("POST","/api/ai/config",{costAll:el.checked});paccDone("aiexp",r.s==200&&await paccAiRefresh())};
 C.paccAiB=async el=>{const r=await api("POST","/api/ai/config",{users:{[el.dataset.id]:el.value}});paccDone("aibot",r.s==200&&await paccAiRefresh())};
 A.paccEd=el=>paccModal(el.dataset.k);
@@ -1967,7 +1980,7 @@ sv_dupe:["That e-mail or username is already used.","Bu e-mail yoki username ban
 });
 let SERVER=false,USER=null,INV=null,PULL=null,LS={step:"pw",err:"",busy:false,email:""},SNAP={rec:{},kv:{}},SYNC={timer:null,busy:false,again:false,pending:false,retry:null},LASTR="";
 const COLLS=["trucks","trailers","drivers","issues","plans","svc","docs","inv","vend","links","hist","insp"],KVF=["pti","ck","ph"],KVS=["prio","prioEd","compEd","teams","comps","stat","tg","tpl","ptiOff","tmAcc","seed14","myMap","vnLay","intEd"];
-const uSig=u=>u&&[u.permEdit,u.role,u.tg,u.avLock,JSON.stringify(u.ai||null),JSON.stringify(u.deny||[])];
+const uSig=u=>u&&[u.permEdit,u.role,u.tg,u.avLock,JSON.stringify(u.ai||null),JSON.stringify(u.deny||[]),JSON.stringify(u.ro||[])];
 const hashN=s=>{let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))>>>0;return h};
 
 async function api(method,url,body,ms){const ac=new AbortController(),tm=ms?setTimeout(()=>ac.abort(),ms):null;let r;
@@ -2026,7 +2039,7 @@ function applyRemote(st){const d0=DEF_D();DB=Object.assign(d0,st.DB||{});CK_TYPE
 async function loadRemote(){const r=await api("GET","/api/state");
  if(r.s==403){toast(t("sv_driver"),"er");await api("POST","/api/logout",{});LS.err=t("sv_driver");USER=null;return false}
  if(r.s!=200||!r.j){LS.err=r.s==401?t("sv_sess"):t("sv_off");USER=null;return false}
- LASTR=JSON.stringify([r.j.DB,r.j.S,r.j.team,uSig(r.j.user)]);applyRemote(r.j);if(r.j.user){if(r.j.user.ai)USER.ai=r.j.user.ai;USER.deny=r.j.user.deny||[]}S.name=USER.name;S.user=USER.username;S.mail=USER.email;return true}
+ LASTR=JSON.stringify([r.j.DB,r.j.S,r.j.team,uSig(r.j.user)]);applyRemote(r.j);if(r.j.user){if(r.j.user.ai)USER.ai=r.j.user.ai;USER.deny=r.j.user.deny||[];USER.ro=r.j.user.ro||[]}S.name=USER.name;S.user=USER.username;S.mail=USER.email;return true}
 
 /* ----- saving: send only what changed ----- */
 function diff(){const up=[],del=[],kv={},isA=USER&&USER.role=="admin";
