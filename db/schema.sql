@@ -100,3 +100,26 @@ CREATE TABLE IF NOT EXISTS invites (
   expires_at TIMESTAMPTZ NOT NULL,
   used_at    TIMESTAMPTZ
 );
+
+-- AI assistant usage log (one row per chat message that reached the AI)
+CREATE TABLE IF NOT EXISTS ai_log (
+  id        BIGSERIAL PRIMARY KEY,
+  at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  user_id   TEXT,
+  chat_id   TEXT,
+  level     TEXT,
+  question  TEXT,
+  answer    TEXT,
+  model     TEXT,
+  steps     INT NOT NULL DEFAULT 1,
+  in_tok    INT NOT NULL DEFAULT 0,
+  out_tok   INT NOT NULL DEFAULT 0,
+  cost_in   NUMERIC(12,6) NOT NULL DEFAULT 0,
+  cost_out  NUMERIC(12,6) NOT NULL DEFAULT 0,
+  cost      NUMERIC(12,6) NOT NULL DEFAULT 0,
+  tools     JSONB,
+  comp      JSONB,
+  ok        BOOLEAN NOT NULL DEFAULT TRUE
+);
+CREATE INDEX IF NOT EXISTS ai_log_at ON ai_log(at DESC);
+CREATE INDEX IF NOT EXISTS ai_log_user ON ai_log(user_id, at DESC);
