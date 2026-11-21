@@ -109,7 +109,8 @@ const admin = need('admin');
 const canInt = async u => { if (u.is_owner) return true; const r = (await q("SELECT value FROM kv WHERE key='intEd'")).rows[0]; return !!r && Array.isArray(r.value) && r.value.includes(u.id); };
 // Section access: the owner can switch any section off for any person (kv pageDeny: { userId: [section keys] })
 const SECTIONS = ['today', 'trucks', 'trailers', 'hookdrop', 'drivers', 'maintenance', 'pti', 'inspections', 'documents', 'violations', 'invoices', 'vendors'];
-const SECTION_COLLS = { trucks: ['trucks'], trailers: ['trailers'], drivers: ['drivers'], maintenance: ['plans', 'svc'], documents: ['docs'], inspections: ['insp'], invoices: ['inv'], vendors: ['vend'] };
+const SECTION_COLLS = { today: ['issues'], hookdrop: ['links', 'hist'], trucks: ['trucks'], trailers: ['trailers'], drivers: ['drivers'], maintenance: ['plans', 'svc'], documents: ['docs'], inspections: ['insp'], invoices: ['inv'], vendors: ['vend'] };
+const roOf = async u => { if (u.is_owner) return []; const r = (await q("SELECT value FROM kv WHERE key='pageRead'")).rows[0]; const l = r && r.value && r.value[u.id]; return Array.isArray(l) ? l.filter(k => SECTIONS.includes(k)) : []; };
 const denyOf = async u => { if (u.is_owner) return []; const r = (await q("SELECT value FROM kv WHERE key='pageDeny'")).rows[0]; const l = r && r.value && r.value[u.id]; return Array.isArray(l) ? l.filter(k => SECTIONS.includes(k)) : []; };
 const intOk = wrap(async (req, res, next) => { if (!(await canInt(req.u))) return res.status(403).json({ error: 'role' }); next(); });
 const ownerOnly = (req, res, next) => req.u.is_owner ? next() : res.status(403).json({ error: 'role' });
@@ -407,7 +408,7 @@ app.get('/api/state', auth(), staff, wrap(async (req, res) => {
   const deny = await denyOf(req.u); if (deny.includes('invoices')) DB.inv = []; if (deny.includes('vendors')) DB.vend = [];
   const tm = (await q("SELECT id,name,username,email,role,is_owner,color,companies,is_test,avatar,tg_user FROM users WHERE role<>'driver' AND NOT disabled ORDER BY created_at")).rows;
   const team = tm.map(u => ({ id: u.id, n: u.name, u: u.username, m: (req.u.is_owner || (req.u.role === 'admin' && (u.role === 'member' || u.id === req.u.id)) || u.id === req.u.id) ? u.email : '', r: u.role, owner: u.is_owner, c: u.color, av: avUrl(u), tg: u.tg_user || '', co: u.role === 'admin' ? null : (u.companies || null), test: u.is_test }));
-  res.json({ DB, S, team, user: { ...publicUser(req.u), ai: await TG.ai().info(req.u), deny } });
+  res.json({ DB, S, team, user: { ...publicUser(req.u), ai: await TG.ai().info(req.u), deny, ro: await roOf(req.u) } });
 }));
 
 app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, res) => {
@@ -415,7 +416,7 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
   if (!Array.isArray(upserts) || !Array.isArray(deletes) || typeof kv !== 'object' || upserts.length + deletes.length > 2000) return res.status(400).json({ error: 'bad' });
   for (const x of upserts) if (!COLLS.has(x.c) || !okId(x.id) || typeof x.d !== 'object' || !x.d || JSON.stringify(x.d).length > 100000) return res.status(400).json({ error: 'bad' });
   for (const x of deletes) if (!COLLS.has(x.c) || !okId(x.id)) return res.status(400).json({ error: 'bad' });
-  { const deny = await denyOf(req.u); if (deny.length) { const blocked = new Set(deny.flatMap(k => SECTION_COLLS[k] || [])); if ([...upserts, ...deletes].some(x => blocked.has(x.c)) || (deny.includes('pti') && kv.pti !== undefined)) return res.status(403).json({ error: 'section' }); } }
+  { const lim = [...await denyOf(req.u), ...await roOf(req.u)]; if (lim.length) { const blocked = new Set(lim.flatMap(k => SECTION_COLLS[k] || [])); if ([...upserts, ...deletes].some(x => blocked.has(x.c)) || (lim.includes('pti') && kv.pti !== undefined)) return res.status(403).json({ error: 'section' }); } }
   const kvKeys = Object.keys(kv);
   for (const k of kvKeys) {
     if (KV_FLEET.has(k)) { if (JSON.stringify(kv[k]).length > 400000) return res.status(400).json({ error: 'bad' }); }
@@ -549,7 +550,7 @@ app.post('/api/tg/send-now', limit('tgnow', 20, 10 * 60e3), auth(), staff, intOk
 }));
 
 app.post('/api/invoices/:id/telegram', limit('tginv', 30, 10 * 60e3), auth(), staff, wrap(async (req, res) => {
-  if ((await denyOf(req.u)).includes('invoices')) return res.status(403).json({ error: 'section' });
+  if ([...await denyOf(req.u), ...await roOf(req.u)].includes('invoices')) return res.status(403).json({ error: 'section' });
   if (!TG.enabled()) return res.json({ ok: false, error: 'off' });
   let { DB, S } = await loadAll(); const A = allowedOf(req.u); if (A) DB = scopeState(DB, A);
   const inv = (DB.inv || []).find(x => x.id === req.params.id); if (!inv) return res.status(404).json({ error: 'none' });
@@ -560,21 +561,30 @@ app.post('/api/invoices/:id/telegram', limit('tginv', 30, 10 * 60e3), auth(), st
   res.json({ ok: true, tg: sent[0].at, tgm: sent[0] });
 }));
 // ---------- AI page: who may use the bot, who sees the costs, what it costs ----------
-app.get('/api/access', auth(), ownerOnly, wrap(async (req, res) => { const r = (await q("SELECT value FROM kv WHERE key='pageDeny'")).rows[0]; res.json({ deny: (r && r.value) || {}, sections: SECTIONS }); }));
+app.get('/api/access', auth(), ownerOnly, wrap(async (req, res) => { const r = (await q("SELECT value FROM kv WHERE key='pageDeny'")).rows[0]; const rr = (await q("SELECT value FROM kv WHERE key='pageRead'")).rows[0]; res.json({ deny: (r && r.value) || {}, read: (rr && rr.value) || {}, sections: SECTIONS }); }));
+const saveKv = (key, v, uid) => q("INSERT INTO kv(key,value,updated_by) VALUES($1,$2,$3) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_at=now(), updated_by=EXCLUDED.updated_by", [key, JSON.stringify(v), uid]);
+const kvGet = async key => { const r = (await q('SELECT value FROM kv WHERE key=$1', [key])).rows[0]; return Object.assign({}, r && r.value); };
 app.post('/api/access', limit('access', 120, 60e3), auth(), ownerOnly, wrap(async (req, res) => {
-  const { user, deny } = req.body || {}; if (!okId(user) || !Array.isArray(deny) || deny.length > 40 || !deny.every(k => SECTIONS.includes(k))) return res.status(400).json({ error: 'bad' });
+  const { user, deny, read } = req.body || {}; if (!okId(user) || !Array.isArray(deny) || deny.length > 40 || !deny.every(k => SECTIONS.includes(k)) || (read !== undefined && !(Array.isArray(read) && read.every(k => SECTIONS.includes(k))))) return res.status(400).json({ error: 'bad' });
   const t = (await q("SELECT id,is_owner,role FROM users WHERE id=$1", [user])).rows[0]; if (!t || t.is_owner || t.role === 'driver') return res.status(400).json({ error: 'bad' });
-  const cur = (await q("SELECT value FROM kv WHERE key='pageDeny'")).rows[0], all = Object.assign({}, cur && cur.value); const list = [...new Set(deny)]; if (list.length) all[user] = list; else delete all[user];
-  await q("INSERT INTO kv(key,value,updated_by) VALUES('pageDeny',$1,$2) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_at=now(), updated_by=EXCLUDED.updated_by", [JSON.stringify(all), req.u.id]);
-  audit(req.u.id, 'access.sections', user, { deny: list }, req.ip); res.json({ ok: true, deny: all });
+  const all = await kvGet('pageDeny'), rd = await kvGet('pageRead'), list = [...new Set(deny)];
+  if (list.length) all[user] = list; else delete all[user];
+  if (read !== undefined) { const r2 = [...new Set(read)].filter(k => !list.includes(k)); if (r2.length) rd[user] = r2; else delete rd[user]; } else if (rd[user]) { rd[user] = rd[user].filter(k => !list.includes(k)); if (!rd[user].length) delete rd[user]; }
+  await saveKv('pageDeny', all, req.u.id); await saveKv('pageRead', rd, req.u.id);
+  audit(req.u.id, 'access.sections', user, { deny: list, read: rd[user] || [] }, req.ip); res.json({ ok: true, deny: all, read: rd });
 }));
 app.post('/api/access/section', limit('access', 120, 60e3), auth(), ownerOnly, wrap(async (req, res) => {
-  const { section, allow } = req.body || {}; if (!SECTIONS.includes(section) || !Array.isArray(allow) || allow.length > 500 || !allow.every(okId)) return res.status(400).json({ error: 'bad' });
+  const { section, allow, read } = req.body || {}; if (!SECTIONS.includes(section) || !Array.isArray(allow) || allow.length > 500 || !allow.every(okId) || (read !== undefined && !(Array.isArray(read) && read.length <= 500 && read.every(okId)))) return res.status(400).json({ error: 'bad' });
   const staffIds = (await q("SELECT id FROM users WHERE NOT is_owner AND role<>'driver' AND NOT disabled")).rows.map(r => r.id);
-  const cur = (await q("SELECT value FROM kv WHERE key='pageDeny'")).rows[0], all = Object.assign({}, cur && cur.value), ok = new Set(allow);
-  for (const id of staffIds) { const l = new Set(Array.isArray(all[id]) ? all[id] : []); if (ok.has(id)) l.delete(section); else l.add(section); if (l.size) all[id] = [...l]; else delete all[id]; }
-  await q("INSERT INTO kv(key,value,updated_by) VALUES('pageDeny',$1,$2) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_at=now(), updated_by=EXCLUDED.updated_by", [JSON.stringify(all), req.u.id]);
-  audit(req.u.id, 'access.section', section, { allow: [...ok] }, req.ip); res.json({ ok: true, deny: all });
+  const all = await kvGet('pageDeny'), rd = await kvGet('pageRead'), ok = new Set(allow), ro = new Set(read || []);
+  for (const id of staffIds) {
+    const d = new Set(Array.isArray(all[id]) ? all[id] : []), r = new Set(Array.isArray(rd[id]) ? rd[id] : []);
+    if (ok.has(id)) d.delete(section); else d.add(section);
+    if (ok.has(id) && ro.has(id)) r.add(section); else r.delete(section);
+    if (d.size) all[id] = [...d]; else delete all[id]; if (r.size) rd[id] = [...r]; else delete rd[id];
+  }
+  await saveKv('pageDeny', all, req.u.id); await saveKv('pageRead', rd, req.u.id);
+  audit(req.u.id, 'access.section', section, { allow: [...ok], read: [...ro] }, req.ip); res.json({ ok: true, deny: all, read: rd });
 }));
 app.get('/api/ai/admin', auth(), ownerOnly, wrap(async (req, res) => res.json(await TG.ai().adminData())));
 app.post('/api/ai/config', limit('aicfg', 60, 60e3), auth(), ownerOnly, wrap(async (req, res) => {
