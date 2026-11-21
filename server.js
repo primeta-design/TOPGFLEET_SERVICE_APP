@@ -402,7 +402,7 @@ app.get('/api/state', auth(), staff, wrap(async (req, res) => {
   const A = allowedOf(req.u); if (A) DB = scopeState(DB, A);
   const tm = (await q("SELECT id,name,username,email,role,is_owner,color,companies,is_test,avatar,tg_user FROM users WHERE role<>'driver' AND NOT disabled ORDER BY created_at")).rows;
   const team = tm.map(u => ({ id: u.id, n: u.name, u: u.username, m: (req.u.is_owner || (req.u.role === 'admin' && (u.role === 'member' || u.id === req.u.id)) || u.id === req.u.id) ? u.email : '', r: u.role, owner: u.is_owner, c: u.color, av: avUrl(u), tg: u.tg_user || '', co: u.role === 'admin' ? null : (u.companies || null), test: u.is_test }));
-  res.json({ DB, S, team, user: publicUser(req.u) });
+  res.json({ DB, S, team, user: { ...publicUser(req.u), ai: await TG.ai().info(req.u) } });
 }));
 
 app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, res) => {
@@ -552,10 +552,21 @@ app.post('/api/invoices/:id/telegram', limit('tginv', 30, 10 * 60e3), auth(), st
   if (!sent.length) return res.json({ ok: false, error: 'fail' });
   res.json({ ok: true, tg: sent[0].at, tgm: sent[0] });
 }));
+// ---------- AI page: who may use the bot, who sees the costs, what it costs ----------
+app.get('/api/ai/admin', auth(), ownerOnly, wrap(async (req, res) => res.json(await TG.ai().adminData())));
+app.post('/api/ai/config', limit('aicfg', 60, 60e3), auth(), ownerOnly, wrap(async (req, res) => {
+  let c; try { c = await TG.ai().saveCfg(req.body || {}, req.u.id); } catch (e) { return res.status(400).json({ error: 'bad' }); }
+  audit(req.u.id, 'ai.config', null, { keys: Object.keys(req.body || {}) }, req.ip); res.json({ ok: true, cfg: c });
+}));
+app.get('/api/ai/costs', auth(), staff, wrap(async (req, res) => { const ai = TG.ai(); if (!(await ai.costOk(req.u))) return res.status(403).json({ error: 'role' }); res.json(await ai.costData(!!req.u.is_owner)); }));
+app.get('/api/ai/log', limit('ailog', 30, 60e3), auth(), ownerOnly, wrap(async (req, res) => {
+  const u = String(req.query.user || 'all'); if (u !== 'all' && !okId(u)) return res.status(400).json({ error: 'bad' });
+  const days = Math.min(3650, Math.max(0, parseInt(req.query.days, 10) || 0)); audit(req.u.id, 'ai.log.read', u, { days }, req.ip); res.json(await TG.ai().logRows(u, days));
+}));
 app.get('/healthz', (req, res) => res.type('text').send('ok'));
 app.use('/api', (req, res) => res.status(404).json({ error: 'none' }));
 app.use(express.static(path.join(__dirname, 'public'), { index: 'index.html', maxAge: 0, setHeaders: r => r.setHeader('Cache-Control', 'no-cache') }));
-const PAGES = new Set(['dashboard', 'alerts', 'fleet', 'trailers', 'hook-drop', 'drivers', 'maintenance', 'pti', 'inspections', 'documents', 'violation-report', 'invoices', 'vendors', 'profile', 'companies']);
+const PAGES = new Set(['dashboard', 'alerts', 'fleet', 'trailers', 'hook-drop', 'drivers', 'maintenance', 'pti', 'inspections', 'documents', 'violation-report', 'invoices', 'vendors', 'ai', 'profile', 'companies']);
 app.get('/invite/:t', (req, res) => { res.setHeader('Cache-Control', 'no-cache'); res.sendFile(path.join(__dirname, 'public', 'index.html')); });
 app.get('/:page', (req, res, next) => PAGES.has(req.params.page) ? (res.setHeader('Cache-Control', 'no-cache'), res.sendFile(path.join(__dirname, 'public', 'index.html'))) : next());
 app.use((req, res) => res.status(404).type('text').send('Not found'));
