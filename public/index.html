@@ -174,7 +174,7 @@ tr.rw{cursor:pointer}tr.rw:hover td{background:var(--p2)}
 .vnWrap{display:grid;grid-template-columns:minmax(290px,370px) 1fr;gap:14px;height:calc(100vh - 215px);min-height:460px}.vnSide{display:flex;flex-direction:column;overflow:hidden;padding:0}.vnTabs{display:flex;border-bottom:1px solid var(--ln)}.vnTabs button{flex:1;padding:11px 8px;background:none;border:0;border-bottom:2px solid transparent;color:var(--mu);cursor:pointer;font:inherit;font-weight:600}.vnTabs button.on{color:var(--tx);border-bottom-color:#8b5cf6}.vnTabs b{font-weight:600;color:var(--mu);margin-left:4px}.vnList{overflow:auto;padding:10px;flex:1}.vnC{border:1px solid var(--ln);border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer;background:var(--pn)}.vnC:hover{border-color:#8b5cf6}.vnDot{width:9px;height:9px;border-radius:50%;background:#8b5cf6;margin-top:6px;flex:none}.vnDot.f{background:#f59e0b}.vnS{font-size:calc(12px*var(--fz,1));overflow-wrap:anywhere}.vnLk{color:#a78bfa;font-size:calc(12px*var(--fz,1));text-decoration:none;margin-right:8px;display:inline-flex;gap:4px;align-items:center}.vnLk:hover{text-decoration:underline}.vnMapBox{position:relative;overflow:hidden;padding:0}#vmap{position:absolute;inset:0}#vmsg{position:absolute;inset:0;align-items:center;justify-content:center;background:var(--bg);z-index:2;padding:20px;text-align:center}.vnMsg{max-width:420px;color:var(--mu)}
 @media(max-width:900px){.vnWrap{grid-template-columns:1fr;height:auto}.vnMapBox{height:60vh;order:-1}.vnList{max-height:50vh}.vnHide{display:none}}
 .vnQ{display:flex;align-items:center;gap:10px;flex-wrap:nowrap}.vnSeg{display:flex;background:var(--bg);border:1px solid var(--ln);border-radius:8px;padding:2px;flex:none}.vnSeg button{background:none;border:0;color:var(--mu);padding:6px 10px;border-radius:6px;cursor:pointer;font:inherit;font-weight:600;display:inline-flex;gap:5px;align-items:center}.vnSeg button.on{background:#8b5cf6;color:#fff}.vnQs input{color:var(--tx)}.vnRc{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.vnFs{position:absolute;right:14px;bottom:110px;z-index:3;width:40px;height:40px;border-radius:8px;border:0;background:#fff;color:#333;box-shadow:0 2px 6px #0006;cursor:pointer;display:flex;align-items:center;justify-content:center}.vnFsOff{display:none}
+.vnFs{position:absolute;right:10px;bottom:34px;z-index:3;width:40px;height:40px;border-radius:8px;border:0;background:#fff;color:#333;box-shadow:0 2px 6px #0006;cursor:pointer;display:flex;align-items:center;justify-content:center}.vnFsOff{display:none}
 .vnMapBox.full{position:fixed!important;left:0;top:0;width:calc(100vw/var(--pz,1));height:calc(100vh/var(--pz,1));z-index:80;border-radius:0;border:0}.vnMapBox.full .vnFs{display:none}.vnMapBox.full .vnFsOff{display:inline-flex;position:absolute;z-index:5;left:50%;bottom:72px;transform:translateX(-50%);align-items:center;gap:8px;background:#111827;color:#fff;border:1px solid #ffffff55;border-radius:999px;padding:10px 18px;font:600 14px Inter,system-ui,sans-serif;cursor:pointer;box-shadow:0 4px 14px #000a}body.vnLock{overflow:hidden}
 @media(max-width:900px){.vnQ{flex-wrap:wrap}.vnQs{flex-wrap:wrap!important}}
 .vnFrm{position:absolute;inset:0;overflow:hidden}.vnFrm iframe{position:absolute;left:0;top:0;width:100%;height:100%;border:0}.vnFrm.crop iframe{top:-78px;height:calc(100% + 78px)}
@@ -1575,20 +1575,20 @@ function irPdf(M){const W=612,Mg=40,R=W-Mg,doc=PDFDoc(612,792).page(),$$=n=>"$"+
 const whoTxtEn=k=>(WHOSHORT[k]||WHOSHORT.co)[0];
 /* ===== VENDORS: Google Maps ===== */
 Object.assign(D,{
-vm_nokey:["Google Maps is not connected yet. The owner must add GOOGLE_MAPS_KEY in Railway → Variables.","Google Maps hali ulanmagan. Owner Railway → Variables ga GOOGLE_MAPS_KEY qo‘shishi kerak.","Google Maps ещё не подключён. Владелец должен добавить GOOGLE_MAPS_KEY в Railway → Variables."],
-vm_bad:["Google rejected the key. Check that Maps JavaScript API and Places API (New) are enabled and the key allows this website.","Google kalitni qabul qilmadi. Maps JavaScript API va Places API (New) yoqilganini hamda kalit shu saytga ruxsat berganini tekshiring.","Google отклонил ключ. Проверьте, что включены Maps JavaScript API и Places API (New) и ключ разрешён для этого сайта."],
+
+
 vm_load:["Loading the map…","Xarita yuklanmoqda…","Загрузка карты…"],
-vm_none:["Nothing found here. Move the map or try another search.","Bu yerda topilmadi. Xaritani siljiting yoki boshqa so‘z bilan izlang.","Здесь ничего не найдено. Сдвиньте карту или измените запрос."],
-vm_nofound:["Search the map above. Results appear here and as orange pins.","Yuqorida xaritadan izlang. Natijalar shu yerda va to‘q sariq belgilar bo‘lib chiqadi.","Ищите на карте выше. Результаты появятся здесь и оранжевыми метками."],
+
+
 vm_save:["Save as vendor","Servis sifatida saqlash","Сохранить как подрядчика"],vm_saved:["Saved","Saqlandi","Сохранено"],
 vm_inv:["invoices","faktura","счетов"],vm_dir:["Directions","Yo‘nalish","Маршрут"],vm_call:["Call","Qo‘ng‘iroq","Позвонить"],vm_site:["Website","Sayt","Сайт"],
-vm_gm:["Open in Google Maps","Google Maps’da ochish","Открыть в Google Maps"],vm_edit:["Edit","Tahrirlash","Изменить"],
+vm_edit:["Edit","Tahrirlash","Изменить"],
 vm_newinv:["Invoice from this vendor","Shu servisdan faktura","Счёт от этого подрядчика"],vm_recent:["Recent invoices","So‘nggi fakturalar","Последние счета"],
 vm_spend:["Spend","Xarajat","Расход"],vm_noinv:["No invoices from this vendor yet.","Bu servisdan hali faktura yo‘q.","Счетов от этого подрядчика пока нет."],
 vm_imp:["Import from Google Maps","Google Maps’dan import","Импорт из Google Maps"],
 vm_imp_s:["Bring in your saved places. Supported files: KML (My Maps), Saved Places .json (Google Takeout) and Takeout list .csv.","Saqlangan joylaringizni olib kiring. Fayllar: KML (My Maps), Saved Places .json (Google Takeout) va Takeout ro‘yxat .csv.","Загрузите сохранённые места. Файлы: KML (My Maps), Saved Places .json (Google Takeout) и список .csv из Takeout."],
 vm_imp_h:["My Maps: ⋮ menu → Export to KML/KMZ → untick “Export as KMZ” → Download. Takeout: takeout.google.com → Maps (your places) or Saved.","My Maps: ⋮ menyu → Export to KML/KMZ → “Export as KMZ” belgisini oling → Download. Takeout: takeout.google.com → Maps (your places) yoki Saved.","My Maps: меню ⋮ → Export to KML/KMZ → снимите «Export as KMZ» → Download. Takeout: takeout.google.com → Maps (your places) или Saved."],
-vm_imp_pick:["Choose file","Fayl tanlash","Выбрать файл"],
+
 vm_imp_done:["Imported {0} vendors ({1} skipped).","{0} ta servis import qilindi ({1} ta o‘tkazib yuborildi).","Импортировано подрядчиков: {0} (пропущено: {1})."],
 vm_imp_err:["Could not read this file.","Faylni o‘qib bo‘lmadi.","Не удалось прочитать файл."],
 vm_imp_prog:["Importing… {0} / {1}","Import qilinmoqda… {0} / {1}","Импорт… {0} / {1}"],
@@ -1598,80 +1598,45 @@ vm_free_h:["In My Maps: Share → set “Anyone with the link can view” → co
 vm_free_ph:["https://www.google.com/maps/d/viewer?mid=…","https://www.google.com/maps/d/viewer?mid=…","https://www.google.com/maps/d/viewer?mid=…"],
 vm_free_bad:["This link has no map id (mid=…). Copy the My Maps link again.","Havolada xarita ID (mid=…) yo‘q. My Maps havolasini qaytadan nusxalang.","В ссылке нет идентификатора карты (mid=…). Скопируйте ссылку My Maps ещё раз."],
 vm_free_mine:["My map","Mening xaritam","Моя карта"],vm_free_only:["The owner or an admin has not connected the map yet.","Owner yoki admin xaritani hali ulamagan.","Владелец или админ ещё не подключил карту."],
-vm_open_gm:["Opening Google Maps in a new tab…","Google Maps yangi oynada ochilmoqda…","Открываю Google Maps в новой вкладке…"],
+
 vm_link:["Add from Google link","Google havolasidan qo‘shish","Добавить по ссылке Google"],
 vm_link_s:["Open the shop in Google Maps, copy the full address-bar link and paste it here. The name and pin are filled in for you.","Ustaxonani Google Maps’da oching, manzil satridagi to‘liq havolani nusxalab shu yerga qo‘ying. Nomi va joyi o‘zi to‘ldiriladi.","Откройте мастерскую в Google Maps, скопируйте полную ссылку из адресной строки и вставьте сюда. Название и метка заполнятся сами."],
 vm_link_bad:["Could not read this link. Use the long link from the address bar (google.com/maps/place/…).","Havolani o‘qib bo‘lmadi. Manzil satridagi uzun havoladan foydalaning (google.com/maps/place/…).","Не удалось прочитать ссылку. Используйте длинную ссылку из адресной строки (google.com/maps/place/…)."],
-vm_m_s:["Search","Izlash","Поиск"],vm_m_r:["Route","Yo‘nalish","Маршрут"],vm_near:["Near: Dallas, TX","Yaqin: Dallas, TX","Рядом: Dallas, TX"],
+vm_m_s:["Search","Izlash","Поиск"],vm_m_r:["Route","Yo‘nalish","Маршрут"],
 vm_from:["From: your location","Qayerdan: joylashuvingiz","Откуда: ваше местоположение"],vm_to:["To: shop, address or saved vendor","Qayerga: servis, manzil yoki saqlangan servis","Куда: мастерская, адрес или сохранённый"],vm_dirs:["Directions","Yo‘nalish olish","Маршрут"],
 vm_big:["Enlarge map","Xaritani kattalashtirish","Увеличить карту"],vm_small:["Exit full screen","Kichraytirish","Свернуть"],
 vm_pl_tab:["Map shops","Xaritadagi do‘konlar","Места на карте"],vm_pl_none:["No shops found on the map yet.","Xaritada hali do‘kon topilmadi.","На карте пока нет мест."],vm_pl_err:["Could not read the map list. Make sure the map is shared with “Anyone with the link”.","Xarita ro‘yxatini o‘qib bo‘lmadi. Xarita “Anyone with the link” bilan ulashilganini tekshiring.","Не удалось прочитать список. Убедитесь, что карта открыта по ссылке."],
-vm_found_n:["Found on the map","Xaritadan topilgan","Найдено на карте"]
+
 });
-const VM={ready:null,key:undefined,map:null,mk:{},found:[],tab:"mine",iw:null,bad:false};
+const VM={tab:"mine"};
 const vnStat=v=>{const n=(v.name||"").trim().toLowerCase(),L=DB.inv.filter(x=>(x.vendor||"").trim().toLowerCase()==n&&n);return{n:L.length,sum:L.reduce((a,x)=>a+(+x.amt||0),0),L}};
-const vnDirUrl=v=>"https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(v.lat!=null?v.lat+","+v.lng:(v.addr||v.name))+(v.pid?"&destination_place_id="+encodeURIComponent(v.pid):"");
 const vnUrl=v=>/^https?:\/\//i.test(v.web||"")?v.web:v.web?"https://"+v.web:"";
-const vnDark=()=>["charcoal","midnight","forest"].includes(S.theme);
-const MSTY=[{elementType:"geometry",stylers:[{color:"#1b2236"}]},{elementType:"labels.text.fill",stylers:[{color:"#9aa6c4"}]},{elementType:"labels.text.stroke",stylers:[{color:"#141a2a"}]},{featureType:"administrative",elementType:"geometry",stylers:[{color:"#3a4668"}]},{featureType:"poi",elementType:"labels.text.fill",stylers:[{color:"#8794b8"}]},{featureType:"poi.park",elementType:"geometry",stylers:[{color:"#173a40"}]},{featureType:"road",elementType:"geometry",stylers:[{color:"#2f3b5c"}]},{featureType:"road.highway",elementType:"geometry",stylers:[{color:"#46557f"}]},{featureType:"transit",elementType:"geometry",stylers:[{color:"#26304d"}]},{featureType:"water",elementType:"geometry",stylers:[{color:"#0f2a3d"}]}];
-function vnKey(){if(VM.key!==undefined)return Promise.resolve(VM.key);return api("GET","/api/maps-key").then(r=>VM.key=(r.s==200&&r.j&&r.j.key)||"").catch(()=>"")}
-function vnLoad(){if(VM.ready)return VM.ready;
- VM.ready=vnKey().then(k=>new Promise((res,rej)=>{if(!k)return rej("nokey");if(window.google&&google.maps&&google.maps.places)return res();
-  window.__vmcb=()=>res();window.gm_authFailure=()=>{VM.bad=true;vnMsg(t("vm_bad"))};
-  const s=document.createElement("script");s.src="https://maps.googleapis.com/maps/api/js?key="+encodeURIComponent(k)+"&v=weekly&libraries=places,marker&callback=__vmcb";s.async=true;s.onerror=()=>rej("load");document.head.appendChild(s)}));
- VM.ready.catch(()=>{VM.ready=null});return VM.ready}
 function vnMsg(h){const m=$("#vmsg");if(m){m.innerHTML=h?`<div class="vnMsg">${h}</div>`:"";m.style.display=h?"flex":"none"}}
 PAGES.vendors=()=>{PG.after=vnInit;
  return `<div class="pg w"><div class="row" id="vtop" style="margin:4px 0 12px;flex-wrap:wrap;gap:10px"><div class="card cp vnQ" id="vbar" style="flex:1 1 560px;min-width:0"><div class="vnSeg"><button class="${PG.vmode!="r"?"on":""}" data-a="vnMode" data-v="s">${ic("srch",13)} ${t("vm_m_s")}</button><button class="${PG.vmode=="r"?"on":""}" data-a="vnMode" data-v="r">${ic("pin",13)} ${t("vm_m_r")}</button></div>
 <div class="row vnQs" id="vqs" style="flex-wrap:nowrap;flex:1;min-width:0;${PG.vmode=="r"?"display:none":""}"><input id="vmq" value="${esc(PG.vmq||"")}" placeholder="${esc(t("vn_q"))}" aria-label="${esc(t("vn_q"))}" data-i="vnQ0" data-enter="vnSearch" style="border:0;background:none;flex:2;min-width:0"><button class="b bp" data-a="vnSearch">${ic("srch",14)} <span class="vnHide">${t("vn_search")}</span></button></div>
 <div class="row vnQs" id="vqr" style="flex-wrap:nowrap;flex:1;min-width:0;${PG.vmode=="r"?"":"display:none"}"><input id="vrf" value="${esc(PG.vrf||"")}" placeholder="${esc(t("vm_from"))}" list="vlst" data-i="vnRF" data-enter="vnRoute" style="border:0;background:none;flex:1;min-width:0"><button class="bi" data-a="vnSwap" aria-label="swap" title="swap">⇄</button><input id="vrt" value="${esc(PG.vrt||"")}" placeholder="${esc(t("vm_to"))}" list="vlst" data-i="vnRT" data-enter="vnRoute" style="border:0;background:none;flex:1.4;min-width:0"><datalist id="vlst">${DB.vend.map(v=>`<option value="${esc(v.name)}">${esc(v.addr||"")}</option>`).join("")}</datalist><button class="b bp" data-a="vnRoute">${ic("send",14)} <span class="vnHide">${t("vm_dirs")}</span></button></div></div>${vnOwn()?`<button class="b" data-a="vnLink">${ic("link",15)} <span class="vnHide">${t("vm_link")}</span></button><button class="b" data-a="vnMapSet">${ic("pin",15)} <span class="vnHide">${t("vm_free_mine")}</span></button><button class="b" data-a="vnImport">${ic("up2",15)} <span class="vnHide">${t("vm_imp")}</span></button>`:""}<button class="b" data-a="addVendor">${ic("plus",15)} <span class="vnHide">${t("vn_add")}</span></button></div>
-<div class="row" style="margin-bottom:10px"><span class="mu">${t("vn_part")}</span>${[1,2,3,4,5].map(i=>`<button class="b bs" data-a="vnChip" data-q="${esc(D["vn_c"+i][0])}">${t("vn_c"+i)}</button>`).join("")}<span id="vrec" style="display:contents"></span></div>
-<div class="vnWrap"><div class="card vnSide"><div class="vnTabs"><button class="${VM.tab=="mine"?"on":""}" data-a="vnTab" data-v="mine">${t("vn_mine")} <b id="vnN1">${DB.vend.length}</b></button><button class="${VM.tab=="found"?"on":""}" data-a="vnTab" data-v="found">${t("vm_found_n")} <b id="vnN2">${VM.found.length}</b></button><button class="${VM.tab=="pl"?"on":""}" data-a="vnTab" data-v="pl">${t("vm_pl_tab")} <b id="vnN3">${(VM.pl||[]).length}</b></button></div><div class="vnList" id="vlist"></div><div class="vnList" id="vplwrap" style="display:none"><input class="vnPlQ vnSrch" data-i="vnPlQ" placeholder="${esc(t("vm_shopq"))}" value="${esc(VM.plq||"")}"><div id="vplist"></div></div></div>
+<div class="row" style="margin-bottom:10px"><span class="mu">${t("vn_part")}</span>${[1,2,3,4,5].map(i=>`<button class="b bs" data-a="vnChip" data-q="${esc(D["vn_c"+i][0])}">${t("vn_c"+i)}</button>`).join("")}</div>
+<div class="vnWrap"><div class="card vnSide"><div class="vnTabs"><button class="${VM.tab=="mine"?"on":""}" data-a="vnTab" data-v="mine">${t("vn_mine")} <b id="vnN1">${DB.vend.length}</b></button><button class="${VM.tab=="pl"?"on":""}" data-a="vnTab" data-v="pl">${t("vm_pl_tab")} <b id="vnN3">${(VM.pl||[]).length}</b></button></div><div class="vnList" id="vlist"></div><div class="vnList" id="vplwrap" style="display:none"><input class="vnPlQ vnSrch" data-i="vnPlQ" placeholder="${esc(t("vm_shopq"))}" value="${esc(VM.plq||"")}"><div id="vplist"></div></div></div>
 <div class="card vnMapBox" id="vbox"><div id="vmap"></div><button class="vnFs" id="vfsOn" data-a="vnFull" title="${esc(t("vm_big"))}" aria-label="${esc(t("vm_big"))}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button><div class="vnPan" id="vpan"><button class="vnPanBtn" data-a="vnPanTog" aria-label="${esc(t("vm_shopq"))}" title="${esc(t("vm_shopq"))}">${ic("srch",18)}<svg class="vnCh" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button><div class="vnPanBody"><input class="vnPlQ vnSrch" data-i="vnPlQ" placeholder="${esc(t("vm_shopq"))}" value="${esc(VM.plq||"")}"><div id="vpanlist" class="vnPanL"></div></div></div><button class="vnBack" id="vback" data-a="vnBackMy">← ${t("vm_back")}</button>${vnOwn()?`<button class="vnEdit" id="vedit" data-a="vnEditTog">${ic("cog",15)} <span>${t("vm_lay")}</span></button><button class="vnEdit vnEdit2" id="vreset" data-a="vnLayReset">${t("vm_lay_reset")}</button>`:""}<button class="vnFsOff" data-a="vnFull"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg> ${t("vm_small")}</button><div id="vmsg" style="display:flex"><div class="vnMsg">${t("vm_load")}</div></div></div></div></div>`};
 I.vnQ0=el=>{PG.vmq=el.value};I.vnN0=el=>{PG.vmn=el.value};I.vnRF=el=>{PG.vrf=el.value};I.vnRT=el=>{PG.vrt=el.value};
 A.vnMode=el=>{PG.vmode=el.dataset.v;const r=PG.vmode=="r";$("#vqs").style.display=r?"none":"flex";$("#vqr").style.display=r?"flex":"none";$$(".vnSeg button").forEach(b=>b.classList.toggle("on",b.dataset.v==PG.vmode));const f=$(r?"#vrt":"#vmq");f&&f.focus()};
 A.vnSwap=()=>{const a=$("#vrf"),b=$("#vrt");if(!a||!b)return;const x=a.value;a.value=b.value;b.value=x;PG.vrf=a.value;PG.vrt=b.value};
 /*vnFull defined below*/
 document.addEventListener("keydown",e=>{if(e.key=="Escape"){const b=$("#vbox");if(b&&b.classList.contains("full"))A.vnFull()}});
-const vnRec=()=>{try{return JSON.parse(localStorage.getItem("tf2_vrec")||"[]")}catch(e){return[]}};
-function vnRecAdd(q){try{const L=[q,...vnRec().filter(x=>x!=q)].slice(0,6);localStorage.setItem("tf2_vrec",JSON.stringify(L))}catch(e){}vnRecDraw()}
-function vnRecDraw(){const b=$("#vrec");if(!b)return;b.innerHTML="";return;b.innerHTML=vnRec().map(q=>`<button class="b bs vnRc" data-a="vnRecGo" data-q="${esc(q)}">${ic("refresh",11)} ${esc(q)}</button>`).join("")}
-A.vnRecGo=el=>{const q=el.dataset.q;if(q.startsWith("\u2192 ")){const i=$("#vrt");A.vnMode({dataset:{v:"r"}});if(i)i.value=q.slice(2);PG.vrt=q.slice(2);A.vnRoute()}else{const i=$("#vmq");if(i)i.value=q;PG.vmq=q;vnGo(q)}};
 /*vnRoute defined below*/
-function vnList(){const b=$("#vlist");if(!b)return;const n1=$("#vnN1"),n2=$("#vnN2");if(n1)n1.textContent=DB.vend.length;if(n2)n2.textContent=VM.found.length;
+function vnList(){const b=$("#vlist");if(!b)return;const n1=$("#vnN1");if(n1)n1.textContent=DB.vend.length;
  $$(".vnTabs button").forEach(x=>x.classList.toggle("on",x.dataset.v==VM.tab));const pw=$("#vplwrap");if(pw){pw.style.display=VM.tab=="pl"?"block":"none";b.style.display=VM.tab=="pl"?"none":"block"}if(VM.tab=="pl"){vnPlDraw();return}
  if(VM.tab=="mine"){const L=DB.vend.slice().sort((a,b)=>(a.name||"").localeCompare(b.name||""));
   b.innerHTML=L.length?L.map(v=>{const s=vnStat(v),w=vnUrl(v);return `<div class="vnC" data-a="vnOpen" data-id="${v.id}"><div class="row" style="flex-wrap:nowrap;gap:8px;align-items:flex-start"><span class="vnDot"></span><div style="flex:1;min-width:0"><b>${esc(v.name)}</b><div class="mu vnS">${esc(v.addr)||"–"}</div><div class="vnS" style="margin-top:4px"><span class="vnLk">${ic("file",11)} ${s.n} ${t("vm_inv")} · ${money(s.sum)}</span>${v.phone?` <a class="vnLk" href="tel:${esc(v.phone)}" data-stop="1">${ic("send",11)} ${esc(v.phone)}</a>`:""}</div><div class="vnS" style="margin-top:3px">${w?`<a class="vnLk" href="${esc(w)}" target="_blank" rel="noopener" data-stop="1">${ic("link",11)} ${t("vm_site")}</a> `:""}<button class="vnLk" data-a="vnDir" data-ll="${v.lat!=null?v.lat+","+v.lng:""}" data-n="${esc(v.name)}">${ic("pin",11)} ${t("vm_dir")}</button></div></div><button class="bi" data-a="vnEdit" data-id="${v.id}" aria-label="${t("vm_edit")}">${ic("pen",14)}</button></div></div>`}).join(""):`<p class="mu" style="padding:14px">${t("vn_empty")}</p>`}
- else{b.innerHTML=VM.found.length?VM.found.map((p,i)=>{const sv=DB.vend.some(v=>v.pid&&v.pid==p.pid);return `<div class="vnC" data-a="vnFocus" data-i="${i}"><div class="row" style="flex-wrap:nowrap;gap:8px;align-items:flex-start"><span class="vnDot f"></span><div style="flex:1;min-width:0"><b>${esc(p.name)}</b><div class="mu vnS">${esc(p.addr)||"–"}</div>${p.rating?`<div class="vnS" style="margin-top:3px">${ic("star",11)} ${p.rating}${p.n?` <span class="mu">(${p.n})</span>`:""}${p.phone?` · ${esc(p.phone)}`:""}</div>`:""}</div></div><div class="row" style="margin-top:8px;gap:6px">${sv?`<span class="tg">${ic("check",12)} ${t("vm_saved")}</span>`:`<button class="b bp bs" data-a="vnSave" data-i="${i}">${t("vm_save")}</button>`}<a class="b bs" href="${esc(p.url||"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(p.name+" "+p.addr))}" target="_blank" rel="noopener" data-stop="1">${t("vm_gm")}</a></div></div>`}).join(""):`<p class="mu" style="padding:14px">${t("vm_nofound")}</p>`}}
+ }
 document.addEventListener("click",e=>{if(e.target.closest("[data-stop]"))e.stopPropagation()},true);
-function vnPin(color,sel){return{path:google.maps.SymbolPath.CIRCLE,fillColor:color,fillOpacity:1,strokeColor:"#fff",strokeWeight:2,scale:sel?10:8}}
-function vnMarkers(fit){if(!VM.map||!window.google)return;Object.values(VM.mk).forEach(m=>m.setMap(null));VM.mk={};const bd=new google.maps.LatLngBounds();let n=0;
- const add=(k,lat,lng,color,fn)=>{if(lat==null||lng==null||isNaN(lat)||isNaN(lng))return;const m=new google.maps.Marker({map:VM.map,position:{lat:+lat,lng:+lng},icon:vnPin(color),zIndex:color=="#8b5cf6"?5:2});m.addListener("click",fn);VM.mk[k]=m;if(fit&&(fit=="all"||(fit=="found")==(k[0]=="f"))){bd.extend(m.getPosition());n++}};
- DB.vend.forEach(v=>add("m"+v.id,v.lat,v.lng,"#8b5cf6",()=>vnInfo(v,false)));
- VM.found.forEach((p,i)=>{if(!DB.vend.some(v=>v.pid&&v.pid==p.pid))add("f"+i,p.lat,p.lng,"#f59e0b",()=>vnInfo(p,true,i))});
- if(fit&&n){VM.map.fitBounds(bd,60);if(n==1)google.maps.event.addListenerOnce(VM.map,"idle",()=>{if(VM.map.getZoom()>14)VM.map.setZoom(14)})}}
-function vnInfo(p,isF,i){if(!VM.map)return;if(!VM.iw)VM.iw=new google.maps.InfoWindow();const d=document.createElement("div");d.style.cssText="color:#111;font:13px Inter,system-ui,sans-serif;min-width:170px;max-width:240px";
- d.innerHTML=`<b>${esc(p.name)}</b><div style="color:#555;margin:2px 0 8px;font-size:12px">${esc(p.addr||"")}</div>`;
- const bt=document.createElement("button");bt.style.cssText="background:#7c5cf5;color:#fff;border:0;border-radius:6px;padding:6px 10px;cursor:pointer;font:600 12px Inter,system-ui,sans-serif";
- if(isF&&!DB.vend.some(v=>v.pid&&v.pid==p.pid)){bt.textContent=t("vm_save");bt.onclick=()=>{A.vnSave({dataset:{i}});VM.iw.close()}}else{bt.textContent=t("vm_gm");bt.onclick=()=>window.open("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(p.name+" "+(p.addr||"")),"_blank")}
- d.appendChild(bt);VM.iw.setContent(d);VM.iw.setPosition({lat:+p.lat,lng:+p.lng});VM.iw.open(VM.map)}
-function vnInit(){VM.plLoaded=false;vnRecDraw();VM.map=null;VM.mk={};VM.iw=null;vnList();
- vnFree();return;vnLoad().then(()=>{const box=$("#vmap");if(!box||V!="vendors")return;
-  VM.map=new google.maps.Map(box,{center:{lat:39.5,lng:-98.35},zoom:4,styles:vnDark()?MSTY:null,mapTypeControl:true,fullscreenControl:true,streetViewControl:true,clickableIcons:false,gestureHandling:"greedy",backgroundColor:vnDark()?"#1b2236":"#e5e3df"});
-  vnMsg("");const has=DB.vend.some(v=>v.lat!=null);vnMarkers(has?"all":false);if(VM.found.length)vnMarkers("found")}).catch(e=>{if(e=="nokey")vnFree();else vnMsg(t("vm_bad"))})}
-async function vnRun(q){if(!VM.map)return toast(VM.key===""?t("vm_nokey"):t("vm_load"),"er");
- try{const{Place}=google.maps.places;const bd=VM.map.getBounds(),req={textQuery:q,fields:["id","displayName","formattedAddress","location","nationalPhoneNumber","websiteURI","rating","userRatingCount","googleMapsURI"],maxResultCount:20};
-  if(bd&&VM.map.getZoom()>=7)req.locationBias=bd;
-  const r=await Place.searchByText(req);VM.found=(r.places||[]).filter(p=>p.location).map(p=>({pid:p.id,name:p.displayName||"",addr:p.formattedAddress||"",lat:p.location.lat(),lng:p.location.lng(),phone:p.nationalPhoneNumber||"",web:p.websiteURI||"",rating:p.rating||0,n:p.userRatingCount||0,url:p.googleMapsURI||""}));
-  VM.tab="found";vnList();vnMarkers("found");if(!VM.found.length)toast(t("vm_none"),"er")}catch(e){toast(t("vm_bad"),"er")}}
-const vnGo=q0=>vnKey().then(k=>k?vnGoG(q0):vnFreeSearch(q0));
-const vnGoG=q0=>{const nr=(($("#vmn")||{}).value||"").trim(),q=nr&&!/ near /i.test(q0)?q0+" near "+nr:q0;vnRecAdd(q);const place=/^place_id:|^-?\d{1,3}\.\d+\s*,\s*-?\d{1,3}\.\d+$/i.test(q);vnEmbUrl(place?"place":"search","q="+encodeURIComponent(q)).then(u=>u&&vnShow("search",u))};
+function vnInit(){VM.plLoaded=false;vnList();vnFree()}
+const vnGo=q0=>vnFreeSearch(q0);
 A.vnSearch=()=>{const el=$("#vmq"),q=((el&&el.value)||"").trim();if(!q)return;PG.vmq=q;PG.vmn=($("#vmn")||{}).value||"";vnGo(q)};
 A.vnChip=el=>{const i=$("#vmq");if(i)i.value=el.dataset.q;PG.vmq=el.dataset.q;vnGo(el.dataset.q)};
-A.vnTab=el=>{VM.tab=el.dataset.v;vnList();vnMarkers(VM.tab=="found"&&VM.found.length?"found":false)};
-A.vnFocus=el=>{const p=VM.found[+el.dataset.i];if(p&&VM.map){VM.map.panTo({lat:p.lat,lng:p.lng});VM.map.setZoom(Math.max(VM.map.getZoom(),14));vnInfo(p,true,+el.dataset.i)}};
-A.vnSave=el=>{const p=VM.found[+el.dataset.i];if(!p||DB.vend.some(v=>v.pid&&v.pid==p.pid))return;DB.vend.push({id:uid(),name:p.name,addr:p.addr,phone:p.phone,web:p.web,notes:"",lat:p.lat,lng:p.lng,pid:p.pid});save();vnList();vnMarkers(false);toast(t("vm_saved"))};
-A.vnOpen=el=>{const v=byId(DB.vend,el.dataset.id);if(!v)return;if(VM.map&&v.lat!=null){VM.map.panTo({lat:+v.lat,lng:+v.lng});VM.map.setZoom(Math.max(VM.map.getZoom(),15));vnInfo(v,false)}vnDrawer(v)};
+A.vnTab=el=>{VM.tab=el.dataset.v;vnList()};
+A.vnOpen=el=>{const v=byId(DB.vend,el.dataset.id);if(!v)return;if(VM.lmap&&v.lat!=null)VM.lmap.setView([+v.lat,+v.lng],Math.max(VM.lmap.getZoom(),15));vnDrawer(v)};
 function vnDrawer(v){const s=vnStat(v),w=vnUrl(v);
  drawer({title:esc(v.name),sub:esc(v.addr||""),icon:"store",body:`<div class="row" style="gap:8px;margin-bottom:12px">${v.phone?`<a class="b" href="tel:${esc(v.phone)}">${ic("send",14)} ${t("vm_call")}</a>`:""}<button class="b" data-a="vnDir" data-ll="${v.lat!=null?v.lat+","+v.lng:""}" data-n="${esc(v.name)}">${ic("pin",14)} ${t("vm_dir")}</button>${w?`<a class="b" href="${esc(w)}" target="_blank" rel="noopener">${ic("link",14)} ${t("vm_site")}</a>`:""}</div>
 <div class="fg" style="margin-bottom:14px"><div class="card cp"><div class="lbl">${t("vm_inv")}</div><b style="font-size:calc(20px*var(--fz,1))">${s.n}</b></div><div class="card cp"><div class="lbl">${t("vm_spend")}</div><b style="font-size:calc(20px*var(--fz,1))">${money(s.sum)}</b></div></div>
@@ -1683,10 +1648,9 @@ A.vnEdit=el=>{closeDr();vendorForm(el.dataset.id)};
 /* free mode: My Maps embed + Google Maps links, no API key */
 const vnMid=()=>{const m=String(S.myMap||"").match(/^[A-Za-z0-9_-]{10,}$/);return m?m[0]:""};
 const vnAdm=()=>!!(USER&&USER.role=="admin");
-const vnEmb=(mid,ll,z)=>`https://www.google.com/maps/d/embed?mid=${encodeURIComponent(mid)}&ehbc=2E312F${ll?"&ll="+ll+"&z="+(z||15):""}`;
-function vnFrame(ll,z,bounds){const mid=vnMid();if(!mid)return vnFree();vnLive(ll,z,bounds)}
-function vnFree(){VM.free=true;$$(".vnTabs [data-v=found]").forEach(x=>x.style.display="none");if(VM.tab=="found"){VM.tab="pl";vnList()}const mid=vnMid();
- if(mid){vnMsg("");const m=$("#vmsg");if(m)m.style.display="none";vnFrame();vnPlLoad();return}
+function vnFrame(ll,z,bounds){if(!vnMid())return vnFree();vnLive(ll,z,bounds)}
+function vnFree(){const mid=vnMid();
+ if(mid){vnMsg("");vnFrame();vnPlLoad();return}
  vnMsg(vnOwn()?`<b style="color:var(--tx)">${t("vm_free_t")}</b><p>${t("vm_free_s")}</p><input id="vmmid" placeholder="${esc(t("vm_free_ph"))}" style="width:100%;margin:6px 0" data-enter="vnMapSave"><p style="font-size:calc(12px*var(--fz,1))">${t("vm_free_h")}</p><button class="b bp" data-a="vnMapSave">${t("save")}</button>`:t("vm_free_only"))}
 /* shops listed on the My Maps map (read through the server) */
 function vnPlLoad(){if(VM.plLoaded)return vnPlDraw();VM.plLoaded=true;api("GET","/api/mymap").then(r=>{VM.pl=(r.s==200&&r.j&&r.j.places)||[];VM.plErr=r.j&&r.j.error;if(VM.pl.length&&VM.tab=="mine"&&!DB.vend.length)VM.tab="pl";vnList();vnPlDraw()}).catch(()=>{VM.pl=[];vnPlDraw()})}
@@ -1700,7 +1664,7 @@ async function vnWhere(txt){txt=String(txt||"").trim();const x=vnLL(txt);if(x)re
  const v=vnFindV(txt);if(v&&v.lat!=null)return{lat:+v.lat,lng:+v.lng,label:v.name};
  const p=(VM.pl||[]).find(p=>p.name.toLowerCase()==txt.toLowerCase());if(p)return{lat:p.lat,lng:p.lng,label:p.name};
  const r=await api("GET","/api/geo?q="+encodeURIComponent(txt));VM.geoSt=r.s;VM.geoErr=r.j&&r.j.error;return r.s==200&&r.j&&r.j.lat!=null?{lat:r.j.lat,lng:r.j.lng,label:txt}:null}
-async function vnFreeSearch(q0){const q=(q0||"").trim(),nr=(($("#vmn")||{}).value||"").trim();vnRecAdd(nr&&!/ near /i.test(q)?q+" near "+nr:q);
+async function vnFreeSearch(q0){const q=(q0||"").trim(),nr=(($("#vmn")||{}).value||"").trim();
  if(!VM.plLoaded)vnPlLoad();
  let near=null,ws=vnWords(q);
  if(nr)near=await vnWhere(nr);
@@ -1716,7 +1680,7 @@ async function vnFreeRoute(){const fE=$("#vrf"),dE=$("#vrt"),f=((fE&&fE.value)||
  const why=()=>VM.geoSt==404?t("vm_srv_old"):VM.geoErr?t("vm_net"):t("vm_nf");
  if(!o){vnMsg("");return toast(f?why():t("vm_from_need"),"er")}
  if(!dd){vnMsg("");return toast(why(),"er")}
- PG.vrf=f;PG.vrt=d;vnRecAdd("\u2192 "+d);
+ PG.vrf=f;PG.vrt=d;
  const r=await api("GET","/api/eta?full=1&a="+o.lat+","+o.lng+"&b="+dd.lat+","+dd.lng);
  vnMsg("");
  if(!(r.s==200&&r.j&&r.j.routes&&r.j.routes.length))return toast(r.s==404?t("vm_srv_old"):r.j&&r.j.error=="net"?t("vm_net"):t("vm_eta_err"),"er");
@@ -1726,9 +1690,9 @@ function vnLeaflet(){if(window.L&&L.map)return Promise.resolve();if(VM.lf)return
  VM.lf=new Promise((res,rej)=>{const l=document.createElement("link");l.rel="stylesheet";l.href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";document.head.appendChild(l);const s=document.createElement("script");s.src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";s.onload=()=>res();s.onerror=()=>{VM.lf=null;rej(new Error("lf"))};document.head.appendChild(s)});return VM.lf}
 function vnLiveBuild(){const b=$("#vmap");if(!b)return null;if(VM.lmap){try{VM.lmap.remove()}catch(e){}VM.lmap=null}
  VM.view="live";const m=$("#vmsg");if(m)m.style.display="none";
- b.innerHTML=`<div class="vnFrm"><div id="vlf" style="position:absolute;inset:0"></div><div id="vsb" style="position:absolute;z-index:1001;top:10px;left:56px;width:min(380px,calc(100% - 190px))"><input id="vsi" data-i="vsI" data-enter="vsGo" autocomplete="off" placeholder="${esc(t("vm_sb"))}" style="width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--ln);background:var(--pn);color:var(--tx);font:14px Inter,system-ui,sans-serif;box-shadow:0 4px 14px #0009"><div id="vsr" style="margin-top:4px;border-radius:10px;overflow:hidden;box-shadow:0 4px 14px #0009"></div></div><div id="vrp" style="display:none;position:absolute;z-index:1000;top:64px;left:56px;width:min(320px,calc(100% - 70px));max-height:calc(100% - 130px);overflow:auto;background:var(--pn);color:var(--tx);border:1px solid var(--ln);border-radius:12px;padding:12px;box-shadow:0 6px 20px #0009;font:13px Inter,system-ui,sans-serif"></div></div>`;
+ b.innerHTML=`<div class="vnFrm"><div id="vlf" style="position:absolute;inset:0;z-index:0;isolation:isolate"></div><div id="vsb" style="position:absolute;z-index:1001;top:10px;left:56px;width:min(380px,calc(100% - 190px))"><input id="vsi" data-i="vsI" data-enter="vsGo" autocomplete="off" placeholder="${esc(t("vm_sb"))}" style="width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--ln);background:var(--pn);color:var(--tx);font:14px Inter,system-ui,sans-serif;box-shadow:0 4px 14px #0009"><div id="vsr" style="margin-top:4px;border-radius:10px;overflow:hidden;box-shadow:0 4px 14px #0009"></div></div><div id="vrp" style="display:none;position:absolute;z-index:1000;top:64px;left:56px;width:min(320px,calc(100% - 70px));max-height:calc(100% - 130px);overflow:auto;background:var(--pn);color:var(--tx);border:1px solid var(--ln);border-radius:12px;padding:12px;box-shadow:0 6px 20px #0009;font:13px Inter,system-ui,sans-serif"></div></div>`;
  const mp=L.map("vlf",{preferCanvas:true}).setView([39.5,-98.35],4);
- const sat=L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,attribution:"Imagery \u00a9 Esri"}),lab=L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",{maxZoom:19}),osm=L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,referrerPolicy:"origin",attribution:"\u00a9 OpenStreetMap"});
+ const sat=L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,attribution:"Imagery \u00a9 Esri"}),lab=L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}.png",{maxZoom:19,subdomains:"abcd",attribution:"\u00a9 CARTO"}),osm=L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,referrerPolicy:"origin",attribution:"\u00a9 OpenStreetMap"});
  sat.addTo(mp);lab.addTo(mp);L.control.layers({[t("vm_sat")]:sat,[t("vm_street")]:osm},{[t("vm_labels")]:lab},{position:"topright"}).addTo(mp);
  VM.lmap=mp;VM.lpins=L.layerGroup().addTo(mp);VM.lrt=L.layerGroup().addTo(mp);VM.llines=[];
  const lc=L.control({position:"topleft"});lc.onAdd=()=>{const d=L.DomUtil.create("div","leaflet-bar"),a=L.DomUtil.create("a","",d);a.href="#";a.title=t("vm_loc");a.setAttribute("aria-label",t("vm_loc"));a.textContent="◎";a.style.cssText="font-size:18px;line-height:30px;text-align:center;width:30px;height:30px;display:block;cursor:pointer";L.DomEvent.on(a,"click",e=>{L.DomEvent.preventDefault(e);vnLocate()});return d};lc.addTo(mp);
@@ -1738,7 +1702,7 @@ function vnLiveBuild(){const b=$("#vmap");if(!b)return null;if(VM.lmap){try{VM.l
 async function vnLocate(){const g=vnLL(await vnGeo());if(!g||!VM.lmap)return toast(t("vm_from_need"),"er");
  if(VM.me)VM.me.remove();VM.me=L.circleMarker([g.lat,g.lng],{radius:8,color:"#fff",weight:2,fillColor:"#2563eb",fillOpacity:1}).addTo(VM.lmap);VM.lmap.setView([g.lat,g.lng],11)}
 async function vnLive(ll,z,bounds){
- try{await vnLeaflet()}catch(e){toast(t("vm_lf_err"),"er");const mid=vnMid();return mid&&vnShow("my",vnEmb(mid,ll,z))}
+ try{await vnLeaflet()}catch(e){return toast(t("vm_lf_err"),"er")}
  if(!VM.lmap||!$("#vlf")||!document.body.contains(VM.lmap.getContainer()))vnLiveBuild();
  const mp=VM.lmap;if(!mp)return;
  if(bounds&&bounds.length)mp.fitBounds(L.latLngBounds(bounds),{padding:[40,40],maxZoom:12});else if(ll){const c=vnLL(ll);if(c)mp.setView([c.lat,c.lng],z||14)}
@@ -1782,7 +1746,7 @@ A.vsPlace=async()=>{const q=(VM.vsq||"").trim();if(!q||!VM.lmap)return;const w=a
 A.vsGo=()=>{const b=$("#vsr"),f=b&&b.querySelector("[data-a]");if(f)f.click()};
 A.vnRtSel=el=>{if(VM.rt){VM.rt.sel=+el.dataset.i;vnRouteDraw()}};
 A.vnStepsTog=()=>{VM.stepsOn=!VM.stepsOn;const o=$("#vsteps");if(o)o.style.display=VM.stepsOn?"block":"none"};
-Object.assign(D,{vm_sat:["Satellite","Sun‘iy yo‘ldosh","Спутник"],vm_street:["Map","Xarita","Карта"],vm_labels:["Labels","Nomlar","Подписи"],vm_sb:["Search shops or places (city, address, ZIP)","Do‘kon yoki joy qidiring (shahar, manzil, ZIP)","Поиск сервиса или места (город, адрес, ZIP)"],vm_sb_pl:["Go to place","Joyga o‘tish","Перейти к месту"],vm_loc:["My location","Mening joylashuvim","Моё местоположение"],vm_lf_err:["The map could not load. Check the internet connection and try again.","Xarita yuklanmadi. Internetni tekshirib qayta urinib ko‘ring.","Карта не загрузилась. Проверьте интернет и повторите."],vm_srv_old:["The server is not updated yet. Upload the new server.js to GitHub and wait for Railway to redeploy.","Server hali yangilanmagan. Yangi server.js ni GitHub’ga yuklab, Railway qayta deploy qilishini kuting.","Сервер ещё не обновлён. Загрузите новый server.js в GitHub и дождитесь деплоя Railway."],vm_net:["The free map service did not answer. Try again in a minute.","Bepul xarita xizmati javob bermadi. Bir daqiqadan keyin qayta urinib ko‘ring.","Бесплатный картографический сервис не ответил. Повторите через минуту."],vm_full:["Open full Google map","To‘liq Google xarita","Открыть полную карту Google"],vm_fastest:["fastest","eng tez","быстрее всего"],vm_steps:["Turn-by-turn","Burilishlar","Пошагово"]});
+Object.assign(D,{vm_sat:["Satellite","Sun‘iy yo‘ldosh","Спутник"],vm_street:["Map","Xarita","Карта"],vm_labels:["Labels","Nomlar","Подписи"],vm_sb:["Search shops or places (city, address, ZIP)","Do‘kon yoki joy qidiring (shahar, manzil, ZIP)","Поиск сервиса или места (город, адрес, ZIP)"],vm_sb_pl:["Go to place","Joyga o‘tish","Перейти к месту"],vm_loc:["My location","Mening joylashuvim","Моё местоположение"],vm_lf_err:["The map could not load. Check the internet connection and try again.","Xarita yuklanmadi. Internetni tekshirib qayta urinib ko‘ring.","Карта не загрузилась. Проверьте интернет и повторите."],vm_srv_old:["The server is not updated yet. Upload the new server.js to GitHub and wait for Railway to redeploy.","Server hali yangilanmagan. Yangi server.js ni GitHub’ga yuklab, Railway qayta deploy qilishini kuting.","Сервер ещё не обновлён. Загрузите новый server.js в GitHub и дождитесь деплоя Railway."],vm_net:["The free map service did not answer. Try again in a minute.","Bepul xarita xizmati javob bermadi. Bir daqiqadan keyin qayta urinib ko‘ring.","Бесплатный картографический сервис не ответил. Повторите через минуту."],vm_fastest:["fastest","eng tez","быстрее всего"],vm_steps:["Turn-by-turn","Burilishlar","Пошагово"]});
 A.vnMsgX=()=>vnMsg("");
 Object.assign(D,{vm_nf:["Place not found. Try a city, address or ZIP.","Joy topilmadi. Shahar, manzil yoki ZIP yozing.","Место не найдено. Введите город, адрес или ZIP."],vm_eta_err:["Could not calculate the route right now.","Hozir yo‘nalishni hisoblab bo‘lmadi.","Сейчас не удалось рассчитать маршрут."],vm_eta_note:["Driving time for a car. A loaded truck usually takes 15–25% longer.","Yengil mashina uchun vaqt. Yuklangan truck odatda 15–25% uzoqroq ketadi.","Время для легковой. Гружёному траку обычно на 15–25% дольше."],vm_eta_open:["Open in Google Maps","Google Maps’da ochish","Открыть в Google Maps"],vm_you:["Your location","Joylashuvingiz","Ваше местоположение"],vm_away:["mi away","mil uzoqlikda","миль"]});
 function vnPlHtml(){const ws=vnWords(VM.plq);let L=(VM.pl||[]).filter(p=>!ws.length||vnPlMatch(p,ws));
@@ -1812,33 +1776,25 @@ C.vnFile=async el=>{const f=el.files&&el.files[0];if(!f)return;let items=[],todo
    rows.forEach(r=>{const name=(r[ti<0?0:ti]||"").trim();if(!name)return;if(la>=0&&lo>=0&&r[la]&&r[lo])items.push({name,addr:ai>=0?r[ai]:"",lat:+r[la],lng:+r[lo]});else todo.push({name,note:ni>=0?r[ni]:""})})}
  }catch(e){return toast(t("vm_imp_err"),"er")}
  closeMd();
- if(todo.length){if(!VM.map)return toast(t("vm_nokey"),"er");const{Place}=google.maps.places;todo=todo.slice(0,300);let k=0;
-  for(const o of todo){k++;toast(t("vm_imp_prog",k,todo.length));try{const r=await Place.searchByText({textQuery:o.name,fields:["id","displayName","formattedAddress","location","nationalPhoneNumber","websiteURI"],maxResultCount:1});const p=(r.places||[])[0];if(p&&p.location)items.push({name:p.displayName||o.name,addr:p.formattedAddress||"",lat:p.location.lat(),lng:p.location.lng(),phone:p.nationalPhoneNumber||"",web:p.websiteURI||"",pid:p.id,notes:o.note||""})}catch(e){}}}
+ if(todo.length){todo=todo.slice(0,60);let k=0;
+  for(const o of todo){k++;toast(t("vm_imp_prog",k,todo.length));try{const w=await vnWhere(o.name);if(w)items.push({name:o.name,addr:"",lat:w.lat,lng:w.lng,notes:o.note||""})}catch(e){}await new Promise(r=>setTimeout(r,1100))}}
  let add=0,skip=0;items.forEach(o=>{if(!o.name||isNaN(o.lat)||isNaN(o.lng)){skip++;return}
   const dup=DB.vend.some(v=>(o.pid&&v.pid==o.pid)||((v.name||"").toLowerCase()==o.name.toLowerCase()&&v.lat!=null&&Math.abs(v.lat-o.lat)<.001&&Math.abs(v.lng-o.lng)<.001));if(dup){skip++;return}
   DB.vend.push({id:uid(),name:o.name.trim(),addr:o.addr||"",phone:o.phone||"",web:o.web||"",notes:o.notes||"",lat:o.lat,lng:o.lng,pid:o.pid||""});add++});
- if(add)save();VM.tab="mine";vnList();vnMarkers(add?"all":false);toast(t("vm_imp_done",add,skip))};
+ if(add)save();VM.tab="mine";vnList();vnPinsDraw();toast(t("vm_imp_done",add,skip))};
 /* ===== in-map views (search / route inside the page) + owner layout ===== */
 Object.assign(D,{
 vm_shopq:["Search by shop name","Do‘kon nomi bo‘yicha izlash","Поиск по названию"],
 vm_back:["My map","Mening xaritam","Моя карта"],
-vm_nokey2:["Search and routes need a Google key (Maps Embed API, free). The owner adds GOOGLE_MAPS_KEY in Railway → Variables.","Qidiruv va yo‘nalish uchun Google kaliti kerak (Maps Embed API, bepul). Owner Railway → Variables ga GOOGLE_MAPS_KEY qo‘shadi.","Для поиска и маршрутов нужен ключ Google (Maps Embed API, бесплатно). Владелец добавляет GOOGLE_MAPS_KEY в Railway → Variables."],
+
 vm_from_need:["Allow location, or type where you start (From).","Joylashuvga ruxsat bering yoki qayerdan boshlashni (From) yozing.","Разрешите геолокацию или укажите, откуда выезжать (From)."],
 vm_lay:["Layout","Joylashuv","Расположение"],vm_lay_done:["Done","Tayyor","Готово"],vm_lay_reset:["Reset layout","Asl joylashuv","Сбросить"]});
 const vnOwn=()=>!!(USER&&USER.owner);
-function vnShow(kind,src){const b=$("#vmap");if(!b)return;VM.view=kind;const m=$("#vmsg");if(m)m.style.display="none";
- b.innerHTML=`<div class="vnFrm ${kind=="my"&&!vnOwn()?"crop":""}"><iframe src="${src}" title="Google Maps" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe></div>`;
- const bk=$("#vback");if(bk)bk.classList.toggle("show",kind!="my")}
-function vnEmbUrl(kind,params){return vnKey().then(k=>{if(!k){toast(t("vm_nokey2"),"er");return null}return "https://www.google.com/maps/embed/v1/"+kind+"?key="+encodeURIComponent(k)+"&"+params})}
 const vnFindV=n=>{n=(n||"").trim().toLowerCase();return n?DB.vend.find(x=>(x.name||"").toLowerCase()==n):null};
 const vnGeo=()=>new Promise(res=>{if(!navigator.geolocation)return res("");navigator.geolocation.getCurrentPosition(p=>res(p.coords.latitude+","+p.coords.longitude),()=>res(""),{timeout:8000,maximumAge:60000})});
-A.vnRoute=async()=>{if(!(await vnKey()))return vnFreeRoute();const fE=$("#vrf"),dE=$("#vrt"),f=((fE&&fE.value)||"").trim(),d=((dE&&dE.value)||"").trim();if(!d)return toast(t("vm_to"),"er");
- const loc=(x,raw)=>x&&x.lat!=null?x.lat+","+x.lng:raw,dd=VM.dest&&VM.dest.label==d?VM.dest.ll:null;
- const o=f?loc(vnFindV(f),f):await vnGeo();if(!o)return toast(t("vm_from_need"),"er");
- PG.vrf=f;PG.vrt=d;vnRecAdd("→ "+d);
- const u=await vnEmbUrl("directions","origin="+encodeURIComponent(o)+"&destination="+encodeURIComponent(dd||loc(vnFindV(d),d))+"&mode=driving&units=imperial");if(u)vnShow("route",u)};
+A.vnRoute=()=>vnFreeRoute();
 A.vnDir=el=>{const n=el.dataset.n||"",ll=el.dataset.ll||"";closeDr();A.vnMode({dataset:{v:"r"}});const dE=$("#vrt");if(dE){dE.value=n||ll;PG.vrt=dE.value}VM.dest=ll?{label:n||ll,ll}:null;A.vnRoute()};
-A.vnBackMy=()=>{if(VM.lmap&&$("#vlf")){VM.rt=null;if(VM.lrt)VM.lrt.clearLayers();const p=$("#vrp");if(p)p.style.display="none";VM.view="live";const bk=$("#vback");if(bk)bk.classList.remove("show");return}VM.view="my";const b=$("#vback");if(b)b.classList.remove("show");vnFrame()};
+A.vnBackMy=()=>{if(VM.lmap&&$("#vlf")){VM.rt=null;if(VM.lrt)VM.lrt.clearLayers();const p=$("#vrp");if(p)p.style.display="none";VM.view="live";const bk=$("#vback");if(bk)bk.classList.remove("show");return}vnFrame()};
 /* fullscreen with floating widgets */
 const VL0={list:{x:.012,y:.02,w:340,h:520},bar:{x:.27,y:.02,w:640},exit:{x:.44,y:.9},back:{x:.03,y:.9}};
 const vnLay=w=>({...VL0[w],...((S.vnLay||{})[w]||{})});
