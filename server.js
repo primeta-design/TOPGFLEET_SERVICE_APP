@@ -14,7 +14,7 @@ const LOGIN_MAX = +process.env.RATE_LOGIN_MAX || 12;
 const SESSION_HOURS = 12, PW_STAGE_MIN = 10, LOCK_AFTER = 5, LOCK_MIN = 15;
 const COLLS = new Set(['trucks', 'trailers', 'drivers', 'issues', 'plans', 'svc', 'docs', 'inv', 'vend', 'links', 'hist', 'insp']);
 const KV_FLEET = new Set(['pti', 'ck', 'ph']);          // fleet-wide documents (members may write)
-const SETTING_KEYS = ['prio', 'prioEd', 'compEd', 'teams', 'comps', 'stat', 'tg', 'tpl', 'ptiOff', 'tmAcc', 'seed14', 'myMap', 'vnLay'];   // admin-only
+const SETTING_KEYS = ['prio', 'prioEd', 'compEd', 'teams', 'comps', 'stat', 'tg', 'tpl', 'ptiOff', 'tmAcc', 'seed14', 'myMap', 'vnLay', 'intEd'];   // admin-only
 const ROLES = new Set(['admin', 'member', 'driver']);
 
 const app = express();
@@ -105,6 +105,9 @@ const auth = (stage = 'full') => wrap(async (req, res, next) => {
 const need = (...roles) => (req, res, next) => roles.includes(req.u.role) ? next() : res.status(403).json({ error: 'role' });
 const staff = need('admin', 'member');
 const admin = need('admin');
+// Integrations (Telegram, Samsara/Motive accounts): the owner, plus people the owner allowed (kv intEd)
+const canInt = async u => { if (u.is_owner) return true; const r = (await q("SELECT value FROM kv WHERE key='intEd'")).rows[0]; return !!r && Array.isArray(r.value) && r.value.includes(u.id); };
+const intOk = wrap(async (req, res, next) => { if (!(await canInt(req.u))) return res.status(403).json({ error: 'role' }); next(); });
 const ownerOnly = (req, res, next) => req.u.is_owner ? next() : res.status(403).json({ error: 'role' });
 const baseUrl = req => (process.env.PUBLIC_URL || (process.env.RAILWAY_PUBLIC_DOMAIN ? 'https://' + process.env.RAILWAY_PUBLIC_DOMAIN : (PROD ? 'https' : req.protocol) + '://' + req.get('host'))).replace(/\/$/, '');
 const cleanTg = v => { const x = String(v == null ? '' : v).trim().replace(/^https?:\/\/t\.me\//i, '').replace(/^@/, ''); return !x ? '' : /^[A-Za-z0-9_]{5,32}$/.test(x) ? x : undefined; };
@@ -412,9 +415,15 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
     if (KV_FLEET.has(k)) { if (JSON.stringify(kv[k]).length > 400000) return res.status(400).json({ error: 'bad' }); }
     else if (SETTING_KEYS.includes(k)) {
       let okk = req.u.role === 'admin';
-      if (k === 'prioEd' || k === 'compEd') { okk = !!req.u.is_owner; if (!(Array.isArray(kv[k]) && kv[k].length <= 200 && kv[k].every(okId))) return res.status(400).json({ error: 'bad' }); }
+      if (k === 'prioEd' || k === 'compEd' || k === 'intEd') { okk = !!req.u.is_owner; if (!(Array.isArray(kv[k]) && kv[k].length <= 200 && kv[k].every(okId))) return res.status(400).json({ error: 'bad' }); }
       else if (k === 'prio') { const pe = (await q("SELECT value FROM kv WHERE key='prioEd'")).rows[0]; okk = !!req.u.is_owner || (!!pe && Array.isArray(pe.value) && pe.value.includes(req.u.id)); }   // priorities: owner, or people the owner allowed
       else if (k === 'comps' || k === 'teams') { const pe = (await q("SELECT value FROM kv WHERE key='compEd'")).rows[0]; okk = !!req.u.is_owner || (!!pe && Array.isArray(pe.value) && pe.value.includes(req.u.id)); }   // companies and teams: owner, or people the owner allowed
+      if (k === 'tg' || k === 'tmAcc') {
+        okk = await canInt(req.u);
+        if (k === 'tg') { const g = kv[k], idOk = v => v === undefined || v === '' || (typeof v === 'string' && /^-?\d{5,20}$/.test(v)), tzOk = v => { try { new Intl.DateTimeFormat('en', { timeZone: v }); return typeof v === 'string' && v.length < 60; } catch { return false; } };
+          if (!(g && typeof g === 'object' && !Array.isArray(g) && idOk(g.work) && (g.topic === undefined || g.topic === '' || /^\d{1,12}$/.test(String(g.topic))) && (g.tz === undefined || g.tz === '' || tzOk(g.tz)) && (g.times === undefined || (Array.isArray(g.times) && g.times.length <= 24 && g.times.every(x => /^\d\d:\d\d$/.test(x)))))) return res.status(400).json({ error: 'bad' }); }
+      }
+      if (k === 'comps' && !(Array.isArray(kv[k]) && kv[k].length <= 200 && kv[k].every(c => c && okId(c.id) && typeof c.n === 'string' && c.n.length <= 120 && ['inv', 'mgr'].every(f => c[f] === undefined || c[f] === '' || (typeof c[f] === 'string' && /^-?\d{5,20}$/.test(c[f])))))) return res.status(400).json({ error: 'bad' });
       if (k === 'myMap') { okk = !!req.u.is_owner; if (!(kv[k] === '' || (typeof kv[k] === 'string' && /^[A-Za-z0-9_-]{10,80}$/.test(kv[k])))) return res.status(400).json({ error: 'bad' }); }
       if (k === 'vnLay') { okk = !!req.u.is_owner; const L = kv[k], num = v => typeof v === 'number' && isFinite(v) && Math.abs(v) < 5000; if (!(L && typeof L === 'object' && !Array.isArray(L) && Object.keys(L).every(w => ['list', 'bar', 'exit', 'back'].includes(w) && L[w] && typeof L[w] === 'object' && Object.values(L[w]).every(num)))) return res.status(400).json({ error: 'bad' }); }
       if (k === 'teams' && !(Array.isArray(kv[k]) && kv[k].length <= 100 && kv[k].every(x => x && okId(x.id) && typeof x.n === 'string' && x.n.length <= 80 && (!x.resp || okId(x.resp)) && (x.resps === undefined || (Array.isArray(x.resps) && x.resps.length <= 20 && x.resps.every(okId))) && Array.isArray(x.cos) && x.cos.every(okId)))) return res.status(400).json({ error: 'bad' });
@@ -510,7 +519,7 @@ app.get('/api/mymap', auth(), staff, wrap(async (req, res) => {
 app.get('/api/maps-key', auth(), (req, res) => res.json({ key: process.env.GOOGLE_MAPS_KEY || '' }));
 app.get('/api/tg/info', auth(), staff, wrap(async (req, res) => {
   const i = await TG.info(), mine = (await q('SELECT chat_id,digest FROM tg_chats WHERE user_id=$1', [req.u.id])).rows;
-  res.json({ enabled: i.enabled, bot: i.bot || null, webhook: req.u.role === 'admin' ? i.webhook : undefined, linked: mine.length > 0, digest: mine.length ? mine[0].digest : null });
+  res.json({ enabled: i.enabled, bot: i.bot || null, webhook: (await canInt(req.u)) ? i.webhook : undefined, linked: mine.length > 0, digest: mine.length ? mine[0].digest : null, ai: req.u.is_owner ? !!process.env.ANTHROPIC_API_KEY : undefined });
 }));
 app.post('/api/tg/code', limit('tgcode', 20, 10 * 60e3), auth(), staff, wrap(async (req, res) => {
   if (!TG.enabled()) return res.status(503).json({ error: 'off' }); const b = await TG.me(); if (!b) return res.status(503).json({ error: 'off' });
@@ -518,17 +527,18 @@ app.post('/api/tg/code', limit('tgcode', 20, 10 * 60e3), auth(), staff, wrap(asy
 }));
 app.post('/api/tg/unlink', auth(), staff, wrap(async (req, res) => { await q('DELETE FROM tg_chats WHERE user_id=$1', [req.u.id]); res.json({ ok: true }); }));
 app.post('/api/tg/digest', auth(), staff, wrap(async (req, res) => { await q('UPDATE tg_chats SET digest=$2 WHERE user_id=$1', [req.u.id, !!(req.body || {}).on]); res.json({ ok: true }); }));
-app.post('/api/tg/reconnect', limit('tgre', 10, 10 * 60e3), auth(), admin, wrap(async (req, res) => {
+app.post('/api/tg/reconnect', limit('tgre', 10, 10 * 60e3), auth(), staff, intOk, wrap(async (req, res) => {
   const r = await TG.setWebhook('https://' + req.get('host')); audit(req.u.id, 'telegram.webhook', req.get('host'), { ok: !!r.ok }, req.ip); res.json({ ok: !!r.ok, error: r.ok ? null : r.description });
 }));
-app.post('/api/tg/test', limit('tgtest', 20, 10 * 60e3), auth(), admin, wrap(async (req, res) => {
+app.post('/api/tg/test', limit('tgtest', 20, 10 * 60e3), auth(), staff, intOk, wrap(async (req, res) => {
   if (!TG.enabled()) return res.status(503).json({ error: 'off' });
   const { S } = await loadAll(), g = S.tg || {}, out = [];
-  for (const [k, id] of [['managers', g.mgr], ['workers', g.work], ['invoices', g.inv]]) if (id) { const r = await TG.send(id, '✅ TOPGFLEET test message'); out.push({ group: k, ok: !!r.ok, error: r.ok ? null : r.description }); }
+  const tgts = [['workers', g.work]]; (S.comps || []).forEach(c => { if (c.inv) tgts.push([c.n + ' invoices', c.inv]); if (c.mgr) tgts.push([c.n + ' managers', c.mgr]); });
+  for (const [k, id] of tgts) if (id) { const r = await TG.send(id, '✅ TOPGFLEET test message'); out.push({ group: k, ok: !!r.ok, error: r.ok ? null : r.description }); }
   const mine = (await q('SELECT chat_id FROM tg_chats WHERE user_id=$1', [req.u.id])).rows; for (const m of mine) { const r = await TG.send(m.chat_id, '✅ TOPGFLEET test message'); out.push({ group: 'you', ok: !!r.ok, error: r.ok ? null : r.description }); }
   res.json({ results: out });
 }));
-app.post('/api/tg/send-now', limit('tgnow', 20, 10 * 60e3), auth(), admin, wrap(async (req, res) => {
+app.post('/api/tg/send-now', limit('tgnow', 20, 10 * 60e3), auth(), staff, intOk, wrap(async (req, res) => {
   if (!TG.enabled()) return res.status(503).json({ error: 'off' }); const { DB, S } = await loadAll(); const r = await TG.sendWorkersList(S, DB, true); res.json({ ok: !!r.ok, error: r.ok ? null : r.description });
 }));
 
@@ -537,7 +547,7 @@ app.post('/api/invoices/:id/telegram', limit('tginv', 30, 10 * 60e3), auth(), st
   let { DB, S } = await loadAll(); const A = allowedOf(req.u); if (A) DB = scopeState(DB, A);
   const inv = (DB.inv || []).find(x => x.id === req.params.id); if (!inv) return res.status(404).json({ error: 'none' });
   const tU = (DB.trucks || []).find(x => x.id === inv.truck), lU = (DB.trailers || []).find(x => x.id === inv.trailer), cU = (S.comps || []).find(c => c.id === ((tU && tU.company) || (lU && lU.company)));
-  if (!((cU && cU.inv) || (S.tg && S.tg.inv))) return res.json({ ok: false, error: 'nogroup' });
+  if (!(cU && cU.inv)) return res.json({ ok: false, error: 'nogroup' });
   const sent = await TG.notifyNewInvoices([inv], 'https://' + req.get('host')); audit(req.u.id, 'invoice.telegram', inv.id, null, req.ip);
   if (!sent.length) return res.json({ ok: false, error: 'fail' });
   res.json({ ok: true, tg: sent[0].at, tgm: sent[0] });
