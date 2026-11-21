@@ -25,7 +25,7 @@ app.disable('x-powered-by');
 app.use((req, res, next) => {
   res.setHeader('Content-Security-Policy',
     "default-src 'self'; script-src 'self' 'unsafe-inline' https://maps.googleapis.com https://maps.gstatic.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; " +
-    "font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://unpkg.com https://*.googleapis.com https://*.gstatic.com https://*.ggpht.com https://*.googleusercontent.com https://*.google.com; connect-src 'self' https://*.googleapis.com; worker-src blob:; frame-src https://www.google.com; child-src blob:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'");
+    "font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://server.arcgisonline.com https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://unpkg.com https://*.googleapis.com https://*.gstatic.com https://*.ggpht.com https://*.googleusercontent.com https://*.google.com; connect-src 'self' https://*.googleapis.com; worker-src blob:; frame-src https://www.google.com; child-src blob:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'");
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('Referrer-Policy', 'no-referrer');
@@ -503,13 +503,18 @@ app.post('/tg/hook', express.json({ limit: '1mb' }), (req, res) => { if (!TG.ver
 const KML_CACHE = new Map();
 const unxml = x => String(x || '').replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&amp;/g, '&');
 function parseKml(x) {
-  const out = [];
-  (String(x).match(/<Placemark[\s\S]*?<\/Placemark>/g) || []).forEach(b => {
+  x = String(x); const out = [], sty = {};
+  const abgr = c => { const m = String(c || '').trim().match(/^([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i); return m ? '#' + m[4] + m[3] + m[2] : ''; };
+  (x.match(/<Style\b[\s\S]*?<\/Style>/g) || []).forEach(b => { const id = (b.match(/<Style[^>]*\bid="([^"]+)"/) || [])[1], col = (b.match(/<IconStyle>[\s\S]*?<color>([^<]+)<\/color>/) || [])[1]; if (id && abgr(col)) sty[id] = abgr(col); });
+  (x.match(/<StyleMap\b[\s\S]*?<\/StyleMap>/g) || []).forEach(b => { const id = (b.match(/<StyleMap[^>]*\bid="([^"]+)"/) || [])[1], n = (b.match(/<key>normal<\/key>\s*<styleUrl>#?([^<]+)<\/styleUrl>/) || [])[1]; if (id && n && sty[n]) sty[id] = sty[n]; });
+  (x.match(/<Placemark[\s\S]*?<\/Placemark>/g) || []).forEach(b => {
     const g = b.match(/<Point>[\s\S]*?<coordinates>\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)/); if (!g) return;
     const nm = unxml((b.match(/<name>([\s\S]*?)<\/name>/) || [])[1]).trim();
     const ds = unxml((b.match(/<description>([\s\S]*?)<\/description>/) || [])[1]).replace(/<br\s*\/?>/gi, ' · ').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
     const note = ds.split(' · ').map(x => x.trim()).filter(x => x && !/^(shop name|info|longitude|latitude|name)\s*:?\s*$/i.test(x)).join(' · ');
-    if (nm) out.push({ name: nm.slice(0, 120), lat: +g[2], lng: +g[1], note: note.slice(0, 160) });
+    const su = (b.match(/<styleUrl>#?([^<]+)<\/styleUrl>/) || [])[1] || '', hx = su.match(/-([0-9A-Fa-f]{6})(?:-[a-z]+)?$/);
+    const c = hx ? '#' + hx[1].toLowerCase() : (sty[su] || '');
+    if (nm) out.push({ name: nm.slice(0, 120), lat: +g[2], lng: +g[1], note: note.slice(0, 160), c });
   });
   return out;
 }
