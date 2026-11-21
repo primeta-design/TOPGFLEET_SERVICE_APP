@@ -1883,15 +1883,40 @@ pacc_s:["Choose which sections each person can open. A blocked section disappear
 pacc_all:["Allow all","Hammasiga ruxsat","Разрешить всё"],pacc_none:["Block all","Hammasini yopish","Закрыть всё"],
 pacc_on:["{0} can open {1}","{0} {1} ni ocha oladi","{0} может открыть {1}"],pacc_off:["{0} can no longer open {1}","{0} endi {1} ni ocha olmaydi","{0} больше не может открыть {1}"],
 pacc_err:["Could not save. Try again.","Saqlab bo‘lmadi. Qayta urining.","Не удалось сохранить. Повторите."],pacc_none_p:["No other people yet.","Hozircha boshqa odam yo‘q.","Других людей пока нет."]});
-const PACC=["today","trucks","trailers","hookdrop","drivers","maintenance","pti","inspections","documents","violations","invoices","vendors"];
-function paccBody(){if(!(aiSrv()&&USER.owner))return "";
- if(!PG.pacc&&!PG.paccBusy){PG.paccBusy=1;api("GET","/api/access").then(r=>{PG.pacc=r.s==200?r.j.deny:{};PG.paccBusy=0;if(V=="profile")page()})}
- if(!PG.pacc)return `<div class="mu">…</div>`;
- const people=(S.team||[]).filter(m=>!m.owner&&m.r!="driver");
- return `<p class="mu" style="margin-top:0">${t("pacc_s")}</p>${people.map(m=>{const d=PG.pacc[m.id]||[];return `<div style="padding:12px 0;border-top:1px solid var(--ln)"><div class="row" style="justify-content:space-between;gap:8px;margin-bottom:8px"><span><b>${esc(m.n)}</b> <span class="mu">${t(m.r=="admin"?"tm_admin":"tm_member")}</span></span><span class="row" style="gap:6px"><button class="b bs" data-a="paccAll" data-id="${m.id}" data-v="1">${t("pacc_all")}</button><button class="b bs" data-a="paccAll" data-id="${m.id}" data-v="0">${t("pacc_none")}</button></span></div><div style="display:flex;flex-wrap:wrap;gap:6px">${PACC.map(k=>{const on=!d.includes(k);return `<button class="tmc ${on?"":"off"}" data-a="paccTog" data-id="${m.id}" data-k="${k}">${on?ic("check",11):""}<span>${esc(t(k))}</span></button>`}).join("")}</div></div>`}).join("")||`<div class="mu">${t("pacc_none_p")}</div>`}`}
-async function paccSave(id,list,msgKey,name,sec){const r=await api("POST","/api/access",{user:id,deny:list});if(r.s==200){PG.pacc=r.j.deny;if(msgKey)toast(t(msgKey,name,sec));page()}else toast(t("pacc_err"),"er")}
-A.paccTog=el=>{const id=el.dataset.id,k=el.dataset.k,m=(S.team||[]).find(x=>x.id==id),d=((PG.pacc||{})[id]||[]).slice(),i=d.indexOf(k);if(!m)return;if(i<0)d.push(k);else d.splice(i,1);paccSave(id,d,i<0?"pacc_off":"pacc_on",m.n,t(k))};
-A.paccAll=el=>{const id=el.dataset.id;paccSave(id,el.dataset.v=="1"?[]:PACC.slice())};
+Object.assign(D,{pacc_s:["Every section of the menu is listed here. Tap the pencil next to a section, then tick the people who may open it. A section that is not ticked for someone disappears from their menu and they cannot change its data.","Menyudagi hamma bo‘lim shu yerda. Bo‘lim yonidagi qalamchani bosing va uni ocha oladigan odamlarni belgilang. Odam uchun belgilanmagan bo‘lim uning menyusidan yo‘qoladi va ma’lumotini o‘zgartira olmaydi.","Здесь все разделы меню. Нажмите на карандаш рядом с разделом и отметьте людей, которым он доступен. Неотмеченный раздел пропадает из меню и его данные менять нельзя."],
+pacc_every:["Everyone","Hamma","Все"],pacc_only:["Only you","Faqat siz","Только вы"],pacc_n:["{0} of {1} people","{0} / {1} odam","{0} из {1}"],pacc_edit:["Choose who sees it","Kimga ko‘rinishini tanlang","Выбрать, кому показывать"],
+pacc_selall:["Select all","Hammasini belgilash","Выбрать всех"],pacc_clear:["Clear all","Hammasini olib tashlash","Снять всех"],pacc_done:["Done","Tayyor","Готово"],pacc_md_s:["Tick the people who may open this section. Saved at once.","Bu bo‘limni ocha oladigan odamlarni belgilang. Darrov saqlanadi.","Отметьте людей, которым разрешён раздел. Сохраняется сразу."],
+pacc_aib:["Set what each person may do with the bot. Default follows the “open for everyone” switch on the AI page.","Har odam bot bilan nima qila olishini belgilang. Umumiy qoida AI sahifasidagi “hamma uchun ochiq” tugmasiga bog‘liq.","Задайте, что каждый может делать с ботом. По умолчанию — по переключателю «открыто всем» на странице ИИ."],pacc_open_ai:["Open the AI page for bot on/off and budget","Bot yoqish/o‘chirish va byudjet uchun AI sahifasini oching","Откройте страницу ИИ: включение бота и бюджет"]});
+function paccLoad(){if(!PG.pacc&&!PG.paccBusy){PG.paccBusy=1;api("GET","/api/access").then(r=>{PG.pacc=r.s==200?r.j.deny:{};PG.paccBusy=0;if(V=="profile")page()})}
+ if(!PG.aiA&&!PG.paccAiBusy){PG.paccAiBusy=1;api("GET","/api/ai/admin").then(r=>{if(r.s==200)PG.aiA=r.j;PG.paccAiBusy=0;if(V=="profile")page()})}}
+const paccPeople=()=>(S.team||[]).filter(m=>!m.owner&&m.r!="driver");
+function paccAllowed(k){const P=paccPeople();
+ if(k=="aiexp"){const c=PG.aiA&&PG.aiA.cfg;if(!c)return null;return c.costAll?P.map(m=>m.id):P.filter(m=>(c.costUsers||[]).includes(m.id)).map(m=>m.id)}
+ if(k=="aibot"){const A0=PG.aiA;if(!A0)return null;return P.filter(m=>{const u=A0.users.find(x=>x.id==m.id),st=u?u.setting:"default";return st=="read"||st=="edit"||(st=="default"&&A0.cfg.open)}).map(m=>m.id)}
+ return P.filter(m=>!((PG.pacc||{})[m.id]||[]).includes(k)).map(m=>m.id)}
+function paccBody(){if(!(aiSrv()&&USER.owner))return "";paccLoad();if(!PG.pacc)return `<div class="mu">…</div>`;
+ const P=paccPeople();
+ return `<p class="mu" style="margin-top:0">${t("pacc_s")}</p>${NAVS.map(([g,it])=>`<div class="lbl">${t(g)}</div>${it.map(([k,i])=>{const a=paccAllowed(k),n=a?a.length:0,txt=a==null?"…":!P.length?"–":n>=P.length?t("pacc_every"):n==0?t("pacc_only"):t("pacc_n",n,P.length);
+  return `<div class="row" style="padding:9px 0;border-top:1px solid var(--ln);flex-wrap:nowrap;gap:10px"><span style="display:flex;color:var(--mu)">${ic(i,16)}</span><b style="flex:1;min-width:0">${esc(t(k))}</b><span class="mu" style="white-space:nowrap">${txt}</span><button class="bi" data-a="paccEd" data-k="${k}" title="${esc(t("pacc_edit"))}" aria-label="${esc(t("pacc_edit"))}">${ic("pen",14)}</button></div>`}).join("")}`).join("")}`}
+function paccModal(k){const P=paccPeople(),a=paccAllowed(k)||[],ai=PG.aiA;let body;
+ const nm=m=>`<span style="flex:1;min-width:0"><b>${esc(m.n)}</b> <span class="mu">${t(m.r=="admin"?"tm_admin":"tm_member")}</span></span>`;
+ if(k=="aibot"){const lv=id=>{const u=ai&&ai.users.find(x=>x.id==id);return u?u.setting:"default"};
+  body=`<p class="mu" style="margin-top:0">${t("pacc_aib")}</p>${P.map(m=>`<div class="row" style="padding:8px 0;border-top:1px solid var(--ln);flex-wrap:nowrap">${nm(m)}<select data-c="paccAiB" data-id="${m.id}">${[["default","ai_def"],["none","ai_no"],["read","ai_ro"],["edit","ai_ed"]].map(([v,l])=>`<option value="${v}"${lv(m.id)==v?" selected":""}>${t(l)}</option>`).join("")}</select></div>`).join("")||`<div class="mu">${t("pacc_none_p")}</div>`}<div style="margin-top:12px"><button class="b" data-a="paccGoAi">${t("pacc_open_ai")}</button></div>`}
+ else{body=`<p class="mu" style="margin-top:0">${t("pacc_md_s")}</p>${k=="aiexp"?`<label class="ck" style="display:flex;gap:8px;margin:8px 0"><input type="checkbox" data-c="paccAiXAll" ${ai&&ai.cfg.costAll?"checked":""}><span style="color:var(--tx)">${t("ai_xall")}</span></label>`:""}
+  <div class="row" style="gap:8px;margin:6px 0"><button class="b bs" data-a="paccSet" data-k="${k}" data-v="1">${t("pacc_selall")}</button><button class="b bs" data-a="paccSet" data-k="${k}" data-v="0">${t("pacc_clear")}</button></div>
+  ${P.map(m=>`<label class="ck row" style="padding:8px 0;border-top:1px solid var(--ln);flex-wrap:nowrap;gap:10px;cursor:pointer"><input type="checkbox" data-c="paccChk" data-k="${k}" data-id="${m.id}" ${a.includes(m.id)?"checked":""}>${nm(m)}</label>`).join("")||`<div class="mu">${t("pacc_none_p")}</div>`}`}
+ modal({title:esc(t(k)),sub:esc(t("pf_pacc")),icon:"shield",w:480,body,foot:`<button class="b bp" data-a="mdClose">${t("pacc_done")}</button>`})}
+async function paccSaveSec(k,ids){
+ if(k=="aiexp"){const r=await api("POST","/api/ai/config",{costUsers:ids});return r.s==200&&paccAiRefresh()}
+ const r=await api("POST","/api/access/section",{section:k,allow:ids});if(r.s!=200)return false;PG.pacc=r.j.deny;return true}
+async function paccAiRefresh(){const r=await api("GET","/api/ai/admin");if(r.s==200){PG.aiA=r.j;return true}return false}
+async function paccDone(k,ok){if(!ok){toast(t("pacc_err"),"er");return}paccModal(k);if(V=="profile")page();toast(t("ai_saved"))}
+C.paccChk=async el=>{const k=el.dataset.k,id=el.dataset.id,cur=new Set(paccAllowed(k)||[]);if(el.checked)cur.add(id);else cur.delete(id);paccDone(k,await paccSaveSec(k,[...cur]))};
+A.paccSet=async el=>{const k=el.dataset.k;paccDone(k,await paccSaveSec(k,el.dataset.v=="1"?paccPeople().map(m=>m.id):[]))};
+C.paccAiXAll=async el=>{const r=await api("POST","/api/ai/config",{costAll:el.checked});paccDone("aiexp",r.s==200&&await paccAiRefresh())};
+C.paccAiB=async el=>{const r=await api("POST","/api/ai/config",{users:{[el.dataset.id]:el.value}});paccDone("aibot",r.s==200&&await paccAiRefresh())};
+A.paccEd=el=>paccModal(el.dataset.k);
+A.paccGoAi=()=>{closeMd();go("aibot")};
 /* ===== SERVER MODE: real login, shared data, sync =====
    When /api answers (the site is served by server.js) the app uses the server.
    Anywhere else (a preview, a file on disk) it falls back to the local demo mode. */
