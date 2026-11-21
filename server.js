@@ -107,6 +107,10 @@ const staff = need('admin', 'member');
 const admin = need('admin');
 // Integrations (Telegram, Samsara/Motive accounts): the owner, plus people the owner allowed (kv intEd)
 const canInt = async u => { if (u.is_owner) return true; const r = (await q("SELECT value FROM kv WHERE key='intEd'")).rows[0]; return !!r && Array.isArray(r.value) && r.value.includes(u.id); };
+// Section access: the owner can switch any section off for any person (kv pageDeny: { userId: [section keys] })
+const SECTIONS = ['today', 'trucks', 'trailers', 'hookdrop', 'drivers', 'maintenance', 'pti', 'inspections', 'documents', 'violations', 'invoices', 'vendors'];
+const SECTION_COLLS = { trucks: ['trucks'], trailers: ['trailers'], drivers: ['drivers'], maintenance: ['plans', 'svc'], documents: ['docs'], inspections: ['insp'], invoices: ['inv'], vendors: ['vend'] };
+const denyOf = async u => { if (u.is_owner) return []; const r = (await q("SELECT value FROM kv WHERE key='pageDeny'")).rows[0]; const l = r && r.value && r.value[u.id]; return Array.isArray(l) ? l.filter(k => SECTIONS.includes(k)) : []; };
 const intOk = wrap(async (req, res, next) => { if (!(await canInt(req.u))) return res.status(403).json({ error: 'role' }); next(); });
 const ownerOnly = (req, res, next) => req.u.is_owner ? next() : res.status(403).json({ error: 'role' });
 const baseUrl = req => (process.env.PUBLIC_URL || (process.env.RAILWAY_PUBLIC_DOMAIN ? 'https://' + process.env.RAILWAY_PUBLIC_DOMAIN : (PROD ? 'https' : req.protocol) + '://' + req.get('host'))).replace(/\/$/, '');
@@ -400,9 +404,10 @@ async function loadAll() {
 app.get('/api/state', auth(), staff, wrap(async (req, res) => {
   let { DB, S } = await loadAll();
   const A = allowedOf(req.u); if (A) DB = scopeState(DB, A);
+  const deny = await denyOf(req.u); if (deny.includes('invoices')) DB.inv = []; if (deny.includes('vendors')) DB.vend = [];
   const tm = (await q("SELECT id,name,username,email,role,is_owner,color,companies,is_test,avatar,tg_user FROM users WHERE role<>'driver' AND NOT disabled ORDER BY created_at")).rows;
   const team = tm.map(u => ({ id: u.id, n: u.name, u: u.username, m: (req.u.is_owner || (req.u.role === 'admin' && (u.role === 'member' || u.id === req.u.id)) || u.id === req.u.id) ? u.email : '', r: u.role, owner: u.is_owner, c: u.color, av: avUrl(u), tg: u.tg_user || '', co: u.role === 'admin' ? null : (u.companies || null), test: u.is_test }));
-  res.json({ DB, S, team, user: { ...publicUser(req.u), ai: await TG.ai().info(req.u) } });
+  res.json({ DB, S, team, user: { ...publicUser(req.u), ai: await TG.ai().info(req.u), deny } });
 }));
 
 app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, res) => {
@@ -410,6 +415,7 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
   if (!Array.isArray(upserts) || !Array.isArray(deletes) || typeof kv !== 'object' || upserts.length + deletes.length > 2000) return res.status(400).json({ error: 'bad' });
   for (const x of upserts) if (!COLLS.has(x.c) || !okId(x.id) || typeof x.d !== 'object' || !x.d || JSON.stringify(x.d).length > 100000) return res.status(400).json({ error: 'bad' });
   for (const x of deletes) if (!COLLS.has(x.c) || !okId(x.id)) return res.status(400).json({ error: 'bad' });
+  { const deny = await denyOf(req.u); if (deny.length) { const blocked = new Set(deny.flatMap(k => SECTION_COLLS[k] || [])); if ([...upserts, ...deletes].some(x => blocked.has(x.c)) || (deny.includes('pti') && kv.pti !== undefined)) return res.status(403).json({ error: 'section' }); } }
   const kvKeys = Object.keys(kv);
   for (const k of kvKeys) {
     if (KV_FLEET.has(k)) { if (JSON.stringify(kv[k]).length > 400000) return res.status(400).json({ error: 'bad' }); }
@@ -543,6 +549,7 @@ app.post('/api/tg/send-now', limit('tgnow', 20, 10 * 60e3), auth(), staff, intOk
 }));
 
 app.post('/api/invoices/:id/telegram', limit('tginv', 30, 10 * 60e3), auth(), staff, wrap(async (req, res) => {
+  if ((await denyOf(req.u)).includes('invoices')) return res.status(403).json({ error: 'section' });
   if (!TG.enabled()) return res.json({ ok: false, error: 'off' });
   let { DB, S } = await loadAll(); const A = allowedOf(req.u); if (A) DB = scopeState(DB, A);
   const inv = (DB.inv || []).find(x => x.id === req.params.id); if (!inv) return res.status(404).json({ error: 'none' });
@@ -553,6 +560,14 @@ app.post('/api/invoices/:id/telegram', limit('tginv', 30, 10 * 60e3), auth(), st
   res.json({ ok: true, tg: sent[0].at, tgm: sent[0] });
 }));
 // ---------- AI page: who may use the bot, who sees the costs, what it costs ----------
+app.get('/api/access', auth(), ownerOnly, wrap(async (req, res) => { const r = (await q("SELECT value FROM kv WHERE key='pageDeny'")).rows[0]; res.json({ deny: (r && r.value) || {}, sections: SECTIONS }); }));
+app.post('/api/access', limit('access', 120, 60e3), auth(), ownerOnly, wrap(async (req, res) => {
+  const { user, deny } = req.body || {}; if (!okId(user) || !Array.isArray(deny) || deny.length > 40 || !deny.every(k => SECTIONS.includes(k))) return res.status(400).json({ error: 'bad' });
+  const t = (await q("SELECT id,is_owner,role FROM users WHERE id=$1", [user])).rows[0]; if (!t || t.is_owner || t.role === 'driver') return res.status(400).json({ error: 'bad' });
+  const cur = (await q("SELECT value FROM kv WHERE key='pageDeny'")).rows[0], all = Object.assign({}, cur && cur.value); const list = [...new Set(deny)]; if (list.length) all[user] = list; else delete all[user];
+  await q("INSERT INTO kv(key,value,updated_by) VALUES('pageDeny',$1,$2) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_at=now(), updated_by=EXCLUDED.updated_by", [JSON.stringify(all), req.u.id]);
+  audit(req.u.id, 'access.sections', user, { deny: list }, req.ip); res.json({ ok: true, deny: all });
+}));
 app.get('/api/ai/admin', auth(), ownerOnly, wrap(async (req, res) => res.json(await TG.ai().adminData())));
 app.post('/api/ai/config', limit('aicfg', 60, 60e3), auth(), ownerOnly, wrap(async (req, res) => {
   let c; try { c = await TG.ai().saveCfg(req.body || {}, req.u.id); } catch (e) { return res.status(400).json({ error: 'bad' }); }
@@ -566,7 +581,7 @@ app.get('/api/ai/log', limit('ailog', 30, 60e3), auth(), ownerOnly, wrap(async (
 app.get('/healthz', (req, res) => res.type('text').send('ok'));
 app.use('/api', (req, res) => res.status(404).json({ error: 'none' }));
 app.use(express.static(path.join(__dirname, 'public'), { index: 'index.html', maxAge: 0, setHeaders: r => r.setHeader('Cache-Control', 'no-cache') }));
-const PAGES = new Set(['dashboard', 'alerts', 'fleet', 'trailers', 'hook-drop', 'drivers', 'maintenance', 'pti', 'inspections', 'documents', 'violation-report', 'invoices', 'vendors', 'ai', 'profile', 'companies']);
+const PAGES = new Set(['dashboard', 'alerts', 'fleet', 'trailers', 'hook-drop', 'drivers', 'maintenance', 'pti', 'inspections', 'documents', 'violation-report', 'invoices', 'vendors', 'ai', 'ai-expenses', 'profile', 'companies']);
 app.get('/invite/:t', (req, res) => { res.setHeader('Cache-Control', 'no-cache'); res.sendFile(path.join(__dirname, 'public', 'index.html')); });
 app.get('/:page', (req, res, next) => PAGES.has(req.params.page) ? (res.setHeader('Cache-Control', 'no-cache'), res.sendFile(path.join(__dirname, 'public', 'index.html'))) : next());
 app.use((req, res) => res.status(404).type('text').send('Not found'));
