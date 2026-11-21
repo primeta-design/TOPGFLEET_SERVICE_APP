@@ -24,12 +24,12 @@ app.disable('x-powered-by');
 // ---------- security headers ----------
 app.use((req, res, next) => {
   res.setHeader('Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' https://maps.googleapis.com https://maps.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-    "font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://*.ggpht.com https://*.googleusercontent.com https://*.google.com; connect-src 'self' https://*.googleapis.com; worker-src blob:; frame-src https://www.google.com; child-src blob:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'");
+    "default-src 'self'; script-src 'self' 'unsafe-inline' https://maps.googleapis.com https://maps.gstatic.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; " +
+    "font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://unpkg.com https://*.googleapis.com https://*.gstatic.com https://*.ggpht.com https://*.googleusercontent.com https://*.google.com; connect-src 'self' https://*.googleapis.com; worker-src blob:; frame-src https://www.google.com; child-src blob:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'");
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('Referrer-Policy', 'no-referrer');
-  res.setHeader('Permissions-Policy', 'camera=(self), microphone=(), geolocation=(), payment=()');
+  res.setHeader('Permissions-Policy', 'camera=(self), microphone=(), geolocation=(self), payment=()');
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
   if (PROD) res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   if (req.path.startsWith('/api/')) res.setHeader('Cache-Control', 'no-store');
@@ -522,6 +522,55 @@ app.get('/api/mymap', auth(), staff, wrap(async (req, res) => {
     if (!f.ok) return res.json({ places: c ? c.p : [], error: 'google' });
     const p = parseKml(await f.text()).slice(0, 3000); KML_CACHE.set(mid, { t: Date.now(), p }); res.json({ places: p });
   } catch (e) { res.json({ places: c ? c.p : [], error: 'net' }); }
+}));
+
+/* free geocoding (OpenStreetMap Nominatim) and driving ETA (OSRM public router) — no keys */
+const GEO_CACHE = new Map();
+app.get('/api/geo', limit('geo', 60, 60e3), auth(), staff, wrap(async (req, res) => {
+  const qs = String(req.query.q || '').trim().slice(0, 200); if (!qs) return res.json({});
+  const ck = qs.toLowerCase(), c = GEO_CACHE.get(ck); if (c) return res.json(c);
+  try {
+    const f = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(qs), { headers: { 'User-Agent': 'TOPGFLEET/1.0 (fleet control)', 'Accept-Language': 'en' } });
+    const j = f.ok ? await f.json() : [];
+    const o = j && j[0] ? { lat: +j[0].lat, lng: +j[0].lon, label: String(j[0].display_name || qs).slice(0, 140) } : {};
+    if (o.lat != null) { if (GEO_CACHE.size > 2000) GEO_CACHE.clear(); GEO_CACHE.set(ck, o); }
+    res.json(o);
+  } catch (e) { res.json({ error: 'net' }); }
+}));
+const ETA_CACHE = new Map();
+const stepText = st => {
+  const m = st.maneuver || {}, nm = st.name ? ' onto ' + st.name : '', ty = m.type, md = m.modifier ? m.modifier.replace('slight ', 'slight ') : '';
+  if (ty === 'depart') return 'Head ' + (m.bearing_after != null ? ['north', 'northeast', 'east', 'southeast', 'south', 'southwest', 'west', 'northwest'][Math.round(m.bearing_after / 45) % 8] : '') + (st.name ? ' on ' + st.name : '');
+  if (ty === 'arrive') return 'Arrive at destination' + (md ? ' on the ' + md : '');
+  if (ty === 'roundabout' || ty === 'rotary') return 'At the roundabout take exit ' + (m.exit || '') + nm;
+  if (ty === 'merge') return 'Merge ' + md + nm;
+  if (ty === 'on ramp') return 'Take the ramp ' + md + nm;
+  if (ty === 'off ramp') return 'Take the exit ' + md + nm;
+  if (ty === 'fork') return 'Keep ' + md + nm;
+  if (ty === 'continue' || ty === 'new name' || md === 'straight') return 'Continue' + (st.name ? ' on ' + st.name : '');
+  return 'Turn ' + md + nm;
+};
+app.get('/api/eta', limit('eta', 60, 60e3), auth(), staff, wrap(async (req, res) => {
+  const p = s => { const m = String(s || '').match(/^(-?\d{1,3}(?:\.\d+)?),(-?\d{1,3}(?:\.\d+)?)$/); return m ? [+m[1], +m[2]] : null; };
+  const a = p(req.query.a), b = p(req.query.b); if (!a || !b) return res.status(400).json({ error: 'bad' });
+  const full = req.query.full === '1', ck = a + '|' + b + '|' + full, c = ETA_CACHE.get(ck); if (c && Date.now() - c.t < 600000) return res.json(c.v);
+  try {
+    const qs = full ? '?overview=full&geometries=geojson&steps=true&alternatives=true' : '?overview=false';
+    const f = await fetch(`https://router.project-osrm.org/route/v1/driving/${a[1]},${a[0]};${b[1]},${b[0]}` + qs, { headers: { 'User-Agent': 'TOPGFLEET/1.0 (fleet control)' } });
+    const j = f.ok ? await f.json() : null, rs = j && j.routes;
+    if (!rs || !rs[0]) return res.json({ error: 'noroute' });
+    const one = r => {
+      const o = { mi: Math.round(r.distance / 1609.344 * 10) / 10, min: Math.round(r.duration / 60) };
+      if (full) {
+        const co = (r.geometry && r.geometry.coordinates) || [], k = Math.max(1, Math.ceil(co.length / 700));
+        o.line = co.filter((_, i) => i % k === 0 || i === co.length - 1).map(x => [Math.round(x[1] * 1e5) / 1e5, Math.round(x[0] * 1e5) / 1e5]);
+        o.steps = [].concat(...(r.legs || []).map(l => (l.steps || []).map(st => ({ t: stepText(st), mi: Math.round(st.distance / 1609.344 * 10) / 10 })))).slice(0, 150);
+      }
+      return o;
+    };
+    const v = full ? { routes: rs.slice(0, 3).map(one) } : one(rs[0]);
+    if (ETA_CACHE.size > 500) ETA_CACHE.clear(); ETA_CACHE.set(ck, { t: Date.now(), v }); res.json(v);
+  } catch (e) { res.json({ error: 'net' }); }
 }));
 app.get('/api/maps-key', auth(), (req, res) => res.json({ key: process.env.GOOGLE_MAPS_KEY || '' }));
 app.get('/api/tg/info', auth(), staff, wrap(async (req, res) => {
