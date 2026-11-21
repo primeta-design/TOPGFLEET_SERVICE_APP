@@ -642,8 +642,8 @@ function shellRefresh(){const sd=$("#sd");if(!sd)return;const keep=sd.classList.
 const refresh=()=>{save();shellRefresh()};
 function closePops(){$$(".pop.sh.open").forEach(p=>p.classList.remove("open"));$("#gd")&&$("#gd").classList.add("hide");if(PG.pop){PG.pop=null;page()}}
 document.addEventListener("click",e=>{if(!e.target.closest(".pw"))closePops();const el=e.target.closest("[data-a]");if(!el)return;const f=A[el.dataset.a];if(f){if(typeof roGuard=="function"&&roGuard(el.dataset.a))return;if(el.tagName=="A"&&el.getAttribute("href"))e.preventDefault();f(el,e)}});
-document.addEventListener("input",e=>{const el=e.target.closest("[data-i]");if(el&&I[el.dataset.i])I[el.dataset.i](el,e)});
-document.addEventListener("change",e=>{const el=e.target.closest("[data-c]");if(el&&C[el.dataset.c])C[el.dataset.c](el,e)});
+document.addEventListener("input",e=>{const el=e.target.closest("[data-i]");if(el&&I[el.dataset.i]){if(typeof roGuard=="function"&&roGuard(el.dataset.i,"i")){el.value=el.defaultValue;return}I[el.dataset.i](el,e)}});
+document.addEventListener("change",e=>{const el=e.target.closest("[data-c]");if(el&&C[el.dataset.c]){if(typeof roGuard=="function"&&roGuard(el.dataset.c,"c")){page();return}C[el.dataset.c](el,e)}});
 document.addEventListener("keydown",e=>{if(e.key=="Enter"){const el=e.target.closest("[data-enter]");if(el&&A[el.dataset.enter]){e.preventDefault();A[el.dataset.enter](el,e)}}
  if(e.key=="Escape"){if($("#md").innerHTML)closeMd();else if($("#dr").innerHTML)closeDr();else closePops()}
  if(e.key=="/"&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){const g=$("#gq");if(g){e.preventDefault();g.focus()}}});
@@ -1889,10 +1889,14 @@ pacc_every:["Everyone","Hamma","Все"],pacc_only:["Only you","Faqat siz","То
 pacc_selall:["Select all","Hammasini belgilash","Выбрать всех"],pacc_clear:["Clear all","Hammasini olib tashlash","Снять всех"],pacc_done:["Done","Tayyor","Готово"],pacc_md_s:["Tick the people who may open this section. Saved at once.","Bu bo‘limni ocha oladigan odamlarni belgilang. Darrov saqlanadi.","Отметьте людей, которым разрешён раздел. Сохраняется сразу."],
 pacc_aib:["Set what each person may do with the bot. Default follows the “open for everyone” switch on the AI page.","Har odam bot bilan nima qila olishini belgilang. Umumiy qoida AI sahifasidagi “hamma uchun ochiq” tugmasiga bog‘liq.","Задайте, что каждый может делать с ботом. По умолчанию — по переключателю «открыто всем» на странице ИИ."],pacc_open_ai:["Open the AI page for bot on/off and budget","Bot yoqish/o‘chirish va byudjet uchun AI sahifasini oching","Откройте страницу ИИ: включение бота и бюджет"]});
 Object.assign(D,{pacc_lv_none:["No access","Ruxsat yo‘q","Нет доступа"],pacc_lv_read:["Only read","Faqat o‘qish","Только чтение"],pacc_lv_edit:["Can edit","Tahrirlay oladi","Может менять"],pacc_all_edit:["All can edit","Hammasi tahrirlasin","Всем менять"],pacc_all_ro:["All only read","Hammasi faqat o‘qisin","Всем только чтение"],pacc_ro:["read only","faqat o‘qish","только чтение"],
+pacc_deny:["You don’t have access to do this. This section is read only for you.","Sizda bu amalga ruxsat yo‘q. Bu bo‘lim siz uchun faqat o‘qish.","У вас нет доступа к этому действию. Раздел только для чтения."],
 pacc_banner:["Read only: you can look at this section but not change anything in it.","Faqat o‘qish: bu bo‘limni ko‘rasiz, lekin hech narsani o‘zgartira olmaysiz.","Только чтение: раздел можно смотреть, но нельзя ничего менять."],
 pacc_md_s:["Choose for each person: No access, Only read (can look, cannot change) or Can edit. Saved at once.","Har odam uchun tanlang: Ruxsat yo‘q, Faqat o‘qish (ko‘radi, o‘zgartira olmaydi) yoki Tahrirlay oladi. Darrov saqlanadi.","Для каждого выберите: Нет доступа, Только чтение (смотрит, не меняет) или Может менять. Сохраняется сразу."]});
-const NAVRO=/^(add|new)[A-Z]|(Add|Del|Save|Arch|Done|Invite|Create|Make|Record|Revoke|Import)$|^(toggleIssue|ptiCell|trSt|trNote|phLock|stNew|stDel)$/;
-function roGuard(name){if(!aiSrv()||USER.owner||pageMode(V)!="read"||!NAVRO.test(name))return false;toast(t("pacc_banner"),"er");return true}
+const RO_A=/^(mdClose|drClose|nav|menu|logout|pop|shpop|noop|eye|setTheme|setCol|pfGo|gopen|coPick|ivUnitClr|vnTab|vnDir|vnMode|vnFull|vnFocus|vnChip|vnSearch|vnPanTog|vnBackMy|ivPg|ivJump|ivView|ivViewF|ivReport|ivExport|ivPick|ivPrev|ivDl|ivDlF|ivRefresh|trView|trReport|trFind|trAll|tlRefresh|tlChip|issueTab|issueSort|issueGrp|alertTab|advClear|phView|mtReport|rpSet|ivCopy)$/;
+const RO_C=/^(ivF|tlF|inF|trSort|ivSel|ivAll|ivDate|vpDate|advComp|tgF)$/;
+const RO_I=/^(trq|tlq|iq|gq|drQ|dcQ|hdQ|inQ|ivQ|ivUnit|vnQ|vnQ0|vnN0|vnPlQ|tgF)$/;
+function roBlock(re,name){if(!aiSrv()||USER.owner||pageMode(V)!="read"||re.test(name))return false;toast(t("pacc_deny"),"er");return true}
+function roGuard(name,kind){return roBlock(kind=="c"?RO_C:kind=="i"?RO_I:RO_A,name)}
 const roBanner=()=>`<div class="note" style="margin:0 0 12px;grid-column:auto">${ic("eye",14)} ${t("pacc_banner")}</div>`;
 NAV_KEYS().forEach(k=>{const f=PAGES[k];if(typeof f=="function")PAGES[k]=(...a)=>{const h=f(...a);return typeof h=="string"&&pageMode(k)=="read"?roBanner()+h:h}});
 function paccLoad(){if(!PG.pacc&&!PG.paccBusy){PG.paccBusy=1;api("GET","/api/access").then(r=>{PG.pacc=r.s==200?r.j.deny:{};PG.paccR=r.s==200?r.j.read||{}:{};PG.paccBusy=0;if(V=="profile")page()})}
