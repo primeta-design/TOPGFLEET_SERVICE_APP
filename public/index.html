@@ -112,6 +112,7 @@ tr.rw{cursor:pointer}tr.rw:hover td{background:var(--p2)}
 .mdl .dh{padding:14px 16px}.mdl .db{padding:14px 16px}.mdl .df{justify-content:flex-end}.mdl .df .b{flex:none}
 #ts{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:9px 16px;border-radius:9px;font-weight:600;z-index:90;display:none;max-width:92vw}
 #ts.er{background:var(--rd);color:#fff}
+@media(max-width:700px){.top{gap:6px;padding:0 8px}.top h3{font-size:16px}.usr>span:nth-of-type(2){display:none}.chip[data-p=cop]{white-space:nowrap;padding:6px 8px!important}#ts{bottom:auto;top:66px;width:max-content;max-width:calc(100vw - 24px)}.bi,.b.bs{min-height:36px}.bi{min-width:36px}}
 /* profile */
 .pfw{display:grid;grid-template-columns:200px minmax(0,1fr);gap:26px;max-width:880px;margin:0 auto}
 .pfn{position:sticky;top:0;align-self:start;display:flex;flex-direction:column;gap:2px}
@@ -141,7 +142,7 @@ tr.rw{cursor:pointer}tr.rw:hover td{background:var(--p2)}
 .sb{position:fixed;z-index:40;top:0;bottom:0;left:-260px;transition:left .15s;width:240px!important}.sb.open{left:0}
 .sb.sm .lb,.sb.sm .gp,.sb.sm .brt{display:block}.sb.sm .nv{justify-content:flex-start}
 .nc3{grid-template-columns:1fr}.nc{border-left:0;border-top:1px solid var(--ln)}.nc:first-child{border-top:0}
-.pfw,.vl,.ckl{grid-template-columns:1fr}.pfn{position:static;flex-direction:row;overflow-x:auto}
+.pfw,.vl,.ckl{grid-template-columns:minmax(0,1fr)}.pfn{min-width:0;max-width:100%}.pfn{position:static;flex-direction:row;overflow-x:auto}
 .gs{display:none}main{padding:14px 12px 90px}.ckm{border-right:0;border-bottom:1px solid var(--ln);display:flex;overflow-x:auto}
 .fg{grid-template-columns:1fr}.fd,.fd.h{grid-column:span 1}
 }
@@ -636,8 +637,11 @@ function shell0(){const n=alertList().length;
 /* loginView(), A.login, A.logout live in g_server.js */
 function render(){theme();const a=$("#app");if(!S.in){a.innerHTML=loginView();a.style.justifyContent="center";return}
  if(typeof seedCompanies=="function"&&isAdm())seedCompanies();a.style.justifyContent="";a.innerHTML=shell();page();if(typeof deepOpen=="function")deepOpen()}
+/* give every unlabeled field and icon-only button a name for screen readers and tooltips */
+function a11y(root){try{root.querySelectorAll("input:not([type=hidden]),select,textarea").forEach(e=>{if(e.getAttribute("aria-label")||(e.labels&&e.labels.length)||e.closest("label"))return;let n=e.placeholder||e.title||"";if(!n){const p=e.previousElementSibling;if(p&&p.matches(".lbl,label"))n=p.textContent.trim();else{const w=e.closest(".fg,.fld"),l=w&&w.querySelector(".lbl,label");if(l)n=l.textContent.trim()}}if(n)e.setAttribute("aria-label",n)});
+ root.querySelectorAll("button,[data-a]").forEach(e=>{if(e.getAttribute("aria-label")||(e.innerText||"").trim())return;const n=e.title||(e.textContent||"").trim();if(n){e.setAttribute("aria-label",n);if(!e.title)e.title=n}})}catch(x){}}
 function page(){const c=$("#c");if(!c)return;const ae=document.activeElement,id=ae&&ae.id,ss=ae&&ae.selectionStart,sc=c.scrollTop;
- c.innerHTML=scoped(PAGES[V]||PAGES.today);c.scrollTop=sc;if(id&&c.querySelector("#"+id)){const n=$("#"+id);n.focus();try{n.setSelectionRange(ss,ss)}catch(e){}}if(PG.after){PG.after()}}
+ c.innerHTML=scoped(PAGES[V]||PAGES.today);a11y(c);c.scrollTop=sc;if(id&&c.querySelector("#"+id)){const n=$("#"+id);n.focus();try{n.setSelectionRange(ss,ss)}catch(e){}}if(PG.after){PG.after()}}
 function shellRefresh(){const sd=$("#sd");if(!sd)return;const keep=sd.classList.contains("open");const a=$("#app");const sc=$("#c")?$("#c").scrollTop:0;a.innerHTML=shell();if(keep)$("#sd").classList.add("open");page();$("#c").scrollTop=sc}
 const refresh=()=>{save();shellRefresh()};
 function closePops(){$$(".pop.sh.open").forEach(p=>p.classList.remove("open"));$("#gd")&&$("#gd").classList.add("hide");if(PG.pop){PG.pop=null;page()}}
