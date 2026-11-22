@@ -254,6 +254,7 @@ button.vnLk{background:none;border:0;padding:0;cursor:pointer;font:inherit;font-
 .vnP>.vnSide{position:static;transform:none;width:auto;order:3;box-shadow:none;max-height:none}
 .vnHandle{display:none}.vnP #vsb{top:10px!important}.vnP #vpp,.vnP #vrp{top:64px!important}.vnP #vsb{width:calc(100% - 76px)!important}.vnP .leaflet-top.leaflet-right{top:0}
 }
+.vnCop{position:absolute;z-index:1200;transform:translateY(-50%);display:inline-flex;align-items:center;gap:5px;background:#16a34a;color:#fff;font-weight:600;font-size:calc(12.5px*var(--fz,1));padding:6px 10px;border-radius:8px;box-shadow:0 4px 14px #0008;white-space:nowrap;pointer-events:none;animation:vnCopIn .15s ease-out;transition:opacity .25s}.vnCop.out{opacity:0}@keyframes vnCopIn{from{opacity:0;transform:translate(-4px,-50%)}to{opacity:1;transform:translateY(-50%)}}
 </style></head><body>
 <div id="app"></div><div id="dr"></div><div id="md"></div><div id="ts" role="status"></div><div id="prt" class="hide"></div>
 <script>
@@ -2778,6 +2779,15 @@ function vnHome(){const mp=VM.lmap;if(!mp||!window.L)return;const pts=DB.vend.fi
 {const _l=vnLive;vnLive=async function(ll,z,bounds){await _l(ll,z,bounds);if(VM._home&&VM.lmap){VM._home=false;if(!ll&&!(bounds&&bounds.length)&&!VM.rt)vnHome()}}}
 /* invoices: the server also stamps who added a new invoice */
 
+/* map popup Share: copy the link and say "Copied" right next to the button */
+function vnCopiedNear(el){const box=$("#vbox");if(!el||!box)return toast(t("vm_copied"));const old=box.querySelector(".vnCop");if(old)old.remove();
+ const B=box.getBoundingClientRect(),R=el.getBoundingClientRect(),k=B.width/(box.offsetWidth||B.width)||1,d=document.createElement("div");
+ d.className="vnCop";d.setAttribute("role","status");d.innerHTML=ic("check",13)+" "+esc(t("vm_copied"));d.style.left=((R.right-B.left)/k+8)+"px";d.style.top=((R.top-B.top)/k+(R.height/k)/2)+"px";box.appendChild(d);
+ const w=box.offsetWidth;if(d.offsetLeft+d.offsetWidth>w-6){d.style.left=((R.left-B.left)/k-d.offsetWidth-8)+"px";d.classList.add("l")}
+ setTimeout(()=>{d.classList.add("out");setTimeout(()=>d.remove(),250)},1600)}
+A.vnPpShare=el=>{const pp=VM.pp;if(!pp)return;const u="https://www.google.com/maps/search/?api=1&query="+pp.ll[0]+","+pp.ll[1];
+ const fb=()=>{const ta=document.createElement("textarea");ta.value=u;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand("copy")}catch(e){}ta.remove();ok?vnCopiedNear(el):window.open(u,"_blank","noopener")};
+ try{navigator.clipboard.writeText(u).then(()=>vnCopiedNear(el),fb)}catch(e){fb()}};
 /* ----- start ----- */
 async function boot(){
  const r=await api("GET","/api/me",undefined,4000);
