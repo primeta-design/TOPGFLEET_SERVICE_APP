@@ -10,7 +10,8 @@
   "scripts": {
     "start": "node server.js",
     "test": "node test/run.js",
-    "test:e2e": "node test/e2e.js"
+    "test:e2e": "node test/e2e.js",
+    "test:v5": "node test/v5.js"
   },
   "dependencies": {
     "express": "^4.21.2",
