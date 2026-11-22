@@ -717,10 +717,45 @@ app.get('/api/ai/log', limit('ailog', 30, 60e3), auth(), ownerOnly, wrap(async (
   const days = Math.min(3650, Math.max(0, parseInt(req.query.days, 10) || 0)); audit(req.u.id, 'ai.log.read', u, { days }, req.ip); res.json(await TG.ai().logRows(u, days));
 }));
 app.get('/healthz', (req, res) => res.type('text').send('ok'));
+// ---------- one truck -> its Telegram group in one click (bot deep link ?startgroup=CODE) ----------
+app.post('/api/tg/truck-link', limit('tgtruck', 30, 10 * 60e3), auth(), staff, wrap(async (req, res) => {
+  const id = (req.body || {}).truck; if (!okId(id)) return res.status(400).json({ error: 'bad' });
+  if ([...await denyOf(req.u), ...await roOf(req.u)].includes('trucks')) return res.status(403).json({ error: 'section' });
+  const tr = (await q("SELECT data FROM records WHERE coll='trucks' AND id=$1", [id])).rows[0]; if (!tr) return res.status(404).json({ error: 'none' });
+  const A = allowedOf(req.u); if (A && !A.has(tr.data.company)) return res.status(403).json({ error: 'scope' });
+  if (!TG.enabled()) return res.status(503).json({ error: 'off' }); const b = await TG.me(); if (!b) return res.status(503).json({ error: 'off' });
+  const code = await TG.truckCode(id, req.u.id); audit(req.u.id, 'telegram.truck.link', id, null, req.ip);
+  res.json({ code, bot: b.username, link: `https://t.me/${b.username}?startgroup=${code}`, minutes: 30 });
+}));
+// ---------- Roadside QR: a public, read-only page for ONE truck, opened by a secret link printed as a QR in the cab ----------
+const okTok = t => /^[A-Za-z0-9_-]{24,64}$/.test(String(t || ''));
+async function roadsideOf(tok) {
+  if (!okTok(tok)) return null;
+  const tr = (await q("SELECT data FROM records WHERE coll='trucks' AND data->>'rsTok'=$1 LIMIT 1", [tok])).rows[0]; if (!tr) return null;
+  const docs = (await q("SELECT data FROM records WHERE coll='docs' AND data->>'kind'='truck' AND data->>'uid'=$1", [tr.data.id])).rows.map(r => r.data).filter(d => d.vis !== false);
+  return { tr: tr.data, docs };
+}
+const rsFiles = d => (Array.isArray(d.files) ? d.files : []).filter(f => f && okId(f.id));
+app.get('/api/roadside/:tok', limit('rs', 120, 600e3), wrap(async (req, res) => {
+  const r = await roadsideOf(req.params.tok); if (!r) return res.status(404).json({ error: 'none' });
+  const cr = (await q("SELECT value FROM kv WHERE key='comps'")).rows[0], co = cr && Array.isArray(cr.value) ? cr.value.find(c => c && c.id === r.tr.company) : null, s = v => String(v == null ? '' : v).slice(0, 120);
+  res.setHeader('Cache-Control', 'no-store');
+  res.json({ unit: { num: s(r.tr.num), year: s(r.tr.year), make: s(r.tr.make), model: s(r.tr.model), vin: s(r.tr.vin), plate: s(r.tr.plate), cab: s(r.tr.cab), ins: s(r.tr.ins) }, company: co ? s(co.n) : '',
+    docs: r.docs.map(d => ({ type: s(d.type), title: s(d.title), exp: s(d.exp), files: rsFiles(d).map(f => ({ id: f.id, name: s(f.name || 'file'), type: s(f.type) })) })) });
+}));
+app.get('/api/roadside/:tok/f/:fid', limit('rsf', 240, 600e3), wrap(async (req, res) => {
+  const r = await roadsideOf(req.params.tok); if (!r || !okId(req.params.fid) || !r.docs.some(d => rsFiles(d).some(f => f.id === req.params.fid))) return res.status(404).end();
+  const f = (await q('SELECT * FROM files WHERE id=$1', [req.params.fid])).rows[0]; if (!f) return res.status(404).end();
+  res.setHeader('Content-Type', f.mime); res.setHeader('Content-Disposition', `inline; filename="${f.name.replace(/"/g, '')}"`);
+  res.setHeader('Content-Security-Policy', "default-src 'none'; sandbox"); res.setHeader('Cache-Control', 'no-store');
+  fs.createReadStream(path.join(DATA_DIR, f.path)).on('error', () => res.status(404).end()).pipe(res);
+}));
 app.use('/api', (req, res) => res.status(404).json({ error: 'none' }));
 app.use(express.static(path.join(__dirname, 'public'), { index: 'index.html', maxAge: 0, setHeaders: r => r.setHeader('Cache-Control', 'no-cache') }));
 const PAGES = new Set(['dashboard', 'alerts', 'fleet', 'trailers', 'hook-drop', 'drivers', 'maintenance', 'pti', 'inspections', 'documents', 'violation-report', 'invoices', 'vendors', 'ai', 'ai-expenses', 'profile', 'companies']);
 app.get('/invite/:t', (req, res) => { res.setHeader('Cache-Control', 'no-cache'); res.sendFile(path.join(__dirname, 'public', 'index.html')); });
+app.get('/fleet/:id', (req, res, next) => okId(req.params.id) ? (res.setHeader('Cache-Control', 'no-cache'), res.sendFile(path.join(__dirname, 'public', 'index.html'))) : next());
+app.get('/r/:tok', (req, res, next) => okTok(req.params.tok) ? (res.setHeader('Cache-Control', 'no-cache'), res.setHeader('Referrer-Policy', 'no-referrer'), res.sendFile(path.join(__dirname, 'public', 'index.html'))) : next());
 app.get('/:page', (req, res, next) => PAGES.has(req.params.page) ? (res.setHeader('Cache-Control', 'no-cache'), res.sendFile(path.join(__dirname, 'public', 'index.html'))) : next());
 app.use((req, res) => res.status(404).type('text').send('Not found'));
 
