@@ -208,7 +208,7 @@ app.patch('/api/me', limit('login', LOGIN_MAX, 10 * 60e3), auth(), wrap(async (r
   if (b.tg !== undefined) { const g = cleanTg(b.tg); if (g === undefined) return res.status(400).json({ error: 'bad' }); set.tg_user = g || null; }
   if (b.color !== undefined) { if (!/^#[0-9a-fA-F]{6}$/.test(String(b.color))) return res.status(400).json({ error: 'bad' }); set.color = String(b.color).toLowerCase(); }
   if (b.avatar !== undefined) { if (u.av_lock && !u.is_owner) return res.status(403).json({ error: 'locked' }); const a = cleanAvatar(b.avatar); if (a === undefined) return res.status(400).json({ error: 'bad' }); set.avatar = a; }
-  if (b.prefs && typeof b.prefs === 'object') { const pr = { ...(u.prefs || {}) }; if (THEMES.has(b.prefs.theme)) pr.theme = b.prefs.theme; if (LANGS.has(b.prefs.lang)) pr.lang = b.prefs.lang; if (b.prefs.sz && typeof b.prefs.sz === 'object') { const c = (v, lo, hi) => Math.max(lo, Math.min(hi, Math.round(+v) || 100)); pr.sz = { fz: c(b.prefs.sz.fz, 50, 150), mz: c(b.prefs.sz.mz, 50, 120), pz: c(b.prefs.sz.pz, 50, 100) }; } set.prefs = JSON.stringify(pr); }
+  if (b.prefs && typeof b.prefs === 'object') { const pr = { ...(u.prefs || {}) }; if (THEMES.has(b.prefs.theme)) pr.theme = b.prefs.theme; if (LANGS.has(b.prefs.lang)) pr.lang = b.prefs.lang; if (b.prefs.sz && typeof b.prefs.sz === 'object') { const c = (v, lo, hi) => Math.max(lo, Math.min(hi, Math.round(+v) || 100)); pr.sz = { fz: c(b.prefs.sz.fz, 50, 150), mz: c(b.prefs.sz.mz, 50, 150), pz: c(b.prefs.sz.pz, 50, 150) }; } set.prefs = JSON.stringify(pr); }
   const keys = Object.keys(set); if (!keys.length) { const f = (await q('SELECT * FROM users WHERE id=$1', [u.id])).rows[0]; return res.json({ user: publicUser(f), email: pendMsg }); }
   try {
     const r = await q(`UPDATE users SET ${keys.map((k, i) => k + '=$' + (i + 2)).join(',')} WHERE id=$1 RETURNING *`, [u.id, ...keys.map(k => set[k])]);
@@ -456,6 +456,7 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
   const issueUps = upserts.filter(x => x.c === 'issues'), invUps = upserts.filter(x => x.c === 'inv');
   const existing = async (coll, L) => L.length ? new Set((await q('SELECT id FROM records WHERE coll=$1 AND id=ANY($2)', [coll, L.map(x => x.id)])).rows.map(r => r.id)) : new Set();
   const had = await existing('issues', issueUps), hadInv = await existing('inv', invUps);
+  for (const x of invUps) if (!hadInv.has(x.id) && !x.d.by) { x.d.by = req.u.name; x.d.byAt = new Date().toISOString().slice(0, 10); }   // who added a new invoice
   const cl = await pool.connect();
   try {
     await cl.query('BEGIN');
