@@ -577,6 +577,53 @@ app.get('/api/eta', limit('eta', 60, 60e3), auth(), staff, wrap(async (req, res)
     if (ETA_CACHE.size > 500) ETA_CACHE.clear(); ETA_CACHE.set(ck, { t: Date.now(), v }); res.json(v);
   } catch (e) { res.json({ error: 'net' }); }
 }));
+
+/* free place labels + "search along the route" (OpenStreetMap Overpass) — no keys */
+const OP_CACHE = new Map();
+async function overpass(ql) {
+  const ck = ql, c = OP_CACHE.get(ck); if (c && Date.now() - c.t < 900000) return c.v;
+  const ac = new AbortController(), tm = setTimeout(() => ac.abort(), 28000);
+  try {
+    const f = await fetch('https://overpass-api.de/api/interpreter', { method: 'POST', signal: ac.signal, headers: { 'User-Agent': 'TOPGFLEET/1.0 (fleet control)', 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'data=' + encodeURIComponent(ql) });
+    if (!f.ok) return null; const j = await f.json(), v = (j && j.elements) || [];
+    if (OP_CACHE.size > 300) OP_CACHE.clear(); OP_CACHE.set(ck, { t: Date.now(), v }); return v;
+  } catch (e) { return null; } finally { clearTimeout(tm); }
+}
+const bboxOf = req => { const b = ['s', 'w', 'n', 'e'].map(k => +req.query[k]); return b.every(x => isFinite(x)) && b[0] < b[2] && b[1] < b[3] && b[0] >= -85 && b[2] <= 85 ? b : null; };
+app.get('/api/places', limit('places', 90, 60e3), auth(), staff, wrap(async (req, res) => {
+  const b = bboxOf(req); if (!b) return res.status(400).json({ error: 'bad' });
+  const z = Math.max(0, Math.min(19, +req.query.z || 5)), r = x => Math.round(x * 20) / 20, bb = [b[0] - .05, b[1] - .05, b[2] + .05, b[3] + .05].map(r).join(',');
+  const pop = z <= 6 ? '["population"~"^[0-9]{6,}$"]' : z <= 9 ? '["population"~"^[0-9]{5,}$"]' : '';
+  const ty = z <= 9 ? 'city|town' : 'city|town|village';
+  const el = await overpass(`[out:json][timeout:25];node["place"~"^(${ty})$"]["name"]${pop}(${bb});out 500;`);
+  if (!el) return res.json({ error: 'net', items: [] });
+  const items = el.filter(e => e.tags && e.tags.name && e.lat != null).map(e => ({ n: String(e.tags.name).slice(0, 60), lat: e.lat, lng: e.lon, p: parseInt(e.tags.population, 10) || 0, k: e.tags.place }))
+    .sort((a, c) => c.p - a.p).slice(0, 250);
+  res.json({ items });
+}));
+const reEsc = x => x.replace(/[.*+?^${}()|[\]\\"]/g, '\\$&');
+const BRANDS = { ta: "Travel ?Centers? of America|^TA( |$)|^TA Travel", love: "Love'?s", loves: "Love'?s", "love's": "Love'?s", pilot: 'Pilot', flying: 'Flying J', petro: 'Petro', speedway: 'Speedway', sapp: 'Sapp Bros', buckees: "Buc-?ee'?s", cat: 'CAT Scale', scale: 'Scale' };
+function alongQL(q, bb) {
+  const w = q.toLowerCase().replace(/[^a-z0-9' -]/g, ' ').split(/\s+/).filter(Boolean).slice(0, 5), st = [], B = `(${bb})`;
+  const has = re => w.some(x => re.test(x)), rest = [];
+  for (const x of w) { if (BRANDS[x]) st.push(`nwr["name"~"${BRANDS[x]}",i]${B};`); else rest.push(x); }
+  if (has(/^(repair|repairs|mechanic|shop|service|garage)$/) || (has(/^truck$/) && has(/^(repair|service|shop)$/))) { st.push(`nwr["shop"="truck_repair"]${B};`, `nwr["shop"="car_repair"]["name"~"truck|diesel|trailer|fleet|heavy|semi",i]${B};`, `nwr["name"~"truck (repair|service)|diesel (repair|service)|mobile (truck|diesel)|trailer repair",i]${B};`); }
+  else if (has(/^(tire|tires|tyre)$/)) st.push(`nwr["shop"="tyres"]${B};`, `nwr["name"~"tire",i]${B};`);
+  else if (has(/^(stop|stops|fuel|gas|diesel|petrol)$/) || (has(/^truck$/) && has(/^stops?$/))) st.push(`nwr["amenity"="fuel"]["hgv"="yes"]${B};`, `nwr["amenity"="fuel"]["name"~"Travel ?Cent|Love|Pilot|Flying J|Petro|truck",i]${B};`, ...(has(/^(gas|fuel|diesel|petrol)$/) ? [`nwr["amenity"="fuel"]${B};`] : []));
+  else if (has(/^(wash)$/)) st.push(`nwr["name"~"truck wash|blue beacon",i]${B};`);
+  else if (has(/^(parking|rest)$/)) st.push(`nwr["amenity"="parking"]["hgv"~"yes|designated"]${B};`, `nwr["highway"="rest_area"]${B};`);
+  else if (rest.length && !st.length) st.push(`nwr["name"~"${reEsc(rest.join(' '))}",i]${B};`);
+  return st.length ? `[out:json][timeout:25];(${st.join('')});out center 400;` : null;
+}
+app.get('/api/along', limit('along', 30, 60e3), auth(), staff, wrap(async (req, res) => {
+  const b = bboxOf(req), q = String(req.query.q || '').trim().slice(0, 60); if (!b || !q) return res.status(400).json({ error: 'bad' });
+  const ql = alongQL(q, b.map(x => Math.round(x * 100) / 100).join(',')); if (!ql) return res.json({ items: [] });
+  const el = await overpass(ql); if (!el) return res.json({ error: 'net', items: [] });
+  const items = el.map(e => { const t = e.tags || {}, la = e.lat != null ? e.lat : e.center && e.center.lat, ln = e.lon != null ? e.lon : e.center && e.center.lon; if (la == null || !t.name) return null;
+    const a = [[t['addr:housenumber'], t['addr:street']].filter(Boolean).join(' '), t['addr:city'], t['addr:state']].filter(Boolean).join(', ');
+    return { name: String(t.name).slice(0, 80), lat: la, lng: ln, addr: a.slice(0, 120), phone: String(t.phone || t['contact:phone'] || '').slice(0, 30), web: String(t.website || t['contact:website'] || '').slice(0, 120) }; }).filter(Boolean).slice(0, 400);
+  res.json({ items });
+}));
 app.get('/api/tg/info', auth(), staff, wrap(async (req, res) => {
   const i = await TG.info(), mine = (await q('SELECT chat_id,digest FROM tg_chats WHERE user_id=$1', [req.u.id])).rows;
   res.json({ enabled: i.enabled, bot: i.bot || null, webhook: (await canInt(req.u)) ? i.webhook : undefined, linked: mine.length > 0, digest: mine.length ? mine[0].digest : null, ai: req.u.is_owner ? !!process.env.ANTHROPIC_API_KEY : undefined });
