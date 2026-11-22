@@ -1,2409 +1,681 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><title>TOPGFLEET</title><link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230d0d10'/%3E%3Cpath d='M7 8h18v5h-6.8v13h-4.4V13H7z' fill='%238b4ff0'/%3E%3C/svg%3E"><meta name="theme-color" content="#181818">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-<style>
-:root{--bg:#181818;--pn:#1f1f1f;--p2:#272727;--ln:#303030;--tx:#ececec;--mu:#9a9aa1;--ac:#7c5cf2;--rd:#ef4444;--am:#f59e0b;--gn:#22c55e;--bl:#3b82f6;color-scheme:dark}
-*{box-sizing:border-box}html,body{margin:0;height:100%}
-body{background:var(--bg);color:var(--tx);font:calc(13px*var(--fz,1))/1.45 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
-a{color:var(--ac);text-decoration:none}a:hover{text-decoration:underline}svg{flex:none}
-:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
-::placeholder{color:#6f6f77}
-.hide{display:none!important}.mu{color:var(--mu)}.sp{flex:1}.dng{color:var(--rd)!important}
-#app{display:flex;height:100%}
-.sb{width:240px;flex:none;background:var(--bg);border-right:1px solid var(--ln);display:flex;flex-direction:column;padding:12px 10px;overflow-y:auto;transition:width .15s}
-.sb.sm{width:64px}.sb.sm .lb,.sb.sm .gp,.sb.sm .brt{display:none}.sb.sm .brand{justify-content:center;padding-left:0}
-.brand{display:flex;gap:10px;align-items:center;font-weight:700;font-size:calc(16px*var(--fz,1));padding:4px 8px 14px}
-.brt b{color:var(--ac)}
-.logo{width:32px;height:32px;border-radius:9px;background:#0d0d10;border:1px solid var(--ln);display:grid;place-items:center}
-.gp{font-size:calc(10.5px*var(--fz,1));letter-spacing:.07em;color:var(--mu);padding:16px 10px 5px;text-transform:uppercase;font-weight:600}
-.nv{all:unset;display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:8px;cursor:pointer;color:#c8c8ce;width:100%;box-sizing:border-box}
-.nv:hover{background:var(--p2)}.nv.on{background:color-mix(in srgb,var(--ac) 22%,transparent);color:var(--ac);font-weight:600}
-.nv i{margin-left:auto;background:var(--rd);color:#fff;font-style:normal;font-size:calc(11px*var(--fz,1));border-radius:9px;padding:0 6px}
-.sb.sm .nv{justify-content:center}.sb.sm .nv i{display:none}
-.wrap{flex:1;display:flex;flex-direction:column;min-width:0}
-.top{height:56px;flex:none;display:flex;align-items:center;gap:12px;padding:0 18px;border-bottom:1px solid var(--ln);background:var(--bg)}
-.top h3{margin:0;font-size:calc(13.5px*var(--fz,1));font-weight:600;white-space:nowrap}
-.bi{all:unset;cursor:pointer;display:grid;place-items:center;width:32px;height:32px;border-radius:8px;color:var(--mu);position:relative}
-.bi:hover{background:var(--p2);color:var(--tx)}.bi .bg2{position:absolute;top:2px;right:0;background:var(--rd);color:#fff;border-radius:8px;font-size:calc(10px*var(--fz,1));padding:0 4px;line-height:15px}
-.gs{position:relative;width:min(300px,34vw)}.gs>svg{position:absolute;left:10px;top:9px;color:var(--mu)}
-.gs input{padding-left:32px;background:var(--bg);height:32px}.gs kbd{position:absolute;right:8px;top:6px;border:1px solid var(--ln);border-radius:4px;padding:0 6px;color:var(--mu);font-size:calc(11px*var(--fz,1));background:var(--pn)}
-.pw{position:relative}
-.pop{position:absolute;z-index:30;background:var(--pn);border:1px solid var(--ln);border-radius:10px;box-shadow:0 12px 40px #0008;min-width:200px}
-.pop.sh{display:none;right:0;top:38px}.pop.sh.open{display:block}
-.pop .ph{padding:10px 14px;border-bottom:1px solid var(--ln);display:flex;justify-content:space-between;font-weight:600}
-.pop .pi{padding:9px 14px;display:flex;gap:8px;align-items:center;cursor:pointer;color:var(--tx);width:100%;background:none;border:0;text-align:left}.pop .pi:hover{background:var(--p2);text-decoration:none}
-.usr{display:flex;gap:8px;align-items:center;border:1px solid var(--ln);border-radius:9px;padding:3px 10px 3px 4px;background:var(--pn);cursor:pointer}
-.av{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:calc(10.5px*var(--fz,1));font-weight:700;color:#fff;flex:none}
-main{flex:1;overflow:auto;padding:18px 22px 90px}
-.pg{max-width:1160px;margin:0 auto}.pg.w{max-width:none}.pg.n{max-width:760px}.pg.m{max-width:980px}
-.card{background:var(--pn);border:1px solid var(--ln);border-radius:12px;margin-bottom:14px}
-.cp{padding:16px 18px}
-.ch{display:flex;align-items:center;gap:10px;padding:12px 16px;flex-wrap:wrap}
-.ch h2{margin:0;font-size:calc(14px*var(--fz,1));font-weight:700}
-input,select,textarea{background:var(--bg);border:1px solid var(--ln);border-radius:8px;padding:8px 11px;width:100%;color:var(--tx)}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--ac)}
-input.bad,select.bad,textarea.bad{border-color:var(--rd)}
-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a9aa1' stroke-width='2.4'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
-input[type=checkbox]{width:15px;height:15px;accent-color:var(--ac);padding:0}
-input[type=color]{padding:2px;height:30px;width:34px;cursor:pointer}
-.b{display:inline-flex;gap:6px;align-items:center;justify-content:center;border-radius:8px;padding:7px 13px;font-weight:600;white-space:nowrap;border:1px solid var(--ln);background:var(--pn);color:var(--tx);width:auto}
-.b:hover{background:var(--p2)}.b:disabled{opacity:.45;cursor:not-allowed}
-.bp{background:var(--ac);border-color:var(--ac);color:#fff}.bp:hover{background:var(--ac);filter:brightness(1.1)}
-.bs{padding:4px 10px;font-size:calc(12px*var(--fz,1));font-weight:500}.bo{border-color:var(--am);color:var(--am);background:transparent}
-.tabs{display:inline-flex;gap:2px;background:var(--pn);border:1px solid var(--ln);border-radius:9px;padding:3px;flex-wrap:wrap}
-.tb{border:0;background:transparent;color:var(--mu);border-radius:7px;padding:5px 10px;font-weight:500}.tb:hover{color:var(--tx)}
-.tb.on{background:var(--p2);color:var(--tx);font-weight:600}.tb b{margin-left:4px}
-.tg{border-radius:6px;padding:1px 8px;font-size:calc(12px*var(--fz,1));font-weight:600;white-space:nowrap;background:var(--p2);display:inline-block}
-.dt{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;flex:none}
-.rq{color:var(--rd)}.op{color:var(--mu);font-weight:400;text-transform:none;letter-spacing:0}
-.em{text-align:center;color:var(--mu);padding:36px 12px}.em svg{opacity:.55;margin-bottom:8px}.em .b{margin-top:10px}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:640px}
-th{text-align:left;color:var(--mu);font-weight:600;font-size:calc(11px*var(--fz,1));letter-spacing:.05em;text-transform:uppercase;padding:9px 12px;border-bottom:1px solid var(--ln);white-space:nowrap}
-td{padding:10px 12px;border-bottom:1px solid var(--ln);vertical-align:middle}tr:last-child td{border-bottom:0}
-tr.rw{cursor:pointer}tr.rw:hover td{background:var(--p2)}
-.sel{width:auto;padding:4px 26px 4px 8px;font-size:calc(12px*var(--fz,1));font-weight:600;border-radius:6px}
-/* today */
-.nc3{display:grid;grid-template-columns:repeat(3,1fr)}
-.nc{padding:12px 16px;border-left:1px solid var(--ln);min-width:0}.nc:first-child{border-left:0}
-.nh{display:flex;align-items:center;font-size:calc(11.5px*var(--fz,1));font-weight:700;letter-spacing:.04em;text-transform:uppercase}.nh .nn{margin-left:auto}
-.nc .mu{margin-top:4px}.ni{display:block;color:var(--tx);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ni:hover{text-decoration:none;color:var(--ac)}
-.nf{display:flex;gap:14px;padding:9px 16px;border-top:1px solid var(--ln);font-size:calc(12px*var(--fz,1));color:var(--mu);flex-wrap:wrap}.nf b{color:var(--tx)}
-.ir{display:flex;gap:12px;align-items:center;padding:11px 16px;border-top:1px solid var(--ln);cursor:pointer}.ir:hover{background:var(--p2)}
-.ir .t{flex:1;min-width:0}.ir .t b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.gh{padding:8px 16px;background:var(--bg);border-top:1px solid var(--ln);font-size:calc(11px*var(--fz,1));font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--mu)}
-/* trucks */
-.stt{display:flex;gap:0;flex-wrap:wrap;margin:6px 0 12px}.stt div{padding:0 22px 0 0;margin-right:22px;border-right:1px solid var(--ln);text-align:center}.stt div:last-child{border:0}
-.stt b{display:block;font-size:calc(17px*var(--fz,1))}.stt small{color:var(--mu);font-size:calc(11.5px*var(--fz,1))}
-.sbd{background:color-mix(in srgb,var(--ac) 30%,transparent);color:var(--ac);border-radius:4px;font-size:calc(9.5px*var(--fz,1));font-weight:700;padding:0 5px;margin-left:4px;vertical-align:middle}
-.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
-.sc{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--ln);border-radius:8px;padding:5px 10px;background:var(--pn);font-weight:600;font-size:calc(12.5px*var(--fz,1))}
-.sc small{color:var(--mu);font-weight:500}.sc.on{background:color-mix(in srgb,var(--ac) 28%,var(--pn));border-color:var(--ac)}
-.tbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}.tbar input.q{width:260px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
-.tc{padding:13px 14px;cursor:pointer;margin:0}.tc:hover{border-color:var(--ac)}
-.tc .h{display:flex;align-items:center;gap:8px;margin-bottom:4px}.tc .h b{font-size:calc(15px*var(--fz,1))}.tc .un{display:inline-flex;align-items:center;gap:6px;background:color-mix(in srgb,var(--ac) 14%,transparent);border-radius:7px;padding:2px 8px}.tc .un i{font-style:normal;font-size:calc(10px*var(--fz,1));font-weight:800;color:var(--ac)}.tc .bd{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.bd{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
-.sec{margin:16px 0 8px;font-weight:700;display:flex;align-items:center}.sec span{color:var(--mu);margin-left:8px;font-weight:500}
-.tog{width:34px;height:20px;border-radius:10px;background:var(--ln);border:0;position:relative;padding:0;flex:none}.tog i{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .12s}
-.tog.on{background:var(--ac)}.tog.on i{left:16px}
-.pop.pg2{left:0;top:38px;width:300px;padding:14px}
-.pop.pg2 h5{margin:12px 0 6px;font-size:calc(11px*var(--fz,1));letter-spacing:.06em;text-transform:uppercase;color:var(--mu)}.pop.pg2 h5:first-child{margin-top:0}
-.sg{display:flex;gap:4px;flex-wrap:wrap}.sg button{border:1px solid var(--ln);background:var(--bg);border-radius:7px;padding:4px 10px;font-size:calc(12px*var(--fz,1))}.sg button.on{background:var(--ac);border-color:var(--ac);color:#fff}
-.pf2{display:flex;justify-content:space-between;margin-top:14px;align-items:center}
-/* drawer & modal */
-.ov{position:fixed;inset:0;background:#0007;z-index:60}
-.dp{position:fixed;top:0;right:0;bottom:0;width:min(440px,100vw);background:var(--pn);border-left:1px solid var(--ln);z-index:61;display:flex;flex-direction:column;box-shadow:-20px 0 60px #0007}
-.dh{display:flex;gap:12px;align-items:flex-start;padding:16px 18px;border-bottom:1px solid var(--ln)}
-.dt2{flex:1}.dt2 b{font-size:calc(15px*var(--fz,1));display:block}.dt2 small{color:var(--mu)}
-.db{flex:1;overflow:auto;padding:14px 18px}.df{display:flex;gap:10px;padding:14px 18px;border-top:1px solid var(--ln)}.df .b{flex:1}
-.ico{width:34px;height:34px;border-radius:9px;background:color-mix(in srgb,var(--ac) 22%,transparent);color:var(--ac);display:grid;place-items:center;flex:none}
-.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}.fd{grid-column:span 2;min-width:0}.fd.h{grid-column:span 1}
-.fd>label{display:block;font-size:calc(11px*var(--fz,1));letter-spacing:.05em;text-transform:uppercase;color:var(--mu);font-weight:600;margin-bottom:5px}
-.hn{font-size:calc(11.5px*var(--fz,1));color:var(--mu);margin-top:5px}
-.ck{grid-column:span 2;display:flex;gap:8px;align-items:center;font-size:calc(12.5px*var(--fz,1));color:var(--mu)}
-.pwd{position:relative}.pwd .bi{position:absolute;right:2px;top:2px;width:30px;height:30px}
-.bars{display:flex;gap:4px;margin-top:6px}.bars i{flex:1;height:3px;border-radius:2px;background:var(--ln)}.bars i.on{background:var(--gn)}
-.note{border:1px solid var(--ln);border-radius:9px;padding:10px 12px;background:var(--bg);color:var(--mu);font-size:calc(12px*var(--fz,1));grid-column:span 2}
-.note.or{border-color:#f59e0b66;color:var(--am)}.note.er{border-color:#ef444466;color:var(--rd);background:#ef44441a}
-.mdl{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);max-height:90vh;display:flex;flex-direction:column;background:var(--pn);border:1px solid var(--ln);border-radius:14px;z-index:62;box-shadow:0 30px 80px #000a}
-.mdl .dh{padding:14px 16px}.mdl .db{padding:14px 16px}.mdl .df{justify-content:flex-end}.mdl .df .b{flex:none}
-#ts{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:9px 16px;border-radius:9px;font-weight:600;z-index:90;display:none;max-width:92vw}
-#ts.er{background:var(--rd);color:#fff}
-@media(max-width:700px){.top{gap:6px;padding:0 8px}.top h3{font-size:16px}.usr>span:nth-of-type(2){display:none}.chip[data-p=cop]{white-space:nowrap;padding:6px 8px!important}#ts{bottom:auto;top:66px;width:max-content;max-width:calc(100vw - 24px)}.bi,.b.bs{min-height:36px}.bi{min-width:36px}}
-/* profile */
-.pfw{display:grid;grid-template-columns:200px minmax(0,1fr);gap:26px;max-width:880px;margin:0 auto}
-.pfn{position:sticky;top:0;align-self:start;display:flex;flex-direction:column;gap:2px}
-.lbl{font-size:calc(11px*var(--fz,1));letter-spacing:.06em;text-transform:uppercase;color:var(--mu);font-weight:700;display:flex;gap:8px;align-items:center;margin-bottom:8px}
-.ths{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.thc{all:unset;cursor:pointer;border:1.5px solid var(--ln);border-radius:10px;padding:8px;box-sizing:border-box;position:relative}.thc.on{border-color:var(--ac)}
-.thc .pv{height:42px;border-radius:6px;padding:8px;margin-bottom:7px}.thc .pv i{display:block;width:22px;height:7px;border-radius:4px}
-.thc .ck2{position:absolute;right:14px;top:14px;width:16px;height:16px;border-radius:50%;background:var(--ac);display:grid;place-items:center;color:#fff}
-.sw{display:flex;gap:10px;flex-wrap:wrap}.sw button{width:22px;height:22px;border-radius:50%;border:2px solid transparent;padding:0}.sw button.on{outline:2px solid var(--tx);outline-offset:2px}
-.okb{border:1px solid #22c55e55;background:#22c55e18;color:var(--gn);border-radius:8px;padding:8px 12px;margin-bottom:12px}
-.pr{display:flex;gap:8px;align-items:center;margin-bottom:8px}.pr input[type=text]{flex:1}.pr .n{color:var(--mu);font-size:calc(12px*var(--fz,1));width:62px;text-align:right}
-.mem{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--ln);flex-wrap:wrap}
-.seg{display:inline-flex;border:1px solid var(--ln);border-radius:7px;overflow:hidden}.seg button{border:0;background:transparent;padding:4px 10px;color:var(--mu);font-size:calc(12px*var(--fz,1))}.seg button.on{background:var(--ac);color:#fff}
-.acr{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--ln)}.acr small{display:block;color:var(--mu);font-size:calc(10.5px*var(--fz,1));letter-spacing:.06em;text-transform:uppercase}
-.map{border:1px solid var(--ln);border-radius:12px;min-height:420px;background:repeating-linear-gradient(0deg,transparent 0 39px,#ffffff08 39px 40px),repeating-linear-gradient(90deg,transparent 0 39px,#ffffff08 39px 40px),var(--pn);display:grid;place-items:center;text-align:center;padding:20px;color:var(--mu)}
-.vl{display:grid;grid-template-columns:minmax(260px,380px) minmax(0,1fr);gap:14px;align-items:start}
-.vi{padding:12px 14px;border-top:1px solid var(--ln)}.vi:first-child{border-top:0}
-.ckl{display:grid;grid-template-columns:150px minmax(0,1fr);gap:0}
-.ckm{padding:8px;border-right:1px solid var(--ln)}.ckm button{all:unset;display:block;width:100%;box-sizing:border-box;padding:8px 10px;border-radius:8px;cursor:pointer;border:1px solid transparent}
-.ckm button.on{border-color:var(--ac);background:color-mix(in srgb,var(--ac) 12%,transparent)}.ckm small{display:block;color:var(--mu)}
-.cki{display:flex;gap:8px;align-items:center;margin-bottom:8px}.cki .nx{color:var(--mu);width:14px}.cki input[type=text]{flex:1}
-.bar{height:6px;background:var(--p2);border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ac)}
-.ptc{width:26px;height:26px;border-radius:6px;border:1px solid var(--ln);background:var(--p2);padding:0}
-.pgc-s{background:#22c55e;border-color:#22c55e}.pgc-n{background:transparent;border-color:var(--rd)}
-.split{display:grid;grid-template-columns:100px 1fr 100px;gap:8px;align-items:center;margin-top:8px}
-@media(max-width:900px){
-.sb{position:fixed;z-index:40;top:0;bottom:0;left:-260px;transition:left .15s;width:240px!important}.sb.open{left:0}
-.sb.sm .lb,.sb.sm .gp,.sb.sm .brt{display:block}.sb.sm .nv{justify-content:flex-start}
-.nc3{grid-template-columns:1fr}.nc{border-left:0;border-top:1px solid var(--ln)}.nc:first-child{border-top:0}
-.pfw,.vl,.ckl{grid-template-columns:minmax(0,1fr)}.pfn{min-width:0;max-width:100%}.pfn{position:static;flex-direction:row;overflow-x:auto}
-.gs{display:none}main{padding:14px 12px 90px}.ckm{border-right:0;border-bottom:1px solid var(--ln);display:flex;overflow-x:auto}
-.fg{grid-template-columns:1fr}.fd,.fd.h{grid-column:span 1}
+'use strict';
+const express = require('express');
+const path = require('path');
+const fs = require('fs');
+const { pool, q, migrate } = require('./lib/db');
+const C = require('./lib/crypto');
+const TG = require('./lib/telegram');
+const MAIL = require('./lib/mail');
+
+const PROD = process.env.NODE_ENV === 'production';
+const PORT = +process.env.PORT || 3000;
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
+const LOGIN_MAX = +process.env.RATE_LOGIN_MAX || 12;
+const SESSION_HOURS = 12, PW_STAGE_MIN = 10, LOCK_AFTER = 5, LOCK_MIN = 15;
+const COLLS = new Set(['trucks', 'trailers', 'drivers', 'issues', 'plans', 'svc', 'docs', 'inv', 'vend', 'links', 'hist', 'insp']);
+const KV_FLEET = new Set(['pti', 'ck', 'ph']);          // fleet-wide documents (members may write)
+const SETTING_KEYS = ['prio', 'prioEd', 'compEd', 'teams', 'comps', 'stat', 'tg', 'tpl', 'ptiOff', 'tmAcc', 'seed14', 'myMap', 'vnLay', 'intEd'];   // admin-only
+const ROLES = new Set(['admin', 'member', 'driver']);
+
+const app = express();
+app.set('trust proxy', 1);
+app.disable('x-powered-by');
+
+// ---------- security headers ----------
+app.use((req, res, next) => {
+  res.setHeader('Content-Security-Policy',
+    "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; " +
+    "font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://server.arcgisonline.com https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://unpkg.com https://*.googleapis.com https://*.gstatic.com https://*.ggpht.com https://*.googleusercontent.com https://*.google.com; connect-src 'self' https://*.googleapis.com; worker-src blob:; frame-src 'none'; child-src blob:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'");
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.setHeader('Permissions-Policy', 'camera=(self), microphone=(), geolocation=(self), payment=()');
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  if (PROD) res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  if (req.path.startsWith('/api/')) res.setHeader('Cache-Control', 'no-store');
+  next();
+});
+if (PROD) app.use((req, res, next) => (req.secure || req.path === '/healthz') ? next() : res.redirect(308, 'https://' + req.headers.host + req.originalUrl));
+
+// ---------- tiny rate limiter (per IP, in memory) ----------
+const hits = new Map();
+function limit(name, max, windowMs) {
+  return (req, res, next) => {
+    const k = name + ':' + req.ip, now = Date.now();
+    const a = (hits.get(k) || []).filter(t => now - t < windowMs);
+    if (a.length >= max) { res.setHeader('Retry-After', Math.ceil(windowMs / 1000)); return res.status(429).json({ error: 'rate' }); }
+    a.push(now); hits.set(k, a); next();
+  };
 }
-@media print{body *{visibility:hidden}#prt,#prt *{visibility:visible}#prt{position:absolute;left:0;top:0;width:100%;color:#000;background:#fff}}
-.gr{cursor:default;touch-action:none;user-select:none;color:var(--mu);font-size:calc(18px*var(--fz,1));line-height:1;padding:4px 6px;border-radius:6px;flex:none}.gr:hover{color:var(--tx);background:color-mix(in srgb,var(--ac) 14%,transparent)}.dragging{opacity:.55}.dzt{box-shadow:0 -3px 0 var(--ac)}.dzb{box-shadow:0 3px 0 var(--ac)}
+setInterval(() => { const now = Date.now(); for (const [k, a] of hits) if (!a.length || now - a[a.length - 1] > 3600e3) hits.delete(k); }, 600e3).unref();
 
-/* invoices v2 + team */
-.ivx .ivu{display:flex;align-items:center;gap:10px;background:var(--pn);border:1px solid var(--bd,var(--ln));border-radius:11px;padding:9px 12px;min-height:40px}
-.ivx .ivu input{flex:1;border:0;background:none;outline:0;color:var(--tx);min-width:0}.ivx .ivu[data-a]{cursor:pointer}.ivx .ivu b{white-space:nowrap}.ivx .ivu .mu{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ivx .ivu .mu:last-child{margin-left:auto;flex:none}
-.ivkw{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
-.ivk{display:block;text-align:left;background:var(--pn);border:1px solid var(--ln);border-radius:12px;padding:12px 14px;color:var(--tx);cursor:pointer}.ivk.on{border-color:var(--ac);box-shadow:0 0 0 1px var(--ac) inset}
-.ivk small{display:flex;align-items:center;gap:6px;font-size:calc(10.5px*var(--fz,1));letter-spacing:.05em;text-transform:uppercase;color:var(--mu);font-weight:600}.ivk small i{width:7px;height:7px;border-radius:50%;display:inline-block}
-.ivk b{display:block;font-size:calc(22px*var(--fz,1));margin:4px 0 2px}.ivk em{font-style:normal;font-size:calc(11.5px*var(--fz,1));color:var(--mu)}
-.ivg{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}.ivm{flex:1;min-width:150px;background:var(--bg);border:1px solid var(--ln);border-radius:10px;padding:10px 12px}.ivm small{display:block;font-size:calc(10.5px*var(--fz,1));letter-spacing:.05em;text-transform:uppercase;color:var(--mu);font-weight:600}.ivm b{display:block;font-size:calc(20px*var(--fz,1));margin:4px 0 2px}.ivm em{font-style:normal;font-size:calc(11.5px*var(--fz,1));color:var(--mu)}
-.ivl{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:14px;align-items:start}
-.ivx .ivt{min-width:800px}.ivx .ivt th{font-size:calc(9.5px*var(--fz,1));letter-spacing:.04em;text-transform:uppercase;color:var(--mu);text-align:left;white-space:nowrap;padding:8px 5px}.ivx .ivt td{vertical-align:top;font-size:calc(11px*var(--fz,1));padding:9px 5px}.ivt tr.rw{cursor:pointer}.ivt .dsc{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-width:140px;max-width:220px}.ivt .bs{padding:3px 8px;font-size:calc(11px*var(--fz,1))}.ivt .tg{font-size:calc(11px*var(--fz,1));padding:1px 7px}.ivt .bi{padding:4px}
-.ivn{width:22px;height:22px;border-radius:50%;background:var(--p2);display:inline-flex;align-items:center;justify-content:center;font-size:calc(11px*var(--fz,1));font-weight:700;flex:none}
-.ivx-ex{padding:7px 0}.ivx .sg button[disabled]{opacity:.4;cursor:default}
-.irbox{border:1px solid var(--ln);border-radius:10px;max-height:300px;overflow:auto}.irg{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--p2)}.irg i{width:9px;height:9px;border-radius:2px;display:inline-block}.iru{padding:6px 12px;border-top:1px solid var(--ln);font-size:calc(13px*var(--fz,1))}
-@media(max-width:1100px){.ivl{grid-template-columns:1fr}}@media(max-width:700px){.ivkw{grid-template-columns:1fr 1fr}}
-.tmn{background:color-mix(in srgb,var(--am) 14%,transparent);border:1px solid color-mix(in srgb,var(--am) 40%,transparent);border-radius:10px;padding:10px 14px;font-size:calc(13px*var(--fz,1));margin-bottom:12px}
-.tmr{display:flex;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--ln);flex-wrap:wrap}.tmr .tmi{flex:1;min-width:230px}
-.tmch{flex-basis:100%;padding-left:46px;margin-top:-4px}.tmc{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--ln);border-radius:8px;padding:2px 8px;font-size:calc(11.5px*var(--fz,1));background:var(--bg);color:var(--tx);cursor:pointer;margin:4px 6px 0 0}.tmc.off{opacity:.38;text-decoration:line-through}.tmc[disabled]{cursor:default}
-.tmb{display:inline-flex;gap:0;border:1px solid var(--ln);border-radius:9px;overflow:hidden}.tmb button{padding:6px 14px;font-size:calc(12.5px*var(--fz,1));background:var(--bg);color:var(--mu);border:0}.tmb button.on{background:var(--ac);color:#fff;font-weight:600}.tmb button:not(.on):hover{background:var(--p2)}
-.tmro{font-size:calc(10px*var(--fz,1));letter-spacing:.05em;font-weight:700;padding:1px 7px;border-radius:6px;text-transform:uppercase}
-#ts button{margin-left:12px;background:none;border:0;color:inherit;text-decoration:underline;font-weight:700;cursor:pointer}
-.tmadd{border-style:dashed;color:var(--mu)}.tmadd:hover{color:var(--tx);border-color:var(--ac)}.tmpop{margin-top:8px;padding:10px;border:1px solid var(--ln);border-radius:10px;background:var(--pn)}.tmc svg{opacity:.6}.coch{flex-basis:100%;display:flex;gap:8px}.coch .coinv{flex:1 1 0;max-width:none;min-width:0}.coinv{max-width:210px;font-size:calc(12.5px*var(--fz,1))}.pr:has(.coinv){flex-wrap:wrap}@media(max-width:700px){.coinv{max-width:none;flex-basis:100%}}.pwd input{padding-right:40px}.pwd .bi{display:flex;align-items:center;justify-content:center}.pwd .bi:focus-visible{outline:2px solid var(--ac)}.av{overflow:hidden}.av img{width:100%;height:100%;object-fit:cover;display:block}.avw{position:relative;display:inline-flex;flex:none}.avb{background:none;border:0;padding:0;cursor:pointer;border-radius:8px;display:inline-flex;position:relative}.avb:hover .av{outline:2px solid var(--ac)}.avc{position:absolute;right:-6px;bottom:-6px;width:24px;height:24px;border-radius:50%;border:2px solid var(--pn);background:var(--ac);color:#fff;display:grid;place-items:center;padding:0;cursor:pointer}.avc.x{right:auto;left:-6px;background:var(--p2);color:var(--tx)}.avc.lk{background:var(--p2);color:var(--mu);cursor:default}.av.zm{cursor:pointer}.phbig{display:block;width:min(560px,82vw);aspect-ratio:1/1;object-fit:cover;border-radius:14px;margin:0 auto;background:var(--p2)}.phdz{border:2px dashed var(--ln);border-radius:14px;padding:16px;transition:.15s}.phdz.on{border-color:var(--ac);background:color-mix(in srgb,var(--ac) 10%,transparent)}.ivfh{display:flex;justify-content:space-between;align-items:center;padding:8px 2px;border-bottom:1px solid var(--ln)}.ivfl{max-height:260px;overflow:auto}.ivfr{display:flex;align-items:center;gap:10px;padding:8px 2px;border-bottom:1px solid var(--ln);cursor:pointer}.ivfr:hover{background:var(--p2)}.ivfn{cursor:pointer;word-break:break-word}.ivfr input,.ivfh input{width:16px;height:16px;accent-color:var(--ac);flex:none}.prioBox [disabled],.prioBox [readonly],.cpBox [disabled],.cpBox [readonly]{opacity:1!important;cursor:default}.prioBox [readonly],.cpBox [readonly]{pointer-events:none}.cpBox select{min-width:0;flex:1}
-#c{zoom:var(--pz,1)}#sd{zoom:var(--mz,1)}@media(max-width:900px){#sd{zoom:1}}.szr{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--ln)}.szr .nm{flex:1;min-width:120px}.szr input[type=range]{flex:2;min-width:140px;accent-color:var(--ac,#6aa6ff)}.szn{display:flex;align-items:center;gap:4px}.szn input{width:68px;padding:6px 8px;text-align:right;border:1px solid var(--ln);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit;font-variant-numeric:tabular-nums}
-#cop{left:0!important;right:auto!important;max-width:calc(100vw - 24px)}
-.vnWrap{display:grid;grid-template-columns:minmax(290px,370px) 1fr;gap:14px;height:calc(100vh - 215px);min-height:460px}.vnSide{display:flex;flex-direction:column;overflow:hidden;padding:0}.vnTabs{display:flex;border-bottom:1px solid var(--ln)}.vnTabs button{flex:1;padding:11px 8px;background:none;border:0;border-bottom:2px solid transparent;color:var(--mu);cursor:pointer;font:inherit;font-weight:600}.vnTabs button.on{color:var(--tx);border-bottom-color:#8b5cf6}.vnTabs b{font-weight:600;color:var(--mu);margin-left:4px}.vnList{overflow:auto;padding:10px;flex:1}.vnC{border:1px solid var(--ln);border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer;background:var(--pn)}.vnC:hover{border-color:#8b5cf6}.vnDot{width:9px;height:9px;border-radius:50%;background:#8b5cf6;margin-top:6px;flex:none}.vnDot.f{background:#f59e0b}.vnS{font-size:calc(12px*var(--fz,1));overflow-wrap:anywhere}.vnLk{color:#a78bfa;font-size:calc(12px*var(--fz,1));text-decoration:none;margin-right:8px;display:inline-flex;gap:4px;align-items:center}.vnLk:hover{text-decoration:underline}.vnMapBox{position:relative;overflow:hidden;padding:0}#vmap{position:absolute;inset:0}#vmsg{position:absolute;inset:0;align-items:center;justify-content:center;background:var(--bg);z-index:2;padding:20px;text-align:center}.vnMsg{max-width:420px;color:var(--mu)}
-@media(max-width:900px){.vnWrap{grid-template-columns:1fr;height:auto}.vnMapBox{height:60vh;order:-1}.vnList{max-height:50vh}.vnHide{display:none}}
-.vnQ{display:flex;align-items:center;gap:10px;flex-wrap:nowrap}.vnSeg{display:flex;background:var(--bg);border:1px solid var(--ln);border-radius:8px;padding:2px;flex:none}.vnSeg button{background:none;border:0;color:var(--mu);padding:6px 10px;border-radius:6px;cursor:pointer;font:inherit;font-weight:600;display:inline-flex;gap:5px;align-items:center}.vnSeg button.on{background:#8b5cf6;color:#fff}.vnQs input{color:var(--tx)}.vnRc{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.vnFs{position:absolute;right:10px;bottom:34px;z-index:3;width:40px;height:40px;border-radius:8px;border:0;background:#fff;color:#333;box-shadow:0 2px 6px #0006;cursor:pointer;display:flex;align-items:center;justify-content:center}.vnFsOff{display:none}
-.vnMapBox.full{position:fixed!important;left:0;top:0;width:calc(100vw/var(--pz,1));height:calc(100vh/var(--pz,1));z-index:80;border-radius:0;border:0}.vnMapBox.full .vnFs{display:none}.vnMapBox.full .vnFsOff{display:inline-flex;position:absolute;z-index:5;left:50%;bottom:72px;transform:translateX(-50%);align-items:center;gap:8px;background:#111827;color:#fff;border:1px solid #ffffff55;border-radius:999px;padding:10px 18px;font:600 14px Inter,system-ui,sans-serif;cursor:pointer;box-shadow:0 4px 14px #000a}body.vnLock{overflow:hidden}
-@media(max-width:900px){.vnQ{flex-wrap:wrap}.vnQs{flex-wrap:wrap!important}}
-.vnFrm{position:absolute;inset:0;overflow:hidden}.vnFrm iframe{position:absolute;left:0;top:0;width:100%;height:100%;border:0}.vnFrm.crop iframe{top:-78px;height:calc(100% + 78px)}
-.vnSrch{width:100%;margin-bottom:8px;padding:8px 10px;border:1px solid var(--ln);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit}.vnPan{display:none}.vnPan{display:none}.vnMapBox.full .vnPan{display:block;position:absolute;z-index:6}.vnPanBtn{display:flex;align-items:center;gap:6px;height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--ln);background:var(--pn);color:var(--tx);cursor:pointer;box-shadow:0 4px 16px #0009}.vnCh{transition:transform .15s}.vnPan.open .vnCh{transform:rotate(180deg)}.vnPanBody{display:none}.vnPan.open{width:var(--pw,340px)}.vnPan.open .vnPanBody{display:flex;flex-direction:column;margin-top:8px;height:calc(var(--ph,520px) - 52px);background:var(--pn);border:1px solid var(--ln);border-radius:12px;box-shadow:0 6px 24px #0009;padding:10px}.vnPanL{overflow:auto;flex:1}
-.vnMapBox.full #vbar{position:absolute;z-index:6;flex:none!important;background:var(--pn);box-shadow:0 6px 24px #0009}.vnBack{display:none;position:absolute;left:64px;bottom:14px;z-index:6;align-items:center;gap:6px;padding:9px 14px;border-radius:999px;border:1px solid var(--ln);background:var(--pn);color:var(--tx);font:600 13px Inter,system-ui,sans-serif;cursor:pointer;box-shadow:0 4px 14px #0009}.vnBack.show{display:inline-flex}
-.vnEdit{display:none;position:absolute;right:14px;top:50%;z-index:9;align-items:center;gap:6px;padding:9px 14px;border-radius:10px;border:1px solid #8b5cf6;background:#1f1b3a;color:#fff;font:600 13px Inter,system-ui,sans-serif;cursor:pointer}.vnEdit2{top:calc(50% + 46px);border-color:var(--ln);background:var(--pn)}.vnMapBox.full .vnEdit{display:inline-flex}.vnEdit2{display:none!important}.vnMapBox.full.edit .vnEdit2{display:inline-flex!important}
-.vnMapBox.edit .vnPan,.vnMapBox.edit #vbar,.vnMapBox.edit .vnFsOff,.vnMapBox.edit .vnBack{outline:2px dashed #8b5cf6;outline-offset:3px}.vnMapBox.edit .vnPan.open{resize:horizontal;overflow:hidden}.vnMapBox.edit #vbar{resize:horizontal;overflow:hidden}.vnGrip{position:absolute;left:-2px;top:-2px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;background:#8b5cf6;color:#fff;border-radius:7px;cursor:move;z-index:10;font-size:15px;touch-action:none}
-button.vnLk{background:none;border:0;padding:0;cursor:pointer;font:inherit;font-size:calc(12px*var(--fz,1));color:#a78bfa}
-.szr input[type=range]{-webkit-appearance:none;appearance:none;height:24px;background:transparent;margin:0;padding:0;cursor:pointer;--p:0;--f:calc(10px + (100% - 20px)*var(--p))}
-.szr input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(to right,#8b5cf6 var(--f),var(--ln) var(--f))}
-.szr input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;margin-top:-7px;border-radius:50%;background:#fff;border:3px solid #8b5cf6;box-shadow:0 1px 4px #0007}
-.szr input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:var(--ln)}.szr input[type=range]::-moz-range-progress{height:6px;border-radius:3px;background:#8b5cf6}
-.szr input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid #8b5cf6}
-</style></head><body>
-<div id="app"></div><div id="dr"></div><div id="md"></div><div id="ts" role="status"></div><div id="prt" class="hide"></div>
-<script>
-"use strict";
-const LG=["en","uz","ru"],LN=["English","O‘zbekcha","Русский"];
-const D={
-today:["Today","Bugun","Сегодня"],trucks:["Trucks","Trucklar","Грузовики"],trailers:["Trailers","Treylerlar","Прицепы"],
-hookdrop:["Hook & Drop","Hook va Drop","Сцепка и отцепка"],drivers:["Drivers","Driverlar","Водители"],
-maintenance:["Maintenance","Texnik xizmat","Обслуживание"],pti:["PTI Board","PTI taxtasi","Доска PTI"],
-inspections:["Inspections","Tekshiruvlar","Осмотры"],documents:["Documents","Hujjatlar","Документы"],
-violations:["Violation Report","Qoidabuzarliklar hisoboti","Отчёт о нарушениях"],invoices:["Invoices","Hisob-fakturalar","Счета"],
-vendors:["Vendors","Servislar","Подрядчики"],alerts:["Alerts","Ogohlantirishlar","Оповещения"],profile:["Profile","Profil","Профиль"],
-g_operate:["Operate","Operatsiya","Работа"],g_maint:["Maintenance & compliance","Servis va nazorat","Обслуживание и контроль"],
-g_records:["Records","Yozuvlar","Записи"],collapse:["Collapse","Yig‘ish","Свернуть"],logout:["Logout","Chiqish","Выйти"],
-find:["Find a truck, trailer or driver","Truck, treyler yoki driver izlash","Найти грузовик, прицеп или водителя"],
-add:["Add","Qo‘shish","Добавить"],save:["Save","Saqlash","Сохранить"],cancel:["Cancel","Bekor qilish","Отмена"],
-del:["Delete","O‘chirish","Удалить"],edit:["Edit","O‘zgartirish","Изменить"],close:["Close","Yopish","Закрыть"],
-search:["Search","Izlash","Поиск"],done:["Done","Tayyor","Готово"],clear:["Clear filters","Filtrlarni tozalash","Сбросить фильтры"],
-any:["Any","Farqi yo‘q","Любой"],optional:["optional","ixtiyoriy","необязательно"],all:["All","Hammasi","Все"],
-copy:["Copy text","Matnni nusxalash","Копировать текст"],copied:["Copied","Nusxalandi","Скопировано"],
-saved:["Saved","Saqlandi","Сохранено"],removed:["Removed","O‘chirildi","Удалено"],
-confirm:["Delete this record? This cannot be undone.","Yozuv o‘chirilsinmi? Buni qaytarib bo‘lmaydi.","Удалить запись? Это нельзя отменить."],
-unassigned:["Unassigned","Biriktirilmagan","Не назначен"],notrec:["Not recorded","Kiritilmagan","Не указано"],
-more:["more","yana","ещё"],refresh:["Refresh","Yangilash","Обновить"],choose:["Choose…","Tanlang…","Выберите…"],
-req:["Fill in the required fields.","Majburiy maydonlarni to‘ldiring.","Заполните обязательные поля."],
-srv:["Needs the server","Server kerak","Нужен сервер"],
-srvn:["This works once the server is live. Nothing is sent or stored from this page.","Bu server ulangach ishlaydi. Bu sahifadan hech narsa yuborilmaydi va saqlanmaydi.","Это заработает после запуска сервера. С этой страницы ничего не отправляется и не сохраняется."],
-telem:["No telematics account yet. Add your Samsara or Motive API key under Profile → Integrations.","Telematika akkaunti hali yo‘q. Samsara yoki Motive API kalitini Profil → Integratsiyalar bo‘limida qo‘shing.","Аккаунта телематики пока нет. Добавьте ключ API Samsara или Motive в Профиль → Интеграции."],
-/* login */
-signto:["Sign in to TOPGFLEET","TOPGFLEET ga kirish","Вход в TOPGFLEET"],signin:["Sign in","Kirish","Войти"],email:["Email","Email","Email"],
-password:["Password","Parol","Пароль"],needacc:["Need access? Ask your administrator.","Ruxsat kerakmi? Administratorga murojaat qiling.","Нужен доступ? Обратитесь к администратору."],
-demomode:["Demo mode: the real login with 2FA runs on the server.","Demo rejim: 2FA bilan haqiqiy login serverda ishlaydi.","Демо-режим: настоящий вход с 2FA работает на сервере."],
-/* today */
-needs:["Needs attention","Diqqat talab qiladi","Требует внимания"],cantrun:["Can’t run","Yura olmaydi","Не может ехать"],
-blocks:["Blocks dispatch","Dispetcherlikka to‘sqinlik","Блокирует выдачу"],duesoon:["Due soon","Muddati yaqin","Скоро срок"],
-cant_a:["No status is marked as not working yet.","Hali birorta status “ishlamaydi” deb belgilanmagan.","Ни один статус ещё не отмечен как нерабочий."],
-cant_b:["Choose them on Trucks","Trucklar bo‘limida tanlang","Выберите их в разделе «Грузовики»"],
-cant_c:["(the Working trucks number).","(Ishlayotgan trucklar soni).","(число рабочих грузовиков)."],
-cant_none:["No truck is out of service.","Hech bir truck yurolmaydigan emas.","Нет грузовиков, которые не могут ехать."],
-blk_none:["Nothing blocks dispatch.","Hech narsa dispetcherlikka to‘sqinlik qilmayapti.","Ничто не блокирует выдачу."],
-soon_none:["Nothing due soon.","Yaqin muddatli narsa yo‘q.","Скоро ничего не истекает."],
-on_duty:["drivers on duty","driver ishda","водителей на смене"],off_duty:["off duty","dam olmoqda","не на смене"],
-insp_rev:["inspections to review","ko‘rib chiqiladigan tekshiruv","осмотров на проверку"],every:["Every alert →","Barcha ogohlantirishlar →","Все оповещения →"],
-issues:["Issues","Muammolar","Проблемы"],i_open:["Open","Ochiq","Открытые"],i_high:["High Priority","Yuqori prioritet","Высокий приоритет"],
-i_owner:["Needs owner","Mas‘uli yo‘q","Без ответственного"],i_sched:["Scheduled today","Bugunga rejalangan","На сегодня"],i_closed:["Closed","Yopilgan","Закрытые"],
-i_search:["Issue, unit or owner","Muammo, unit yoki mas‘ul","Проблема, юнит или ответственный"],view:["View","Ko‘rinish","Вид"],
-new_issue:["New issue","Yangi muammo","Новая проблема"],no_open:["No open issues.","Ochiq muammo yo‘q.","Открытых проблем нет."],
-no_closed:["No closed issues.","Yopilgan muammo yo‘q.","Закрытых проблем нет."],show_open:["Show every open issue","Barcha ochiq muammolar","Показать все открытые"],
-s_prio:["Sort by priority","Prioritet bo‘yicha","По приоритету"],s_new:["Newest first","Yangilari birinchi","Сначала новые"],
-s_old:["Oldest first","Eskilari birinchi","Сначала старые"],s_grp:["Group by owner","Mas‘ul bo‘yicha guruhlash","Группировать по ответственному"],
-s_man:["Manage priorities…","Prioritetlarni boshqarish…","Управление приоритетами…"],
-f_unit:["Unit number or a short title","Unit raqami yoki qisqa sarlavha","Номер юнита или короткий заголовок"],
-f_unit_ph:["Type or pick a unit number…","Unit raqamini yozing yoki tanlang…","Введите или выберите номер юнита…"],
-f_desc:["Description","Tavsif","Описание"],f_desc_ph:["Describe the issue…","Muammoni tasvirlang…","Опишите проблему…"],
-f_prio:["Priority","Prioritet","Приоритет"],f_assign:["Assign to","Mas‘ul","Назначить"],f_sched:["Schedule for","Rejalashtirish sanasi","Запланировать на"],
-f_sched_h:["Optional. A scheduled issue takes its priority from the date.","Ixtiyoriy. Rejalangan muammo prioritetni sanadan oladi.","Необязательно. У запланированной проблемы приоритет зависит от даты."],
-create_issue:["Create Issue","Muammo yaratish","Создать"],issue:["Issue","Muammo","Проблема"],
-close_issue:["Close issue","Muammoni yopish","Закрыть проблему"],reopen:["Reopen","Qayta ochish","Открыть снова"],
-/* alerts */
-a_all:["All","Hammasi","Все"],a_over:["Overdue","Muddati o‘tgan","Просрочено"],a_up:["Upcoming","Yaqinlashayotgan","Ближайшие"],
-a_clear:["All clear","Hammasi joyida","Всё чисто"],a_clear2:["No maintenance or cab card alerts right now.","Hozir servis yoki cab card ogohlantirishi yo‘q.","Сейчас нет оповещений по обслуживанию и cab card."],
-a_caught:["You’re all caught up","Hammasi ko‘rib chiqilgan","Всё просмотрено"],a_view:["View all alerts","Barcha ogohlantirishlar","Все оповещения"],
-a_over_by:["overdue by {0} mi","{0} mil o‘tib ketgan","просрочено на {0} миль"],a_over_d:["overdue by {0} d","{0} kun o‘tib ketgan","просрочено на {0} дн."],
-a_in_mi:["due in {0} mi","{0} milda","через {0} миль"],a_in_d:["due in {0} d","{0} kunda","через {0} дн."],
-a_cab:["Cab card","Cab card","Cab card"],a_cab_exp:["expired","muddati tugagan","истекла"],a_cab_in:["expires in {0} d","{0} kunda tugaydi","истекает через {0} дн."],
-/* trucks */
-t_view_b:["Board","Taxta","Доска"],t_view_t:["Table","Jadval","Таблица"],t_work:["Working trucks","Ishlayotgan trucklar","Рабочие грузовики"],
-t_setup:["SET UP","SOZLASH","НАСТРОИТЬ"],t_dnw:["Driver, not working","Driver bor, ishlamaydi","Есть водитель, не работает"],
-tc_since:["Since","Beri","Уже"],tc_notl:["No trailer","Treyler yo‘q","Нет трейлера"],tc_noloc:["No location","Joylashuv yo‘q","Нет локации"],tc_note:["Add a note…","Izoh qo‘shish…","Добавить заметку…"],tr_info:["Truck details","Truck ma‘lumoti","Данные трака"],t_nod:["No driver","Driver yo‘q","Нет водителя"],t_oi:["Open issues","Ochiq muammolar","Открытые проблемы"],t_total:["Trucks","Trucklar","Грузовики"],
-t_sync:["Sync vehicles","Mashinalarni sinxronlash","Синхр. машины"],t_syncm:["Sync mileage","Probegni sinxronlash","Синхр. пробег"],
-t_add:["Add truck","Truck qo‘shish","Добавить грузовик"],t_q:["Search by unit #, driver, VIN or plate","Unit, driver, VIN yoki raqam bo‘yicha izlash","Поиск по юниту, водителю, VIN или номеру"],
-t_adv:["Advanced filter","Qo‘shimcha filtr","Расширенный фильтр"],t_sort:["Sort","Saralash","Сортировка"],
-t_s_status:["Status","Holat","Статус"],t_s_unit:["Unit #","Unit №","Юнит №"],t_s_driver:["Driver","Driver","Водитель"],t_s_miles:["Mileage","Probeg","Пробег"],
-t_report:["Get report","Hisobot","Отчёт"],t_auto:["Auto update","Avto yangilash","Автообновление"],t_auto2:["Every 20 seconds ({0} sec)","Har 20 soniyada ({0} soniya)","Каждые 20 секунд ({0} сек)"],
-t_empty:["No trucks yet. Add one with Add truck.","Hali truck yo‘q. “Truck qo‘shish” bilan qo‘shing.","Грузовиков пока нет. Добавьте через «Добавить грузовик»."],
-t_every:["Show every truck","Barcha trucklarni ko‘rsatish","Показать все грузовики"],
-fl_company:["Company","Kompaniya","Компания"],fl_nocomp:["No company","Kompaniyasiz","Без компании"],fl_driver:["Driver","Driver","Водитель"],
-fl_has:["Has a driver","Driver bor","Есть водитель"],fl_no:["No driver","Driver yo‘q","Нет водителя"],fl_ins:["Insurance","Sug‘urta","Страховка"],
-fl_cov:["Covered","Qoplangan","Покрыто"],fl_unc:["Uncovered","Qoplanmagan","Не покрыто"],fl_nset:["Not set","Belgilanmagan","Не задано"],
-fl_cab:["Cab card (soon = 15 days)","Cab card (yaqin = 15 kun)","Cab card (скоро = 15 дней)"],fl_expsoon:["Expiring soon","Tez orada tugaydi","Скоро истекает"],
-fl_exp:["Expired","Muddati tugagan","Истекла"],fl_pm:["Next PM (soon = 5,000 mi)","Keyingi PM (yaqin = 5 000 mil)","Следующее ТО (скоро = 5 000 миль)"],
-fl_due:["Due soon","Yaqinlashgan","Скоро"],fl_over:["Overdue","Muddati o‘tgan","Просрочено"],
-st_new:["New Status","Yangi status","Новый статус"],st_name:["Name","Nomi","Название"],st_name_ph:["e.g. Orlando Yard","masalan, Orlando hovlisi","напр., Двор Орландо"],
-st_color:["Color","Rang","Цвет"],st_icon:["Icon","Belgi","Значок"],st_prev:["Preview","Ko‘rinishi","Предпросмотр"],st_create:["Create Status","Status yaratish","Создать статус"],
-st_manage:["Statuses","Statuslar","Статусы"],st_w:["Working","Ishlaydi","Работает"],st_nw:["Not working","Ishlamaydi","Не работает"],st_ns:["Not set","Belgilanmagan","Не задано"],
-st_hint:["Mark which statuses mean a truck can run. Today uses this for “Can’t run”.","Qaysi statuslar truck yura olishini belgilang. Bugun sahifasi buni “Yura olmaydi” uchun ishlatadi.","Отметьте, какие статусы значат, что грузовик может ехать. Раздел «Сегодня» использует это для «Не может ехать»."],
-st_used:["This status is used by trucks.","Bu statusdan trucklar foydalanmoqda.","Этот статус используется грузовиками."],
-tr_find:["Find at Samsara / Motive","Samsara / Motive dan topish","Найти в Samsara / Motive"],tr_find_ph:["Enter unit number…","Unit raqamini kiriting…","Введите номер юнита…"],
-tr_find_b:["Find","Topish","Найти"],tr_manual:["or fill manually","yoki qo‘lda to‘ldiring","или заполните вручную"],
-tr_unit:["Unit number","Unit raqami","Номер юнита"],tr_status:["Status","Holat","Статус"],tr_comp:["Company","Kompaniya","Компания"],tr_choosec:["Choose a company","Kompaniyani tanlang","Выберите компанию"],
-tr_ins:["Insurance","Sug‘urta","Страховка"],tr_own:["Ownership","Egalik","Владение"],tr_ownr:["Owner (full name)","Egasi (to‘liq ism)","Владелец (полное имя)"],
-tr_year:["Year","Yil","Год"],tr_make:["Make","Marka","Марка"],tr_model:["Model","Model","Модель"],tr_vin:["VIN","VIN","VIN"],tr_plate:["License plate","Davlat raqami","Госномер"],
-tr_cab:["Cab card expiry","Cab card muddati","Срок cab card"],tr_driver:["Driver","Driver","Водитель"],tr_miles:["Current mileage","Joriy probeg","Текущий пробег"],
-tr_tg:["Telegram group chat id","Telegram guruh chat id","ID чата Telegram-группы"],tr_tg_h:["Connects this truck to the PTI Board. Add the bot to the group first.","Truckni PTI taxtasiga ulaydi. Avval botni guruhga qo‘shing.","Подключает грузовик к доске PTI. Сначала добавьте бота в группу."],
-own_co:["Company","Kompaniya","Компания"],own_oo:["Owner operator","Owner operator","Owner operator"],own_le:["Vendor","Vendor","Вендор"],
-tr_add_t:["Add Truck","Truck qo‘shish","Добавить грузовик"],tr_edit_t:["Truck","Truck","Грузовик"],
-tr_noco:["Add a company first (Profile → Companies).","Avval kompaniya qo‘shing (Profil → Kompaniyalar).","Сначала добавьте компанию (Профиль → Компании)."],
-pl_title:["Service plans","Servis rejalari","Планы обслуживания"],pl_none:["No plans yet. Add one for oil change, brakes or any service.","Reja yo‘q. Oil change, tormoz yoki boshqa servis uchun qo‘shing.","Планов пока нет. Добавьте для замены масла, тормозов или другого сервиса."],
-pl_name:["Plan name","Reja nomi","Название плана"],pl_name_ph:["e.g. Oil change","masalan, Oil change","напр., Замена масла"],pl_emi:["Every (mi)","Har (mil)","Каждые (миль)"],
-pl_ed:["Every (days)","Har (kun)","Каждые (дней)"],pl_lmi:["Last done at (mi)","Oxirgi marta (mil)","Последний раз (мили)"],pl_ld:["Last done on","Oxirgi sana","Дата последнего раза"],
-pl_add:["Add plan","Reja qo‘shish","Добавить план"],pl_need:["Enter a name and at least one interval.","Nom va kamida bitta intervalni kiriting.","Введите название и хотя бы один интервал."],
-tr_rep:["Fleet report","Park hisoboti","Отчёт по парку"],print:["Print / PDF","Chop etish / PDF","Печать / PDF"],
-sync_sub:["{0} vehicles reported · {1} not in the fleet yet","{0} mashina bildirilgan · {1} tasi parkda yo‘q","{0} машин в отчёте · {1} ещё не в парке"],
-sync_q:["Search unit, VIN, make, account…","Unit, VIN, marka, akkaunt bo‘yicha izlash…","Поиск по юниту, VIN, марке, аккаунту…"],sync_add:["Add to the fleet","Parkka qo‘shish","Добавить в парк"],
-/* trailers */
-tl_q:["Search unit, plate, VIN, truck…","Unit, raqam, VIN, truck izlash…","Поиск: юнит, номер, VIN, грузовик…"],tl_allst:["All statuses","Barcha holatlar","Все статусы"],
-tl_allty:["All types","Barcha turlar","Все типы"],tl_hook:["Hooked or not","Ulangan yoki yo‘q","Сцеплен или нет"],tl_hooked:["Hooked","Ulangan","Сцеплен"],
-tl_nothooked:["Not hooked","Ulanmagan","Не сцеплен"],tl_allloc:["All locations","Barcha joylar","Все места"],tl_noloc:["No location recorded","Joy kiritilmagan","Место не указано"],
-tl_add:["Add Trailer","Treyler qo‘shish","Добавить прицеп"],tl_unit:["Unit #","Unit №","Юнит №"],tl_truckdr:["Truck · Driver","Truck · Driver","Грузовик · Водитель"],
-tl_ploc:["Parking location","Parking joyi","Место парковки"],tl_pnote:["Parking notes","Parking izohi","Заметки о парковке"],tl_co:["Company","Kompaniya","Компания"],
-tl_type:["Type","Turi","Тип"],tl_ins:["Insurance","Sug‘urta","Страховка"],tl_none:["No trailers yet — add one below.","Hali treyler yo‘q — pastdan qo‘shing.","Прицепов пока нет — добавьте ниже."],
-tl_inl:["Add trailer…","Treyler qo‘shish…","Добавить прицеп…"],tl_inl2:["Type a unit number and press Enter","Unit raqamini yozib Enter bosing","Введите номер юнита и нажмите Enter"],
-tl_arch:["Archived trailers","Arxivlangan treylerlar","Архив прицепов"],tl_archn:["No archived trailers.","Arxivlangan treyler yo‘q.","Архивных прицепов нет."],
-tl_archive:["Archive","Arxivlash","В архив"],tl_restore:["Restore","Qaytarish","Вернуть"],
-ts_ready:["Ready for PU","Olishga tayyor","Готов к выдаче"],ts_loaded:["Loaded","Yuklangan","Загружен"],ts_road:["On the road","Yo‘lda","В пути"],
-ts_parking:["Parking","Parkingda","Парковка"],ts_shop:["At shop","Servisda","В сервисе"],ts_oos:["Out of service","Ishdan chiqqan","Не в работе"],
-ty_dry:["Dry Van","Dry Van","Сухой фургон"],ty_reefer:["Reefer","Reefer","Рефрижератор"],ty_flat:["Flatbed","Flatbed","Платформа"],ty_tank:["Tanker","Tanker","Цистерна"],ty_other:["Other","Boshqa","Другое"],
-tl_add_t:["Add Trailer","Treyler qo‘shish","Добавить прицеп"],tl_add_s:["Add a new trailer to your fleet","Parkka yangi treyler qo‘shing","Добавить новый прицеп в парк"],
-tl_assign:["Assigned truck","Biriktirilgan truck","Назначенный грузовик"],tl_notes:["Notes","Izohlar","Заметки"],
-tl_pn_ph:["e.g. Nose-in against the fence, needs a tug to pull out","masalan, devorga qaratib qo‘yilgan, tortish kerak","напр., Носом к забору, нужен тягач"],
-tl_ploc_ph:["e.g. Yard B, row 3","masalan, B hovli, 3-qator","напр., Двор B, ряд 3"],tl_nt_ph:["Anything else worth knowing about this trailer…","Bu treyler haqida yana nima muhim…","Всё, что стоит знать об этом прицепе…"],
-/* hook & drop */
-hd_send:["Send a driver a link","Driverga havola yuborish","Отправить водителю ссылку"],hd_send2:["They open it on their phone, no login, and take the photos. It works 3 days.","Telefonda ochadi, login kerak emas, rasmlarni oladi. 3 kun amal qiladi.","Открывают на телефоне, без входа, и делают фото. Работает 3 дня."],
-hd_hook:["Hook","Hook","Сцепка"],hd_drop:["Drop","Drop","Отцепка"],hd_swap:["Swap","Swap","Замена"],hd_trailer:["Trailer","Treyler","Прицеп"],
-hd_onto:["Onto truck","Truckga","На грузовик"],hd_from:["From truck (optional)","Truckdan (ixtiyoriy)","С грузовика (необязательно)"],hd_driver:["Driver (pick or type a name)","Driver (tanlang yoki ism yozing)","Водитель (выберите или введите имя)"],
-hd_create:["Create link","Havola yaratish","Создать ссылку"],hd_err:["Choose the trailer","Treylerni tanlang","Выберите прицеп"],
-hd_wait:["Waiting for the driver","Driver kutilmoqda","Ожидают водителя"],hd_waitn:["No links waiting. Links the drivers sent show in the history below.","Kutayotgan havola yo‘q. Yuborilganlari quyidagi tarixda.","Ожидающих ссылок нет. Отправленные видны в истории ниже."],
-hd_hist:["History","Tarix","История"],hd_inc:["Incomplete only","Faqat to‘liq emaslari","Только неполные"],hd_hq:["Trailer, truck, driver, place","Treyler, truck, driver, joy","Прицеп, грузовик, водитель, место"],
-hd_photo:["Photo checklist","Rasm ro‘yxati","Список фото"],hd_none:["No hand-overs yet. Send a driver a link above, or record them in the app.","Hali topshirish yo‘q. Yuqoridan havola yuboring yoki ilovada yozing.","Передач пока нет. Отправьте ссылку выше или запишите в приложении."],
-hd_done:["Mark done","Bajarildi","Выполнено"],hd_place:["Place","Joy","Место"],hd_photos:["Photos taken","Olingan rasmlar","Сделано фото"],
-hd_mark_t:["Record hand-over","Topshirishni yozish","Записать передачу"],hd_expires:["expires {0}","{0} gacha","до {0}"],hd_srv:["The driver link itself is created by the server when it is live.","Driver havolasi server ulangach yaratiladi.","Ссылка для водителя создаётся сервером после запуска."],
-hd_incomplete:["Incomplete","To‘liq emas","Неполно"],hd_complete:["Complete","To‘liq","Полно"],hd_cancel_l:["Cancel link","Havolani bekor qilish","Отменить ссылку"],
-/* drivers */
-dr_name_ph:["Name, phone or truck","Ism, telefon yoki truck","Имя, телефон или грузовик"],dr_on:["On duty","Ishda","На смене"],dr_off:["Off duty","Dam olmoqda","Не на смене"],dr_notruck:["No truck","Truck yo‘q","Без грузовика"],
-dr_invite:["Invite driver","Driver taklif qilish","Пригласить водителя"],dr_add:["Add driver","Driver qo‘shish","Добавить водителя"],
-dr_empty:["No drivers yet. Add one with their name and email: they sign in on the TOPGFLEET app with that email and see only their truck.","Hali driver yo‘q. Ism va email bilan qo‘shing: ular TOPGFLEET ilovasiga shu email bilan kirib, faqat o‘z truckini ko‘radi.","Водителей пока нет. Добавьте имя и email: они войдут в приложение TOPGFLEET с этим email и увидят только свой грузовик."],
-dr_full:["Full name","To‘liq ism","Полное имя"],dr_full_ph:["John Driver","John Driver","John Driver"],dr_mail:["Email","Email","Email"],dr_mail_h:["(they sign in with it)","(kirish uchun)","(для входа)"],
-dr_phone:["Phone","Telefon","Телефон"],dr_tmp:["Temporary password","Vaqtinchalik parol","Временный пароль"],dr_tmp_ph:["At least 8 characters","Kamida 8 belgi","Минимум 8 символов"],
-dr_tmp_h:["At least 8 characters. No common passwords, names or usernames.","Kamida 8 belgi. Oddiy parol, ism yoki username bo‘lmasin.","Минимум 8 символов. Без простых паролей, имён и логинов."],
-dr_tmp_h2:["Give them their email and this password: they sign in on the TOPGFLEET app or this website and can change the password under Profile. The password is not stored on this page.","Ularga email va shu parolni bering: TOPGFLEET ilovasi yoki shu saytga kirib, parolni Profilda o‘zgartiradi. Parol bu sahifada saqlanmaydi.","Передайте им email и этот пароль: они войдут в приложение TOPGFLEET или на этот сайт и смогут сменить пароль в профиле. Пароль на этой странице не хранится."],
-dr_lic:["Licence expiry","Guvohnoma muddati","Срок прав"],dr_med:["Medical card expiry","Tibbiy karta muddati","Срок медкарты"],dr_truck:["Truck","Truck","Грузовик"],dr_duty:["Duty","Smena","Смена"],
-dr_add_t:["Add Driver","Driver qo‘shish","Добавить водителя"],dr_inv_t:["Invite a driver","Driverni taklif qilish","Пригласить водителя"],dr_inv_b:["Create invite link","Taklif havolasini yaratish","Создать ссылку-приглашение"],
-dr_inv_n:["Invite links are created by the server when it is live. Until then, add the driver by hand.","Taklif havolalari server ulangach yaratiladi. Hozircha driverni qo‘lda qo‘shing.","Ссылки-приглашения создаёт сервер после запуска. Пока добавьте водителя вручную."],
-dr_pw_short:["The temporary password needs at least 8 characters.","Vaqtinchalik parol kamida 8 belgi bo‘lishi kerak.","Временный пароль — минимум 8 символов."],
-dr_papers:["Driver papers (licence, medical card) live on each driver:","Driver hujjatlari (guvohnoma, tibbiy karta) har bir driverda:","Документы водителя (права, медкарта) хранятся у каждого водителя:"],
-/* maintenance */
-m_all:["All plans","Barcha rejalar","Все планы"],m_over:["Overdue","Muddati o‘tgan","Просрочено"],m_soon:["Due soon","Yaqinlashgan","Скоро срок"],m_ok:["Up to date","Yangilangan","В порядке"],
-m_none_o:["Nothing overdue.","Muddati o‘tgan narsa yo‘q.","Просроченного нет."],m_none_s:["Nothing due soon.","Yaqin muddatli narsa yo‘q.","Скоро ничего не истекает."],m_none_k:["No plans are up to date yet.","Hali yangilangan reja yo‘q.","Планов в порядке пока нет."],
-m_within:["within 5,000 mi or 30 days","5 000 mil yoki 30 kun ichida","в пределах 5 000 миль или 30 дней"],m_report:["Get report","Hisobot","Отчёт"],
-m_hint:["No plans yet. Open a truck and add a service plan (oil change, brakes…).","Reja yo‘q. Truckni oching va servis rejasi qo‘shing (oil change, tormoz…).","Планов нет. Откройте грузовик и добавьте план (замена масла, тормоза…)."],
-m_mark:["Mark done","Bajarildi","Выполнено"],m_mark_t:["Service done","Servis bajarildi","Сервис выполнен"],m_date:["Date","Sana","Дата"],m_mi:["Mileage","Probeg","Пробег"],
-m_cost:["Cost $","Narx $","Стоимость $"],m_vendor:["Vendor","Servis","Подрядчик"],m_note:["Notes","Izoh","Заметки"],m_last:["last done {0}","oxirgi {0}","последний раз {0}"],
-r_title:["Maintenance report","Servis hisoboti","Отчёт по обслуживанию"],r_period:["Period","Davr","Период"],r_thism:["This month","Shu oy","Этот месяц"],r_lastm:["Last month","O‘tgan oy","Прошлый месяц"],
-r_l90:["Last 90 days","Oxirgi 90 kun","Последние 90 дней"],r_thisy:["This year","Shu yil","Этот год"],r_lasty:["Last year","O‘tgan yil","Прошлый год"],r_all:["All time","Hammasi","За всё время"],r_custom:["Custom","Boshqa","Свой"],
-r_alltr:["All trucks","Barcha trucklar","Все грузовики"],r_allsv:["All services","Barcha servislar","Все услуги"],r_q:["Search oil, vendor, invoice #…","Izlash: oil, servis, hisob #…","Поиск: масло, подрядчик, счёт №…"],
-r_none:["No service entries or truck invoices in this period.","Bu davrda servis yoki truck hisoblari yo‘q.","За этот период нет записей об обслуживании или счетов."],
-r_recs:["{0} records · {1} trucks · {2}","{0} yozuv · {1} truck · {2}","{0} записей · {1} грузовиков · {2}"],r_excel:["Excel","Excel","Excel"],r_pdf:["PDF","PDF","PDF"],
-r_svc:["Service","Servis","Услуга"],r_inv:["Invoice","Hisob","Счёт"],r_truck:["Truck","Truck","Грузовик"],r_cost:["Cost","Narx","Стоимость"],r_total:["Total","Jami","Итого"],
-/* pti */
-p_on:["{0} trucks on Telegram","{0} truck Telegramda","{0} грузовиков в Telegram"],p_sent:["Sent","Yuborilgan","Отправлено"],p_no:["No pre-trip","Pre-trip yo‘q","Нет pre-trip"],p_off:["Off duty / not working","Dam olish / ishlamaydi","Выходной / не работает"],
-p_today:["Today","Bugun","Сегодня"],p_empty:["No trucks are on Telegram yet.","Telegramda hali truck yo‘q.","В Telegram пока нет грузовиков."],
-p_empty2:["Open a truck’s full page and connect its Telegram group to start tracking its pre-trips here.","Truck sahifasini oching va Telegram guruhini ulang — pre-triplar shu yerda kuzatiladi.","Откройте страницу грузовика и подключите его Telegram-группу, чтобы отслеживать pre-trip здесь."],
-p_cnt:["Count as OFF","OFF deb hisoblash","Считать выходным"],p_cnt2:["Trucks with these statuses are marked OFF instead of NO when no PTI is received.","Bu statusdagi trucklar PTI kelmasa NO emas OFF deb belgilanadi.","Грузовики с этими статусами помечаются OFF вместо NO, если PTI не получен."],
-p_notif:["PTI Notifications","PTI bildirishnomalari","PTI-уведомления"],p_notif2:["Sends to each truck’s Telegram group based on consecutive missed PTIs. Use {unit} to include the unit number.","Har bir truckning Telegram guruhiga ketma-ket o‘tkazib yuborilgan PTI soniga qarab yuboriladi. Unit raqami uchun {unit} ishlating.","Отправляется в Telegram-группу каждого грузовика по числу пропущенных PTI подряд. {unit} подставляет номер юнита."],
-p_d:["{0} consecutive NO days","{0} kun ketma-ket NO","{0} дн. подряд NO"],p_d7:["7+ consecutive NO days","7+ kun ketma-ket NO","7+ дней подряд NO"],p_ph:["Message for {0} consecutive missed PTIs…","{0} ta ketma-ket o‘tkazilgan PTI uchun xabar…","Сообщение при {0} пропущенных PTI подряд…"],
-p_days:["{0} days","{0} kun","{0} дн."],p_savetpl:["Save templates","Shablonlarni saqlash","Сохранить шаблоны"],p_send:["Send notifications","Bildirishnoma yuborish","Отправить уведомления"],
-p_now:["Now:","Hozir:","Сейчас:"],p_tip:["Click a day to change it by hand. The bot fills it in automatically when the server is live.","Kunni qo‘lda o‘zgartirish uchun bosing. Server ulangach bot avtomatik to‘ldiradi.","Нажмите на день, чтобы изменить вручную. Когда сервер запущен, бот заполняет автоматически."],
-p_miss:["Missed","O‘tkazilgan","Пропущено"],
-/* inspections */
-n_pend:["Pending review","Ko‘rib chiqish kutilmoqda","На проверке"],n_hist:["History","Tarix","История"],n_hd:["Hook / drop","Hook / drop","Сцепка / отцепка"],n_ck:["Checklists","Ro‘yxatlar","Чек-листы"],
-n_wait:["{0} waiting","{0} kutmoqda","{0} ждут"],n_defect:["defect first","avval nuqsonlar","сначала дефекты"],n_pendn:["Nothing waiting for review. New inspections appear here as drivers submit them.","Ko‘rib chiqishga hech narsa yo‘q. Driverlar yuborgan yangi tekshiruvlar shu yerda.","Нечего проверять. Новые осмотры появляются здесь, когда водители их отправляют."],
-n_q:["Unit, driver or note","Unit, driver yoki izoh","Юнит, водитель или заметка"],n_to:["to","gacha","до"],n_cnt:["{0} inspections","{0} tekshiruv","{0} осмотров"],n_nomatch:["No inspections match.","Mos tekshiruv yo‘q.","Осмотров не найдено."],
-n_log:["Log inspection","Tekshiruvni yozish","Записать осмотр"],n_kind:["Kind","Turi","Вид"],n_pre:["Pre-trip","Reys oldi","Предрейсовый"],n_ann:["Annual","Yillik","Годовой"],n_dot:["DOT","DOT","DOT"],
-n_res:["Result","Natija","Результат"],n_ok:["OK","OK","OK"],n_def:["Defect","Nuqson","Дефект"],n_note:["Note","Izoh","Заметка"],n_review:["Mark reviewed","Ko‘rib chiqildi","Проверено"],
-n_ckdesc:["Drivers answer OK / Defect / N/A for each item; photo and video items open the camera. Keep the list short so a pre-trip takes a few minutes.","Driverlar har bir band uchun OK / Nuqson / N/A javob beradi; rasm va video bandlari kamerani ochadi. Ro‘yxat qisqa bo‘lsin.","Водители отвечают OK / Дефект / N/A по каждому пункту; для фото и видео открывается камера. Список должен быть коротким."],
-n_reset:["Reset to default","Standartga qaytarish","Сбросить"],n_newitem:["New checklist item","Yangi band","Новый пункт"],n_item:["{0} items","{0} band","{0} пунктов"],
-n_vid:["Video required","Video majburiy","Нужно видео"],n_pho:["Photo required","Rasm majburiy","Нужно фото"],n_nom:["No media needed","Media shart emas","Медиа не нужно"],n_min:["At least {0}","Kamida {0}","Не менее {0}"],
-n_handover:["Hand-over photos","Topshirish rasmlari","Фото передачи"],n_req:["{0} required","{0} majburiy","{0} обязательных"],n_photos_t:["Photos required at hook / drop — {0}","Hook / drop da kerakli rasmlar — {0}","Фото при сцепке / отцепке — {0}"],
-n_required:["Required","Majburiy","Обязательно"],n_newphoto:["New photo (e.g. Reefer unit, Kingpin)","Yangi rasm (masalan, Reefer unit, Kingpin)","Новое фото (напр., блок рефрижератора, шкворень)"],
-n_pre_t:["{0} pre-trip","{0} pre-trip","Предрейсовый осмотр: {0}"],ct_truck:["Truck","Truck","Грузовик"],ct_dry:["Dry van","Dry van","Сухой фургон"],ct_reefer:["Reefer","Reefer","Рефрижератор"],ct_flat:["Flatbed","Flatbed","Платформа"],ct_tank:["Tanker","Tanker","Цистерна"],ct_other:["Other trailer","Boshqa treyler","Другой прицеп"],
-ck_walk:["Walk-around video (2–3 minutes)","Aylanib chiqish videosi (2–3 daqiqa)","Видео обхода (2–3 минуты)"],ck_tires:["Tires — photos of every tire","Shinalar — har bir shina rasmi","Шины — фото каждой шины"],
-ck_brakes:["Brakes — OK or defect","Tormoz — OK yoki nuqson","Тормоза — OK или дефект"],ck_lights:["Lights and signals — OK or defect","Chiroq va signallar — OK yoki nuqson","Свет и сигналы — OK или дефект"],
-ph_front:["Front","Old","Перед"],ph_front_d:["Whole front wall, nose and landing gear visible","Butun old devor, burun va tayanch oyoqlar ko‘rinsin","Вся передняя стенка, нос и опоры видны"],
-ph_rear:["Rear","Orqa","Зад"],ph_rear_d:["Rear doors closed, bumper and lights in frame","Orqa eshiklar yopiq, bamper va chiroqlar kadrda","Задние двери закрыты, бампер и фонари в кадре"],
-ph_left:["Left side","Chap yon","Левый борт"],ph_left_d:["Full driver-side wall, tires to roof line","Haydovchi tomoni to‘liq, shinadan tomgacha","Весь борт водителя, от шин до крыши"],
-ph_right:["Right side","O‘ng yon","Правый борт"],ph_right_d:["Full passenger-side wall, tires to roof line","Yo‘lovchi tomoni to‘liq, shinadan tomgacha","Весь борт пассажира, от шин до крыши"],
-ph_fl:["Front-left corner","Old-chap burchak","Переднее левое"],ph_fl_d:["Corner post and top rail","Burchak ustuni va yuqori rels","Угловая стойка и верхняя рейка"],
-ph_fr:["Front-right corner","Old-o‘ng burchak","Переднее правое"],ph_fr_d:["Corner post and top rail","Burchak ustuni va yuqori rels","Угловая стойка и верхняя рейка"],
-ph_rl:["Rear-left corner","Orqa-chap burchak","Заднее левое"],ph_rl_d:["Corner post, door hinge side","Burchak ustuni, eshik ilgagi tomoni","Угловая стойка, сторона петель"],
-ph_rr:["Rear-right corner","Orqa-o‘ng burchak","Заднее правое"],ph_rr_d:["Corner post, door hinge side","Burchak ustuni, eshik ilgagi tomoni","Угловая стойка, сторона петель"],
-ph_roof:["Roof / doors","Tom / eshiklar","Крыша / двери"],ph_roof_d:["Roof line from the rear at the door panels","Orqadan tom chizig‘i, eshik panellarida","Линия крыши сзади, у дверных панелей"],
-ph_tires:["Tires and landing gear","Shinalar va tayanch oyoqlar","Шины и опоры"],ph_tires_d:["Both axles and the landing gear","Ikkala o‘q va tayanch oyoqlar","Обе оси и опоры"],
-ph_seal:["Seal number","Plomba raqami","Номер пломбы"],ph_seal_d:["Close-up so the number is readable","Raqam o‘qilishi uchun yaqindan","Крупным планом, чтобы номер читался"],
-ph_plate:["License plate and trailer number","Davlat raqami va treyler raqami","Госномер и номер прицепа"],ph_plate_d:["Plate and unit number readable","Raqam va unit raqami o‘qilsin","Номер и номер юнита читаются"],
-ph_int:["Interior (if empty)","Ichki qism (bo‘sh bo‘lsa)","Внутри (если пусто)"],ph_int_d:["Floor and walls from the doors","Eshikdan pol va devorlar","Пол и стены от дверей"],
-/* documents */
-d_units:["All units","Barcha unitlar","Все юниты"],d_exp:["Expired","Muddati tugagan","Просрочены"],d_30:["Expire in 30 d","30 kunda tugaydi","Истекают за 30 дн."],d_miss:["Missing","Yetishmaydi","Отсутствуют"],
-d_q:["Unit or document","Unit yoki hujjat","Юнит или документ"],d_add:["Add document","Hujjat qo‘shish","Добавить документ"],d_empty:["No trucks or trailers yet.","Hali truck yoki treyler yo‘q.","Грузовиков или прицепов пока нет."],
-d_add_s:["Registration, insurance, permits, inspections","Ro‘yxatdan o‘tish, sug‘urta, ruxsatnomalar, tekshiruvlar","Регистрация, страховка, разрешения, осмотры"],d_unit:["Unit","Unit","Юнит"],d_unit_ph:["Truck or trailer","Truck yoki treyler","Грузовик или прицеп"],
-d_type:["Type","Turi","Тип"],d_title:["Title","Sarlavha","Название"],d_title_ph:["e.g. 2026 registration","masalan, 2026 ro‘yxat","напр., Регистрация 2026"],d_expires:["Expires","Tugash sanasi","Истекает"],
-d_file:["File (name only is kept here)","Fayl (bu yerda faqat nomi saqlanadi)","Файл (здесь хранится только имя)"],d_vis:["Drivers of this unit can open it (and keep a copy offline)","Bu unit driverlari uni ochishi mumkin (va nusxasini saqlashi)","Водители этого юнита могут открывать его (и хранить копию офлайн)"],
-d_notes:["Notes","Izohlar","Заметки"],dt_reg:["Registration","Ro‘yxatdan o‘tish","Регистрация"],dt_ins:["Insurance","Sug‘urta","Страховка"],dt_perm:["Permit","Ruxsatnoma","Разрешение"],dt_ann:["Annual inspection","Yillik tekshiruv","Годовой осмотр"],dt_other:["Other","Boshqa","Другое"],
-d_missing_l:["Missing: {0}","Yetishmaydi: {0}","Нет: {0}"],d_nomatch:["No units match.","Mos unit yo‘q.","Юниты не найдены."],
-/* violations */
-v_today:["Today","Bugun","Сегодня"],v_yest:["Yesterday","Kecha","Вчера"],v_3:["Last 3 days","Oxirgi 3 kun","Последние 3 дня"],v_7:["Last 7 days","Oxirgi 7 kun","Последние 7 дней"],v_c:["Custom…","Boshqa…","Свой…"],
-v_note:["Pulled live from Samsara and Motive, up to 7 days.","Samsara va Motive dan jonli olinadi, 7 kungacha.","Загружается из Samsara и Motive, до 7 дней."],v_pick:["Pick a period above to run the report.","Hisobot uchun yuqorida davrni tanlang.","Выберите период выше, чтобы получить отчёт."],
-v_none:["No safety events to show. They appear here once a telematics account is connected.","Ko‘rsatiladigan xavfsizlik hodisasi yo‘q. Telematika ulangach shu yerda chiqadi.","Событий безопасности нет. Они появятся здесь после подключения телематики."],
-/* invoices */
-iv_lookup:["Look up a unit — type a truck or trailer number","Unitni izlang — truck yoki treyler raqami","Найти юнит — введите номер грузовика или прицепа"],iv_q:["Search invoices…","Hisoblarni izlash…","Поиск счетов…"],
-iv_exp:["Export CSV","CSV eksport","Экспорт CSV"],iv_rep:["Get report","Hisobot","Отчёт"],iv_add:["Add invoice","Hisob qo‘shish","Добавить счёт"],
-iv_all:["All time","Hammasi","За всё время"],iv_month:["This month","Shu oy","Этот месяц"],iv_30:["Last 30 days","Oxirgi 30 kun","30 дней"],iv_90:["Last 90 days","Oxirgi 90 kun","90 дней"],iv_year:["This year","Shu yil","Этот год"],
-iv_to:["to","dan","до"],iv_allr:["All reasons","Barcha sabablar","Все причины"],iv_allm:["All payment methods","Barcha to‘lov turlari","Все способы оплаты"],iv_allp:["Everyone pays","Hamma to‘laydi","Платят все"],
-iv_tot:["Total to date","Bugungacha jami","Всего на сегодня"],iv_totr:["Total in range","Davr uchun jami","Всего за период"],iv_cp:["Company pays","Kompaniya to‘laydi","Платит компания"],iv_op:["Owner pays","Egasi to‘laydi","Платит владелец"],iv_dp:["Driver pays","Driver to‘laydi","Платит водитель"],
-iv_n:["{0} invoices","{0} ta hisob","{0} счетов"],iv_list:["Invoices","Hisoblar","Счета"],iv_none:["No invoices match these filters.","Filtrlarga mos hisob yo‘q.","По фильтрам счетов нет."],iv_first:["Add the first invoice","Birinchi hisobni qo‘shing","Добавьте первый счёт"],
-iv_exu:["Most expensive units","Eng qimmat unitlar","Самые дорогие юниты"],iv_noyet:["No invoices yet.","Hali hisob yo‘q.","Счетов пока нет."],iv_brk:["Breakdown","Taqsimot","Разбивка"],
-iv_bu:["By unit","Unit bo‘yicha","По юниту"],iv_br:["By reason","Sabab bo‘yicha","По причине"],iv_bm:["By month","Oy bo‘yicha","По месяцу"],iv_bp:["By payer","To‘lovchi bo‘yicha","По плательщику"],iv_bpm:["By payment method","To‘lov turi bo‘yicha","По способу оплаты"],iv_nb:["Nothing to break down yet.","Hozircha taqsimlash uchun ma‘lumot yo‘q.","Пока нечего разбивать."],
-iv_date:["Invoice date","Hisob sanasi","Дата счёта"],iv_unit:["Unit (truck, trailer or both)","Unit (truck, treyler yoki ikkalasi)","Юнит (грузовик, прицеп или оба)"],iv_truck:["Truck…","Truck…","Грузовик…"],iv_trailer:["Trailer…","Treyler…","Прицеп…"],
-iv_reason:["Reason for charge","To‘lov sababi","Причина расхода"],iv_desc:["Description","Tavsif","Описание"],iv_desc_ph:["Trailer brakes replacement, truck oil leak repair…","Treyler tormozini almashtirish, truck moy oqishini tuzatish…","Замена тормозов прицепа, ремонт течи масла…"],
-iv_amt:["Total amount","Umumiy summa","Общая сумма"],iv_method:["Payment method","To‘lov turi","Способ оплаты"],iv_who:["Who is paying","Kim to‘laydi","Кто платит"],iv_mgr:["Responsible manager","Mas‘ul menejer","Ответственный менеджер"],iv_mgr_ph:["Who owns this repair (optional)","Bu ta‘mirga kim mas‘ul (ixtiyoriy)","Кто отвечает за этот ремонт (необязательно)"],
-iv_more:["Invoice number, vendor, notes","Hisob raqami, servis, izohlar","Номер счёта, подрядчик, заметки"],iv_num:["Invoice number","Hisob raqami","Номер счёта"],iv_file:["Invoice file","Hisob fayli","Файл счёта"],iv_drop:["Drop the PDF or photo here or click to choose","PDF yoki rasmni shu yerga tashlang yoki tanlang","Перетащите PDF или фото сюда или нажмите для выбора"],iv_drop2:["PDF, JPEG or PNG, up to 20 MB. Only the file name is kept on this page.","PDF, JPEG yoki PNG, 20 MB gacha. Bu sahifada faqat fayl nomi saqlanadi.","PDF, JPEG или PNG, до 20 МБ. На этой странице хранится только имя файла."],
-r_t_truck:["Truck Issue","Truck muammosi","Проблема грузовика"],r_t_trailer:["Trailer Issue","Treyler muammosi","Проблема прицепа"],r_t_tires:["Tires","Shinalar","Шины"],r_t_tow:["Towing","Evakuator","Эвакуатор"],r_t_parts:["Parts","Ehtiyot qismlar","Запчасти"],r_t_fuel:["Fuel","Yoqilg‘i","Топливо"],r_t_other:["Other","Boshqa","Другое"],
-pm_efs:["EFS Money Code","EFS Money Code","EFS Money Code"],pm_cc:["Credit Card","Kredit karta","Кредитная карта"],pm_zelle:["Zelle","Zelle","Zelle"],pm_chk:["Check / ACH / Other","Chek / ACH / Boshqa","Чек / ACH / Другое"],
-w_co:["Company Charge","Kompaniya hisobidan","За счёт компании"],w_ow:["Owner Charge","Egasi hisobidan","За счёт владельца"],w_dr:["Driver Charge","Driver hisobidan","За счёт водителя"],w_sp:["Split Charge","Bo‘lib to‘lash","Разделить расход"],
-sp_by:["Split by","Bo‘lish usuli","Делить по"],sp_pct:["Percent","Foiz","Проценты"],sp_amt:["Amount","Summa","Сумма"],sp_co:["Company","Kompaniya","Компания"],sp_dr:["Driver","Driver","Водитель"],sp_ow:["Owner","Egasi","Владелец"],
-sp_addo:["Add owner","Egasini qo‘shish","Добавить владельца"],sp_bal:["Balance","Tenglashtirish","Выровнять"],sp_ok:["Adds up to {0}","Yig‘indisi {0}","Сумма {0}"],sp_over:["{0} over the total","Umumiydan {0} ortiq","Превышает на {0}"],sp_left:["{0} left to split","Bo‘linmagan {0}","Осталось разделить {0}"],
-iv_chg:["{0} charged to owner.","{0} egasiga yoziladi.","{0} записывается на владельца."],iv_chg_c:["{0} charged to the company.","{0} kompaniyaga yoziladi.","{0} записывается на компанию."],iv_chg_d:["{0} charged to the driver.","{0} driverga yoziladi.","{0} записывается на водителя."],
-iv_bad:["The split has to add up to the total.","Bo‘linma umumiy summaga teng bo‘lishi kerak.","Сумма частей должна равняться общей."],iv_need:["Pick a truck or a trailer.","Truck yoki treylerni tanlang.","Выберите грузовик или прицеп."],
-ir_reason:["By reason","Sabab bo‘yicha","По причине"],ir_month:["By month","Oy bo‘yicha","По месяцам"],ir_t:["Invoice report","Hisob hisoboti","Отчёт по счетам"],ir_units:["Units","Unitlar","Юниты"],ir_exp1:["Most expensive first","Eng qimmati birinchi","Сначала дорогие"],ir_num:["By unit number","Unit raqami bo‘yicha","По номеру юнита"],
-ir_pdf:["PDF","PDF","PDF"],ir_with:["With each unit’s invoices","Har bir unit hisoblari bilan","С счетами каждого юнита"],ir_diag:["Diagram and totals only","Faqat diagramma va jami","Только диаграмма и итоги"],
-ir_note:["The report shows the invoices listed on the page now. To change what is in it, close this, and change the dates, who pays or the other filters.","Hisobot sahifadagi hisoblarni ko‘rsatadi. O‘zgartirish uchun buni yoping va sana, kim to‘lashi yoki boshqa filtrlarni o‘zgartiring.","Отчёт включает счета, показанные на странице. Чтобы изменить состав, закройте окно и поменяйте даты, плательщика или другие фильтры."],
-ir_none:["No invoices match the page filters, so there is nothing to report.","Sahifa filtrlariga mos hisob yo‘q, hisobot bo‘sh.","Нет счетов под фильтры страницы, отчёт пуст."],ir_dl:["Download PDF","PDF yuklab olish","Скачать PDF"],
-exp_sub:["Select the text below and copy it, or download the file.","Matnni belgilab nusxalang yoki faylni yuklab oling.","Выделите текст и скопируйте или скачайте файл."],exp_dl:["Download","Yuklab olish","Скачать"],
-/* vendors */
-vn_q:["Search the map: truck repair Dallas TX","Xaritadan izlash: truck repair Dallas TX","Поиск на карте: truck repair Dallas TX"],vn_search:["Search","Izlash","Искать"],vn_add:["Add vendor","Servis qo‘shish","Добавить подрядчика"],
-vn_part:["On this part of the map:","Xaritaning shu qismida:","В этой части карты:"],vn_c1:["Truck repair","Truck ta‘miri","Ремонт грузовиков"],vn_c2:["Trailer repair","Treyler ta‘miri","Ремонт прицепов"],vn_c3:["Truck tire shop","Truck shina ustaxonasi","Шиномонтаж"],vn_c4:["Heavy duty towing","Og‘ir evakuator","Тяжёлая эвакуация"],vn_c5:["Truck parts","Truck ehtiyot qismlari","Запчасти"],
-vn_mine:["Your vendors","Sizning servislar","Ваши подрядчики"],vn_found:["Found on the map","Xaritadan topilgan","Найдено на карте"],vn_empty:["No vendors yet. Search the map for a repair shop and press Save as vendor, or add one by hand.","Hali servis yo‘q. Xaritadan ta‘mirlash joyini toping va “Servis sifatida saqlash” bosing yoki qo‘lda qo‘shing.","Подрядчиков пока нет. Найдите мастерскую на карте и нажмите «Сохранить» или добавьте вручную."],
-vn_nomatch:["No saved vendor matches.","Mos saqlangan servis yo‘q.","Подходящих подрядчиков нет."],vn_mapn:["Map search runs on the server with a Google Maps key. Until then, add vendors by hand.","Xarita qidiruvi serverda Google Maps kaliti bilan ishlaydi. Hozircha servislarni qo‘lda qo‘shing.","Поиск по карте работает на сервере с ключом Google Maps. Пока добавляйте подрядчиков вручную."],
-vn_add_t:["Add Vendor","Servis qo‘shish","Добавить подрядчика"],vn_add_s:["A shop that is not on the map","Xaritada yo‘q ustaxona","Мастерская, которой нет на карте"],vn_name:["Name","Nomi","Название"],vn_name_ph:["Andy’s Truck Repair","Andy’s Truck Repair","Andy’s Truck Repair"],vn_addr:["Address","Manzil","Адрес"],vn_addr_ph:["1200 Industrial Blvd, Dallas, TX 75207","1200 Industrial Blvd, Dallas, TX 75207","1200 Industrial Blvd, Dallas, TX 75207"],
-vn_phone:["Phone","Telefon","Телефон"],vn_web:["Website","Sayt","Сайт"],vn_notes:["Notes","Izohlar","Заметки"],vn_notes_ph:["Who to ask for, hours, payment terms…","Kimni so‘rash, ish vaqti, to‘lov shartlari…","К кому обращаться, часы, условия оплаты…"],
-vn_hint:["A vendor typed in by hand has no pin on the map. To get one, search the shop on the map and save it from there.","Qo‘lda kiritilgan servisda xaritada belgi bo‘lmaydi. Belgi uchun ustaxonani xaritadan topib saqlang.","У подрядчика, добавленного вручную, нет метки на карте. Чтобы она появилась, найдите мастерскую на карте и сохраните оттуда."],
-/* profile */
-pf_app:["Appearance","Ko‘rinish","Внешний вид"],pf_lang:["Language","Til","Язык"],pf_int:["Integrations","Integratsiyalar","Интеграции"],pf_comp:["Companies","Kompaniyalar","Компании"],pf_prio:["Issue priorities","Muammo prioritetlari","Приоритеты проблем"],pf_team:["Team","Jamoa","Команда"],pf_acc:["Account","Akkaunt","Аккаунт"],
-pf_app_s:["Choose a theme. Applies instantly and is saved on this device.","Mavzuni tanlang. Darhol qo‘llanadi va shu qurilmada saqlanadi.","Выберите тему. Применяется сразу и сохраняется на этом устройстве."],th_dark:["Dark","Qorong‘i","Тёмная"],th_light:["Light","Yorug‘","Светлая"],
-pf_col:["Your colour","Sizning rangingiz","Ваш цвет"],pf_col_s:["Shown on your avatar and on the issues assigned to you. Saved to your account.","Avatarda va sizga biriktirilgan muammolarda ko‘rinadi. Akkauntga saqlanadi.","Показывается на аватаре и у назначенных вам проблем. Сохраняется в аккаунте."],pf_upd:["Profile updated successfully.","Profil muvaffaqiyatli yangilandi.","Профиль успешно обновлён."],
-pf_lang_s:["The whole interface switches instantly. Your choice is saved on this device.","Butun interfeys darhol almashadi. Tanlovingiz shu qurilmada saqlanadi.","Весь интерфейс переключается сразу. Выбор сохраняется на этом устройстве."],
-pf_int_s:["Connect the Samsara and Motive accounts your trucks report to. TOPGFLEET pulls vehicles (VIN, make, model), odometer readings every hour while the office is working, and safety events for the Violation Report. Each account is one API key.","Trucklaringiz ulangan Samsara va Motive akkauntlarini ulang. TOPGFLEET mashinalarni (VIN, marka, model), ofis ishlayotganda har soat probegni va Qoidabuzarliklar hisoboti uchun xavfsizlik hodisalarini oladi. Har bir akkaunt — bitta API kalit.","Подключите аккаунты Samsara и Motive. TOPGFLEET забирает машины (VIN, марка, модель), показания одометра каждый час в рабочее время и события безопасности для отчёта о нарушениях. Один аккаунт — один ключ API."],
-pf_noacc:["No account connected yet.","Hali akkaunt ulanmagan.","Аккаунт пока не подключён."],pf_addacc:["Add account","Akkaunt qo‘shish","Добавить аккаунт"],
-tm_title:["Connect a telematics account","Telematika akkauntini ulash","Подключить аккаунт телематики"],tm_prov:["Provider","Provayder","Провайдер"],tm_name:["Name (shown in the app)","Nomi (ilovada ko‘rinadi)","Название (в приложении)"],tm_key:["API key","API kalit","Ключ API"],
-tm_h_s:["Samsara dashboard → Settings → API Tokens → Add an API token with read access to Vehicles, Vehicle Statistics and Safety Events.","Samsara paneli → Settings → API Tokens → Vehicles, Vehicle Statistics va Safety Events uchun o‘qish huquqli token qo‘shing.","Панель Samsara → Settings → API Tokens → добавьте токен с доступом на чтение к Vehicles, Vehicle Statistics и Safety Events."],
-tm_h_m:["Motive dashboard → Admin → Developers → Create an API key (read access).","Motive paneli → Admin → Developers → API kalit yarating (o‘qish).","Панель Motive → Admin → Developers → создайте ключ API (чтение)."],
-tm_save:["Save and test","Saqlash va sinash","Сохранить и проверить"],tm_srv:["Keys are kept on the server, never in the browser. This page did not store the key.","Kalitlar serverda saqlanadi, brauzerda emas. Bu sahifa kalitni saqlamadi.","Ключи хранятся на сервере, а не в браузере. Эта страница ключ не сохранила."],
-tg_s:["Invoices are posted to your invoice group; inspection defects, hand-over warnings and expiring documents go to your managers group. Bot: {0}.","Hisoblar hisob guruhiga; tekshiruv nuqsonlari, topshirish ogohlantirishlari va tugayotgan hujjatlar menejerlar guruhiga yuboriladi. Bot: {0}.","Счета отправляются в группу счетов; дефекты осмотров, предупреждения о передаче и истекающие документы — в группу менеджеров. Бот: {0}."],
-tg_steps:["1. Add {0} to the group. 2. Find the group’s chat id: open the group in Telegram Web (web.telegram.org) — the number after # in the address bar, e.g. -1001234567890. 3. Paste it below and save; the bot posts a confirmation in the group.","1. {0} ni guruhga qo‘shing. 2. Guruh chat id sini toping: guruhni Telegram Web (web.telegram.org) da oching — manzil satridagi # dan keyingi raqam, masalan -1001234567890. 3. Pastga qo‘ying va saqlang; bot guruhda tasdiq yuboradi.","1. Добавьте {0} в группу. 2. Найдите ID чата: откройте группу в Telegram Web (web.telegram.org) — число после # в адресной строке, например -1001234567890. 3. Вставьте ниже и сохраните; бот пришлёт подтверждение в группу."],
-tq_s:["Add {0} to a Telegram group, send /chatid in it, and paste the number below. Leave a field empty to skip that group.","{0} ni Telegram guruhga qo‘shing, guruhda /chatid yuboring va chiqqan raqamni pastga qo‘ying. Kerak bo‘lmagan guruhni bo‘sh qoldiring.","Добавьте {0} в группу Telegram, отправьте в ней /chatid и вставьте номер ниже. Ненужную группу оставьте пустой."],
-tq_inv:["Invoices group","Invoice guruhi","Группа счетов"],tq_inv_h:["Used when a company has no invoice chat of its own (Companies section).","Kompaniyaning o‘z invoice chati bo‘lmasa shu ishlatiladi (Companies bo‘limi).","Если у компании нет своего чата счетов (раздел Companies)."],
-tq_mgr:["Managers group","Menejerlar guruhi","Группа менеджеров"],tq_mgr_h:["Defects, hand-over warnings, expiring documents.","Nuqsonlar, topshirish ogohlantirishlari, tugayotgan hujjatlar.","Дефекты, предупреждения, истекающие документы."],
-tq_work:["Workers group","Ishchilar guruhi","Группа работников"],tq_work_h:["Open High Priority issues are posted here at the send times.","Ochiq High Priority muammolar belgilangan vaqtda shu yerga yuboriladi.","Открытые проблемы High Priority публикуются сюда в заданное время."],
-tq_times:["Send list at","Ro‘yxatni yuborish vaqti","Отправлять список в"],tq_now:["Send the list now","Ro‘yxatni hozir yuborish","Отправить список сейчас"],
-tg_bot:["Bot username","Bot username","Имя бота"],tg_inv:["Invoice group chat id","Hisob guruhi chat id","ID чата группы счетов"],tg_topic:["Topic id (groups with topics only)","Topic id (faqat topiklar bor guruhlar)","ID темы (только для групп с темами)"],tg_topic_ph:["optional","ixtiyoriy","необязательно"],
-tg_mgr:["Managers group chat id (alerts)","Menejerlar guruhi chat id (ogohlantirishlar)","ID чата менеджеров (оповещения)"],tg_hp:["High Priority issues for the workers group","Ishchilar guruhi uchun yuqori prioritetli muammolar","Проблемы высокого приоритета для группы работников"],
-tg_hp_s:["At the times you set, {0} posts the open High Priority issues to your workers group: one line per issue, the unit number and what is wrong. A send time with nothing open passes without a message.","Siz belgilagan vaqtda {0} ochiq yuqori prioritetli muammolarni ishchilar guruhiga yuboradi: har bir muammo bir qatorda, unit raqami va nima noto‘g‘ri. Ochiq muammo bo‘lmasa xabar yuborilmaydi.","В заданное время {0} публикует открытые проблемы высокого приоритета в группе работников: строка на проблему, номер юнита и что не так. Если открытых нет, сообщение не отправляется."],
-tg_work:["Workers group chat id","Ishchilar guruhi chat id","ID чата группы работников"],tg_times:["Send times","Yuborish vaqtlari","Время отправки"],tg_tz:["Time zone","Vaqt zonasi","Часовой пояс"],tg_addt:["Add a time","Vaqt qo‘shish","Добавить время"],
-tg_prev:["Preview the list ({0} issues)","Ro‘yxatni ko‘rish ({0} muammo)","Предпросмотр списка ({0})"],tg_noprev:["No open High Priority issues right now.","Hozir ochiq yuqori prioritetli muammo yo‘q.","Сейчас нет открытых проблем высокого приоритета."],
-tg_now:["Send the list now","Ro‘yxatni hozir yuborish","Отправить список сейчас"],tg_save:["Save and test","Saqlash va sinash","Сохранить и проверить"],tg_saved:["Saved here. The bot posts to Telegram once the server is live.","Shu yerda saqlandi. Server ulangach bot Telegramga yuboradi.","Сохранено здесь. Бот отправит в Telegram после запуска сервера."],
-tg_nosend:["Nothing was sent: the bot runs on the server.","Hech narsa yuborilmadi: bot serverda ishlaydi.","Ничего не отправлено: бот работает на сервере."],
-co_s:["Every truck and trailer belongs to one of these carriers. The colour marks the company on the Fleet Board and in the forms.","Har bir truck va treyler shu kompaniyalardan biriga tegishli. Rang kompaniyani taxtada va formalarda ko‘rsatadi.","Каждый грузовик и прицеп принадлежит одной из этих компаний. Цвет отмечает компанию на доске и в формах."],
-co_inv:["Invoice chat ID","Invoice chat ID","ID чата счетов"],co_inv_h:["Invoices of this company's trucks and trailers go to this Telegram chat. Empty = the general invoice group.","Shu kompaniya truck/treylerlarining invoice'lari shu Telegram chatga ketadi. Bo‘sh = umumiy invoice guruhi.","Счета этой компании уходят в этот чат Telegram. Пусто = общая группа счетов."],co_inv_s:["Each company can have its own Telegram invoice chat: put the chat ID next to its name. Add the bot to that group and send /chatid there to get the ID.","Har kompaniyaning o‘z Telegram invoice chati bo‘lishi mumkin: ID ni nomi yoniga yozing. Botni o‘sha guruhga qo‘shing va ID olish uchun u yerda /chatid yuboring.","У каждой компании может быть свой чат счетов: впишите ID рядом с названием. Добавьте бота в группу и отправьте там /chatid."],co_inv_bad:["Chat ID must be a number like -1001234567890.","Chat ID raqam bo‘lishi kerak, masalan -1001234567890.","ID чата должен быть числом, напр. -1001234567890."],co_inv_ok:["Invoice chat saved","Invoice chat saqlandi","Чат счетов сохранён"],co_inv_off:["Using the general invoice group","Umumiy invoice guruhi ishlatiladi","Используется общая группа счетов"],
-co_new:["New company name","Yangi kompaniya nomi","Название новой компании"],co_add:["Add company","Kompaniya qo‘shish","Добавить компанию"],co_used:["This company is used by trucks or trailers.","Bu kompaniyadan trucklar yoki treylerlar foydalanmoqda.","Эта компания используется грузовиками или прицепами."],
-pr_s:["Every issue gets one of these priorities. The top one is the most urgent: issues sort in this order, and the dashboard’s Overview counts the top one.","Har bir muammo shu prioritetlardan biriga ega. Eng yuqorisi eng shoshilinch: muammolar shu tartibda saralanadi, boshqaruv paneli eng yuqorisini sanaydi.","У каждой проблемы один из этих приоритетов. Верхний — самый срочный: проблемы сортируются в этом порядке, а обзор считает верхний."],
-pr_s2:["Scheduled issues take their priority from the date: the top one when due, the second one within two days, the lowest one otherwise.","Rejalangan muammolar prioritetni sanadan oladi: muddati kelganda eng yuqori, ikki kun ichida ikkinchisi, aks holda eng pasti.","Запланированные проблемы берут приоритет от даты: верхний в срок, второй за два дня, иначе нижний."],
-pr_new:["New priority, e.g. Critical","Yangi prioritet, masalan Critical","Новый приоритет, напр. Critical"],pr_add:["Add priority","Prioritet qo‘shish","Добавить приоритет"],pr_issues:["{0} issues","{0} muammo","{0} проблем"],pr_last:["Keep at least one priority.","Kamida bitta prioritet qolsin.","Должен остаться хотя бы один приоритет."],pr_t:["Issue Priorities","Muammo prioritetlari","Приоритеты проблем"],
-tm_s:["Admins and office staff. Drivers are on the","Adminlar va ofis xodimlari. Driverlar","Админы и офисные сотрудники. Водители на странице"],tm_s2:["page.","sahifasida.","."],tm_tests:["Add test account","Test akkaunt","Тестовый аккаунт"],tm_inv:["Invite","Taklif qilish","Пригласить"],tm_addu:["Add user","Foydalanuvchi qo‘shish","Добавить пользователя"],
-tm_admin:["Admin","Admin","Админ"],tm_member:["Member","A‘zo","Участник"],tm_owner:["Owner","Egasi","Владелец"],tm_you:["you","siz","вы"],tm_remove:["Remove","Olib tashlash","Удалить"],tm_cant:["The owner cannot be removed.","Egasini olib tashlab bo‘lmaydi.","Владельца удалить нельзя."],
-tu_t:["Add User","Foydalanuvchi qo‘shish","Добавить пользователя"],tt_t:["Add Test Account","Test akkaunt qo‘shish","Добавить тестовый аккаунт"],tt_note:["For trying features and bugs. It works like a normal account of the role you pick and is marked “test” everywhere. Only you can delete it for good, together with everything it creates.","Funksiyalar va xatolarni sinash uchun. Tanlangan rolli oddiy akkaunt kabi ishlaydi va hamma joyda “test” deb belgilanadi. Uni faqat siz butunlay o‘chira olasiz, u yaratgan hamma narsa bilan.","Для проверки функций и ошибок. Работает как обычный аккаунт выбранной роли и везде помечен «тест». Только вы можете удалить его навсегда вместе со всем, что он создал."],
-tu_user:["Username","Username","Имя пользователя"],tu_user_h:["3–30 characters: lowercase letters, numbers, dots, underscores or dashes.","3–30 belgi: kichik harflar, raqamlar, nuqta, pastki chiziq yoki tire.","3–30 символов: строчные буквы, цифры, точки, подчёркивания или дефисы."],
-tu_role:["Role","Rol","Роль"],tu_role_h:["Admins manage the team and settings. Drivers are added on the Drivers page.","Adminlar jamoa va sozlamalarni boshqaradi. Driverlar Driverlar sahifasida qo‘shiladi.","Админы управляют командой и настройками. Водители добавляются на странице «Водители»."],tu_col:["Colour","Rang","Цвет"],
-tu_bad:["Username: 3–30 characters, lowercase letters, numbers, dots, underscores or dashes.","Username: 3–30 belgi, kichik harflar, raqamlar, nuqta, pastki chiziq yoki tire.","Имя пользователя: 3–30 символов, строчные буквы, цифры, точки, подчёркивания или дефисы."],tu_dupe:["That username or email is already used.","Bu username yoki email band.","Это имя или email уже используется."],
-iu_t:["Invite someone","Kimnidir taklif qilish","Пригласить человека"],iu_b:["Create invite link","Taklif havolasini yaratish","Создать ссылку-приглашение"],iu_n:["Invite links are created by the server when it is live. Until then, use Add user.","Taklif havolalari server ulangach yaratiladi. Hozircha “Foydalanuvchi qo‘shish” dan foydalaning.","Ссылки-приглашения создаёт сервер после запуска. Пока используйте «Добавить пользователя»."],
-ac_det:["Account details","Akkaunt ma‘lumotlari","Данные аккаунта"],ac_full:["Full name","To‘liq ism","Полное имя"],ac_user:["Username","Username","Имя пользователя"],ac_mail:["Email","Email","Email"],ac_pw:["Password","Parol","Пароль"],ac_change:["Change","O‘zgartirish","Изменить"],
-ac_pwn:["Passwords are handled by the server. Nothing is stored on this page.","Parollar serverda boshqariladi. Bu sahifada hech narsa saqlanmaydi.","Пароли обрабатывает сервер. На этой странице ничего не хранится."],ac_cur:["Current password","Joriy parol","Текущий пароль"],ac_new:["New password","Yangi parol","Новый пароль"],
-dm_t:["Demo data","Demo ma‘lumot","Демо-данные"],dm_s:["This page saves data in this browser only. The server and database come next, so the whole team shares one version.","Bu sahifa ma‘lumotni faqat shu brauzerda saqlaydi. Keyingi bosqichda server va baza ulanadi.","Эта страница хранит данные только в этом браузере. Дальше подключаем сервер и базу для всей команды."],
-dm_load:["Load demo data","Demo ma‘lumotni yuklash","Загрузить демо-данные"],dm_reset:["Erase all data","Hamma ma‘lumotni o‘chirish","Стереть все данные"],dm_sure:["Erase everything saved on this page?","Shu sahifada saqlangan hamma narsa o‘chirilsinmi?","Стереть всё, что сохранено на этой странице?"],dm_done:["Demo data loaded.","Demo ma‘lumot yuklandi.","Демо-данные загружены."]
+app.use('/api', limit('api', 600, 60e3));
+app.use(express.json({ limit: '2mb' }));
+
+// ---------- CSRF: JSON API only accepts same-origin requests carrying our header ----------
+app.use('/api', (req, res, next) => {
+  if (req.method === 'GET' || req.method === 'HEAD') return next();
+  if (req.headers['x-requested-with'] !== 'tf') return res.status(403).json({ error: 'csrf' });
+  const o = req.headers.origin;
+  if (o) { try { if (new URL(o).host !== req.headers.host) return res.status(403).json({ error: 'csrf' }); } catch { return res.status(403).json({ error: 'csrf' }); } }
+  next();
+});
+
+// ---------- helpers ----------
+const COOKIE = 'tf_sid';
+function readCookie(req) {
+  const m = /(?:^|;\s*)tf_sid=([A-Za-z0-9_-]{20,80})/.exec(req.headers.cookie || '');
+  return m && m[1];
+}
+function setCookie(req, res, tok, maxAgeSec) {
+  const secure = PROD || req.secure;
+  res.setHeader('Set-Cookie', `${COOKIE}=${tok}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAgeSec}${secure ? '; Secure' : ''}`);
+}
+const clearCookie = (req, res) => setCookie(req, res, '', 0);
+const audit = (userId, action, target, detail, ip) =>
+  q('INSERT INTO audit(user_id,action,target,detail,ip) VALUES($1,$2,$3,$4,$5)', [userId || null, action, target || null, detail ? JSON.stringify(detail) : null, ip || null]).catch(e => console.error('audit', e.message));
+let REQ2FA = false;
+const cleanAvatar = x => { if (x === null || x === '') return null; x = String(x); return /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/.test(x) && x.length <= 450000 ? x : undefined; };
+const avUrl = u => u.avatar ? '/api/avatar/' + u.id + '?v=' + C.sha(u.avatar).slice(0, 10) : null;
+const THEMES = new Set(['charcoal', 'midnight', 'forest', 'daylight', 'paper', 'mist']), LANGS = new Set(['en', 'uz', 'ru']);   // policy: staff sign in only with a code from the OWNER's authenticator (owner approves every sign-in)
+const viaOwner = u => REQ2FA && !u.is_owner && u.role !== 'driver';
+const publicUser = u => ({ tg: u.tg_user || '', emailOk: u.email_ok !== false, pend: u.pend_email || null, permEdit: !!u.perm_edit, mailOn: MAIL.enabled(), prefs: u.prefs || {}, avatar: avUrl(u), avLock: !!u.av_lock, need2fa: REQ2FA && !!u.is_owner && !u.totp_on, viaOwner: viaOwner(u), id: u.id, email: u.email, username: u.username, name: u.name, role: u.role, owner: u.is_owner, totp: u.totp_on, mustChange: u.must_change, color: u.color || null, noMail: /@no-email\.local$/i.test(u.email), companies: u.role === 'admin' ? null : (u.companies || null), test: !!u.is_test });
+const okId = s => typeof s === 'string' && /^[A-Za-z0-9_-]{1,40}$/.test(s);
+const cleanCompanies = v => v === null ? null : (Array.isArray(v) && v.length <= 200 && v.every(okId) ? [...new Set(v)] : undefined);
+const allowedOf = u => (u.role !== 'admin' && Array.isArray(u.companies)) ? new Set(u.companies) : null;   // null = sees everything
+const wrap = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(e => { console.error(e); res.status(500).json({ error: 'server' }); });
+
+async function newSession(req, res, userId, stage) {
+  const tok = C.token(), ttl = stage === 'pw' ? PW_STAGE_MIN * 60 : SESSION_HOURS * 3600;
+  await q(`INSERT INTO sessions(token_hash,user_id,stage,expires_at,ip,ua) VALUES($1,$2,$3,now()+make_interval(secs => $4::int),$5,$6)`,
+    [C.sha(tok), userId, stage, ttl, req.ip, String(req.headers['user-agent'] || '').slice(0, 200)]);
+  setCookie(req, res, tok, ttl);
+}
+async function sessionOf(req) {
+  const tok = readCookie(req); if (!tok) return null;
+  const r = await q(`SELECT s.token_hash,s.stage,u.* FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=$1 AND s.expires_at>now() AND NOT u.disabled`, [C.sha(tok)]);
+  return r.rows[0] || null;
+}
+const auth = (stage = 'full') => wrap(async (req, res, next) => {
+  const s = await sessionOf(req);
+  if (!s || s.stage !== stage) return res.status(401).json({ error: 'auth' });
+  if (REQ2FA && s.is_owner && !s.totp_on && stage === 'full' && !(req.path === '/api/me' && req.method === 'GET') && !req.path.startsWith('/api/2fa/') && req.path !== '/api/password') return res.status(403).json({ error: '2fa_setup' });
+  req.u = s; req.sh = s.token_hash; next();
+});
+const need = (...roles) => (req, res, next) => roles.includes(req.u.role) ? next() : res.status(403).json({ error: 'role' });
+const staff = need('admin', 'member');
+const admin = need('admin');
+// Integrations (Telegram, Samsara/Motive accounts): the owner, plus people the owner allowed (kv intEd)
+const canInt = async u => { if (u.is_owner) return true; const r = (await q("SELECT value FROM kv WHERE key='intEd'")).rows[0]; return !!r && Array.isArray(r.value) && r.value.includes(u.id); };
+// Section access: the owner can switch any section off for any person (kv pageDeny: { userId: [section keys] })
+const SECTIONS = ['today', 'trucks', 'trailers', 'hookdrop', 'drivers', 'maintenance', 'pti', 'inspections', 'documents', 'violations', 'invoices', 'vendors'];
+const SECTION_COLLS = { today: ['issues'], hookdrop: ['links', 'hist'], trucks: ['trucks'], trailers: ['trailers'], drivers: ['drivers'], maintenance: ['plans', 'svc'], documents: ['docs'], inspections: ['insp'], invoices: ['inv'], vendors: ['vend'] };
+const roOf = async u => { if (u.is_owner) return []; const r = (await q("SELECT value FROM kv WHERE key='pageRead'")).rows[0]; const l = r && r.value && r.value[u.id]; return Array.isArray(l) ? l.filter(k => SECTIONS.includes(k)) : []; };
+const denyOf = async u => { if (u.is_owner) return []; const r = (await q("SELECT value FROM kv WHERE key='pageDeny'")).rows[0]; const l = r && r.value && r.value[u.id]; return Array.isArray(l) ? l.filter(k => SECTIONS.includes(k)) : []; };
+const intOk = wrap(async (req, res, next) => { if (!(await canInt(req.u))) return res.status(403).json({ error: 'role' }); next(); });
+const ownerOnly = (req, res, next) => req.u.is_owner ? next() : res.status(403).json({ error: 'role' });
+const baseUrl = req => (process.env.PUBLIC_URL || (process.env.RAILWAY_PUBLIC_DOMAIN ? 'https://' + process.env.RAILWAY_PUBLIC_DOMAIN : (PROD ? 'https' : req.protocol) + '://' + req.get('host'))).replace(/\/$/, '');
+const cleanTg = v => { const x = String(v == null ? '' : v).trim().replace(/^https?:\/\/t\.me\//i, '').replace(/^@/, ''); return !x ? '' : /^[A-Za-z0-9_]{5,32}$/.test(x) ? x : undefined; };
+const okMail = e => /^[^@\s]{1,64}@[^@\s]{1,200}$/.test(e);
+// the person may manage (sign out, reset, remove, role, block) this account / may edit its details
+const canManage = (me, t) => me.is_owner ? true : (me.role === 'admin' && t.role === 'driver');
+const canEditInfo = (me, t) => canManage(me, t) || (me.role === 'admin' && !!me.perm_edit && t.role === 'member' && !t.is_owner);
+// start an e-mail change: with mail configured the new address must be confirmed first, otherwise it is saved and marked unconfirmed
+async function changeEmail(u, e, req) {
+  const dupe = await q('SELECT 1 FROM users WHERE lower(email)=$1 AND id<>$2', [e, u.id]); if (dupe.rows.length) return 'dupe';
+  if (MAIL.enabled()) {
+    const tok = C.token(), url = baseUrl(req) + '/verify/' + tok;
+    await q("UPDATE users SET pend_email=$2, pend_tok=$3, pend_exp=now()+interval '1 day' WHERE id=$1", [u.id, e, C.sha(tok)]);
+    const ok = await MAIL.send(e, 'Confirm your email · TOPGFLEET', MAIL.wrap('Confirm your email', 'Press the button to confirm this address for your TOPGFLEET account. The link works for 24 hours.', url, 'Confirm email'), 'Confirm your email: ' + url);
+    return ok ? 'pending' : 'mailfail';
+  }
+  await q('UPDATE users SET email=$2, email_ok=FALSE, pend_email=NULL, pend_tok=NULL, pend_exp=NULL WHERE id=$1', [u.id, e]);
+  return 'applied';
+}
+
+// tell the owner on Telegram who signs in / out (only if the owner linked a private chat)
+async function notifyOwner(u, what, req) {
+  try {
+    if (!TG.enabled()) return;
+    const rows = (await q("SELECT c.chat_id FROM tg_chats c JOIN users o ON o.id=c.user_id WHERE o.is_owner AND NOT o.disabled")).rows; if (!rows.length) return;
+    const esc = x => String(x || '').replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]), ua = String(req.headers['user-agent'] || '');
+    const dev = (/iPhone|iPad/.test(ua) ? 'iPhone' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows' : /Mac OS/.test(ua) ? 'Mac' : /Linux/.test(ua) ? 'Linux' : 'device') + (/Edg\//.test(ua) ? ' · Edge' : /Chrome\//.test(ua) ? ' · Chrome' : /Firefox\//.test(ua) ? ' · Firefox' : /Safari\//.test(ua) ? ' · Safari' : '');
+    for (const r of rows) await TG.send(r.chat_id, `${what === 'signed in' ? '🟢' : '⚪️'} <b>${esc(u.name)}</b> ${what}\n${esc(dev)} · ${esc(req.ip)}`);
+  } catch (e) { console.error('notifyOwner', e.message); }
+}
+
+// ---------- login ----------
+app.post('/api/login', limit('login', LOGIN_MAX, 10 * 60e3), wrap(async (req, res) => {
+  const email = String(req.body.email || '').trim().toLowerCase().slice(0, 200), pw = String(req.body.password || '').slice(0, 300);
+  const r = await q('SELECT * FROM users WHERE lower(email)=$1 OR lower(username)=$1', [email]);
+  const u = r.rows[0];
+  if (!u) { await C.dummyVerify(pw); audit(null, 'login.fail', email, { why: 'unknown' }, req.ip); return res.status(401).json({ error: 'creds' }); }
+  if (u.disabled) { await C.dummyVerify(pw); return res.status(401).json({ error: 'creds' }); }
+  if (u.locked_until && new Date(u.locked_until) > new Date()) { audit(u.id, 'login.locked', u.email, null, req.ip); return res.status(429).json({ error: 'locked' }); }
+  const ok = await C.verifyPassword(pw, u.pass_hash);
+  if (!ok) {
+    const f = u.failed + 1;
+    await q('UPDATE users SET failed=$2::int, locked_until=CASE WHEN $2::int>=$3::int THEN now()+make_interval(mins => $4::int) ELSE locked_until END WHERE id=$1', [u.id, f, LOCK_AFTER, LOCK_MIN]);
+    audit(u.id, 'login.fail', u.email, { failed: f }, req.ip);
+    return res.status(401).json({ error: 'creds' });
+  }
+  await q('UPDATE users SET failed=0, locked_until=NULL WHERE id=$1', [u.id]);
+  if (u.totp_on || viaOwner(u)) { await newSession(req, res, u.id, 'pw'); return res.json({ next: 'totp', owner: viaOwner(u) }); }
+  await newSession(req, res, u.id, 'full');
+  audit(u.id, 'login.ok', u.email, { totp: false }, req.ip); if (!u.is_owner) notifyOwner(u, 'signed in', req);
+  res.json({ user: publicUser(u) });
+}));
+
+app.post('/api/login/totp', limit('totp', LOGIN_MAX, 10 * 60e3), auth('pw'), wrap(async (req, res) => {
+  const u = req.u;
+  if (u.locked_until && new Date(u.locked_until) > new Date()) return res.status(429).json({ error: 'locked' });
+  let secret = u.totp_secret;
+  if (viaOwner(u)) { const o = (await q('SELECT totp_secret FROM users WHERE is_owner AND totp_on AND NOT disabled LIMIT 1')).rows[0]; if (!o) return res.status(409).json({ error: 'noowner' }); secret = o.totp_secret; }
+  const step = C.totpCheck(C.unseal(secret), req.body.code, +u.totp_last);
+  if (!step) {
+    const f = u.failed + 1;
+    await q('UPDATE users SET failed=$2::int, locked_until=CASE WHEN $2::int>=$3::int THEN now()+make_interval(mins => $4::int) ELSE locked_until END WHERE id=$1', [u.id, f, LOCK_AFTER, LOCK_MIN]);
+    audit(u.id, 'login.totp_fail', u.email, null, req.ip);
+    return res.status(401).json({ error: 'code' });
+  }
+  await q('UPDATE users SET totp_last=$2, failed=0 WHERE id=$1', [u.id, step]);
+  await q('DELETE FROM sessions WHERE token_hash=$1', [req.sh]);       // new token after the second step
+  await newSession(req, res, u.id, 'full');
+  audit(u.id, 'login.ok', u.email, { totp: true, viaOwner: viaOwner(u) }, req.ip); if (!u.is_owner) notifyOwner(u, 'signed in', req);
+  res.json({ user: publicUser(u) });
+}));
+
+app.post('/api/logout', wrap(async (req, res) => {
+  const tok = readCookie(req); if (tok) { const so = await sessionOf(req); if (so && so.stage === 'full' && !so.is_owner) notifyOwner(so, 'signed out', req); await q('DELETE FROM sessions WHERE token_hash=$1', [C.sha(tok)]); }
+  clearCookie(req, res); res.json({ ok: true });
+}));
+app.get('/api/avatar/:id', auth(), wrap(async (req, res) => {
+  const r = (await q('SELECT avatar FROM users WHERE id=$1', [req.params.id])).rows[0], m = r && r.avatar && /^data:(image\/(?:jpeg|png|webp));base64,(.+)$/.exec(r.avatar);
+  if (!m) return res.sendStatus(404);
+  res.setHeader('Content-Type', m[1]); res.setHeader('Cache-Control', 'private, max-age=604800, immutable'); res.send(Buffer.from(m[2], 'base64'));
+}));
+app.get('/api/me', auth(), (req, res) => res.json({ user: publicUser(req.u) }));
+
+
+app.patch('/api/me', limit('login', LOGIN_MAX, 10 * 60e3), auth(), wrap(async (req, res) => {
+  const b = req.body || {}, u = req.u, set = {}; let pendMsg = null;
+  if (b.name !== undefined) { const n = String(b.name).trim(); if (!n || n.length > 100) return res.status(400).json({ error: 'bad' }); set.name = n; }
+  if (b.username !== undefined) { const x = String(b.username).trim().toLowerCase(); if (!/^[a-z0-9._-]{3,30}$/.test(x)) return res.status(400).json({ error: 'bad' }); set.username = x; }
+  if (b.email !== undefined) {
+    const e = String(b.email).trim().toLowerCase(); if (!/^[^@\s]{1,64}@[^@\s]{1,200}$/.test(e)) return res.status(400).json({ error: 'bad' });
+    if (e !== u.email) { const st = await changeEmail(u, e, req); if (st === 'dupe') return res.status(409).json({ error: 'dupe' }); if (st === 'mailfail') return res.status(502).json({ error: 'mail' }); pendMsg = st; audit(u.id, 'email.change', e, { how: st }, req.ip); }
+  }
+  if (b.tg !== undefined) { const g = cleanTg(b.tg); if (g === undefined) return res.status(400).json({ error: 'bad' }); set.tg_user = g || null; }
+  if (b.color !== undefined) { if (!/^#[0-9a-fA-F]{6}$/.test(String(b.color))) return res.status(400).json({ error: 'bad' }); set.color = String(b.color).toLowerCase(); }
+  if (b.avatar !== undefined) { if (u.av_lock && !u.is_owner) return res.status(403).json({ error: 'locked' }); const a = cleanAvatar(b.avatar); if (a === undefined) return res.status(400).json({ error: 'bad' }); set.avatar = a; }
+  if (b.prefs && typeof b.prefs === 'object') { const pr = { ...(u.prefs || {}) }; if (THEMES.has(b.prefs.theme)) pr.theme = b.prefs.theme; if (LANGS.has(b.prefs.lang)) pr.lang = b.prefs.lang; if (b.prefs.sz && typeof b.prefs.sz === 'object') { const c = (v, lo, hi) => Math.max(lo, Math.min(hi, Math.round(+v) || 100)); pr.sz = { fz: c(b.prefs.sz.fz, 50, 150), mz: c(b.prefs.sz.mz, 50, 120), pz: c(b.prefs.sz.pz, 50, 100) }; } set.prefs = JSON.stringify(pr); }
+  const keys = Object.keys(set); if (!keys.length) { const f = (await q('SELECT * FROM users WHERE id=$1', [u.id])).rows[0]; return res.json({ user: publicUser(f), email: pendMsg }); }
+  try {
+    const r = await q(`UPDATE users SET ${keys.map((k, i) => k + '=$' + (i + 2)).join(',')} WHERE id=$1 RETURNING *`, [u.id, ...keys.map(k => set[k])]);
+    audit(u.id, 'profile.update', u.email, { fields: keys }, req.ip); res.json({ user: publicUser(r.rows[0]), email: pendMsg });
+  } catch (e) { if (e.code === '23505') return res.status(409).json({ error: 'dupe' }); throw e; }
+}));
+
+// ---------- 2FA + password ----------
+app.post('/api/2fa/start', auth(), wrap(async (req, res) => {
+  if (req.u.totp_on) return res.status(409).json({ error: 'already' });
+  const secret = C.newTotpSecret();
+  await q('UPDATE users SET totp_secret=$2 WHERE id=$1', [req.u.id, C.seal(secret)]);
+  res.json({ secret, uri: C.totpUri(secret, req.u.email) });
+}));
+app.post('/api/2fa/enable', limit('totp', LOGIN_MAX, 10 * 60e3), auth(), wrap(async (req, res) => {
+  if (!req.u.totp_secret) return res.status(400).json({ error: 'start' });
+  const step = C.totpCheck(C.unseal(req.u.totp_secret), req.body.code, 0);
+  if (!step) return res.status(401).json({ error: 'code' });
+  await q('UPDATE users SET totp_on=TRUE, totp_last=$2 WHERE id=$1', [req.u.id, step]);
+  audit(req.u.id, '2fa.enable', req.u.email, null, req.ip); res.json({ ok: true });
+}));
+app.get('/api/2fa/policy', auth(), (req, res) => res.json({ on: REQ2FA }));
+app.post('/api/2fa/policy', limit('login', LOGIN_MAX, 10 * 60e3), auth(), wrap(async (req, res) => {
+  if (!req.u.is_owner) return res.status(403).json({ error: 'role' });
+  const on = !!(req.body && req.body.on); if (on && !req.u.totp_on) return res.status(409).json({ error: 'ownerfirst' });
+  await q("INSERT INTO kv(key,value,updated_by) VALUES('req2fa',$1,$2) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_at=now(), updated_by=EXCLUDED.updated_by", [JSON.stringify(on), req.u.id]);
+  REQ2FA = on; audit(req.u.id, on ? '2fa.require_on' : '2fa.require_off', null, null, req.ip); res.json({ on });
+}));
+app.post('/api/2fa/disable', limit('login', LOGIN_MAX, 10 * 60e3), auth(), wrap(async (req, res) => {
+  if (REQ2FA) return res.status(403).json({ error: 'required' });
+  if (!(await C.verifyPassword(String(req.body.password || ''), req.u.pass_hash))) return res.status(401).json({ error: 'creds' });
+  const step = req.u.totp_on ? C.totpCheck(C.unseal(req.u.totp_secret), req.body.code, +req.u.totp_last) : 1;
+  if (!step) return res.status(401).json({ error: 'code' });
+  await q('UPDATE users SET totp_on=FALSE, totp_secret=NULL WHERE id=$1', [req.u.id]);
+  audit(req.u.id, '2fa.disable', req.u.email, null, req.ip); res.json({ ok: true });
+}));
+app.post('/api/password', limit('login', LOGIN_MAX, 10 * 60e3), auth(), wrap(async (req, res) => {
+  const { current, next } = req.body;
+  if (!(await C.verifyPassword(String(current || ''), req.u.pass_hash))) return res.status(401).json({ error: 'creds' });
+  const bad = C.passwordProblem(next, req.u); if (bad) return res.status(400).json({ error: 'weak', why: bad });
+  await q('UPDATE users SET pass_hash=$2, must_change=FALSE WHERE id=$1', [req.u.id, await C.hashPassword(next)]);
+  if (req.body.signoutOthers !== false) await q('DELETE FROM sessions WHERE user_id=$1 AND token_hash<>$2', [req.u.id, req.sh]);
+  audit(req.u.id, 'password.change', req.u.email, null, req.ip); res.json({ ok: true });
+}));
+
+// ---------- users: owner manages everyone; an admin sees members (and edits them only if the owner allows); members see nobody ----------
+const getUser = async id => (await q('SELECT * FROM users WHERE id=$1', [id])).rows[0];
+app.get('/api/users', auth(), admin, wrap(async (req, res) => {
+  const own = req.u.is_owner;
+  const r = await q(own ? 'SELECT * FROM users ORDER BY created_at' : "SELECT * FROM users WHERE id=$1 OR role IN ('member','driver') ORDER BY created_at", own ? [] : [req.u.id]);
+  const sx = (await q("SELECT user_id, count(*)::int n, max(created_at) last, (array_agg(ip ORDER BY created_at DESC))[1] ip, (array_agg(ua ORDER BY created_at DESC))[1] ua FROM sessions WHERE stage='full' AND expires_at>now() GROUP BY user_id")).rows, sm = Object.fromEntries(sx.map(x => [x.user_id, x]));
+  res.json({ users: r.rows.map(u => ({ ...publicUser(u), disabled: u.disabled, online: (sm[u.id] || {}).n || 0, lastIn: (sm[u.id] || {}).last || null, lastIp: own ? (sm[u.id] || {}).ip || null : null, lastUa: own ? String((sm[u.id] || {}).ua || '').slice(0, 120) : '' })) });
+}));
+app.post('/api/users/:id/signout', auth(), admin, wrap(async (req, res) => {
+  const t = await getUser(req.params.id); if (!t) return res.status(404).json({ error: 'none' });
+  if (t.is_owner) return res.status(400).json({ error: 'owner' });
+  if (!canManage(req.u, t)) return res.status(403).json({ error: 'role' });
+  await q('DELETE FROM sessions WHERE user_id=$1', [t.id]); audit(req.u.id, 'user.signout', t.email, null, req.ip); res.json({ ok: true });
+}));
+app.post('/api/users', auth(), admin, wrap(async (req, res) => {
+  const b = req.body, username = String(b.username || '').trim().toLowerCase(), name = String(b.name || '').trim(), email = String(b.email || '').trim().toLowerCase() || (username + '@no-email.local');
+  if (!okMail(email) || !/^[a-z0-9._-]{3,30}$/.test(username) || !name || name.length > 100 || !ROLES.has(b.role)) return res.status(400).json({ error: 'bad' });
+  if (b.role === 'admin' && !req.u.is_owner) return res.status(403).json({ error: 'role' });
+  const bad = C.passwordProblem(b.password, { email, username, name }); if (bad) return res.status(400).json({ error: 'weak', why: bad });
+  try {
+    const id = C.uid();
+    const cos = b.companies === undefined ? null : cleanCompanies(b.companies); if (cos === undefined) return res.status(400).json({ error: 'bad' });
+    await q('INSERT INTO users(id,email,username,name,role,pass_hash,must_change,is_test,companies,color) VALUES($1,$2,$3,$4,$5,$6,TRUE,$7,$8,$9)', [id, email, username, name, b.role, await C.hashPassword(b.password), !!b.test, cos ? JSON.stringify(cos) : null, /^#[0-9a-fA-F]{6}$/.test(String(b.color || '')) ? b.color : null]);
+    audit(req.u.id, 'user.create', email, { role: b.role }, req.ip); res.json({ id });
+  } catch (e) { if (e.code === '23505') return res.status(409).json({ error: 'dupe' }); throw e; }
+}));
+app.patch('/api/users/:id', auth(), admin, wrap(async (req, res) => {
+  const t = await getUser(req.params.id); if (!t) return res.status(404).json({ error: 'none' });
+  const b = req.body || {}, own = req.u.is_owner, mng = canManage(req.u, t);
+  if (!own && t.id === req.u.id) return res.status(403).json({ error: 'role' });
+  const onlyDis = Object.keys(b).length > 0 && Object.keys(b).every(k => k === 'disabled' && typeof b[k] === 'boolean');   // any admin may block / unblock a member or driver
+  const disOk = onlyDis && req.u.role === 'admin' && t.role !== 'admin' && !t.is_owner;
+  if (!canEditInfo(req.u, t) && !disOk) return res.status(403).json({ error: 'role' });
+  if (!mng && !onlyDis && ['role', 'disabled', 'color', 'avatar', 'avLock', 'permEdit'].some(k => b[k] !== undefined)) return res.status(403).json({ error: 'role' });
+  if (t.is_owner && (b.disabled || (b.role && b.role !== 'admin'))) return res.status(400).json({ error: 'owner' });
+  if (t.id === req.u.id && b.disabled) return res.status(400).json({ error: 'self' });
+  const role = b.role && ROLES.has(b.role) ? b.role : t.role, disabled = typeof b.disabled === 'boolean' ? b.disabled : t.disabled;
+  if (role === 'admin' && t.role !== 'admin' && !own) return res.status(403).json({ error: 'role' });
+  const name = b.name ? String(b.name).trim().slice(0, 100) : t.name;
+  let cos = t.companies; if (b.companies !== undefined) { cos = cleanCompanies(b.companies); if (cos === undefined) return res.status(400).json({ error: 'bad' }); }
+  const color = b.color !== undefined && /^#[0-9a-fA-F]{6}$/.test(String(b.color)) ? String(b.color).toLowerCase() : t.color;
+  let email = t.email, emailOk = t.email_ok !== false;
+  if (b.email !== undefined) {
+    const e = String(b.email || '').trim().toLowerCase().slice(0, 200), nxt = e || (t.username + '@no-email.local');
+    if (!okMail(nxt)) return res.status(400).json({ error: 'bad' });
+    if (nxt !== t.email) { const d = await q('SELECT 1 FROM users WHERE lower(email)=$1 AND id<>$2', [nxt, t.id]); if (d.rows.length) return res.status(409).json({ error: 'dupe' }); email = nxt; emailOk = true; }
+  }
+  let username = t.username; if (b.username !== undefined) { const x = String(b.username).trim().toLowerCase(); if (!/^[a-z0-9._-]{3,30}$/.test(x)) return res.status(400).json({ error: 'bad' }); if (x !== t.username) { const d = await q('SELECT 1 FROM users WHERE lower(username)=$1 AND id<>$2', [x, t.id]); if (d.rows.length) return res.status(409).json({ error: 'dupe' }); username = x; } }
+  let tg = t.tg_user; if (b.tg !== undefined) { const g = cleanTg(b.tg); if (g === undefined) return res.status(400).json({ error: 'bad' }); tg = g || null; }
+  let avatar = t.avatar; if (b.avatar !== undefined) { avatar = cleanAvatar(b.avatar); if (avatar === undefined) return res.status(400).json({ error: 'bad' }); }
+  let avLock = !!t.av_lock; if (typeof b.avLock === 'boolean') { if (!own || t.is_owner) return res.status(403).json({ error: 'role' }); avLock = b.avLock; }
+  let perm = !!t.perm_edit; if (typeof b.permEdit === 'boolean') { if (!own || t.role !== 'admin' || t.is_owner) return res.status(403).json({ error: 'role' }); perm = b.permEdit; }
+  await q('UPDATE users SET role=$2, disabled=$3, name=$4, companies=$5, color=$6, email=$7, avatar=$8, av_lock=$9, username=$10, tg_user=$11, perm_edit=$12, email_ok=$13 WHERE id=$1', [t.id, role, disabled, name, cos ? JSON.stringify(cos) : null, color, email, avatar, avLock, username, tg, perm, emailOk]);
+  if (disabled || role !== t.role) await q('DELETE FROM sessions WHERE user_id=$1', [t.id]);
+  audit(req.u.id, 'user.update', t.email, { role, disabled, perm }, req.ip); res.json({ ok: true });
+}));
+app.post('/api/users/:id/reset', auth(), admin, wrap(async (req, res) => {
+  const t = await getUser(req.params.id); if (!t) return res.status(404).json({ error: 'none' });
+  if (!canManage(req.u, t)) return res.status(403).json({ error: 'role' });
+  const bad = C.passwordProblem(req.body.password, t); if (bad) return res.status(400).json({ error: 'weak', why: bad });
+  await q('UPDATE users SET pass_hash=$2, must_change=TRUE, failed=0, locked_until=NULL, totp_on=FALSE, totp_secret=NULL WHERE id=$1', [t.id, await C.hashPassword(req.body.password)]);
+  await q('DELETE FROM sessions WHERE user_id=$1', [t.id]);
+  audit(req.u.id, 'user.reset', t.email, null, req.ip); res.json({ ok: true });
+}));
+app.delete('/api/users/:id', auth(), admin, wrap(async (req, res) => {
+  const t = await getUser(req.params.id); if (!t) return res.status(404).json({ error: 'none' });
+  if (t.is_owner || t.id === req.u.id) return res.status(400).json({ error: 'owner' });
+  if (!req.u.is_owner) return res.status(403).json({ error: 'role' });
+  await q('DELETE FROM users WHERE id=$1', [t.id]); audit(req.u.id, 'user.delete', t.email, null, req.ip); res.json({ ok: true });
+}));
+
+// ---------- invites: owner (any role) and admins (members only) send a one-time link ----------
+const INVITE_DAYS = 7;
+app.get('/api/invites', auth(), admin, wrap(async (req, res) => {
+  const r = await q("SELECT id,email,role,expires_at FROM invites WHERE used_at IS NULL AND expires_at>now() " + (req.u.is_owner ? '' : "AND role='member' ") + 'ORDER BY created_at DESC');
+  res.json({ invites: r.rows });
+}));
+app.post('/api/invites', limit('invite', 30, 3600e3), auth(), admin, wrap(async (req, res) => {
+  const b = req.body || {}, email = String(b.email || '').trim().toLowerCase().slice(0, 200), role = req.u.is_owner && b.role === 'admin' ? 'admin' : 'member';
+  if (!okMail(email)) return res.status(400).json({ error: 'bad' });
+  const cos = b.companies === undefined ? null : cleanCompanies(b.companies); if (cos === undefined) return res.status(400).json({ error: 'bad' });
+  if ((await q('SELECT 1 FROM users WHERE lower(email)=$1', [email])).rows.length) return res.status(409).json({ error: 'dupe' });
+  await q('DELETE FROM invites WHERE lower(email)=$1 AND used_at IS NULL', [email]);
+  const tok = C.token(), id = C.uid(), link = baseUrl(req) + '/invite/' + tok;
+  const ex = (await q("INSERT INTO invites(id,token_hash,email,role,companies,created_by,expires_at) VALUES($1,$2,$3,$4,$5,$6,now()+make_interval(days => $7::int)) RETURNING expires_at", [id, C.sha(tok), email, role, cos ? JSON.stringify(cos) : null, req.u.id, INVITE_DAYS])).rows[0].expires_at;
+  const mailed = await MAIL.send(email, "You're invited to TOPGFLEET", MAIL.wrap("You're invited to TOPGFLEET", `${req.u.name} invited you as ${role}. Choose your name and password, then sign in with this email. The link works once, for ${INVITE_DAYS} days.`, link, 'Accept invite'), 'Accept your TOPGFLEET invite: ' + link);
+  audit(req.u.id, 'invite.create', email, { role }, req.ip);
+  res.json({ id, link, email, role, expires: ex, mailed });
+}));
+app.delete('/api/invites/:id', auth(), admin, wrap(async (req, res) => {
+  const r = await q("DELETE FROM invites WHERE id=$1 AND used_at IS NULL " + (req.u.is_owner ? '' : "AND role='member'") + ' RETURNING email', [req.params.id]);
+  if (!r.rows.length) return res.status(404).json({ error: 'none' }); audit(req.u.id, 'invite.revoke', r.rows[0].email, null, req.ip); res.json({ ok: true });
+}));
+const inviteOf = async t => (await q('SELECT * FROM invites WHERE token_hash=$1 AND used_at IS NULL AND expires_at>now()', [C.sha(String(t).slice(0, 100))])).rows[0];
+app.get('/api/invite/:t', limit('invget', 60, 600e3), wrap(async (req, res) => {
+  const i = await inviteOf(req.params.t); if (!i) return res.status(404).json({ error: 'none' }); res.json({ email: i.email, role: i.role });
+}));
+app.post('/api/invite/:t/accept', limit('invacc', 20, 600e3), wrap(async (req, res) => {
+  const i = await inviteOf(req.params.t); if (!i) return res.status(404).json({ error: 'none' });
+  const name = String((req.body || {}).name || '').trim(), pw = String((req.body || {}).password || '');
+  if (!name || name.length > 100) return res.status(400).json({ error: 'bad' });
+  let base = i.email.split('@')[0].toLowerCase().replace(/[^a-z0-9._-]/g, '').slice(0, 24); if (base.length < 3) base = (base + 'user').slice(0, 24);
+  const bad = C.passwordProblem(pw, { email: i.email, username: base, name }); if (bad) return res.status(400).json({ error: 'weak', why: bad });
+  let username = base; for (let n = 1; (await q('SELECT 1 FROM users WHERE lower(username)=$1', [username])).rows.length; n++) username = base + n;
+  try {
+    await q('INSERT INTO users(id,email,username,name,role,pass_hash,must_change,companies) VALUES($1,$2,$3,$4,$5,$6,FALSE,$7)', [C.uid(), i.email, username, name, i.role, await C.hashPassword(pw), i.companies ? JSON.stringify(i.companies) : null]);
+  } catch (e) { if (e.code === '23505') return res.status(409).json({ error: 'dupe' }); throw e; }
+  await q('UPDATE invites SET used_at=now() WHERE id=$1', [i.id]); audit(null, 'invite.accept', i.email, { role: i.role }, req.ip);
+  res.json({ ok: true, email: i.email });
+}));
+app.get('/verify/:t', limit('verify', 30, 600e3), wrap(async (req, res) => {
+  const u = (await q('SELECT * FROM users WHERE pend_tok=$1 AND pend_exp>now()', [C.sha(String(req.params.t).slice(0, 100))])).rows[0];
+  if (!u) return res.redirect('/profile?email=bad');
+  try { await q('UPDATE users SET email=pend_email, email_ok=TRUE, pend_email=NULL, pend_tok=NULL, pend_exp=NULL WHERE id=$1', [u.id]); }
+  catch (e) { if (e.code === '23505') return res.redirect('/profile?email=bad'); throw e; }
+  audit(u.id, 'email.verified', u.pend_email, null, req.ip); res.redirect('/profile?email=ok');
+}));
+
+// ---------- fleet data ----------
+// narrow the data a company-restricted member is allowed to see
+function scopeState(DB, A) {
+  const low = x => String(x || '').trim().toLowerCase();
+  const allT = DB.trucks, allR = DB.trailers;
+  const trucks = allT.filter(x => A.has(x.company)), trailers = allR.filter(x => A.has(x.company));
+  const tids = new Set(trucks.map(x => x.id)), rids = new Set(trailers.map(x => x.id));
+  const okNums = new Set([...trucks, ...trailers].map(x => low(x.num)));
+  const knownNums = new Set([...allT, ...allR].map(x => low(x.num)));
+  const unitOk = n => !knownNums.has(low(n)) || okNums.has(low(n));      // text that names no unit stays visible
+  const out = { ...DB, trucks, trailers };
+  out.drivers = DB.drivers.filter(x => !x.truck || tids.has(x.truck));
+  out.issues = DB.issues.filter(x => unitOk(x.title));
+  out.plans = DB.plans.filter(x => tids.has(x.truck));
+  out.svc = DB.svc.filter(x => tids.has(x.truck));
+  out.docs = DB.docs.filter(x => x.kind === 'truck' ? tids.has(x.uid) : rids.has(x.uid));
+  out.inv = DB.inv.filter(x => (!x.truck || tids.has(x.truck)) && (!x.trailer || rids.has(x.trailer)));
+  out.links = DB.links.filter(x => rids.has(x.trailer));
+  out.hist = DB.hist.filter(x => rids.has(x.trailer));
+  out.insp = DB.insp.filter(x => unitOk(x.unit));
+  if (DB.pti) out.pti = Object.fromEntries(Object.entries(DB.pti).filter(([k]) => tids.has(k)));
+  return out;
+}
+async function loadAll() {
+  const [rec, kv] = await Promise.all([q('SELECT coll,data FROM records'), q('SELECT key,value FROM kv')]);
+  const DB = {}; COLLS.forEach(c => DB[c] = []);
+  rec.rows.forEach(r => DB[r.coll] && DB[r.coll].push(r.data));
+  const S = {}; kv.rows.forEach(r => { if (KV_FLEET.has(r.key)) DB[r.key] = r.value; else if (SETTING_KEYS.includes(r.key)) S[r.key] = r.value; });
+  return { DB, S };
+}
+app.get('/api/state', auth(), staff, wrap(async (req, res) => {
+  let { DB, S } = await loadAll();
+  const A = allowedOf(req.u); if (A) DB = scopeState(DB, A);
+  const deny = await denyOf(req.u); if (deny.includes('invoices')) DB.inv = []; if (deny.includes('vendors')) DB.vend = [];
+  const tm = (await q("SELECT id,name,username,email,role,is_owner,color,companies,is_test,avatar,tg_user FROM users WHERE role<>'driver' AND NOT disabled ORDER BY created_at")).rows;
+  const team = tm.map(u => ({ id: u.id, n: u.name, u: u.username, m: (req.u.is_owner || (req.u.role === 'admin' && (u.role === 'member' || u.id === req.u.id)) || u.id === req.u.id) ? u.email : '', r: u.role, owner: u.is_owner, c: u.color, av: avUrl(u), tg: u.tg_user || '', co: u.role === 'admin' ? null : (u.companies || null), test: u.is_test }));
+  res.json({ DB, S, team, user: { ...publicUser(req.u), ai: await TG.ai().info(req.u), deny, ro: await roOf(req.u) } });
+}));
+
+app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, res) => {
+  const { upserts = [], deletes = [], kv = {} } = req.body || {};
+  if (!Array.isArray(upserts) || !Array.isArray(deletes) || typeof kv !== 'object' || upserts.length + deletes.length > 2000) return res.status(400).json({ error: 'bad' });
+  for (const x of upserts) if (!COLLS.has(x.c) || !okId(x.id) || typeof x.d !== 'object' || !x.d || JSON.stringify(x.d).length > 100000) return res.status(400).json({ error: 'bad' });
+  for (const x of deletes) if (!COLLS.has(x.c) || !okId(x.id)) return res.status(400).json({ error: 'bad' });
+  { const lim = [...await denyOf(req.u), ...await roOf(req.u)]; if (lim.length) { const blocked = new Set(lim.flatMap(k => SECTION_COLLS[k] || [])); if ([...upserts, ...deletes].some(x => blocked.has(x.c)) || (lim.includes('pti') && kv.pti !== undefined)) return res.status(403).json({ error: 'section' }); } }
+  const kvKeys = Object.keys(kv);
+  for (const k of kvKeys) {
+    if (KV_FLEET.has(k)) { if (JSON.stringify(kv[k]).length > 400000) return res.status(400).json({ error: 'bad' }); }
+    else if (SETTING_KEYS.includes(k)) {
+      let okk = req.u.role === 'admin';
+      if (k === 'prioEd' || k === 'compEd' || k === 'intEd') { okk = !!req.u.is_owner; if (!(Array.isArray(kv[k]) && kv[k].length <= 200 && kv[k].every(okId))) return res.status(400).json({ error: 'bad' }); }
+      else if (k === 'prio') { const pe = (await q("SELECT value FROM kv WHERE key='prioEd'")).rows[0]; okk = !!req.u.is_owner || (!!pe && Array.isArray(pe.value) && pe.value.includes(req.u.id)); }   // priorities: owner, or people the owner allowed
+      else if (k === 'comps' || k === 'teams') { const pe = (await q("SELECT value FROM kv WHERE key='compEd'")).rows[0]; okk = !!req.u.is_owner || (!!pe && Array.isArray(pe.value) && pe.value.includes(req.u.id)); }   // companies and teams: owner, or people the owner allowed
+      if (k === 'tg' || k === 'tmAcc') {
+        okk = await canInt(req.u);
+        if (k === 'tg') { const g = kv[k], idOk = v => v === undefined || v === '' || (typeof v === 'string' && /^-?\d{5,20}$/.test(v)), tzOk = v => { try { new Intl.DateTimeFormat('en', { timeZone: v }); return typeof v === 'string' && v.length < 60; } catch { return false; } };
+          if (!(g && typeof g === 'object' && !Array.isArray(g) && idOk(g.work) && (g.topic === undefined || g.topic === '' || /^\d{1,12}$/.test(String(g.topic))) && (g.tz === undefined || g.tz === '' || tzOk(g.tz)) && (g.times === undefined || (Array.isArray(g.times) && g.times.length <= 24 && g.times.every(x => /^\d\d:\d\d$/.test(x)))))) return res.status(400).json({ error: 'bad' }); }
+      }
+      if (k === 'comps' && !(Array.isArray(kv[k]) && kv[k].length <= 200 && kv[k].every(c => c && okId(c.id) && typeof c.n === 'string' && c.n.length <= 120 && ['inv', 'mgr'].every(f => c[f] === undefined || c[f] === '' || (typeof c[f] === 'string' && /^-?\d{5,20}$/.test(c[f])))))) return res.status(400).json({ error: 'bad' });
+      if (k === 'myMap') { okk = !!req.u.is_owner; if (!(kv[k] === '' || (typeof kv[k] === 'string' && /^[A-Za-z0-9_-]{10,80}$/.test(kv[k])))) return res.status(400).json({ error: 'bad' }); }
+      if (k === 'vnLay') { okk = !!req.u.is_owner; const L = kv[k], num = v => typeof v === 'number' && isFinite(v) && Math.abs(v) < 5000; if (!(L && typeof L === 'object' && !Array.isArray(L) && Object.keys(L).every(w => ['list', 'bar', 'exit', 'back'].includes(w) && L[w] && typeof L[w] === 'object' && Object.values(L[w]).every(num)))) return res.status(400).json({ error: 'bad' }); }
+      if (k === 'teams' && !(Array.isArray(kv[k]) && kv[k].length <= 100 && kv[k].every(x => x && okId(x.id) && typeof x.n === 'string' && x.n.length <= 80 && (!x.resp || okId(x.resp)) && (x.resps === undefined || (Array.isArray(x.resps) && x.resps.length <= 20 && x.resps.every(okId))) && Array.isArray(x.cos) && x.cos.every(okId)))) return res.status(400).json({ error: 'bad' });
+      if (!okk) return res.status(403).json({ error: 'role' }); if (JSON.stringify(kv[k]).length > 100000) return res.status(400).json({ error: 'bad' }); }
+    else return res.status(400).json({ error: 'bad' });
+  }
+  const A = allowedOf(req.u);
+  if (A) {
+    for (const x of upserts) if ((x.c === 'trucks' || x.c === 'trailers') && !A.has(x.d.company)) return res.status(403).json({ error: 'scope' });
+    const guard = [...upserts, ...deletes].filter(x => x.c === 'trucks' || x.c === 'trailers');
+    for (const x of guard) {
+      const ex = (await q('SELECT data FROM records WHERE coll=$1 AND id=$2', [x.c, x.id])).rows[0];
+      if (ex && !A.has(ex.data.company)) return res.status(403).json({ error: 'scope' });
+    }
+    if (kv.pti) {   // keep the PTI of trucks this member cannot see
+      const old = (await q("SELECT value FROM kv WHERE key='pti'")).rows[0], oldV = old ? old.value : {};
+      const trucks = (await q("SELECT id,data FROM records WHERE coll='trucks'")).rows, mine = new Set(trucks.filter(r => A.has(r.data.company)).map(r => r.id));
+      const merged = {}; for (const k of Object.keys(oldV)) if (!mine.has(k)) merged[k] = oldV[k];
+      for (const k of Object.keys(kv.pti)) if (mine.has(k)) merged[k] = kv.pti[k];
+      kv.pti = merged;
+    }
+  }
+  const issueUps = upserts.filter(x => x.c === 'issues'), invUps = upserts.filter(x => x.c === 'inv');
+  const existing = async (coll, L) => L.length ? new Set((await q('SELECT id FROM records WHERE coll=$1 AND id=ANY($2)', [coll, L.map(x => x.id)])).rows.map(r => r.id)) : new Set();
+  const had = await existing('issues', issueUps), hadInv = await existing('inv', invUps);
+  const cl = await pool.connect();
+  try {
+    await cl.query('BEGIN');
+    for (const x of upserts) {
+      x.d.id = x.id;
+      await cl.query(`INSERT INTO records(coll,id,data,updated_by) VALUES($1,$2,$3,$4) ON CONFLICT (coll,id) DO UPDATE SET data=EXCLUDED.data, updated_at=now(), updated_by=EXCLUDED.updated_by`, [x.c, x.id, JSON.stringify(x.d), req.u.id]);
+    }
+    for (const x of deletes) await cl.query('DELETE FROM records WHERE coll=$1 AND id=$2', [x.c, x.id]);
+    for (const k of kvKeys) await cl.query(`INSERT INTO kv(key,value,updated_by) VALUES($1,$2,$3) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_at=now(), updated_by=EXCLUDED.updated_by`, [k, JSON.stringify(kv[k]), req.u.id]);
+    await cl.query('COMMIT');
+  } catch (e) { await cl.query('ROLLBACK').catch(() => {}); throw e; } finally { cl.release(); }
+  if (upserts.length || deletes.length || kvKeys.length)
+    audit(req.u.id, 'sync', null, { up: upserts.slice(0, 50).map(x => x.c + '/' + x.id), upN: upserts.length, del: deletes.slice(0, 50).map(x => x.c + '/' + x.id), delN: deletes.length, kv: kvKeys }, req.ip);
+  const fresh = issueUps.filter(x => !had.has(x.id)).map(x => x.d); if (fresh.length) TG.notifyNewIssues(fresh);
+  const freshInv = invUps.filter(x => !hadInv.has(x.id)).map(x => x.d); if (freshInv.length) TG.notifyNewInvoices(freshInv, 'https://' + req.get('host'));
+  res.json({ ok: true });
+}));
+
+app.get('/api/audit', auth(), ownerOnly, wrap(async (req, res) => {
+  const r = await q('SELECT a.id,a.at,a.action,a.target,a.detail,a.ip,u.email AS who, u.name AS wname FROM audit a LEFT JOIN users u ON u.id=a.user_id ORDER BY a.id DESC'); res.json({ rows: r.rows });
+}));
+
+// ---------- files (stored on the Railway volume) ----------
+const MAGIC = { 'application/pdf': b => b.slice(0, 5).toString() === '%PDF-', 'image/jpeg': b => b[0] === 0xff && b[1] === 0xd8, 'image/png': b => b.slice(1, 4).toString() === 'PNG' };
+app.post('/api/files', auth(), staff, express.raw({ type: Object.keys(MAGIC), limit: '20mb' }), wrap(async (req, res) => {
+  const mime = (req.headers['content-type'] || '').split(';')[0];
+  if (!MAGIC[mime] || !Buffer.isBuffer(req.body) || !req.body.length || !MAGIC[mime](req.body)) return res.status(400).json({ error: 'type' });
+  const id = C.uid(); fs.mkdirSync(DATA_DIR, { recursive: true });
+  fs.writeFileSync(path.join(DATA_DIR, id), req.body, { mode: 0o600 });
+  const name = decodeURIComponent(String(req.headers['x-filename'] || 'file')).replace(/[^\w.\- ]/g, '_').slice(0, 120);
+  await q('INSERT INTO files(id,name,mime,size,path,uploaded_by) VALUES($1,$2,$3,$4,$5,$6)', [id, name, mime, req.body.length, id, req.u.id]);
+  audit(req.u.id, 'file.upload', id, { name, size: req.body.length }, req.ip); res.json({ id, name });
+}));
+app.get('/api/files/:id', auth(), wrap(async (req, res) => {
+  if (!okId(req.params.id)) return res.status(404).end();
+  const f = (await q('SELECT * FROM files WHERE id=$1', [req.params.id])).rows[0]; if (!f) return res.status(404).end();
+  res.setHeader('Content-Type', f.mime); res.setHeader('Content-Disposition', `inline; filename="${f.name.replace(/"/g, '')}"`);
+  res.setHeader('Content-Security-Policy', "default-src 'none'; sandbox");
+  fs.createReadStream(path.join(DATA_DIR, f.path)).on('error', () => res.status(404).end()).pipe(res);
+}));
+
+
+// ---------- Telegram ----------
+app.post('/tg/hook', express.json({ limit: '1mb' }), (req, res) => { if (!TG.verify(req)) return res.sendStatus(403); res.sendStatus(200); TG.handleUpdate(req.body); });
+const KML_CACHE = new Map();
+const unxml = x => String(x || '').replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&amp;/g, '&');
+function parseKml(x) {
+  x = String(x); const out = [], sty = {};
+  const abgr = c => { const m = String(c || '').trim().match(/^([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i); return m ? '#' + m[4] + m[3] + m[2] : ''; };
+  (x.match(/<Style\b[\s\S]*?<\/Style>/g) || []).forEach(b => { const id = (b.match(/<Style[^>]*\bid="([^"]+)"/) || [])[1], col = (b.match(/<IconStyle>[\s\S]*?<color>([^<]+)<\/color>/) || [])[1]; if (id && abgr(col)) sty[id] = abgr(col); });
+  (x.match(/<StyleMap\b[\s\S]*?<\/StyleMap>/g) || []).forEach(b => { const id = (b.match(/<StyleMap[^>]*\bid="([^"]+)"/) || [])[1], n = (b.match(/<key>normal<\/key>\s*<styleUrl>#?([^<]+)<\/styleUrl>/) || [])[1]; if (id && n && sty[n]) sty[id] = sty[n]; });
+  (x.match(/<Placemark[\s\S]*?<\/Placemark>/g) || []).forEach(b => {
+    const g = b.match(/<Point>[\s\S]*?<coordinates>\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)/); if (!g) return;
+    const nm = unxml((b.match(/<name>([\s\S]*?)<\/name>/) || [])[1]).trim();
+    const ds = unxml((b.match(/<description>([\s\S]*?)<\/description>/) || [])[1]).replace(/<br\s*\/?>/gi, ' · ').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    const note = ds.split(' · ').map(x => x.trim()).filter(x => x && !/^(shop name|info|longitude|latitude|name)\s*:?\s*$/i.test(x)).join(' · ');
+    const su = (b.match(/<styleUrl>#?([^<]+)<\/styleUrl>/) || [])[1] || '', hx = su.match(/-([0-9A-Fa-f]{6})(?:-[a-z]+)?$/);
+    const c = hx ? '#' + hx[1].toLowerCase() : (sty[su] || '');
+    if (nm) out.push({ name: nm.slice(0, 120), lat: +g[2], lng: +g[1], note: note.slice(0, 160), c });
+  });
+  return out;
+}
+app.get('/api/mymap', auth(), staff, wrap(async (req, res) => {
+  const r = (await q("SELECT value FROM kv WHERE key='myMap'")).rows[0], mid = r && typeof r.value === 'string' ? r.value : '';
+  if (!/^[A-Za-z0-9_-]{10,}$/.test(mid)) return res.json({ places: [] });
+  const c = KML_CACHE.get(mid); if (c && Date.now() - c.t < 600000) return res.json({ places: c.p });
+  try {
+    const f = await fetch('https://www.google.com/maps/d/kml?mid=' + encodeURIComponent(mid) + '&forcekml=1', { redirect: 'follow' });
+    if (!f.ok) return res.json({ places: c ? c.p : [], error: 'google' });
+    const p = parseKml(await f.text()).slice(0, 3000); KML_CACHE.set(mid, { t: Date.now(), p }); res.json({ places: p });
+  } catch (e) { res.json({ places: c ? c.p : [], error: 'net' }); }
+}));
+
+/* free geocoding (OpenStreetMap Nominatim) and driving ETA (OSRM public router) — no keys */
+const GEO_CACHE = new Map();
+app.get('/api/geo', limit('geo', 60, 60e3), auth(), staff, wrap(async (req, res) => {
+  const qs = String(req.query.q || '').trim().slice(0, 200); if (!qs) return res.json({});
+  const ck = qs.toLowerCase(), c = GEO_CACHE.get(ck); if (c) return res.json(c);
+  try {
+    const f = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(qs), { headers: { 'User-Agent': 'TOPGFLEET/1.0 (fleet control)', 'Accept-Language': 'en' } });
+    const j = f.ok ? await f.json() : [];
+    const o = j && j[0] ? { lat: +j[0].lat, lng: +j[0].lon, label: String(j[0].display_name || qs).slice(0, 140) } : {};
+    if (o.lat != null) { if (GEO_CACHE.size > 2000) GEO_CACHE.clear(); GEO_CACHE.set(ck, o); }
+    res.json(o);
+  } catch (e) { res.json({ error: 'net' }); }
+}));
+const ETA_CACHE = new Map();
+const stepText = st => {
+  const m = st.maneuver || {}, nm = st.name ? ' onto ' + st.name : '', ty = m.type, md = m.modifier ? m.modifier.replace('slight ', 'slight ') : '';
+  if (ty === 'depart') return 'Head ' + (m.bearing_after != null ? ['north', 'northeast', 'east', 'southeast', 'south', 'southwest', 'west', 'northwest'][Math.round(m.bearing_after / 45) % 8] : '') + (st.name ? ' on ' + st.name : '');
+  if (ty === 'arrive') return 'Arrive at destination' + (md ? ' on the ' + md : '');
+  if (ty === 'roundabout' || ty === 'rotary') return 'At the roundabout take exit ' + (m.exit || '') + nm;
+  if (ty === 'merge') return 'Merge ' + md + nm;
+  if (ty === 'on ramp') return 'Take the ramp ' + md + nm;
+  if (ty === 'off ramp') return 'Take the exit ' + md + nm;
+  if (ty === 'fork') return 'Keep ' + md + nm;
+  if (ty === 'continue' || ty === 'new name' || md === 'straight') return 'Continue' + (st.name ? ' on ' + st.name : '');
+  return 'Turn ' + md + nm;
 };
-/* ===== helpers ===== */
-const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const pad=n=>String(n).padStart(2,"0");
-const ymd=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
-const today=()=>ymd(new Date());
-const addDays=(s,n)=>{const[y,m,d]=s.split("-").map(Number);return ymd(new Date(y,m-1,d+n))};
-const dd=s=>{if(!s)return null;const[y,m,d]=s.split("-").map(Number),[a,b,c]=today().split("-").map(Number);return Math.round((Date.UTC(y,m-1,d)-Date.UTC(a,b-1,c))/864e5)};
-const LOC={en:"en-US",uz:"uz-UZ",ru:"ru-RU"};
-const fd=s=>{if(!s)return"–";const[y,m,d]=s.split("-").map(Number);try{return new Date(y,m-1,d).toLocaleDateString(LOC[S.lang],{month:"short",day:"numeric",year:"numeric"})}catch(e){return s}};
-const money=n=>"$"+(+n||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
-const nf=n=>(+n||0).toLocaleString("en-US");
-const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
-const ini=n=>String(n||"?").trim().split(/\s+/).map(w=>w[0]).join("").slice(0,2).toUpperCase();
-const t=(k,...a)=>{const e=D[k];let s=e?(e[LG.indexOf(S.lang)]||e[0]):k;a.forEach((v,i)=>{s=s.split("{"+i+"}").join(v)});return s};
-const memo={};
-const ld=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return memo[k]!==undefined?memo[k]:d}};
-const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){memo[k]=v}};
+app.get('/api/eta', limit('eta', 60, 60e3), auth(), staff, wrap(async (req, res) => {
+  const p = s => { const m = String(s || '').match(/^(-?\d{1,3}(?:\.\d+)?),(-?\d{1,3}(?:\.\d+)?)$/); return m ? [+m[1], +m[2]] : null; };
+  const a = p(req.query.a), b = p(req.query.b); if (!a || !b) return res.status(400).json({ error: 'bad' });
+  const full = req.query.full === '1', ck = a + '|' + b + '|' + full, c = ETA_CACHE.get(ck); if (c && Date.now() - c.t < 600000) return res.json(c.v);
+  try {
+    const qs = full ? '?overview=full&geometries=geojson&steps=true&alternatives=true' : '?overview=false';
+    const f = await fetch(`https://router.project-osrm.org/route/v1/driving/${a[1]},${a[0]};${b[1]},${b[0]}` + qs, { headers: { 'User-Agent': 'TOPGFLEET/1.0 (fleet control)' } });
+    const j = f.ok ? await f.json() : null, rs = j && j.routes;
+    if (!rs || !rs[0]) return res.json({ error: 'noroute' });
+    const one = r => {
+      const o = { mi: Math.round(r.distance / 1609.344 * 10) / 10, min: Math.round(r.duration / 60) };
+      if (full) {
+        const co = (r.geometry && r.geometry.coordinates) || [], k = Math.max(1, Math.ceil(co.length / 700));
+        o.line = co.filter((_, i) => i % k === 0 || i === co.length - 1).map(x => [Math.round(x[1] * 1e5) / 1e5, Math.round(x[0] * 1e5) / 1e5]);
+        o.steps = [].concat(...(r.legs || []).map(l => (l.steps || []).map(st => ({ t: stepText(st), mi: Math.round(st.distance / 1609.344 * 10) / 10 })))).slice(0, 150);
+      }
+      return o;
+    };
+    const v = full ? { routes: rs.slice(0, 3).map(one) } : one(rs[0]);
+    if (ETA_CACHE.size > 500) ETA_CACHE.clear(); ETA_CACHE.set(ck, { t: Date.now(), v }); res.json(v);
+  } catch (e) { res.json({ error: 'net' }); }
+}));
+app.get('/api/tg/info', auth(), staff, wrap(async (req, res) => {
+  const i = await TG.info(), mine = (await q('SELECT chat_id,digest FROM tg_chats WHERE user_id=$1', [req.u.id])).rows;
+  res.json({ enabled: i.enabled, bot: i.bot || null, webhook: (await canInt(req.u)) ? i.webhook : undefined, linked: mine.length > 0, digest: mine.length ? mine[0].digest : null, ai: req.u.is_owner ? !!process.env.ANTHROPIC_API_KEY : undefined });
+}));
+app.post('/api/tg/code', limit('tgcode', 20, 10 * 60e3), auth(), staff, wrap(async (req, res) => {
+  if (!TG.enabled()) return res.status(503).json({ error: 'off' }); const b = await TG.me(); if (!b) return res.status(503).json({ error: 'off' });
+  const code = await TG.linkCode(req.u.id); res.json({ code, bot: b.username, link: `https://t.me/${b.username}?start=${code}`, minutes: 10 });
+}));
+app.post('/api/tg/unlink', auth(), staff, wrap(async (req, res) => { await q('DELETE FROM tg_chats WHERE user_id=$1', [req.u.id]); res.json({ ok: true }); }));
+app.post('/api/tg/digest', auth(), staff, wrap(async (req, res) => { await q('UPDATE tg_chats SET digest=$2 WHERE user_id=$1', [req.u.id, !!(req.body || {}).on]); res.json({ ok: true }); }));
+app.post('/api/tg/reconnect', limit('tgre', 10, 10 * 60e3), auth(), staff, intOk, wrap(async (req, res) => {
+  const r = await TG.setWebhook('https://' + req.get('host')); audit(req.u.id, 'telegram.webhook', req.get('host'), { ok: !!r.ok }, req.ip); res.json({ ok: !!r.ok, error: r.ok ? null : r.description });
+}));
+app.post('/api/tg/test', limit('tgtest', 20, 10 * 60e3), auth(), staff, intOk, wrap(async (req, res) => {
+  if (!TG.enabled()) return res.status(503).json({ error: 'off' });
+  const { S } = await loadAll(), g = S.tg || {}, out = [];
+  const tgts = [['workers', g.work]]; (S.comps || []).forEach(c => { if (c.inv) tgts.push([c.n + ' invoices', c.inv]); if (c.mgr) tgts.push([c.n + ' managers', c.mgr]); });
+  for (const [k, id] of tgts) if (id) { const r = await TG.send(id, '✅ TOPGFLEET test message'); out.push({ group: k, ok: !!r.ok, error: r.ok ? null : r.description }); }
+  const mine = (await q('SELECT chat_id FROM tg_chats WHERE user_id=$1', [req.u.id])).rows; for (const m of mine) { const r = await TG.send(m.chat_id, '✅ TOPGFLEET test message'); out.push({ group: 'you', ok: !!r.ok, error: r.ok ? null : r.description }); }
+  res.json({ results: out });
+}));
+app.post('/api/tg/send-now', limit('tgnow', 20, 10 * 60e3), auth(), staff, intOk, wrap(async (req, res) => {
+  if (!TG.enabled()) return res.status(503).json({ error: 'off' }); const { DB, S } = await loadAll(); const r = await TG.sendWorkersList(S, DB, true); res.json({ ok: !!r.ok, error: r.ok ? null : r.description });
+}));
 
-/* ===== icons ===== */
-const P={
-sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/>',
-truck:'<path d="M2 6h12v10H2zM14 9h4l4 3v4h-8"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>',
-box:'<path d="M12 3l9 5v8l-9 5-9-5V8z"/><path d="M3 8l9 5 9-5M12 13v8"/>',
-swap:'<path d="M7 4L3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/>',
-card:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M14 10h4M14 14h4M6 17c0-2 6-2 6 0"/>',
-wrench:'<path d="M14 6l4-4 3 3-4 4M3 21l9-9M12 12l3-3"/>',send:'<path d="M3 11l18-8-8 18-2-8z"/>',
-clip:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/>',
-folder:'<path d="M3 6h7l2 2h9v11H3z"/>',shield:'<path d="M12 3l8 3v6c0 5-4 8-8 9-4-1-8-4-8-9V6z"/><path d="M12 8v5M12 16h.01"/>',
-receipt:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 7v10M9 15c0 2 6 2 6-1s-6-1-6-3 6-2 6 0"/>',
-wallet:'<path d="M3 7a2 2 0 012-2h13v3"/><path d="M3 7v10a2 2 0 002 2h14a1 1 0 001-1V9a1 1 0 00-1-1H5a2 2 0 01-2-2z"/><circle cx="16.5" cy="13.5" r="1"/>',
-spark:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M18 15l.8 2.2L21 18l-2.2.8L18 21l-.8-2.2L15 18l2.2-.8z"/>',
-store:'<path d="M4 9l1-5h14l1 5M4 9v11h16V9M4 9c0 2 4 2 4 0 0 2 4 2 4 0 0 2 4 2 4 0 0 2 4 2 4 0"/>',
-bell:'<path d="M6 9a6 6 0 0112 0c0 6 2 7 2 7H4s2-1 2-7M10 20h4"/>',menu:'<path d="M4 6h16M4 12h16M4 18h16"/>',
-srch:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',plus:'<path d="M12 5v14M5 12h14"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',
-user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',out:'<path d="M9 4H4v16h5M16 8l4 4-4 4M20 12H9"/>',
-col:'<path d="M11 6l-6 6 6 6M19 6l-6 6 6 6"/>',lang:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
-pal:'<path d="M12 3a9 9 0 100 18c2 0 2-2 1-3s0-3 2-3h3a3 3 0 003-3c0-5-4-9-9-9z"/>',zap:'<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
-bld:'<path d="M4 21V5l8-2v18M12 9h8v12M7 9h2M7 13h2M7 17h2"/>',flag:'<path d="M5 21V4M5 4h13l-2 4 2 4H5"/>',
-users:'<circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-4 4-5 7-5s7 1 7 5M17 4a3.5 3.5 0 010 7M22 20c0-3-2-4.5-4-5"/>',
-chev:'<path d="M6 9l6 6 6-6"/>',up:'<path d="M12 19V5M6 11l6-6 6 6"/>',down:'<path d="M12 5v14M6 13l6 6 6-6"/>',
-trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',pen:'<path d="M4 20l4-1 11-11-3-3L5 16zM14 6l3 3"/>',
-check:'<path d="M5 12l5 5 9-10"/>',ban:'<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>',link:'<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/>',
-filter:'<path d="M3 5h18l-7 8v6l-4-2v-4z"/>',refresh:'<path d="M20 11a8 8 0 00-14-4L4 9M4 4v5h5M4 13a8 8 0 0014 4l2-2M20 20v-5h-5"/>',
-dl:'<path d="M12 4v12M7 11l5 5 5-5M5 20h14"/>',flask:'<path d="M9 3h6M10 3v6l-5 9a2 2 0 002 3h10a2 2 0 002-3l-5-9V3"/>',
-key:'<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3"/>',mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',
-file:'<path d="M6 3h8l4 4v14H6zM14 3v4h4"/>',up2:'<path d="M12 16V4M7 9l5-5 5 5M5 20h14"/>',eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
-cog:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>',
-arch:'<rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v12h14V8M10 12h4"/>',cam:'<path d="M4 8h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="13" r="3.5"/>',
-info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',tool:'<path d="M14 6l4-4 3 3-4 4M3 21l9-9"/>',
-car:'<path d="M3 13l2-6h14l2 6v5H3zM7 18v2M17 18v2"/>',star:'<path d="M12 3l3 6 6 1-4.5 4.5 1 6.5-5.5-3-5.5 3 1-6.5L3 10l6-1z"/>',
-left:'<path d="M15 6l-6 6 6 6"/>',right:'<path d="M9 6l6 6-6 6"/>',tgs:'<path d="M3 11l18-8-8 18-2-8z"/>',pin:'<path d="M12 21s7-6 7-12a7 7 0 10-14 0c0 6 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/>'
-};
-const ic=(n,s=18)=>`<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n]||""}</svg>`;
-const logo=s=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18v4.5h-6.8V21H9.8V8.5H3z" fill="var(--ac)"/></svg>`;
+app.post('/api/invoices/:id/telegram', limit('tginv', 30, 10 * 60e3), auth(), staff, wrap(async (req, res) => {
+  if ([...await denyOf(req.u), ...await roOf(req.u)].includes('invoices')) return res.status(403).json({ error: 'section' });
+  if (!TG.enabled()) return res.json({ ok: false, error: 'off' });
+  let { DB, S } = await loadAll(); const A = allowedOf(req.u); if (A) DB = scopeState(DB, A);
+  const inv = (DB.inv || []).find(x => x.id === req.params.id); if (!inv) return res.status(404).json({ error: 'none' });
+  const tU = (DB.trucks || []).find(x => x.id === inv.truck), lU = (DB.trailers || []).find(x => x.id === inv.trailer), cU = (S.comps || []).find(c => c.id === ((tU && tU.company) || (lU && lU.company)));
+  if (!(cU && cU.inv)) return res.json({ ok: false, error: 'nogroup' });
+  const sent = await TG.notifyNewInvoices([inv], 'https://' + req.get('host')); audit(req.u.id, 'invoice.telegram', inv.id, null, req.ip);
+  if (!sent.length) return res.json({ ok: false, error: 'fail' });
+  res.json({ ok: true, tg: sent[0].at, tgm: sent[0] });
+}));
+// ---------- AI page: who may use the bot, who sees the costs, what it costs ----------
+app.get('/api/access', auth(), ownerOnly, wrap(async (req, res) => { const r = (await q("SELECT value FROM kv WHERE key='pageDeny'")).rows[0]; const rr = (await q("SELECT value FROM kv WHERE key='pageRead'")).rows[0]; res.json({ deny: (r && r.value) || {}, read: (rr && rr.value) || {}, sections: SECTIONS }); }));
+const saveKv = (key, v, uid) => q("INSERT INTO kv(key,value,updated_by) VALUES($1,$2,$3) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value, updated_at=now(), updated_by=EXCLUDED.updated_by", [key, JSON.stringify(v), uid]);
+const kvGet = async key => { const r = (await q('SELECT value FROM kv WHERE key=$1', [key])).rows[0]; return Object.assign({}, r && r.value); };
+app.post('/api/access', limit('access', 120, 60e3), auth(), ownerOnly, wrap(async (req, res) => {
+  const { user, deny, read } = req.body || {}; if (!okId(user) || !Array.isArray(deny) || deny.length > 40 || !deny.every(k => SECTIONS.includes(k)) || (read !== undefined && !(Array.isArray(read) && read.every(k => SECTIONS.includes(k))))) return res.status(400).json({ error: 'bad' });
+  const t = (await q("SELECT id,is_owner,role FROM users WHERE id=$1", [user])).rows[0]; if (!t || t.is_owner || t.role === 'driver') return res.status(400).json({ error: 'bad' });
+  const all = await kvGet('pageDeny'), rd = await kvGet('pageRead'), list = [...new Set(deny)];
+  if (list.length) all[user] = list; else delete all[user];
+  if (read !== undefined) { const r2 = [...new Set(read)].filter(k => !list.includes(k)); if (r2.length) rd[user] = r2; else delete rd[user]; } else if (rd[user]) { rd[user] = rd[user].filter(k => !list.includes(k)); if (!rd[user].length) delete rd[user]; }
+  await saveKv('pageDeny', all, req.u.id); await saveKv('pageRead', rd, req.u.id);
+  audit(req.u.id, 'access.sections', user, { deny: list, read: rd[user] || [] }, req.ip); res.json({ ok: true, deny: all, read: rd });
+}));
+app.post('/api/access/section', limit('access', 120, 60e3), auth(), ownerOnly, wrap(async (req, res) => {
+  const { section, allow, read } = req.body || {}; if (!SECTIONS.includes(section) || !Array.isArray(allow) || allow.length > 500 || !allow.every(okId) || (read !== undefined && !(Array.isArray(read) && read.length <= 500 && read.every(okId)))) return res.status(400).json({ error: 'bad' });
+  const staffIds = (await q("SELECT id FROM users WHERE NOT is_owner AND role<>'driver' AND NOT disabled")).rows.map(r => r.id);
+  const all = await kvGet('pageDeny'), rd = await kvGet('pageRead'), ok = new Set(allow), ro = new Set(read || []);
+  for (const id of staffIds) {
+    const d = new Set(Array.isArray(all[id]) ? all[id] : []), r = new Set(Array.isArray(rd[id]) ? rd[id] : []);
+    if (ok.has(id)) d.delete(section); else d.add(section);
+    if (ok.has(id) && ro.has(id)) r.add(section); else r.delete(section);
+    if (d.size) all[id] = [...d]; else delete all[id]; if (r.size) rd[id] = [...r]; else delete rd[id];
+  }
+  await saveKv('pageDeny', all, req.u.id); await saveKv('pageRead', rd, req.u.id);
+  audit(req.u.id, 'access.section', section, { allow: [...ok], read: [...ro] }, req.ip); res.json({ ok: true, deny: all, read: rd });
+}));
+app.get('/api/ai/admin', auth(), ownerOnly, wrap(async (req, res) => res.json(await TG.ai().adminData())));
+app.post('/api/ai/config', limit('aicfg', 60, 60e3), auth(), ownerOnly, wrap(async (req, res) => {
+  let c; try { c = await TG.ai().saveCfg(req.body || {}, req.u.id); } catch (e) { return res.status(400).json({ error: 'bad' }); }
+  audit(req.u.id, 'ai.config', null, { keys: Object.keys(req.body || {}) }, req.ip); res.json({ ok: true, cfg: c });
+}));
+app.get('/api/ai/costs', auth(), staff, wrap(async (req, res) => { const ai = TG.ai(); if (!(await ai.costOk(req.u))) return res.status(403).json({ error: 'role' }); res.json(await ai.costData(!!req.u.is_owner)); }));
+app.get('/api/ai/log', limit('ailog', 30, 60e3), auth(), ownerOnly, wrap(async (req, res) => {
+  const u = String(req.query.user || 'all'); if (u !== 'all' && !okId(u)) return res.status(400).json({ error: 'bad' });
+  const days = Math.min(3650, Math.max(0, parseInt(req.query.days, 10) || 0)); audit(req.u.id, 'ai.log.read', u, { days }, req.ip); res.json(await TG.ai().logRows(u, days));
+}));
+app.get('/healthz', (req, res) => res.type('text').send('ok'));
+app.use('/api', (req, res) => res.status(404).json({ error: 'none' }));
+app.use(express.static(path.join(__dirname, 'public'), { index: 'index.html', maxAge: 0, setHeaders: r => r.setHeader('Cache-Control', 'no-cache') }));
+const PAGES = new Set(['dashboard', 'alerts', 'fleet', 'trailers', 'hook-drop', 'drivers', 'maintenance', 'pti', 'inspections', 'documents', 'violation-report', 'invoices', 'vendors', 'ai', 'ai-expenses', 'profile', 'companies']);
+app.get('/invite/:t', (req, res) => { res.setHeader('Cache-Control', 'no-cache'); res.sendFile(path.join(__dirname, 'public', 'index.html')); });
+app.get('/:page', (req, res, next) => PAGES.has(req.params.page) ? (res.setHeader('Cache-Control', 'no-cache'), res.sendFile(path.join(__dirname, 'public', 'index.html'))) : next());
+app.use((req, res) => res.status(404).type('text').send('Not found'));
 
-/* ===== state ===== */
-const STAT_ICONS=["check","ban","wrench","truck","pin","flag","star","info","car","tool","box","cog"];
-const COLORS=["#22c55e","#3b82f6","#7c5cf2","#ef4444","#f59e0b","#ec4899","#06b6d4","#84cc16","#f97316","#14b8a6","#a855f7","#6b7a99"];
-const USERC=["#8b4ff0","#3b82f6","#06b6d4","#10b981","#84cc16","#f59e0b","#f97316","#ef4444","#ec4899","#a855f7","#14b8a6","#6b7a99"];
-const TH={charcoal:["#181818","#1f1f1f","#272727","#303030","#ececec","#9a9aa1","d","#8b4ff0"],midnight:["#0b1022","#111833","#192142","#25305a","#e7ecfb","#8f9bc2","d","#22d3ee"],forest:["#0e1210","#151b17","#1c241f","#27322b","#e5f0e9","#8ba093","d","#2dd4a0"],
-daylight:["#f3f4f7","#ffffff","#f4f5f8","#dfe2e8","#16181d","#5f6673","l","#6d4fe0"],paper:["#f3eee4","#fbf8f1","#f1ebdd","#ddd4c2","#2b2620","#7b705f","l","#d9770a"],mist:["#e9edf0","#f6f8f9","#eaeef1","#cfd7dc","#14201f","#566a69","l","#14a38a"]};
-const CK_TYPES=["truck","dry","reefer","flat","tank","other"];
-const CK_DEF=()=>{const m=(k,mode,min)=>({id:uid(),k,t:"",m:mode,min});const o={};
- o.truck=[m("ck_walk","video",120),m("ck_tires","photo"),m("ck_brakes","none"),m("ck_lights","none")];
- CK_TYPES.slice(1).forEach(x=>o[x]=[m("ck_walk","video",120),m("ck_tires","photo"),m("ck_brakes","none")]);return o};
-const PH_KEYS=["front","rear","left","right","fl","fr","rl","rr","roof","tires","seal","plate","int"];
-const PH_DEF=()=>{const o={};CK_TYPES.slice(1).forEach(x=>o[x]=PH_KEYS.map(k=>({id:uid(),k:"ph_"+k,t:"",d:"",req:k!="int"})));return o};
-const DEF_S=()=>({lang:"en",theme:"charcoal",col:"#6b7a99",sm:false,in:false,name:"Ray Wilson",user:"topgfleet",mail:"topgfleet@gmail.com",
- prio:[{id:"p1",n:"High",c:"#ef4444"},{id:"p2",n:"Medium",c:"#f59e0b"},{id:"p3",n:"Low",c:"#22c55e"}],
- comps:[{id:"c1",n:"TOPGFLEET",c:"#3b82f6"}],
- team:[{id:"u1",n:"Ray Wilson",u:"topgfleet",m:"topgfleet@gmail.com",r:"admin",owner:true,c:"#6b7a99"}],
- stat:[{id:"s1",n:"Active",c:"#22c55e",ic:"check",w:null},{id:"s2",n:"In Shop",c:"#f59e0b",ic:"wrench",w:null},{id:"s3",n:"Out of Service",c:"#ef4444",ic:"ban",w:null}],
- tg:{bot:"@topgfleetbot",topic:"",work:"",times:[],tz:"America/Chicago"},tpl:{2:"",3:"",5:"",7:""},ptiOff:[]});
-const DEF_D=()=>({trucks:[],trailers:[],drivers:[],issues:[],plans:[],svc:[],docs:[],inv:[],vend:[],links:[],hist:[],insp:[],pti:{},ck:CK_DEF(),ph:PH_DEF()});
-let S,DB;
-function loadAll(){const s=ld("tf2_s",{}),d0=DEF_S();S=Object.assign(d0,s);S.tg=Object.assign(DEF_S().tg,s.tg||{});S.tpl=Object.assign(DEF_S().tpl,s.tpl||{});
- const dd0=DEF_D();DB=Object.assign(dd0,ld("tf2_d",{}));
- CK_TYPES.forEach(k=>{if(!DB.ck[k])DB.ck[k]=CK_DEF()[k]});CK_TYPES.slice(1).forEach(k=>{if(!DB.ph[k])DB.ph[k]=PH_DEF()[k]})}
-let save=()=>{sv("tf2_s",S);sv("tf2_d",DB)};
-loadAll();
-const byId=(arr,id)=>arr.find(x=>x.id==id);
-const compOf=id=>byId(S.comps,id),statOf=id=>byId(S.stat,id),prioOf=id=>byId(S.prio,id),member=id=>byId(S.team,id);
-const truckNum=id=>{const x=byId(DB.trucks,id);return x?x.num:""};
-const trailerNum=id=>{const x=byId(DB.trailers,id);return x?x.num:""};
-const driverOf=truckId=>DB.drivers.find(d=>d.truck==truckId);
+// ---------- start ----------
+async function bootstrap() {
+  await migrate();
+  try { const r = await q("SELECT value FROM kv WHERE key='req2fa'"); REQ2FA = !!(r.rows[0] && r.rows[0].value === true); } catch (e) {}
+  TG.init({ q, loadAll, scopeState, allowedOf, audit, dataDir: DATA_DIR }, process.env.PUBLIC_URL || (process.env.RAILWAY_PUBLIC_DOMAIN ? 'https://' + process.env.RAILWAY_PUBLIC_DOMAIN : ''));
+  const n = +(await q('SELECT count(*) FROM users')).rows[0].count;
+  if (!n) {
+    const email = (process.env.ADMIN_EMAIL || '').trim().toLowerCase(), pw = process.env.ADMIN_PASSWORD || '';
+    if (!email || !pw) { console.warn('No users yet. Set ADMIN_EMAIL and ADMIN_PASSWORD in the environment and restart.'); return; }
+    const username = (process.env.ADMIN_USERNAME || email.split('@')[0]).toLowerCase().replace(/[^a-z0-9._-]/g, '').slice(0, 30) || 'admin';
+    const bad = C.passwordProblem(pw, { email, username }); if (bad) throw new Error('ADMIN_PASSWORD is too weak (' + bad + ')');
+    await q('INSERT INTO users(id,email,username,name,role,is_owner,pass_hash) VALUES($1,$2,$3,$4,\'admin\',TRUE,$5)', [C.uid(), email, username, process.env.ADMIN_NAME || 'Owner', await C.hashPassword(pw)]);
+    console.log('Owner account created for', email);
+  }
+}
+setInterval(() => q('DELETE FROM sessions WHERE expires_at<now()').catch(() => {}), 3600e3).unref();
 
-/* ===== theme ===== */
-function theme(){const c=TH[S.theme]||TH.charcoal,r=document.documentElement.style;["bg","pn","p2","ln","tx","mu"].forEach((n,i)=>r.setProperty("--"+n,c[i]));
- r.setProperty("--ac",c[6]=="l"?"#6247e0":"#7c5cf2");r.colorScheme=c[6]=="l"?"light":"dark";document.documentElement.lang=S.lang}
-
-/* ===== ui builders ===== */
-const dot=c=>`<span class="dt" style="background:${c}"></span>`;
-const tag=(x,c)=>`<span class="tg" style="${c?`color:${c};background:color-mix(in srgb,${c} 16%,transparent)`:""}">${esc(x)}</span>`;
-const avOf=n=>{if(typeof USER!="undefined"&&USER&&USER.name==n&&USER.avatar)return USER.avatar;const m=(S.team||[]).find(x=>x.n==n)||((typeof PG!="undefined"&&PG.users)||[]).find(x=>x.name==n);return m&&(m.av||m.avatar)||""};
-const avHtml=(n,c,z,nv)=>{const a=avOf(n);return `<span class="av ${a&&!nv?"zm":""}" ${a&&!nv?`data-a="phView" data-n="${esc(n)}"`:""} style="background:${c};${z?`width:${z}px;height:${z}px;font-size:${Math.round(z*.35)}px;`:""}" ${a?"":`title="${esc(n)}"`}>${a?`<img src="${a}" alt="" draggable="false">`:ini(n)}</span>`};
-const avatar=m=>m?avHtml(m.n,m.c||S.col):"";
-const empty=(icon,msg,btn)=>`<div class="em">${ic(icon,34)}<div>${msg}</div>${btn||""}</div>`;
-const tabsH=(items,cur,act)=>`<div class="tabs">${items.map(([v,l,n])=>`<button class="tb ${cur===v?"on":""}" data-a="${act}" data-v="${v}">${l}${n!=null?` <b>${n}</b>`:""}</button>`).join("")}</div>`;
-const optH=(list,cur)=>list.map(([v,l])=>`<option value="${esc(v)}" ${String(v)===String(cur)?"selected":""}>${esc(l)}</option>`).join("");
-const sgH=(items,cur,act,extra="")=>`<div class="sg">${items.map(([v,l])=>`<button class="${cur===v?"on":""}" data-a="${act}" data-v="${v}" ${extra}>${l}</button>`).join("")}</div>`;
-function field(f){const v=f.val??"",id="f_"+f.k,rq=f.req?'<span class="rq"> *</span>':"",op=f.opt?` <span class="op">(${t("optional")})</span>`:"";let inp;
- if(f.t=="select")inp=`<select id="${id}" name="${f.k}">${f.o.map(o=>`<option value="${esc(o[0])}" ${String(o[0])===String(v)?"selected":""}>${esc(o[1])}</option>`).join("")}</select>`;
- else if(f.t=="textarea")inp=`<textarea id="${id}" name="${f.k}" rows="${f.rows||3}" placeholder="${esc(f.ph||"")}">${esc(v)}</textarea>`;
- else if(f.t=="check")return `<label class="ck"><input type="checkbox" id="${id}" name="${f.k}" ${v?"checked":""}> ${f.l}</label>`;
- else if(f.t=="html")return `<div class="fd">${f.html}</div>`;
- else if(f.t=="files")return attField(f);
- else if(f.t=="password")inp=`<div class="pwd"><input type="password" id="${id}" name="${f.k}" placeholder="${esc(f.ph||"")}" autocomplete="new-password" data-i="pw"><button type="button" class="bi" data-a="eye" aria-label="Show">${ic("eye",16)}</button></div><div class="bars"><i></i><i></i><i></i><i></i></div>`;
- else inp=`<input id="${id}" name="${f.k}" type="${f.t||"text"}" value="${esc(v)}" placeholder="${esc(f.ph||"")}" ${f.list?`list="${f.list}"`:""} ${f.min!=null?`min="${f.min}"`:""} ${f.step?`step="${f.step}"`:""} autocomplete="off">`;
- return `<div class="fd ${f.half?"h":""}"><label for="${id}">${f.l}${rq}${op}</label>${inp}${f.hint?`<div class="hn">${f.hint}</div>`:""}</div>`}
-const vals=root=>{const o={};root.querySelectorAll("[name]").forEach(n=>{o[n.name]=n.type=="checkbox"?n.checked:String(n.value).trim()});return o};
-const unitList=()=>`<datalist id="units">${DB.trucks.map(x=>`<option value="${esc(x.num)}">`).join("")}${DB.trailers.map(x=>`<option value="${esc(x.num)}">`).join("")}</datalist>`;
-
-/* ===== overlays ===== */
-const DR={cfg:null};
-function drawer(o){$("#dr").innerHTML=`<div class="ov" data-a="drClose"></div><div class="dp" role="dialog" aria-modal="true"><div class="dh">${o.icon?`<div class="ico">${ic(o.icon,18)}</div>`:""}<div class="dt2"><b>${o.title}</b>${o.sub?`<small>${o.sub}</small>`:""}</div><button class="bi" data-a="drClose" aria-label="${t("close")}">${ic("x")}</button></div><div class="db">${o.body}</div><div class="df">${o.foot||""}</div></div>`}
-function closeDr(){$("#dr").innerHTML="";DR.cfg=null}
-function openForm(c){DR.cfg=c;drawer({title:c.title,sub:c.sub,icon:c.icon,body:(c.pre||"")+`<div class="fg">${c.fields.map(field).join("")}</div>`+(c.post||"")+unitList(),
- foot:`<button class="b" data-a="drClose">${t("cancel")}</button>${c.del?`<button class="b dng" data-a="drDel">${t("del")}</button>`:""}${(c.extra||"")}<button class="b bp" data-a="drSave">${c.save||t("save")}</button>`});
- setTimeout(()=>{const f=$("#dr .fg [name]");f&&f.focus()},40)}
-function modal(o){$("#md").innerHTML=`<div class="ov" data-a="mdClose"></div><div class="mdl" style="width:min(${o.w||460}px,94vw)" role="dialog" aria-modal="true"><div class="dh">${o.icon?`<div class="ico">${ic(o.icon,16)}</div>`:""}<div class="dt2"><b>${o.title}</b>${o.sub?`<small>${o.sub}</small>`:""}</div><button class="bi" data-a="mdClose" aria-label="${t("close")}">${ic("x")}</button></div><div class="db">${o.body}</div>${o.foot?`<div class="df">${o.foot}</div>`:""}</div>`}
-let FORCE2=false;const closeMd=()=>{if(FORCE2)return;$("#md").innerHTML=""};
-let tsT;function toast(m,k){const e=$("#ts");e.textContent=m;e.className=k||"";e.style.display="block";clearTimeout(tsT);tsT=setTimeout(()=>e.style.display="none",2800)}
-function ask(msg,yes,label){modal({title:esc(msg),w:400,body:"",foot:`<button class="b" data-a="mdClose">${t("cancel")}</button><button class="b bp" id="askY" style="background:var(--rd);border-color:var(--rd)">${label||t("del")}</button>`});$("#askY").onclick=()=>{closeMd();yes()}}
-function download(name,text,type){try{const u=URL.createObjectURL(new Blob([text],{type:type||"text/csv"})),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000)}catch(e){toast(t("srv"),"er")}}
-function printHTML(title,html){const p=$("#prt");p.innerHTML=`<h2 style="font-family:sans-serif">${esc(title)}</h2>${html}`;p.classList.remove("hide");try{window.print()}catch(e){toast(t("srv"),"er")}setTimeout(()=>p.classList.add("hide"),500)}
-const csv=(cols,rows)=>[cols.join(",")].concat(rows.map(r=>r.map(c=>'"'+String(c??"").replace(/"/g,'""')+'"').join(","))).join("\n");
-
-/* ===== computed ===== */
-function planState(p,tr){const nm=p.lastMi!==""&&p.lastMi!=null&&+p.everyMi?+p.lastMi+ +p.everyMi:null,nd=p.lastDate&&+p.everyDays?addDays(p.lastDate,+p.everyDays):null;
- const miles=tr&&tr.miles!==""&&tr.miles!=null?+tr.miles:null,rm=nm!=null&&miles!=null?nm-miles:null,rd=nd?dd(nd):null;let st="ok";
- if((rm!=null&&rm<0)||(rd!=null&&rd<0))st="over";else if((rm!=null&&rm<=5000)||(rd!=null&&rd<=30))st="soon";return{st,rm,rd,nm,nd}}
-function truckPM(tr){let w="none";DB.plans.filter(p=>p.truck==tr.id).forEach(p=>{const s=planState(p,tr).st;if(s=="over")w="over";else if(s=="soon"&&w!="over")w="soon";else if(s=="ok"&&w=="none")w="ok"});return w}
-const cabState=tr=>{if(!tr.cab)return null;const d=dd(tr.cab);return d<0?"over":d<=15?"soon":"ok"};
-function alertList(){const L=[];DB.plans.forEach(p=>{const tr=byId(DB.trucks,p.truck);if(!tr)return;const s=planState(p,tr);if(s.st=="ok")return;
-  const bits=[];if(s.rm!=null)bits.push(s.rm<0?t("a_over_by",nf(-s.rm)):t("a_in_mi",nf(s.rm)));if(s.rd!=null)bits.push(s.rd<0?t("a_over_d",-s.rd):t("a_in_d",s.rd));
-  L.push({k:"m",st:s.st,unit:tr.num,title:p.name,detail:bits.join(" · "),tid:tr.id,w:s.st=="over"?-1:0})});
- DB.trucks.forEach(tr=>{const c=cabState(tr);if(c&&c!="ok")L.push({k:"c",st:c,unit:tr.num,title:t("a_cab"),detail:c=="over"?t("a_cab_exp"):t("a_cab_in",dd(tr.cab)),tid:tr.id})});
- return L.sort((a,b)=>(a.st=="over"?0:1)-(b.st=="over"?0:1))}
-const docReq=["reg","ins","ann"];
-function unitDocs(kind,id){return DB.docs.filter(x=>x.kind==kind&&x.uid==id)}
-const docSt=x=>{if(!x.exp)return"ok";const d=dd(x.exp);return d<0?"over":d<=30?"soon":"ok"};
-function todayData(){const R={cant:[],blk:[],soon:[]};
- DB.trucks.forEach(tr=>{const s=statOf(tr.status);if(s&&s.w===false)R.cant.push({u:tr.num,t:s.n,v:"trucks"})});
- DB.plans.forEach(p=>{const tr=byId(DB.trucks,p.truck);if(!tr)return;const s=planState(p,tr);if(s.st=="over")R.blk.push({u:tr.num,t:p.name,v:"maintenance"});else if(s.st=="soon")R.soon.push({u:tr.num,t:p.name,v:"maintenance"})});
- DB.trucks.forEach(tr=>{const c=cabState(tr);if(c=="over")R.blk.push({u:tr.num,t:t("a_cab"),v:"trucks"});else if(c=="soon")R.soon.push({u:tr.num,t:t("a_cab"),v:"trucks"})});
- DB.docs.forEach(x=>{const s=docSt(x),u=x.kind=="truck"?truckNum(x.uid):trailerNum(x.uid);if(s=="over")R.blk.push({u,t:x.title||t("dt_"+x.type),v:"documents"});else if(s=="soon")R.soon.push({u,t:x.title||t("dt_"+x.type),v:"documents"})});
- return R}
-function effPrio(i){if(i.sched){const d=dd(i.sched),n=S.prio.length;const k=d<=0?0:d<=2?Math.min(1,n-1):n-1;return S.prio[k]}return prioOf(i.pr)||S.prio[S.prio.length-1]}
-
-/* ===== router / events ===== */
-const ROUTES={today:"dashboard",alerts:"alerts",trucks:"fleet",trailers:"trailers",hookdrop:"hook-drop",drivers:"drivers",maintenance:"maintenance",pti:"pti",inspections:"inspections",documents:"documents",violations:"violation-report",invoices:"invoices",vendors:"vendors",aibot:"ai",aiexp:"ai-expenses",profile:"profile",companies:"companies"};
-const NAVS=[["g_operate",[["today","sun"],["trucks","truck"],["trailers","box"],["hookdrop","swap"],["drivers","card"]]],["g_maint",[["maintenance","wrench"],["pti","send"],["inspections","clip"],["documents","folder"],["violations","shield"]]],["g_records",[["invoices","receipt"],["vendors","store"]]],["g_ai",[["aibot","spark"],["aiexp","wallet"]]]];
-let V="today",PG={};const PAGES={},A={},I={},C={};
-const viewFromHash=()=>{const h=((typeof SERVER!="undefined"&&SERVER)?location.pathname:(location.hash||"")).replace(/^[#\/]+/,"").replace(/\/$/,"");const k=Object.keys(ROUTES).find(k=>ROUTES[k]==h)||"today";return typeof pageAllowed=="function"?pageAllowed(k):k};
-function go(v){if(typeof pageAllowed=="function")v=pageAllowed(v);V=v;PG={};if(typeof SERVER!="undefined"&&SERVER){const p="/"+ROUTES[v];if(location.pathname!=p)history.pushState(null,"",p)}else{const h="#"+ROUTES[v];if(location.hash!=h)history.replaceState(null,"",h)}closeDr();closeMd();render()}
-function shell(){return scoped(shell0)}
-function shell0(){const n=alertList().length;
- return `<nav class="sb ${S.sm?"sm":""}" id="sd"><div class="brand"><div class="logo">${logo(20)}</div><span class="brt">TOPG<b>FLEET</b></span></div>${NAVS.map(([g,it])=>{const L=it.filter(([k])=>typeof aiNavOk!="function"?!/^ai/.test(k):aiNavOk(k));return L.length?`<div class="gp">${t(g)}</div>${L.map(([k,i])=>`<button class="nv ${V==k?"on":""}" data-a="nav" data-v="${k}" title="${esc(t(k))}">${ic(i)}<span class="lb">${t(k)}</span>${k=="today"&&n?`<i>${n}</i>`:""}</button>`).join("")}`:""}).join("")}<div class="sp"></div><button class="nv" data-a="logout" title="${esc(t("logout"))}">${ic("out")}<span class="lb">${t("logout")}</span></button></nav>
-<div class="wrap"><div class="top"><button class="bi" data-a="menu" aria-label="Menu">${ic("menu")}</button><h3>${t(V)}</h3>${coSwitch()}<div class="gs pw">${ic("srch",15)}<input id="gq" data-i="gq" placeholder="${esc(t("find"))}" autocomplete="off" aria-label="${esc(t("find"))}"><kbd>/</kbd><div class="pop hide" id="gd" style="left:0;right:0;top:38px"></div></div><div class="sp"></div>
-<div class="pw"><button class="bi" data-a="shpop" data-p="bellp" aria-label="${t("alerts")}">${ic("bell")}${n?`<span class="bg2">${n}</span>`:""}</button><div class="pop sh" id="bellp" style="width:300px"><div class="ph"><span>${t("alerts")}</span><span class="mu">${n}</span></div>${n?alertList().slice(0,5).map(a=>`<button class="pi" data-a="openTruck" data-id="${a.tid}"><span class="dt" style="background:${a.st=="over"?"var(--rd)":"var(--am)"}"></span><span><b>${esc(a.unit)}</b> ${esc(a.title)}<br><small class="mu">${esc(a.detail)}</small></span></button>`).join(""):`<div class="em" style="padding:22px">${t("a_caught")}</div>`}<a class="pi" href="#alerts" data-a="nav" data-v="alerts" style="justify-content:center;color:var(--ac)">${t("a_view")}</a></div></div>
-<div class="pw"><div class="usr" data-a="shpop" data-p="userp" tabindex="0" role="button">${avHtml(S.name,S.col,0,1)}<span>${esc(S.name)}</span>${ic("chev",14)}</div><div class="pop sh" id="userp" style="width:200px"><button class="pi" data-a="nav" data-v="profile">${ic("user",16)} ${t("profile")}</button><button class="pi" data-a="nav" data-v="companies">${ic("store",16)} ${t("companies")}</button></div></div></div><main id="c"></main></div>`}
-/* loginView(), A.login, A.logout live in g_server.js */
-function render(){theme();const a=$("#app");if(!S.in){a.innerHTML=loginView();a.style.justifyContent="center";return}
- if(typeof seedCompanies=="function"&&isAdm())seedCompanies();a.style.justifyContent="";a.innerHTML=shell();page();if(typeof deepOpen=="function")deepOpen()}
-/* give every unlabeled field and icon-only button a name for screen readers and tooltips */
-function a11y(root){try{root.querySelectorAll("input:not([type=hidden]),select,textarea").forEach(e=>{if(e.getAttribute("aria-label")||(e.labels&&e.labels.length)||e.closest("label"))return;let n=e.placeholder||e.title||"";if(!n){const p=e.previousElementSibling;if(p&&p.matches(".lbl,label"))n=p.textContent.trim();else{const w=e.closest(".fg,.fld"),l=w&&w.querySelector(".lbl,label");if(l)n=l.textContent.trim()}}if(n)e.setAttribute("aria-label",n)});
- root.querySelectorAll("button,[data-a]").forEach(e=>{if(e.getAttribute("aria-label")||(e.innerText||"").trim())return;const n=e.title||(e.textContent||"").trim();if(n){e.setAttribute("aria-label",n);if(!e.title)e.title=n}})}catch(x){}}
-function page(){const c=$("#c");if(!c)return;const ae=document.activeElement,id=ae&&ae.id,ss=ae&&ae.selectionStart,sc=c.scrollTop;
- c.innerHTML=scoped(PAGES[V]||PAGES.today);a11y(c);c.scrollTop=sc;if(id&&c.querySelector("#"+id)){const n=$("#"+id);n.focus();try{n.setSelectionRange(ss,ss)}catch(e){}}if(PG.after){PG.after()}}
-function shellRefresh(){const sd=$("#sd");if(!sd)return;const keep=sd.classList.contains("open");const a=$("#app");const sc=$("#c")?$("#c").scrollTop:0;a.innerHTML=shell();if(keep)$("#sd").classList.add("open");page();$("#c").scrollTop=sc}
-const refresh=()=>{save();shellRefresh()};
-function closePops(){$$(".pop.sh.open").forEach(p=>p.classList.remove("open"));$("#gd")&&$("#gd").classList.add("hide");if(PG.pop){PG.pop=null;page()}}
-document.addEventListener("click",e=>{if(!e.target.closest(".pw"))closePops();const el=e.target.closest("[data-a]");if(!el)return;const f=A[el.dataset.a];if(f){if(typeof roGuard=="function"&&roGuard(el.dataset.a))return;if(el.tagName=="A"&&el.getAttribute("href"))e.preventDefault();f(el,e)}});
-document.addEventListener("input",e=>{const el=e.target.closest("[data-i]");if(el&&I[el.dataset.i]){if(typeof roGuard=="function"&&roGuard(el.dataset.i,"i")){el.value=el.defaultValue;return}I[el.dataset.i](el,e)}});
-document.addEventListener("change",e=>{const el=e.target.closest("[data-c]");if(el&&C[el.dataset.c]){if(typeof roGuard=="function"&&roGuard(el.dataset.c,"c")){page();return}C[el.dataset.c](el,e)}});
-document.addEventListener("keydown",e=>{if(e.key=="Enter"){const el=e.target.closest("[data-enter]");if(el&&A[el.dataset.enter]){e.preventDefault();A[el.dataset.enter](el,e)}}
- if(e.key=="Escape"){if($("#md").innerHTML)closeMd();else if($("#dr").innerHTML)closeDr();else closePops()}
- if(e.key=="/"&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){const g=$("#gq");if(g){e.preventDefault();g.focus()}}});
-const onNav=()=>{const v=viewFromHash();if(S.in&&v!=V){V=v;PG={};render()}};window.addEventListener("hashchange",onNav);window.addEventListener("popstate",onNav);
-
-/* ===== shared actions ===== */
-A.nav=el=>{go(el.dataset.v);$("#sd")&&$("#sd").classList.remove("open")};
-A.lang=el=>{S.lang=el.dataset.v;save();render()};
-A.collapse=()=>{S.sm=!S.sm;refresh()};
-A.menu=()=>{const s=$("#sd");if(innerWidth<=900)s.classList.toggle("open");else{S.sm=!S.sm;refresh()}};
-A.shpop=el=>{const m=$("#"+el.dataset.p),o=m.classList.contains("open");$$(".pop.sh.open").forEach(p=>p.classList.remove("open"));if(!o)m.classList.add("open")};
-A.pop=el=>{PG.pop=PG.pop===el.dataset.p?null:el.dataset.p;page()};
-A.drClose=closeDr;A.mdClose=closeMd;
-A.eye=el=>{const i=el.parentElement.querySelector("input");i.type=i.type=="password"?"text":"password"};
-A.drSave=()=>{const c=DR.cfg;if(!c)return;const root=$("#dr"),o=vals(root);let bad=null;
- c.fields.forEach(f=>{const n=root.querySelector(`[name="${f.k}"]`);if(!n)return;n.classList.remove("bad");if(f.req&&!o[f.k]){n.classList.add("bad");bad=bad||n}});
- if(bad){bad.focus();toast(t("req"),"er");return}if(c.check){const m=c.check(o);if(m){toast(m,"er");return}}c.onSave(o)};
-A.drDel=()=>{const c=DR.cfg;ask(t("confirm"),()=>{c.del();closeDr()})};
-I.pw=el=>{const v=el.value;let s=0;if(v.length>=8)s++;if(v.length>=11)s++;if(/[A-Z]/.test(v)&&/[a-z]/.test(v))s++;if(/\d/.test(v)&&/[^A-Za-z0-9]/.test(v))s++;
- [...el.closest(".fd").querySelectorAll(".bars i")].forEach((b,i)=>b.classList.toggle("on",i<s))};
-I.gq=el=>{const q=el.value.trim().toLowerCase(),d=$("#gd");if(!q){d.classList.add("hide");return}
- const r=[...DB.trucks.filter(x=>(x.num+" "+x.make+" "+x.model+" "+x.vin).toLowerCase().includes(q)).map(x=>["truck",x.id,x.num,"trucks"]),...DB.trailers.filter(x=>(x.num+" "+x.plate).toLowerCase().includes(q)).map(x=>["box",x.id,x.num,"trailers"]),...DB.drivers.filter(x=>(x.name+" "+x.phone).toLowerCase().includes(q)).map(x=>["card",x.id,x.name,"drivers"])].slice(0,7);
- d.innerHTML=r.length?r.map(x=>`<button class="pi" data-a="gopen" data-k="${x[3]}" data-id="${x[1]}">${ic(x[0],15)} ${esc(x[2])}</button>`).join(""):`<div class="em" style="padding:14px">–</div>`;d.classList.remove("hide")};
-A.gopen=el=>{const k=el.dataset.k,id=el.dataset.id;$("#gq").value="";closePops();go(k);setTimeout(()=>{if(k=="trucks")openTruck(id);else if(k=="trailers")openTrailer(id);else openDriver(id)},30)};
-A.openTruck=el=>{closePops();go("trucks");setTimeout(()=>openTruck(el.dataset.id),30)};
-/* ===== extra dictionary keys ===== */
-Object.assign(D,{
-dupe:["That number already exists.","Bu raqam allaqachon mavjud.","Такой номер уже существует."],
-copy_fail:["Select the text and copy it by hand.","Matnni belgilab qo‘lda nusxalang.","Выделите текст и скопируйте вручную."],
-tr_s_comp:["Company","Kompaniya","Компания"],none_l:["None","Yo‘q","Нет"],pm_ok:["PM ok","PM joyida","ТО в порядке"],pm_over:["PM overdue","PM muddati o‘tgan","ТО просрочено"],pm_soon:["PM due soon","PM yaqin","ТО скоро"],
-cab_over:["Cab card expired","Cab card tugagan","Cab card истекла"],cab_soon:["Cab card soon","Cab card tez orada","Cab card скоро"],unc:["Uncovered","Qoplanmagan","Не покрыто"],
-tr_vehicle:["Vehicle","Mashina","Машина"],tr_pm:["Next PM","Keyingi PM","След. ТО"],tr_cabs:["Cab card","Cab card","Cab card"],tr_ins2:["Insurance","Sug‘urta","Страховка"],
-open_t:["Open","Ochish","Открыть"],tr_issues:["{0} issues","{0} muammo","{0} проблем"],st_del_t:["Delete status","Statusni o‘chirish","Удалить статус"],
-miles_u:["mi","mil","миль"],cab_l:["Cab","Cab","Cab"],comp_all:["All companies","Barcha kompaniyalar","Все компании"]
-});
-const STAT_T={ready:"ts_ready",loaded:"ts_loaded",road:"ts_road",parking:"ts_parking",shop:"ts_shop",oos:"ts_oos"};
-const STAT_C={ready:"#22c55e",loaded:"#3b82f6",road:"#8b7cf6",parking:"#9a9aa1",shop:"#f59e0b",oos:"#ef4444"};
-const copyText=txt=>{const ok=()=>toast(t("copied"));const fb=()=>{const ta=document.createElement("textarea");ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();let r=false;try{r=document.execCommand("copy")}catch(e){}ta.remove();r?ok():toast(t("copy_fail"),"er")};
- try{navigator.clipboard.writeText(txt).then(ok,fb)}catch(e){fb()}};
-const natCmp=(a,b)=>String(a).localeCompare(String(b),undefined,{numeric:true});
-
-/* ===== priorities editor (Today modal + Profile) ===== */
-const canPrio=()=>!(typeof SERVER!="undefined"&&SERVER&&USER)||USER.owner||(S.prioEd||[]).includes(USER.id);
-function prioInner(){const dis=canPrio()?"":" disabled";return `${S.prio.map((p,i)=>`<div class="pr" data-g="prio" data-n="${i}"><span class="gr" data-g="prio" data-n="${i}" title="${esc(t("drag"))}" aria-label="${esc(t("drag"))}">⠿</span><input type="color" value="${p.c}" data-c="prColor" data-i="${i}" aria-label="color"${dis}><input type="text" value="${esc(p.n)}" data-c="prName" data-i="${i}"${canPrio()?"":" readonly"}><span class="n">${t("pr_issues",DB.issues.filter(x=>x.pr==p.id&&x.status!="closed").length)}</span><button class="bi" data-a="prDel" data-i="${i}" aria-label="${t("del")}"${dis}>${ic("trash",15)}</button></div>`).join("")}
-<div class="pr"><span style="width:68px"></span><input type="color" id="npc" value="#3b82f6"${dis}><input type="text" id="npn" placeholder="${esc(t("pr_new"))}" data-enter="prAdd"${canPrio()?"":" readonly"}><button class="b" data-a="prAdd"${dis}>${t("pr_add")}</button></div>`}
-const prioRefresh=()=>{save();$$(".prioBox").forEach(b=>b.innerHTML=prioInner());if(V=="today"||V=="profile")page()};
-A.prUp=el=>{const i=+el.dataset.i;if(i>0){[S.prio[i-1],S.prio[i]]=[S.prio[i],S.prio[i-1]];prioRefresh()}};
-A.prDown=el=>{const i=+el.dataset.i;if(i<S.prio.length-1){[S.prio[i+1],S.prio[i]]=[S.prio[i],S.prio[i+1]];prioRefresh()}};
-C.prColor=el=>{S.prio[+el.dataset.i].c=el.value;prioRefresh()};
-C.prName=el=>{const v=el.value.trim();if(v)S.prio[+el.dataset.i].n=v;prioRefresh()};
-A.prDel=el=>{if(S.prio.length<2){toast(t("pr_last"),"er");return}const i=+el.dataset.i,p=S.prio[i];S.prio.splice(i,1);const to=S.prio[Math.min(i,S.prio.length-1)].id;DB.issues.forEach(x=>{if(x.pr==p.id)x.pr=to});prioRefresh()};
-A.prAdd=()=>{const n=$("#npn").value.trim();if(!n){$("#npn").focus();return}S.prio.push({id:uid(),n,c:$("#npc").value});prioRefresh()};
-["prUp","prDown","prDel","prAdd"].forEach(k=>{const f=A[k];A[k]=(...a)=>canPrio()&&f(...a)});["prColor","prName"].forEach(k=>{const f=C[k];C[k]=(...a)=>canPrio()&&f(...a)});
-A.managePrio=()=>{PG.pop=null;modal({title:t("pr_t"),icon:"flag",w:560,body:`<p class="mu" style="margin-top:0">${t("pr_s")}</p><div class="prioBox">${prioInner()}</div><p class="mu" style="font-size:calc(12px*var(--fz,1))">${t("pr_s2")}</p>`})};
-
-/* ===== TODAY ===== */
-function issueList(){const q=(PG.iq||"").toLowerCase(),top=S.prio[0].id,td=today();const pass={open:i=>i.status!="closed",high:i=>i.status!="closed"&&effPrio(i).id==top,owner:i=>i.status!="closed"&&!i.owner,sched:i=>i.status!="closed"&&i.sched==td,closed:i=>i.status=="closed"};
- const cnt={};Object.keys(pass).forEach(k=>cnt[k]=DB.issues.filter(pass[k]).length);
- let L=DB.issues.filter(pass[PG.fl||"open"]).filter(i=>!q||[i.title,i.desc,(member(i.owner)||{}).n].join(" ").toLowerCase().includes(q));
- const pi=i=>S.prio.findIndex(p=>p.id==effPrio(i).id);const so=PG.so||"prio";
- L.sort(so=="prio"?(a,b)=>pi(a)-pi(b)||b.created-a.created:so=="new"?(a,b)=>b.created-a.created:(a,b)=>a.created-b.created);return{L,cnt}}
-function issueRow(i){const p=effPrio(i),m=member(i.owner);return `<div class="ir" data-a="openIssue" data-id="${i.id}">${dot(p.c)}<div class="t"><b>${esc(i.title||i.desc)}</b>${i.title&&i.desc?`<small class="mu">${esc(i.desc)}</small>`:""}</div>${tag(p.n,p.c)}${m?avatar(m):`<span class="mu" style="font-size:calc(12px*var(--fz,1))">${t("unassigned")}</span>`}${i.sched?`<span class="mu" style="font-size:calc(12px*var(--fz,1))">${ic("sun",12)} ${fd(i.sched)}</span>`:`<span class="mu" style="font-size:calc(12px*var(--fz,1))">${fd(ymd(new Date(i.created)))}</span>`}<button class="b bs" data-a="toggleIssue" data-id="${i.id}">${t(i.status=="closed"?"reopen":"close_issue")}</button></div>`}
-PAGES.today=()=>{const R=todayData(),setup=S.stat.every(s=>s.w==null),on=DB.drivers.filter(d=>d.duty!="off").length,off=DB.drivers.length-on,rev=DB.insp.filter(x=>!x.reviewed).length;
- const col=(k,lab,c,emp)=>{const L=R[k];return `<div class="nc"><div class="nh">${dot(c)}${t(lab)}<span class="nn">${L.length}</span></div>${L.length?L.slice(0,3).map(x=>`<a class="ni" href="#${ROUTES[x.v]}" data-a="nav" data-v="${x.v}"><b>${esc(x.u)}</b> ${esc(x.t)}</a>`).join("")+(L.length>3?`<div class="mu">+${L.length-3} ${t("more")}</div>`:""):`<div class="mu">${emp}</div>`}</div>`};
- const {L,cnt}=issueList(),fl=PG.fl||"open",so=PG.so||"prio";
- let rows;if(!L.length)rows=`<div class="em" style="padding:26px">${fl=="closed"?t("no_closed"):t("no_open")} ${fl!="open"?`<a href="#" data-a="issueTab" data-v="open">${t("show_open")}</a>`:""}</div>`;
- else if(PG.grp){const g={};L.forEach(i=>{const n=(member(i.owner)||{n:t("unassigned")}).n;(g[n]=g[n]||[]).push(i)});rows=Object.entries(g).map(([n,a])=>`<div class="gh">${esc(n)} · ${a.length}</div>${a.map(issueRow).join("")}`).join("")}
- else rows=L.map(issueRow).join("");
- return `<div class="pg m"><div class="card"><div class="ch"><h2>${t("needs")}</h2></div><div class="nc3" style="border-top:1px solid var(--ln)">
-${col("cant","cantrun","var(--rd)",setup?`${t("cant_a")} <a href="#trucks" data-a="trSetup">${t("cant_b")}</a> ${t("cant_c")}`:t("cant_none"))}${col("blk","blocks","var(--rd)",t("blk_none"))}${col("soon","duesoon","var(--am)",t("soon_none"))}</div>
-<div class="nf"><span><b>${on}</b> ${t("on_duty")}</span><span><b>${off}</b> ${t("off_duty")}</span><span><b>${rev}</b> ${t("insp_rev")}</span><span class="sp"></span><a href="#alerts" data-a="nav" data-v="alerts">${t("every")}</a></div></div>
-<div class="card"><div class="ch"><h2>${t("issues")}</h2>${tabsH([["open",t("i_open"),cnt.open],["high",t("i_high"),cnt.high],["owner",t("i_owner"),cnt.owner],["sched",t("i_sched"),cnt.sched],["closed",t("i_closed"),cnt.closed]],fl,"issueTab")}<span class="sp"></span>
-<div class="gs pw" style="width:220px;display:block">${ic("srch",15)}<input id="iq" data-i="iq" value="${esc(PG.iq||"")}" placeholder="${esc(t("i_search"))}" aria-label="${esc(t("i_search"))}"></div>
-<div class="pw"><button class="b" data-a="pop" data-p="view">${ic("filter",14)} ${t("view")}</button>${PG.pop=="view"?`<div class="pop" style="right:0;top:38px;width:240px;padding:6px">${[["prio","s_prio"],["new","s_new"],["old","s_old"]].map(([v,k])=>`<button class="pi" data-a="issueSort" data-v="${v}">${so==v?ic("check",14):'<span style="width:14px"></span>'} ${t(k)}</button>`).join("")}<button class="pi" data-a="issueGrp">${PG.grp?ic("check",14):'<span style="width:14px"></span>'} ${t("s_grp")}</button><button class="pi" data-a="managePrio" style="border-top:1px solid var(--ln)">${ic("flag",14)} ${t("s_man")}</button></div>`:""}</div>
-<button class="b bp" data-a="newIssue">${ic("plus",15)} ${t("new_issue")}</button></div>${rows}</div></div>`};
-A.issueTab=el=>{PG.fl=el.dataset.v;page()};I.iq=el=>{PG.iq=el.value;page()};A.issueSort=el=>{PG.so=el.dataset.v;PG.pop=null;page()};A.issueGrp=()=>{PG.grp=!PG.grp;PG.pop=null;page()};
-A.trSetup=()=>{go("trucks");setTimeout(()=>A.stManage(),30)};
-A.toggleIssue=el=>{const i=byId(DB.issues,el.dataset.id);i.status=i.status=="closed"?"open":"closed";refresh()};
-A.newIssue=()=>issueForm();A.openIssue=el=>issueForm(el.dataset.id);
-function issueForm(id){const i=id?byId(DB.issues,id):null;
- openForm({title:i?t("issue"):t("new_issue"),icon:"flag",save:i?t("save"):t("create_issue"),
- fields:[{k:"title",l:t("f_unit"),opt:true,ph:t("f_unit_ph"),list:"units",val:i&&i.title},{k:"desc",l:t("f_desc"),t:"textarea",rows:4,ph:t("f_desc_ph"),val:i&&i.desc},
- {k:"pr",l:t("f_prio"),t:"select",o:S.prio.map(p=>[p.id,p.n]),val:i?i.pr:S.prio[S.prio.length-1].id},{k:"owner",l:t("f_assign"),opt:true,t:"select",o:[["",t("unassigned")],...S.team.map(m=>[m.id,m.n])],val:i&&i.owner},
- {k:"sched",l:t("f_sched"),opt:true,t:"date",val:i&&i.sched,hint:t("f_sched_h")}],
- check:o=>!o.title&&!o.desc?t("req"):null,del:i?()=>{DB.issues=DB.issues.filter(x=>x.id!=id);refresh()}:null,
- extra:i?`<button class="b" data-a="drToggle">${t(i.status=="closed"?"reopen":"close_issue")}</button>`:"",
- onSave:o=>{if(i)Object.assign(i,o);else DB.issues.push({id:uid(),created:Date.now(),status:"open",...o});closeDr();refresh()}});
- DR.issueId=id}
-A.drToggle=()=>{const i=byId(DB.issues,DR.issueId);if(i){i.status=i.status=="closed"?"open":"closed";closeDr();refresh()}};
-
-/* ===== ALERTS ===== */
-PAGES.alerts=()=>{const L=alertList(),o=L.filter(a=>a.st=="over"),u=L.filter(a=>a.st!="over"),f=PG.af||"all",show=f=="over"?o:f=="up"?u:L;
- return `<div class="pg n"><div class="row" style="justify-content:space-between;margin:4px 0 18px"><h1 style="margin:0;font-size:calc(20px*var(--fz,1))">${t("alerts")}</h1><div class="tabs">${[["all",t("a_all"),L.length,""],["over",t("a_over"),o.length,"var(--rd)"],["up",t("a_up"),u.length,"var(--am)"]].map(([v,l,n,c])=>`<button class="tb ${f==v?"on":""}" data-a="alertTab" data-v="${v}">${l} <b style="${c&&n?`color:${c}`:""}">${n}</b></button>`).join("")}</div></div>
-${show.length?show.map(a=>`<div class="card cp row" style="margin-bottom:10px;cursor:pointer;border-left:3px solid ${a.st=="over"?"var(--rd)":"var(--am)"}" data-a="openTruck" data-id="${a.tid}"><div class="ico">${ic(a.k=="m"?"wrench":"file",16)}</div><div style="flex:1"><b>${esc(a.unit)}</b> · ${esc(a.title)}<div class="mu">${esc(a.detail)}</div></div><span class="b bs">${t("open_t")}</span></div>`).join(""):`<div class="em" style="padding:70px 10px"><div style="color:var(--gn)">${ic("check",44)}</div><b style="display:block;color:var(--tx);font-size:calc(15px*var(--fz,1));margin-top:6px">${t("a_clear")}</b><div>${t("a_clear2")}</div></div>`}</div>`};
-A.alertTab=el=>{PG.af=el.dataset.v;page()};
-
-/* ===== TRUCKS ===== */
-const trS=()=>PG.tr||(PG.tr={view:ld("tf2_trv","board"),st:"all",q:"",adv:{comp:[],drv:"any",ins:"any",cab:"any",pm:"any"},sort:"status",auto:true,left:20});
-function trucksFiltered(){const s=trS(),q=s.q.toLowerCase(),a=s.adv;
- const L=DB.trucks.filter(tr=>{if(s.st!="all"&&tr.status!=s.st)return false;const d=driverOf(tr.id);
-  if(q&&![tr.num,tr.vin,tr.plate,tr.make,tr.model,d&&d.name].join(" ").toLowerCase().includes(q))return false;
-  if(a.comp.length&&!a.comp.includes(tr.company||"none"))return false;if(a.drv=="has"&&!d)return false;if(a.drv=="no"&&d)return false;
-  if(a.ins=="cov"&&tr.ins!="cov")return false;if(a.ins=="unc"&&tr.ins!="unc")return false;if(a.ins=="nset"&&tr.ins)return false;
-  if(a.cab=="soon"&&cabState(tr)!="soon")return false;if(a.cab=="exp"&&cabState(tr)!="over")return false;
-  if(a.pm=="soon"&&truckPM(tr)!="soon")return false;if(a.pm=="over"&&truckPM(tr)!="over")return false;return true});
- const si=tr=>S.stat.findIndex(x=>x.id==tr.status);
- L.sort(s.sort=="unit"?(a,b)=>natCmp(a.num,b.num):s.sort=="driver"?(a,b)=>((driverOf(a.id)||{name:"~"}).name).localeCompare((driverOf(b.id)||{name:"~"}).name):s.sort=="miles"?(a,b)=>(+b.miles||0)-(+a.miles||0):s.sort=="comp"?(a,b)=>(compOf(a.company)||{n:"~"}).n.localeCompare((compOf(b.company)||{n:"~"}).n):(a,b)=>si(a)-si(b)||natCmp(a.num,b.num));return L}
-const advN=a=>(a.comp.length?1:0)+["drv","ins","cab","pm"].filter(k=>a[k]!="any").length;
-const pmTag=tr=>{const p=truckPM(tr);return p=="over"?tag(t("pm_over"),"var(--rd)"):p=="soon"?tag(t("pm_soon"),"var(--am)"):p=="ok"?tag(t("pm_ok"),"var(--gn)"):`<span class="mu">–</span>`};
-const OWNL={co:"C",le:"V",oo:"O/O"};
-function sinceTxt(ts){if(!ts)return"";const m=Math.max(0,Math.round((Date.now()-ts)/60000)),w=m<60?m+"m":m<2880?Math.round(m/60)+"h":Math.round(m/1440)+"d";return t("tc_since")+" "+w}
-A.noop=()=>{};
-C.trStatus=el=>{const tr=byId(DB.trucks,el.dataset.id);if(!tr)return;tr.status=el.value;tr.stAt=Date.now();refresh()};
-C.trNote=el=>{const tr=byId(DB.trucks,el.dataset.id);if(!tr)return;tr.note=el.value.trim();save()};
-function truckCard(tr){const d=driverOf(tr.id),c=compOf(tr.company),s=statOf(tr.status),p=truckPM(tr),cab=cabState(tr),tl=DB.trailers.find(x=>x.truck==tr.id&&!x.archived),ni=DB.issues.filter(i=>i.status!="closed"&&(i.title||"").trim().toLowerCase()==tr.num.toLowerCase()).length,sc=s?s.c:"var(--mu)";
- const mu=x=>`<span class="tg" style="border:1px dashed var(--bd);background:none;color:var(--mu)">${x}</span>`;
- return `<div class="card tc" data-a="openTruck2" data-id="${tr.id}"><div class="h"><span class="un">${tr.own&&OWNL[tr.own]?`<i>${OWNL[tr.own]}</i>`:""}<b>${esc(tr.num)}</b></span><span class="mu" style="font-size:calc(12px*var(--fz,1))">${c?dot(c.c)+" "+esc(c.n):""}</span><span class="sp"></span><button class="bi" data-a="openTruck" data-id="${tr.id}" title="${esc(t("tr_info"))}" aria-label="${esc(t("tr_info"))}">${ic("info",16)}</button></div>
-<div class="mu">${esc([tr.year,tr.make,tr.model].filter(Boolean).join(" "))}</div>
-<div class="bd" style="margin-top:8px">${d?`<span class="row" style="gap:6px;flex-wrap:nowrap">${avatar({n:d.name,c:S.col})}${esc(d.name)}</span>`:mu(t("t_nod"))}${tl?tag(tl.num,"var(--ac)"):mu(t("tc_notl"))}${tr.loc?`<span class="tg">${ic("pin",12)} ${esc(tr.loc)}</span>`:mu(t("tc_noloc"))}</div>
-<div class="row" style="margin-top:9px;gap:8px;flex-wrap:nowrap" data-a="noop"><select class="sel" style="color:${sc};border-color:${sc}66;flex:1;min-width:0" data-c="trStatus" data-id="${tr.id}" aria-label="${t("tr_status")}">${S.stat.map(x=>`<option value="${x.id}" ${x.id==tr.status?"selected":""}>${esc(x.n)}</option>`).join("")}</select><small class="mu" style="white-space:nowrap" title="${tr.stAt?esc(new Date(tr.stAt).toLocaleString()):""}">${sinceTxt(tr.stAt)}${tr.stAt?" · "+esc(new Date(tr.stAt).toLocaleString([],{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"})):""}</small></div>
-<div class="bd">${p=="over"?tag(t("pm_over"),"var(--rd)"):p=="soon"?tag(t("pm_soon"),"var(--am)"):""}${cab=="over"?tag(t("cab_over"),"var(--rd)"):cab=="soon"?tag(t("cab_soon"),"var(--am)"):""}${tr.ins=="unc"?tag(t("unc"),"var(--rd)"):""}${ni?tag(t("tr_issues",ni),"var(--am)"):""}${tr.miles!==""&&tr.miles!=null?`<span class="mu" style="margin-left:auto;font-size:calc(12px*var(--fz,1))">${nf(tr.miles)} ${t("miles_u")}</span>`:""}</div>
-<div data-a="noop" style="margin-top:8px"><input type="text" data-c="trNote" data-id="${tr.id}" value="${esc(tr.note||"")}" placeholder="${esc(t("tc_note"))}" style="width:100%;font-size:calc(12px*var(--fz,1))" aria-label="${esc(t("tc_note"))}"></div></div>`}
-function truckTable(L){return `<div class="card tw"><table><tr><th>${t("tl_unit")}</th><th>${t("tr_status")}</th><th>${t("tr_comp")}</th><th>${t("tr_driver")}</th><th>${t("tr_vehicle")}</th><th>${t("tr_plate")}</th><th>${t("tr_miles")}</th><th>${t("tr_pm")}</th><th>${t("tr_cabs")}</th><th>${t("tr_ins2")}</th></tr>${L.map(tr=>{const d=driverOf(tr.id),c=compOf(tr.company),s=statOf(tr.status),cab=cabState(tr);
- return `<tr class="rw" data-a="openTruck2" data-id="${tr.id}"><td><b>${esc(tr.num)}</b></td><td>${s?tag(s.n,s.c):""}</td><td>${c?dot(c.c)+esc(c.n):"–"}</td><td>${d?esc(d.name):`<span class="mu">–</span>`}</td><td>${esc([tr.year,tr.make,tr.model].filter(Boolean).join(" "))}</td><td>${esc(tr.plate)||"–"}</td><td>${tr.miles!==""&&tr.miles!=null?nf(tr.miles):"–"}</td><td>${pmTag(tr)}</td><td>${tr.cab?tag(fd(tr.cab),cab=="over"?"var(--rd)":cab=="soon"?"var(--am)":"var(--gn)"):"–"}</td><td>${tr.ins=="cov"?tag(t("fl_cov"),"var(--gn)"):tr.ins=="unc"?tag(t("unc"),"var(--rd)"):`<span class="mu">–</span>`}</td></tr>`}).join("")}</table></div>`}
-PAGES.trucks=()=>{const s=trS(),L=trucksFiltered(),all=DB.trucks,w=S.stat.some(x=>x.w===true),setup=S.stat.every(x=>x.w==null);
- const working=all.filter(x=>(statOf(x.status)||{}).w===true).length,dnw=all.filter(x=>driverOf(x.id)&&(statOf(x.status)||{}).w===false).length,nod=all.filter(x=>!driverOf(x.id)).length,oi=DB.issues.filter(i=>i.status!="closed"&&all.some(x=>x.num.toLowerCase()==(i.title||"").trim().toLowerCase())).length;
- const pct=n=>all.length?Math.round(n/all.length*100):0,a=s.adv;
- const popAdv=PG.pop=="adv"?`<div class="pop pg2"><h5>${t("fl_company")}</h5>${[...S.comps.map(c=>[c.id,c.n,c.c]),["none",t("fl_nocomp"),"#6b7a99"]].map(([v,n,c])=>`<label class="ck" style="margin-bottom:5px"><input type="checkbox" data-c="advComp" data-v="${v}" ${a.comp.includes(v)?"checked":""}>${dot(c)}<span style="color:var(--tx)">${esc(n)}</span></label>`).join("")}
-<h5>${t("fl_driver")}</h5>${sgH([["any",t("any")],["has",t("fl_has")],["no",t("fl_no")]],a.drv,"advSet",'data-k="drv"')}<h5>${t("fl_ins")}</h5>${sgH([["any",t("any")],["cov",t("fl_cov")],["unc",t("fl_unc")],["nset",t("fl_nset")]],a.ins,"advSet",'data-k="ins"')}
-<h5>${t("fl_cab")}</h5>${sgH([["any",t("any")],["soon",t("fl_expsoon")],["exp",t("fl_exp")]],a.cab,"advSet",'data-k="cab"')}<h5>${t("fl_pm")}</h5>${sgH([["any",t("any")],["soon",t("fl_due")],["over",t("fl_over")]],a.pm,"advSet",'data-k="pm"')}
-<div class="pf2"><button class="b bs" data-a="advClear" style="border:0;background:none;color:var(--mu)">${t("clear")}</button><button class="b bp bs" data-a="pop" data-p="adv">${t("done")}</button></div></div>`:"";
- const body=!L.length?`<div class="em" style="padding:60px 10px">${ic("truck",38)}<div>${t("t_empty")}</div><button class="b" data-a="trAll">${t("t_every")}</button></div>`:
-  s.view=="table"?truckTable(L):S.stat.concat(S.stat.some(x=>L.some(tr=>tr.status==x.id))?[]:[]).map(st=>{const g=L.filter(tr=>tr.status==st.id);return g.length?`<div class="sec">${dot(st.c)}${esc(st.n)}<span>${g.length}</span></div><div class="grid">${g.map(truckCard).join("")}</div>`:""}).join("");
- return `<div class="pg w"><div class="row" style="justify-content:space-between;margin-bottom:8px"><div class="tabs">${[["board",ic("box",14)+" "+t("t_view_b")],["table",ic("clip",14)+" "+t("t_view_t")]].map(([v,l])=>`<button class="tb ${s.view==v?"on":""}" data-a="trView" data-v="${v}">${l}</button>`).join("")}</div>
-<div class="row"><button class="b" data-a="syncV">${ic("zap",14)} ${t("t_sync")}</button><button class="b" data-a="syncM">${ic("refresh",14)} ${t("t_syncm")}</button><button class="b bp" data-a="addTruck">${ic("plus",15)} ${t("t_add")}</button></div></div>
-<div class="stt"><div><b>${working}</b><small>${t("t_work")}${setup?`<span class="sbd" role="button" data-a="stManage" style="cursor:pointer">${t("t_setup")}</span>`:""}</small></div><div><b>${dnw}</b><small>${t("t_dnw")}</small></div><div><b>${nod}</b><small>${t("t_nod")}</small></div><div><b>${oi}</b><small>${t("t_oi")}</small></div><div><b>${all.length}</b><small>${t("t_total")}</small></div></div>
-<div class="chips"><button class="sc ${s.st=="all"?"on":""}" data-a="trSt" data-v="all">${ic("truck",14)} ${t("all")} <b>${all.length}</b> <small>${all.length?100:0}%</small></button>${S.stat.map(st=>{const n=all.filter(x=>x.status==st.id).length;return `<button class="sc ${s.st==st.id?"on":""}" data-a="trSt" data-v="${st.id}" style="color:${st.c}">${ic(st.ic,14)} ${esc(st.n)} <b>${n}</b> <small>${pct(n)}%</small></button>`}).join("")}<button class="bi" data-a="stNew" aria-label="${t("st_new")}" style="border:1px solid var(--ln)">${ic("plus",15)}</button><button class="bi" data-a="stManage" aria-label="${t("st_manage")}" style="border:1px solid var(--ln)">${ic("pen",14)}</button></div>
-<div class="row" style="justify-content:space-between;align-items:flex-start"><div class="tbar"><div class="gs" style="width:260px;display:block">${ic("srch",15)}<input id="trq" data-i="trq" value="${esc(s.q)}" placeholder="${esc(t("t_q"))}" aria-label="${esc(t("t_q"))}"></div>
-<div class="pw"><button class="b" data-a="pop" data-p="adv" ${advN(a)?'style="border-color:var(--ac);color:var(--ac)"':""}>${t("t_adv")} ${ic("filter",13)}${advN(a)?` <span class="sbd" style="margin:0">${advN(a)}</span>`:""}</button>${popAdv}</div>
-<select class="sel" style="width:auto;padding:8px 30px 8px 11px;font-size:calc(13px*var(--fz,1));font-weight:500" data-c="trSort" aria-label="${t("t_sort")}">${[["status",t("t_s_status")],["unit",t("t_s_unit")],["driver",t("t_s_driver")],["miles",t("t_s_miles")],["comp",t("tr_s_comp")]].map(([v,l])=>`<option value="${v}" ${s.sort==v?"selected":""}>${t("t_sort")}: ${l}</option>`).join("")}</select>
-<button class="b" data-a="trReport" ${L.length?"":"disabled"}>${ic("file",14)} ${t("t_report")}</button></div>
-<div class="row" style="gap:8px"><button class="tog ${s.auto?"on":""}" data-a="trAuto" role="switch" aria-checked="${s.auto}" aria-label="${t("t_auto")}"><i></i></button><div><b>${t("t_auto")}</b><div class="mu" style="font-size:calc(11px*var(--fz,1))" id="au2">${s.auto?t("t_auto2",s.left):"—"}</div></div></div></div>${body}</div>`};
-A.trView=el=>{trS().view=el.dataset.v;sv("tf2_trv",el.dataset.v);page()};I.trq=el=>{trS().q=el.value;page()};A.trSt=el=>{trS().st=el.dataset.v;page()};C.trSort=el=>{trS().sort=el.value;page()};
-C.advComp=el=>{const a=trS().adv,v=el.dataset.v;a.comp=el.checked?[...new Set([...a.comp,v])]:a.comp.filter(x=>x!=v);page()};A.advSet=el=>{trS().adv[el.dataset.k]=el.dataset.v;page()};
-A.advClear=()=>{trS().adv={comp:[],drv:"any",ins:"any",cab:"any",pm:"any"};page()};A.trAll=()=>{const s=trS();s.st="all";s.q="";A.advClear()};
-A.trAuto=()=>{const s=trS();s.auto=!s.auto;s.left=20;page()};A.openTruck2=el=>openTruck(el.dataset.id);A.addTruck=()=>openTruck();
-setInterval(()=>{if(!S.in||V!="trucks"||!PG.tr||!PG.tr.auto)return;PG.tr.left--;const e=$("#au2");if(e)e.textContent=t("t_auto2",PG.tr.left);
- if(PG.tr.left<=0){PG.tr.left=20;if(!$("#dr").innerHTML&&!$("#md").innerHTML&&!PG.pop){if(PULL)PULL();else{const d=ld("tf2_d",null);if(d)Object.assign(DB,d);page()}}}},1000);
-A.syncV=()=>modal({title:t("t_sync"),sub:t("sync_sub",0,0),icon:"zap",w:440,body:`<input placeholder="${esc(t("sync_q"))}" aria-label="${esc(t("sync_q"))}"><div class="note er" style="margin-top:12px">${t("telem")}</div>`,foot:`<button class="b" data-a="mdClose">${t("cancel")}</button><button class="b bp" disabled>${t("sync_add")}</button>`});
-A.syncM=()=>modal({title:t("t_syncm"),icon:"refresh",w:440,body:`<div class="note er">${t("telem")}</div>`,foot:`<button class="b" data-a="mdClose">${t("close")}</button>`});
-A.trFind=()=>toast(t("telem"),"er");
-/* statuses */
-const stWOpts=()=>[["",t("st_ns")],["1",t("st_w")],["0",t("st_nw")]];
-const stRows=()=>S.stat.map((s,i)=>{const used=DB.trucks.some(x=>x.status==s.id);return `<div class="pr" data-g="stat" data-n="${i}"><span class="gr" data-g="stat" data-n="${i}" title="${esc(t("drag"))}" aria-label="${esc(t("drag"))}">⠿</span><span style="color:${s.c}">${ic(s.ic,16)}</span><input type="text" value="${esc(s.n)}" data-c="stName" data-i="${i}" aria-label="${t("st_name")}"><select class="sel" style="width:130px" data-c="stW" data-i="${i}">${optH(stWOpts(),s.w===true?"1":s.w===false?"0":"")}</select><button class="bi" data-a="stDel" data-i="${i}" ${used||S.stat.length<2?"disabled":""} title="${used?esc(t("st_used")):""}" aria-label="${t("del")}">${ic("trash",15)}</button></div>`}).join("");
-A.stManage=()=>{PG.pop=null;modal({title:t("st_manage"),icon:"pen",w:520,body:`<p class="mu" style="margin-top:0">${t("st_hint")}</p><div id="stBox">${stRows()}</div>`,foot:`<button class="b" data-a="stNew">${ic("plus",14)} ${t("st_new")}</button><button class="b bp" data-a="mdClose">${t("done")}</button>`})};
-const stRefresh=()=>{save();const b=$("#stBox");if(b)b.innerHTML=stRows();if(V=="trucks"||V=="today")page()};
-C.stName=el=>{const v=el.value.trim();if(v)S.stat[+el.dataset.i].n=v;stRefresh()};C.stW=el=>{S.stat[+el.dataset.i].w=el.value===""?null:el.value=="1";stRefresh()};
-A.stDel=el=>{const s=S.stat[+el.dataset.i];if(DB.trucks.some(x=>x.status==s.id)||S.stat.length<2)return;S.stat.splice(+el.dataset.i,1);S.ptiOff=S.ptiOff.filter(x=>x!=s.id);stRefresh()};
-const nsBody=()=>`<div class="fd"><label>${t("st_name")}</label><input id="nsn" placeholder="${esc(t("st_name_ph"))}" value="${esc(PG.ns.n||"")}"></div><div class="fd" style="margin-top:12px"><label>${t("st_color")}</label><div class="sw">${COLORS.map(c=>`<button class="${PG.ns.c==c?"on":""}" style="background:${c}" data-a="nsC" data-v="${c}" aria-label="${c}"></button>`).join("")}</div></div>
-<div class="fd" style="margin-top:12px"><label>${t("st_icon")}</label><div class="sw">${STAT_ICONS.map(i=>`<button class="b bs ${PG.ns.ic==i?"bp":""}" style="width:34px;padding:6px" data-a="nsI" data-v="${i}" aria-label="${i}">${ic(i,15)}</button>`).join("")}</div></div>
-<div class="fd" style="margin-top:12px"><label>${t("st_prev")}</label><span class="sc" style="color:${PG.ns.c}">${ic(PG.ns.ic,14)} ${esc(PG.ns.n||t("st_name"))}</span></div>`;
-A.stNew=()=>{PG.pop=null;PG.ns={c:COLORS[0],ic:"check",n:""};modal({title:t("st_new"),icon:"plus",w:420,body:`<div id="nsb">${nsBody()}</div>`,foot:`<button class="b" data-a="mdClose">${t("cancel")}</button><button class="b bp" data-a="nsSave">${t("st_create")}</button>`});$("#nsn").focus()};
-const nsRe=()=>{PG.ns.n=$("#nsn").value;$("#nsb").innerHTML=nsBody()};A.nsC=el=>{PG.ns.c=el.dataset.v;nsRe()};A.nsI=el=>{PG.ns.ic=el.dataset.v;nsRe()};
-A.nsSave=()=>{const n=$("#nsn").value.trim();if(!n){$("#nsn").classList.add("bad");return}S.stat.push({id:uid(),n,c:PG.ns.c,ic:PG.ns.ic,w:null});closeMd();refresh()};
-/* truck drawer + plans */
-const plansHTML=tid=>{const tr=byId(DB.trucks,tid),L=DB.plans.filter(p=>p.truck==tid);return L.length?L.map(p=>{const s=planState(p,tr),bits=[];if(s.rm!=null)bits.push(s.rm<0?t("a_over_by",nf(-s.rm)):t("a_in_mi",nf(s.rm)));if(s.rd!=null)bits.push(s.rd<0?t("a_over_d",-s.rd):t("a_in_d",s.rd));
- return `<div class="row" style="padding:8px 0;border-top:1px solid var(--ln);flex-wrap:nowrap"><div style="flex:1;min-width:0"><b>${esc(p.name)}</b> ${s.st=="over"?tag(t("m_over"),"var(--rd)"):s.st=="soon"?tag(t("m_soon"),"var(--am)"):tag(t("m_ok"),"var(--gn)")}<div class="mu" style="font-size:calc(12px*var(--fz,1))">${esc(bits.join(" · ")||"–")}</div></div><button class="b bs" data-a="planDone" data-id="${p.id}">${t("m_mark")}</button><button class="bi" data-a="planDel" data-id="${p.id}" aria-label="${t("del")}">${ic("trash",15)}</button></div>`}).join(""):`<div class="mu" style="padding:6px 0">${t("pl_none")}</div>`};
-function openTruck(id){const tr=id?byId(DB.trucks,id):null;if(!S.comps.length){toast(t("tr_noco"),"er");return}const d=tr&&driverOf(tr.id),f=tr||{};
- const pre=tr?"":`<div class="note" style="margin-bottom:12px;padding:12px"><div class="lbl">${ic("zap",13)} ${t("tr_find")}</div><div class="row" style="flex-wrap:nowrap"><input id="trf" placeholder="${esc(t("tr_find_ph"))}"><button class="b" data-a="trFind">${t("tr_find_b")}</button></div></div><div class="mu" style="text-align:center;margin:4px 0 12px">${t("tr_manual")}</div>`;
- const post=tr?`<div class="lbl" style="margin-top:20px">${ic("wrench",13)} ${t("pl_title")}</div><div id="plans">${plansHTML(id)}</div><div class="note" style="margin-top:8px"><div class="fg" style="gap:8px"><div class="fd"><input id="pn" placeholder="${esc(t("pl_name_ph"))}" aria-label="${t("pl_name")}"></div><div class="fd h"><input id="pe" type="number" min="0" placeholder="${t("pl_emi")}" aria-label="${t("pl_emi")}"></div><div class="fd h"><input id="ped" type="number" min="0" placeholder="${t("pl_ed")}" aria-label="${t("pl_ed")}"></div><div class="fd h"><input id="pl" type="number" min="0" placeholder="${t("pl_lmi")}" aria-label="${t("pl_lmi")}"></div><div class="fd h"><input id="pld" type="date" aria-label="${t("pl_ld")}" title="${t("pl_ld")}"></div></div><button class="b bs" style="margin-top:10px" data-a="planAdd" data-id="${id}">${ic("plus",13)} ${t("pl_add")}</button></div>`:"";
- openForm({title:tr?`${t("tr_edit_t")} ${esc(tr.num)}`:t("tr_add_t"),icon:"truck",pre,post,save:tr?t("save"):t("tr_add_t"),
- fields:[{k:"num",l:t("tr_unit"),req:true,half:true,ph:"4382",val:f.num},{k:"status",l:t("tr_status"),t:"select",half:true,o:S.stat.map(s=>[s.id,s.n]),val:f.status||S.stat[0].id},
- {k:"company",l:t("tr_comp"),req:true,half:true,t:"select",o:[["",t("tr_choosec")],...S.comps.map(c=>[c.id,c.n])],val:f.company||(curCo()!="all"?curCo():S.comps.length==1?S.comps[0].id:"")},{k:"ins",l:t("tr_ins"),half:true,t:"select",o:[["",t("notrec")],["cov",t("fl_cov")],["unc",t("fl_unc")]],val:f.ins},
- {k:"own",l:t("tr_own"),half:true,t:"select",o:[["",t("notrec")],["co","C · "+t("own_co")],["le","V · "+t("own_le")],["oo","O/O · "+t("own_oo")]],val:f.own},{k:"owner",l:t("tr_ownr"),half:true,ph:"John A. Smith",val:f.owner},
- {k:"year",l:t("tr_year"),req:true,half:true,t:"number",ph:"2019",val:f.year},{k:"make",l:t("tr_make"),req:true,half:true,ph:"Freightliner",val:f.make},{k:"model",l:t("tr_model"),req:true,ph:"Cascadia",val:f.model},
- {k:"vin",l:t("tr_vin"),req:true,ph:"1FUJGHDV8KLKJ4382",val:f.vin},{k:"plate",l:t("tr_plate"),half:true,ph:"P1215429",val:f.plate},{k:"cab",l:t("tr_cab"),half:true,t:"date",val:f.cab},
- {k:"driver",l:t("tr_driver"),t:"select",o:[["",t("unassigned")],...DB.drivers.map(x=>[x.id,x.name])],val:d?d.id:""},{k:"miles",l:t("tr_miles"),t:"number",min:0,ph:"450000",val:f.miles},
- {k:"tg",l:t("tr_tg"),opt:true,ph:"-1001234567890",hint:t("tr_tg_h"),val:f.tg}],
- check:o=>DB.trucks.some(x=>x.id!=id&&x.num.toLowerCase()==o.num.toLowerCase())?t("dupe"):null,
- del:tr?()=>{DB.trucks=DB.trucks.filter(x=>x.id!=id);DB.plans=DB.plans.filter(p=>p.truck!=id);DB.drivers.forEach(x=>{if(x.truck==id)x.truck=""});DB.trailers.forEach(x=>{if(x.truck==id)x.truck=""});DB.docs=DB.docs.filter(x=>!(x.kind=="truck"&&x.uid==id));delete DB.pti[id];refresh()}:null,
- onSave:o=>{const{driver,...rest}=o;let row=tr;if(!tr||o.status!=tr.status)rest.stAt=Date.now();if(tr)Object.assign(tr,rest);else{row={id:uid(),...rest};DB.trucks.push(row)}
-  DB.drivers.forEach(x=>{if(x.truck==row.id&&x.id!=driver)x.truck=""});const dv=byId(DB.drivers,driver);if(dv){DB.drivers.forEach(x=>{if(x.id!=dv.id&&x.truck==row.id)x.truck=""});dv.truck=row.id}
-  closeDr();refresh()}});DR.tid=id}
-A.planAdd=el=>{const n=$("#pn").value.trim(),e=+$("#pe").value||0,ed=+$("#ped").value||0;if(!n||(!e&&!ed)){toast(t("pl_need"),"er");return}
- DB.plans.push({id:uid(),truck:el.dataset.id,name:n,everyMi:e||"",everyDays:ed||"",lastMi:$("#pl").value,lastDate:$("#pld").value});save();$("#plans").innerHTML=plansHTML(el.dataset.id);["pn","pe","ped","pl","pld"].forEach(i=>$("#"+i).value="");if(V=="maintenance"||V=="today")page()};
-A.planDel=el=>{const p=byId(DB.plans,el.dataset.id);DB.plans=DB.plans.filter(x=>x.id!=p.id);save();$("#plans").innerHTML=plansHTML(p.truck);shellRefresh()};
-A.planDone=el=>{const p=byId(DB.plans,el.dataset.id),tr=byId(DB.trucks,p.truck);
- modal({title:`${t("m_mark_t")}: ${esc(p.name)}`,sub:esc(tr.num),icon:"wrench",w:420,body:`<div class="fg"><div class="fd h"><label>${t("m_date")}</label><input id="sd1" type="date" value="${today()}"></div><div class="fd h"><label>${t("m_mi")}</label><input id="sm1" type="number" value="${esc(tr.miles)}"></div><div class="fd h"><label>${t("m_cost")}</label><input id="sc1" type="number" min="0" step="0.01"></div><div class="fd h"><label>${t("m_vendor")}</label><input id="sv1"></div><div class="fd"><label>${t("m_note")}</label><textarea id="sn1" rows="2"></textarea></div></div>`,
- foot:`<button class="b" data-a="mdClose">${t("cancel")}</button><button class="b bp" id="sdone">${t("save")}</button>`});
- $("#sdone").onclick=()=>{const date=$("#sd1").value||today(),mi=$("#sm1").value;p.lastDate=date;if(mi!=="")p.lastMi=mi;if(mi!==""&&(tr.miles===""||+mi>+tr.miles))tr.miles=mi;
-  DB.svc.push({id:uid(),truck:tr.id,plan:p.name,date,mi,cost:$("#sc1").value,vendor:$("#sv1").value.trim(),note:$("#sn1").value.trim()});closeMd();if($("#dr").innerHTML&&DR.tid==tr.id){$("#plans")&&($("#plans").innerHTML=plansHTML(tr.id))}refresh();toast(t("saved"))}};
-
-/* ===== TRAILERS ===== */
-const tlS=()=>PG.tl||(PG.tl={q:"",st:"",ty:"",hook:"",loc:"",arch:false});
-const TLST=["ready","loaded","road","parking","shop","oos"],TLTY=["dry","reefer","flat","tank","other"];
-function trailersFiltered(arch){const s=tlS(),q=s.q.toLowerCase();return DB.trailers.filter(x=>!!x.archived==!!arch&&(!s.st||x.status==s.st)&&(!s.ty||x.type==s.ty)&&(!s.hook||(s.hook=="y"?!!x.truck:!x.truck))&&(!s.loc||(s.loc=="none"?!x.loc:x.loc==s.loc))&&(!q||[x.num,x.plate,x.vin,x.model,truckNum(x.truck)].join(" ").toLowerCase().includes(q))).sort((a,b)=>natCmp(a.num,b.num))}
-PAGES.trailers=()=>{const s=tlS(),L=trailersFiltered(false),A2=trailersFiltered(true),locs=[...new Set(DB.trailers.map(x=>x.loc).filter(Boolean))];
- const cnt=k=>DB.trailers.filter(x=>!x.archived&&x.status==k).length;const td=(h,id)=>`<td data-a="openTrailer" data-id="${id}" style="cursor:pointer">${h}</td>`;
- const row=x=>{const tr=byId(DB.trucks,x.truck),d=tr&&driverOf(tr.id),c=compOf(x.company);return `<tr class="rw">${td(`<b>${esc(x.num)}</b>`,x.id)}<td><select class="sel" style="color:${STAT_C[x.status]};border-color:${STAT_C[x.status]}66" data-c="tlStatus" data-id="${x.id}" aria-label="${t("tr_status")}">${TLST.map(k=>`<option value="${k}" ${x.status==k?"selected":""}>${t(STAT_T[k])}</option>`).join("")}</select></td>
- ${td(tr?`${esc(tr.num)}${d?" · "+esc(d.name):""}`:`<span class="mu">–</span>`,x.id)}${td(esc(x.loc)||"–",x.id)}${td(`<span class="mu">${esc(x.pnote)||"–"}</span>`,x.id)}${td(c?dot(c.c)+esc(c.n):"–",x.id)}${td(t("ty_"+x.type),x.id)}${td(x.ins=="cov"?tag(t("fl_cov"),"var(--gn)"):x.ins=="unc"?tag(t("unc"),"var(--rd)"):`<span class="mu">–</span>`,x.id)}</tr>`};
- return `<div class="pg w"><div class="row" style="margin-bottom:12px"><h2 style="margin:0;font-size:calc(17px*var(--fz,1))">${t("trailers")}</h2><span class="tg">${DB.trailers.filter(x=>!x.archived).length}</span><span class="sp"></span>
-<div class="gs" style="width:200px;display:block">${ic("srch",15)}<input id="tlq" data-i="tlq" value="${esc(s.q)}" placeholder="${esc(t("tl_q"))}" aria-label="${esc(t("tl_q"))}"></div>
-<select style="width:auto" data-c="tlF" data-k="st" aria-label="${t("tl_allst")}"><option value="">${t("tl_allst")}</option>${TLST.map(k=>`<option value="${k}" ${s.st==k?"selected":""}>${t(STAT_T[k])}</option>`).join("")}</select>
-<select style="width:auto" data-c="tlF" data-k="ty" aria-label="${t("tl_allty")}"><option value="">${t("tl_allty")}</option>${TLTY.map(k=>`<option value="${k}" ${s.ty==k?"selected":""}>${t("ty_"+k)}</option>`).join("")}</select>
-<select style="width:auto" data-c="tlF" data-k="hook" aria-label="${t("tl_hook")}"><option value="">${t("tl_hook")}</option><option value="y" ${s.hook=="y"?"selected":""}>${t("tl_hooked")}</option><option value="n" ${s.hook=="n"?"selected":""}>${t("tl_nothooked")}</option></select>
-<select style="width:auto" data-c="tlF" data-k="loc" aria-label="${t("tl_allloc")}"><option value="">${t("tl_allloc")}</option><option value="none" ${s.loc=="none"?"selected":""}>${t("tl_noloc")}</option>${locs.map(l=>`<option ${s.loc==l?"selected":""}>${esc(l)}</option>`).join("")}</select>
-<button class="bi" data-a="tlRefresh" style="border:1px solid var(--ln)" aria-label="${t("refresh")}">${ic("refresh",15)}</button><button class="b bp" data-a="addTrailer">${ic("plus",15)} ${t("tl_add")}</button></div>
-<div class="chips">${TLST.map(k=>`<button class="sc ${s.st==k?"on":""}" data-a="tlChip" data-v="${k}" style="color:${STAT_C[k]};font-size:calc(11px*var(--fz,1));letter-spacing:.04em;text-transform:uppercase">${t(STAT_T[k])} <b>${cnt(k)}</b></button>`).join("")}</div>
-<div class="card tw"><table style="min-width:900px"><tr><th>${t("tl_unit")}</th><th>${t("tr_status")}</th><th>${t("tl_truckdr")}</th><th>${t("tl_ploc")}</th><th>${t("tl_pnote")}</th><th>${t("tl_co")}</th><th>${t("tl_type")}</th><th>${t("tl_ins")}</th></tr>
-${L.length?L.map(row).join(""):`<tr><td colspan="8" class="mu">${DB.trailers.length?t("nomatch2"):t("tl_none")}</td></tr>`}<tr><td colspan="8" style="padding:6px 12px"><div class="row" style="flex-wrap:nowrap"><input id="tla" data-enter="tlAdd" placeholder="${esc(t("tl_inl"))}" style="max-width:170px;font-family:monospace" aria-label="${esc(t("tl_inl"))}"><span class="mu">${t("tl_inl2")}</span></div></td></tr></table></div>
-<button class="b" data-a="tlArch" style="border:0;background:none;color:var(--mu)">${ic(s.arch?"chev":"right",14)} ${ic("arch",14)} ${t("tl_arch")} (${A2.length})</button>${s.arch?`<div class="card tw" style="margin-top:8px">${A2.length?`<table><tr>${A2.map(x=>`<tr><td><b>${esc(x.num)}</b></td><td>${t("ty_"+x.type)}</td><td class="mu">${esc(x.loc)}</td><td style="text-align:right"><button class="b bs" data-a="tlRestore" data-id="${x.id}">${t("tl_restore")}</button></td></tr>`).join("")}</tr></table>`:`<div class="em" style="padding:16px">${t("tl_archn")}</div>`}</div>`:""}</div>`};
-Object.assign(D,{nomatch2:["Nothing matches these filters.","Filtrlarga mos narsa yo‘q.","По фильтрам ничего не найдено."]});
-I.tlq=el=>{tlS().q=el.value;page()};C.tlF=el=>{tlS()[el.dataset.k]=el.value;page()};A.tlChip=el=>{const s=tlS();s.st=s.st==el.dataset.v?"":el.dataset.v;page()};A.tlRefresh=()=>{if(PULL)PULL(true);else{Object.assign(DB,ld("tf2_d",DB));page()}};A.tlArch=()=>{const s=tlS();s.arch=!s.arch;page()};
-C.tlStatus=el=>{byId(DB.trailers,el.dataset.id).status=el.value;refresh()};A.tlRestore=el=>{byId(DB.trailers,el.dataset.id).archived=false;refresh()};
-A.tlAdd=el=>{const n=el.value.trim();if(!n)return;if(DB.trailers.some(x=>x.num.toLowerCase()==n.toLowerCase())){toast(t("dupe"),"er");return}if(!S.comps.length){toast(t("tr_noco"),"er");return}
- DB.trailers.push({id:uid(),num:n,type:"dry",status:"ready",truck:"",loc:"",pnote:"",company:curCo()!="all"?curCo():myComps()[0].id,ins:"",year:"",model:"",plate:"",vin:"",notes:"",archived:false});save();page();$("#tla")&&$("#tla").focus()};
-A.addTrailer=()=>openTrailer();A.openTrailer=el=>openTrailer(el.dataset.id);
-function openTrailer(id){const x=id?byId(DB.trailers,id):null,f=x||{};if(!S.comps.length){toast(t("tr_noco"),"er");return}
- openForm({title:x?`${t("tl_add_t").replace(/.*/,t("trailers"))} ${esc(x.num)}`:t("tl_add_t"),sub:x?"":t("tl_add_s"),icon:"box",save:x?t("save"):t("tl_add_t"),
- fields:[{k:"num",l:t("tr_unit"),req:true,half:true,ph:"T-101",val:f.num},{k:"type",l:t("tl_type"),half:true,t:"select",o:TLTY.map(k=>[k,t("ty_"+k)]),val:f.type||"dry"},
- {k:"status",l:t("tr_status"),half:true,t:"select",o:TLST.map(k=>[k,t(STAT_T[k])]),val:f.status||"ready"},{k:"truck",l:t("tl_assign"),half:true,t:"select",o:[["",t("unassigned")],...DB.trucks.map(y=>[y.id,y.num])],val:f.truck},
- {k:"company",l:t("tr_comp"),req:true,half:true,t:"select",o:[["",t("tr_choosec")],...S.comps.map(c=>[c.id,c.n])],val:f.company||(curCo()!="all"?curCo():myComps()[0].id)},{k:"ins",l:t("tr_ins"),half:true,t:"select",o:[["",t("notrec")],["cov",t("fl_cov")],["unc",t("fl_unc")]],val:f.ins},
- {k:"year",l:t("tr_year"),half:true,t:"number",ph:"2019",val:f.year},{k:"model",l:t("tr_model"),half:true,ph:"Champion",val:f.model},{k:"plate",l:t("tr_plate"),half:true,ph:"TR12345",val:f.plate},{k:"vin",l:t("tr_vin"),half:true,ph:"1GRAA0628KB123456",val:f.vin},
- {k:"loc",l:t("tl_ploc"),ph:t("tl_ploc_ph"),val:f.loc},{k:"pnote",l:t("tl_pnote"),t:"textarea",rows:2,ph:t("tl_pn_ph"),val:f.pnote},{k:"notes",l:t("tl_notes"),t:"textarea",rows:3,ph:t("tl_nt_ph"),val:f.notes}],
- check:o=>DB.trailers.some(y=>y.id!=id&&y.num.toLowerCase()==o.num.toLowerCase())?t("dupe"):null,
- extra:x?`<button class="b" data-a="drArch">${ic("arch",14)} ${t(x.archived?"tl_restore":"tl_archive")}</button>`:"",
- del:x?()=>{DB.trailers=DB.trailers.filter(y=>y.id!=id);DB.docs=DB.docs.filter(d=>!(d.kind=="trailer"&&d.uid==id));refresh()}:null,
- onSave:o=>{if(x)Object.assign(x,o);else DB.trailers.push({id:uid(),archived:false,...o});closeDr();refresh()}});DR.trlId=id}
-A.drArch=()=>{const x=byId(DB.trailers,DR.trlId);if(x){x.archived=!x.archived;closeDr();refresh()}};
-/* ===== shared small helpers ===== */
-const unitByNum=n=>{n=String(n||"").trim().toLowerCase();return DB.trucks.find(x=>x.num.toLowerCase()==n)||DB.trailers.find(x=>x.num.toLowerCase()==n)};
-const periodRange=k=>{const td=today();if(k=="all")return["",""];if(k=="month")return[td.slice(0,8)+"01",td];if(k=="lastm"){const d=new Date();d.setDate(1);d.setMonth(d.getMonth()-1);const a=ymd(d);d.setMonth(d.getMonth()+1);d.setDate(0);return[a,ymd(d)]}
- if(k=="90")return[addDays(td,-90),td];if(k=="year")return[td.slice(0,4)+"-01-01",td];if(k=="lasty"){const y=+td.slice(0,4)-1;return[y+"-01-01",y+"-12-31"]}return["",""]};
-const inRange=(d,a,b)=>(!a||d>=a)&&(!b||d<=b);
-
-/* ===== HOOK & DROP ===== */
-const hdS=()=>PG.hd||(PG.hd={kind:"hook",inc:false,q:""});
-const hdKinds=()=>[["hook",t("hd_hook")],["drop",t("hd_drop")],["swap",t("hd_swap")]];
-const hdReq=trl=>(DB.ph[trl&&trl.type||"dry"]||[]).filter(p=>p.req).length;
-PAGES.hd=null;
-PAGES.hookdrop=()=>{const s=hdS(),q=s.q.toLowerCase(),waiting=DB.links.filter(l=>!l.done);
- const H=DB.hist.filter(h=>(!s.inc||!h.complete)&&(!q||[trailerNum(h.trailer),truckNum(h.truck),h.driver,h.place].join(" ").toLowerCase().includes(q))).sort((a,b)=>b.at-a.at);
- return `<div class="pg n"><h1 style="font-size:calc(20px*var(--fz,1));margin:4px 0 14px">${t("hookdrop")}</h1>
-<div class="card cp"><div class="lbl">${ic("send",13)} ${t("hd_send")}</div><p class="mu" style="margin:0 0 12px">${t("hd_send2")}</p>
-<div class="row" style="margin-bottom:10px">${sgH(hdKinds(),s.kind,"hdKind")}</div>
-<div class="fg"><div class="fd h"><label>${t("hd_trailer")}</label><select id="hd_tr"><option value="">${t("choose")}</option>${optH(DB.trailers.filter(x=>!x.archived).map(x=>[x.id,x.num]),"")}</select></div>
-<div class="fd h"><label>${t("hd_onto")}</label><select id="hd_to"><option value="">–</option>${optH(DB.trucks.map(x=>[x.id,x.num]),"")}</select></div>
-${s.kind=="swap"?`<div class="fd h"><label>${t("hd_from")}</label><select id="hd_fr"><option value="">–</option>${optH(DB.trucks.map(x=>[x.id,x.num]),"")}</select></div>`:""}
-<div class="fd h"><label>${t("hd_driver")}</label><input id="hd_dr" list="drl" autocomplete="off"><datalist id="drl">${DB.drivers.map(d=>`<option value="${esc(d.name)}">`).join("")}</datalist></div></div>
-<div class="row" style="margin-top:12px"><button class="b bp" data-a="hdCreate">${ic("link",14)} ${t("hd_create")}</button><span class="mu" style="font-size:calc(12px*var(--fz,1))">${t("hd_srv")}</span></div></div>
-<div class="sec" style="margin-top:20px">${t("hd_wait")}<span>${waiting.length}</span></div>
-${waiting.length?waiting.map(l=>`<div class="card cp row" style="margin-bottom:8px;flex-wrap:nowrap"><div class="ico">${ic("swap",15)}</div><div style="flex:1"><b>${t("hd_"+l.kind)}</b> · ${esc(trailerNum(l.trailer))}${l.truck?" → "+esc(truckNum(l.truck)):""}<div class="mu" style="font-size:calc(12px*var(--fz,1))">${esc(l.driver||"–")} · ${t("hd_expires",fd(l.exp))}</div></div><button class="b bs" data-a="hdRecord" data-id="${l.id}">${t("hd_done")}</button><button class="b bs" data-a="hdCancel" data-id="${l.id}">${t("hd_cancel_l")}</button></div>`).join(""):`<div class="mu" style="padding:6px 2px">${t("hd_waitn")}</div>`}
-<div class="row" style="margin:22px 0 8px"><div class="sec" style="margin:0;flex:1">${t("hd_hist")}<span>${H.length}</span></div><label class="ck"><input type="checkbox" data-c="hdInc" ${s.inc?"checked":""}> ${t("hd_inc")}</label>
-<div class="gs" style="width:230px;display:block">${ic("srch",15)}<input data-i="hdQ" value="${esc(s.q)}" placeholder="${esc(t("hd_hq"))}" aria-label="${esc(t("hd_hq"))}"></div><button class="b" data-a="hdRecord">${ic("plus",14)} ${t("hd_mark_t")}</button></div>
-${H.length?`<div class="card tw"><table><tr><th>${t("hd_hook")}</th><th>${t("hd_trailer")}</th><th>${t("tr_unit")}</th><th>${t("hd_driver").replace(/ \(.*/,"")}</th><th>${t("hd_place")}</th><th>${t("hd_photos")}</th><th></th></tr>${H.map(h=>`<tr><td>${t("hd_"+h.kind)}<div class="mu" style="font-size:calc(11px*var(--fz,1))">${fd(h.date)}</div></td><td><b>${esc(trailerNum(h.trailer))}</b></td><td>${esc(truckNum(h.truck))||"–"}${h.from?" ← "+esc(truckNum(h.from)):""}</td><td>${esc(h.driver)||"–"}</td><td>${esc(h.place)||"–"}</td><td>${h.photos.length}/${h.req}</td><td>${h.complete?tag(t("hd_complete"),"var(--gn)"):tag(t("hd_incomplete"),"var(--am)")}</td></tr>`).join("")}</table></div>`:`<div class="em" style="padding:30px">${t("hd_none")}</div>`}</div>`};
-A.hdKind=el=>{hdS().kind=el.dataset.v;page()};C.hdInc=el=>{hdS().inc=el.checked;page()};I.hdQ=el=>{hdS().q=el.value;page()};
-A.hdCreate=()=>{const s=hdS(),tr=$("#hd_tr").value;if(!tr){toast(t("hd_err"),"er");return}
- DB.links.push({id:uid(),kind:s.kind,trailer:tr,truck:$("#hd_to").value,from:s.kind=="swap"?$("#hd_fr").value:"",driver:$("#hd_dr").value.trim(),exp:addDays(today(),3),created:Date.now()});refresh();toast(t("saved"))};
-A.hdCancel=el=>{DB.links=DB.links.filter(l=>l.id!=el.dataset.id);refresh()};
-A.hdRecord=el=>{const l=el&&el.dataset&&el.dataset.id?byId(DB.links,el.dataset.id):null;
- const init={kind:l?l.kind:"hook",trailer:l?l.trailer:"",truck:l?l.truck:"",from:l?l.from:"",driver:l?l.driver:""};PG.hr=init;
- const body=()=>{const trl=byId(DB.trailers,init.trailer),req=trl?(DB.ph[trl.type]||[]):[];return `<div class="fg"><div class="fd">${sgH(hdKinds(),init.kind,"hrKind")}</div>
-<div class="fd h"><label>${t("hd_trailer")}</label><select id="hr_tr" data-c="hrTr"><option value="">${t("choose")}</option>${optH(DB.trailers.filter(x=>!x.archived).map(x=>[x.id,x.num]),init.trailer)}</select></div>
-<div class="fd h"><label>${t("hd_onto")}</label><select id="hr_to"><option value="">–</option>${optH(DB.trucks.map(x=>[x.id,x.num]),init.truck)}</select></div>
-<div class="fd h"><label>${t("hd_driver").replace(/ \(.*/,"")}</label><input id="hr_dr" value="${esc(init.driver)}" list="drl"></div><div class="fd h"><label>${t("hd_place")}</label><input id="hr_pl"></div>
-<div class="fd h"><label>${t("m_date")}</label><input id="hr_dt" type="date" value="${today()}"></div></div>
-${trl?`<div class="lbl" style="margin-top:14px">${ic("cam",13)} ${t("hd_photo")} · ${t("n_req",req.filter(p=>p.req).length)}</div>${req.map(p=>`<label class="ck" style="margin-bottom:6px"><input type="checkbox" class="hrp" data-id="${p.id}"> ${esc(p.t||t(p.k))}${p.req?` <span class="mu">(${t("n_required")})</span>`:""}</label>`).join("")}`:""}`};
- modal({title:t("hd_mark_t"),icon:"swap",w:520,body:`<div id="hrb">${body()}</div><datalist id="drl">${DB.drivers.map(d=>`<option value="${esc(d.name)}">`).join("")}</datalist>`,foot:`<button class="b" data-a="mdClose">${t("cancel")}</button><button class="b bp" id="hrs">${t("save")}</button>`});
- const rerender=()=>{init.driver=$("#hr_dr").value;init.truck=$("#hr_to").value;$("#hrb").innerHTML=body()};
- PG.hrRe=rerender;
- $("#hrs").onclick=()=>{const trId=$("#hr_tr").value;if(!trId){toast(t("hd_err"),"er");return}const trl=byId(DB.trailers,trId),ph=[...document.querySelectorAll("#md .hrp:checked")].map(x=>x.dataset.id),req=hdReq(trl),reqIds=(DB.ph[trl.type]||[]).filter(p=>p.req).map(p=>p.id);
-  DB.hist.push({id:uid(),at:Date.now(),kind:init.kind,trailer:trId,truck:$("#hr_to").value,from:init.from,driver:$("#hr_dr").value.trim(),place:$("#hr_pl").value.trim(),date:$("#hr_dt").value||today(),photos:ph,req,complete:reqIds.every(i=>ph.includes(i))});
-  const tt=$("#hr_to").value;if(init.kind=="drop")trl.truck="";else if(tt)trl.truck=tt;if(init.kind=="drop"&&$("#hr_pl").value.trim())trl.loc=$("#hr_pl").value.trim();
-  if(l)DB.links=DB.links.filter(x=>x.id!=l.id);closeMd();refresh();toast(t("saved"))}};
-A.hrKind=el=>{PG.hr.kind=el.dataset.v;PG.hrRe()};C.hrTr=el=>{PG.hr.trailer=el.value;PG.hrRe()};
-
-/* ===== DRIVERS ===== */
-const drS=()=>PG.dr||(PG.dr={q:"",duty:"all"});
-PAGES.drivers=()=>{const s=drS(),q=s.q.toLowerCase(),on=DB.drivers.filter(d=>d.duty!="off").length;
- const L=DB.drivers.filter(d=>(s.duty=="all"||(s.duty=="on")==(d.duty!="off"))&&(!q||[d.name,d.phone,d.mail,truckNum(d.truck)].join(" ").toLowerCase().includes(q)));
- const ds=x=>{if(!x)return"";const n=dd(x);return n<0?tag(fd(x),"var(--rd)"):n<=30?tag(fd(x),"var(--am)"):fd(x)};
- return `<div class="pg w"><div class="row" style="margin-bottom:12px"><h2 style="margin:0;font-size:calc(17px*var(--fz,1))">${t("drivers")}</h2><span class="tg">${DB.drivers.length}</span><span class="sp"></span>
-<div class="gs" style="width:240px;display:block">${ic("srch",15)}<input data-i="drQ" value="${esc(s.q)}" placeholder="${esc(t("dr_name_ph"))}" aria-label="${esc(t("dr_name_ph"))}"></div>
-${tabsH([["all",t("all"),DB.drivers.length],["on",t("dr_on"),on],["off",t("dr_off"),DB.drivers.length-on]],s.duty,"drDuty")}
-<button class="b" data-a="drInvite">${ic("link",14)} ${t("dr_invite")}</button><button class="b bp" data-a="addDriver">${ic("plus",15)} ${t("dr_add")}</button></div>
-${DB.drivers.length?`<div class="card tw"><table><tr><th>${t("dr_full")}</th><th>${t("dr_duty")}</th><th>${t("dr_truck")}</th><th>${t("dr_phone")}</th><th>${t("dr_mail")}</th><th>${t("dr_lic")}</th><th>${t("dr_med")}</th></tr>${L.map(d=>`<tr class="rw"><td data-a="openDriver2" data-id="${d.id}"><b>${esc(d.name)}</b></td><td><button class="tog ${d.duty!="off"?"on":""}" data-a="drToggleDuty" data-id="${d.id}" role="switch" aria-checked="${d.duty!="off"}" aria-label="${t("dr_duty")}"><i></i></button> <small class="mu">${t(d.duty!="off"?"dr_on":"dr_off")}</small></td><td data-a="openDriver2" data-id="${d.id}">${d.truck?esc(truckNum(d.truck)):`<span class="mu">${t("dr_notruck")}</span>`}</td><td>${esc(d.phone)||"–"}</td><td>${esc(d.mail)||"–"}</td><td>${ds(d.lic)||"–"}</td><td>${ds(d.med)||"–"}</td></tr>`).join("")||`<tr><td colspan="7" class="mu">${t("n_nomatch")}</td></tr>`}</table></div>`:`<div class="card">${empty("card",t("dr_empty"),`<button class="b bp" data-a="addDriver">${ic("plus",14)} ${t("dr_add")}</button>`)}</div>`}</div>`};
-I.drQ=el=>{drS().q=el.value;page()};A.drDuty=el=>{drS().duty=el.dataset.v;page()};A.drToggleDuty=el=>{const d=byId(DB.drivers,el.dataset.id);d.duty=d.duty=="off"?"on":"off";refresh()};
-A.addDriver=()=>openDriver();A.openDriver2=el=>openDriver(el.dataset.id);
-A.drInvite=()=>modal({title:t("dr_inv_t"),icon:"link",w:440,body:`<div class="note er">${t("dr_inv_n")}</div>`,foot:`<button class="b" data-a="mdClose">${t("close")}</button><button class="b bp" disabled>${t("dr_inv_b")}</button>`});
-function openDriver(id){const d=id?byId(DB.drivers,id):null,f=d||{};
- openForm({title:d?esc(d.name):t("dr_add_t"),icon:"card",save:d?t("save"):t("dr_add_t"),
- fields:[{k:"name",l:t("dr_full"),req:true,ph:t("dr_full_ph"),val:f.name},{k:"mail",l:`${t("dr_mail")} <span class="op">${t("dr_mail_h")}</span>`,t:"email",req:true,val:f.mail},{k:"phone",l:t("dr_phone"),half:true,t:"tel",ph:"(555) 123-4567",val:f.phone},
- {k:"truck",l:t("dr_truck"),half:true,t:"select",o:[["",t("dr_notruck")],...DB.trucks.map(x=>[x.id,x.num])],val:f.truck},{k:"duty",l:t("dr_duty"),half:true,t:"select",o:[["on",t("dr_on")],["off",t("dr_off")]],val:f.duty||"on"},
- {k:"lic",l:t("dr_lic"),half:true,t:"date",val:f.lic},{k:"med",l:t("dr_med"),half:true,t:"date",val:f.med},
- ...(d?[]:[{k:"tmp",l:t("dr_tmp"),t:"password",ph:t("dr_tmp_ph"),hint:t("dr_tmp_h")+"<br>"+t("dr_tmp_h2")}])],
- check:o=>!d&&(o.tmp||"").length<8?t("dr_pw_short"):DB.drivers.some(x=>x.id!=id&&x.mail&&x.mail.toLowerCase()==o.mail.toLowerCase())?t("tu_dupe"):null,
- post:d?`<div class="lbl" style="margin-top:18px">${ic("folder",13)} ${t("dr_papers")}</div><div class="mu">${fd(d.lic)||"–"} · ${fd(d.med)||"–"}</div>`:"",
- del:d?()=>{DB.drivers=DB.drivers.filter(x=>x.id!=id);refresh()}:null,
- onSave:o=>{const{tmp,...r}=o;if(r.truck)DB.drivers.forEach(x=>{if(x.id!=id&&x.truck==r.truck)x.truck=""});if(d)Object.assign(d,r);else DB.drivers.push({id:uid(),...r});closeDr();refresh()}})}
-
-/* ===== MAINTENANCE ===== */
-const mtS=()=>PG.mt||(PG.mt={f:"all"});
-PAGES.maintenance=()=>{const s=mtS(),rows=DB.plans.map(p=>{const tr=byId(DB.trucks,p.truck);return tr?{p,tr,s:planState(p,tr)}:null}).filter(Boolean);
- const n={all:rows.length,over:rows.filter(r=>r.s.st=="over").length,soon:rows.filter(r=>r.s.st=="soon").length,ok:rows.filter(r=>r.s.st=="ok").length};
- const L=rows.filter(r=>s.f=="all"||r.s.st==s.f).sort((a,b)=>({over:0,soon:1,ok:2}[a.s.st]-{over:0,soon:1,ok:2}[b.s.st])||natCmp(a.tr.num,b.tr.num));
- const msg={all:t("m_hint"),over:t("m_none_o"),soon:t("m_none_s"),ok:t("m_none_k")}[s.f];
- return `<div class="pg n"><div class="row" style="margin:4px 0 16px"><h1 style="margin:0;font-size:calc(20px*var(--fz,1));flex:1">${t("maintenance")}</h1><button class="b" data-a="mtReport">${ic("file",14)} ${t("m_report")}</button></div>
-<div class="row" style="margin-bottom:12px">${tabsH([["all",t("m_all"),n.all],["over",t("m_over"),n.over],["soon",t("m_soon"),n.soon],["ok",t("m_ok"),n.ok]],s.f,"mtTab")}<span class="mu" style="font-size:calc(12px*var(--fz,1))">${t("m_within")}</span></div>
-${L.length?L.map(({p,tr,s:st})=>{const bits=[];if(st.rm!=null)bits.push(st.rm<0?t("a_over_by",nf(-st.rm)):t("a_in_mi",nf(st.rm)));if(st.rd!=null)bits.push(st.rd<0?t("a_over_d",-st.rd):t("a_in_d",st.rd));
- return `<div class="card cp row" style="margin-bottom:8px;flex-wrap:nowrap;border-left:3px solid ${st.st=="over"?"var(--rd)":st.st=="soon"?"var(--am)":"var(--gn)"}"><div style="flex:1;min-width:0;cursor:pointer" data-a="openTruck2" data-id="${tr.id}"><b>${esc(tr.num)}</b> · ${esc(p.name)}<div class="mu" style="font-size:calc(12px*var(--fz,1))">${esc(bits.join(" · ")||"–")}${p.lastDate?" · "+t("m_last",fd(p.lastDate)):""}</div></div>${st.st=="over"?tag(t("m_over"),"var(--rd)"):st.st=="soon"?tag(t("m_soon"),"var(--am)"):tag(t("m_ok"),"var(--gn)")}<button class="b bs" data-a="planDone" data-id="${p.id}">${t("m_mark")}</button></div>`}).join(""):`<div class="em" style="padding:50px 10px">${ic("wrench",36)}<div>${msg}</div></div>`}</div>`};
-A.mtTab=el=>{mtS().f=el.dataset.v;page()};
-function mtReportRows(r){const[a,b]=r.per=="custom"?[r.a,r.b]:periodRange(r.per),q=(r.q||"").toLowerCase(),out=[];
- DB.svc.forEach(x=>{const tr=byId(DB.trucks,x.truck);if(!tr||!inRange(x.date,a,b)||(r.truck&&r.truck!=x.truck)||(r.src=="inv"))return;out.push({date:x.date,truck:tr.num,tid:tr.id,type:t("r_svc"),what:x.plan,vendor:x.vendor,num:"",cost:+x.cost||0,note:x.note})});
- DB.inv.forEach(x=>{if(!x.truck||!inRange(x.date,a,b)||(r.truck&&r.truck!=x.truck)||r.src=="svc")return;out.push({date:x.date,truck:truckNum(x.truck),tid:x.truck,type:t("r_inv"),what:x.desc||t("r_t_"+x.reason),vendor:x.vendor,num:x.num,cost:+x.amt||0,note:x.notes})});
- return out.filter(x=>!q||[x.what,x.vendor,x.num,x.truck,x.note].join(" ").toLowerCase().includes(q)).sort((x,y)=>y.date.localeCompare(x.date))}
-A.mtReport=()=>{const r=PG.mr={per:"month",truck:"",src:"",q:"",a:"",b:""};
- const draw=()=>{const L=mtReportRows(r),tot=L.reduce((s,x)=>s+x.cost,0),cols=[t("m_date"),t("r_truck"),t("r_svc"),t("m_vendor"),t("iv_num"),t("r_cost")],rows=L.map(x=>[x.date,x.truck,x.what,x.vendor||"",x.num||"",x.cost.toFixed(2)]);PG.mrRows={cols,rows};
-  $("#mrb").innerHTML=L.length?`<div class="mu" style="margin-bottom:8px">${t("r_recs",L.length,new Set(L.map(x=>x.tid)).size,money(tot))}</div><div class="tw"><table style="min-width:560px"><tr>${cols.map(c=>`<th>${c}</th>`).join("")}</tr>${L.map(x=>`<tr><td>${fd(x.date)}</td><td><b>${esc(x.truck)}</b></td><td>${esc(x.what)}${x.note?`<div class="mu" style="font-size:calc(11px*var(--fz,1))">${esc(x.note)}</div>`:""}</td><td>${esc(x.vendor)||"–"}</td><td>${esc(x.num)||"–"}</td><td>${money(x.cost)}</td></tr>`).join("")}<tr><td colspan="5"><b>${t("r_total")}</b></td><td><b>${money(tot)}</b></td></tr></table></div>`:`<div class="em" style="padding:30px">${t("r_none")}</div>`};
- modal({title:t("r_title"),icon:"file",w:780,body:`<div class="row" style="margin-bottom:12px"><select class="sel" id="mr_p" style="width:auto">${optH([["month",t("r_thism")],["lastm",t("r_lastm")],["90",t("r_l90")],["year",t("r_thisy")],["lasty",t("r_lasty")],["all",t("r_all")],["custom",t("r_custom")]],"month")}</select>
-<span id="mr_c" class="hide row"><input type="date" id="mr_a" style="width:150px"><span class="mu">${t("iv_to")}</span><input type="date" id="mr_b" style="width:150px"></span>
-<select class="sel" id="mr_t" style="width:auto"><option value="">${t("r_alltr")}</option>${optH(DB.trucks.map(x=>[x.id,x.num]),"")}</select><select class="sel" id="mr_s" style="width:auto">${optH([["",t("r_allsv")],["svc",t("r_svc")],["inv",t("r_inv")]],"")}</select>
-<input id="mr_q" placeholder="${esc(t("r_q"))}" style="flex:1;min-width:160px"></div><div id="mrb"></div>`,foot:`<button class="b" id="mx">${t("r_excel")}</button><button class="b bp" id="mp">${t("r_pdf")}</button>`});
- const sync=()=>{r.per=$("#mr_p").value;r.truck=$("#mr_t").value;r.src=$("#mr_s").value;r.q=$("#mr_q").value;r.a=$("#mr_a").value;r.b=$("#mr_b").value;$("#mr_c").classList.toggle("hide",r.per!="custom");draw()};
- ["mr_p","mr_t","mr_s","mr_a","mr_b"].forEach(i=>$("#"+i).onchange=sync);$("#mr_q").oninput=sync;draw();
- $("#mx").onclick=()=>download("maintenance.csv",csv(PG.mrRows.cols,PG.mrRows.rows));
- $("#mp").onclick=()=>printHTML(t("r_title"),`<table border="1" cellpadding="5" style="border-collapse:collapse;font-family:sans-serif;font-size:calc(12px*var(--fz,1))"><tr>${PG.mrRows.cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr>${PG.mrRows.rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</table>`)};
-
-/* ===== PTI BOARD ===== */
-const ptiDays=()=>{const a=[];for(let i=6;i>=0;i--)a.push(addDays(today(),-i));return a};
-const ptiCell=(tr,day)=>{const v=(DB.pti[tr.id]||{})[day];if(v)return v;const s=statOf(tr.status);if(day>today())return"";return S.ptiOff.includes(tr.status)||(s&&s.w===false&&S.ptiOff.includes(s.id))?"off":(day==today()?"":"no")};
-PAGES.pti=()=>{const L=DB.trucks.filter(x=>x.tg),days=ptiDays(),td=today();
- const cell=(tr,d)=>{const v=ptiCell(tr,d),c=v=="yes"?["var(--gn)",t("p_sent")]:v=="no"?["var(--rd)",t("p_miss")]:v=="off"?["var(--mu)","OFF"]:["var(--ln)","·"];return `<td style="text-align:center"><button class="b bs" style="min-width:56px;color:${c[0]};border-color:${c[0]}66" data-a="ptiCell" data-id="${tr.id}" data-d="${d}" aria-label="${esc(tr.num+" "+d)}">${v?c[1]:"·"}</button></td>`};
- return `<div class="pg w"><div class="row" style="margin:4px 0 14px"><h1 style="margin:0;font-size:calc(20px*var(--fz,1));flex:1">${t("pti")}</h1><span class="mu">${t("p_on",L.length)}</span></div>
-${L.length?`<div class="card tw"><table><tr><th>${t("tl_unit")}</th>${days.map(d=>`<th style="text-align:center">${d==td?t("p_today"):fd(d).replace(/,? \d{4}/,"")}</th>`).join("")}</tr>${L.map(tr=>`<tr><td><b>${esc(tr.num)}</b></td>${days.map(d=>cell(tr,d)).join("")}</tr>`).join("")}</table></div><div class="mu" style="font-size:calc(12px*var(--fz,1));margin:8px 2px">${t("p_tip")}</div>`:`<div class="card">${empty("send",t("p_empty")+"<br><small>"+t("p_empty2")+"</small>")}</div>`}
-<div class="card cp" style="margin-top:16px"><div class="lbl">${t("p_cnt")}</div><p class="mu" style="margin:0 0 10px">${t("p_cnt2")}</p><div class="row">${S.stat.map(s=>`<label class="ck"><input type="checkbox" data-c="ptiOff" data-id="${s.id}" ${S.ptiOff.includes(s.id)?"checked":""}> ${dot(s.c)}${esc(s.n)}</label>`).join("")}</div></div>
-<div class="card cp" style="margin-top:16px"><div class="lbl">${ic("send",13)} ${t("p_notif")}</div><p class="mu" style="margin:0 0 10px">${t("p_notif2")}</p>${[2,3,5,7].map(n=>`<div class="fd" style="margin-bottom:10px"><label>${n==7?t("p_d7"):t("p_d",n)}</label><textarea rows="2" data-i="tpl" data-n="${n}" placeholder="${esc(t("p_ph",n))}">${esc(S.tpl[n]||"")}</textarea></div>`).join("")}
-<div class="row"><button class="b" data-a="tplSave">${t("p_savetpl")}</button><button class="b bp" data-a="tplSend">${t("p_send")}</button></div></div></div>`};
-A.ptiCell=el=>{const id=el.dataset.id,d=el.dataset.d,tr=byId(DB.trucks,id),cur=ptiCell(tr,d),nx={"":"yes",yes:"no",no:"off",off:"yes"}[cur]||"yes";(DB.pti[id]=DB.pti[id]||{})[d]=nx;refresh()};
-C.ptiOff=el=>{const id=el.dataset.id;S.ptiOff=el.checked?[...new Set([...S.ptiOff,id])]:S.ptiOff.filter(x=>x!=id);refresh()};
-I.tpl=el=>{S.tpl[el.dataset.n]=el.value;save()};A.tplSave=()=>{save();toast(t("saved"))};A.tplSend=()=>toast(t("tg_nosend"),"er");
-
-/* ===== INSPECTIONS ===== */
-const inS=()=>PG.in||(PG.in={tab:"pend",q:"",kind:"",res:"",a:"",b:"",ckT:"truck",phT:"dry"});
-const kindTag=k=>t(k=="pre"?"n_pre":k=="annual"?"n_ann":"n_dot");
-PAGES.inspections=()=>{const s=inS(),pend=DB.insp.filter(x=>!x.reviewed).sort((a,b)=>(b.result=="def")-(a.result=="def")||b.date.localeCompare(a.date));
- const H=DB.insp.filter(x=>(!s.kind||x.kind==s.kind)&&(!s.res||x.result==s.res)&&inRange(x.date,s.a,s.b)&&(!s.q||[x.unit,x.driver,x.note].join(" ").toLowerCase().includes(s.q.toLowerCase()))).sort((a,b)=>b.date.localeCompare(a.date));
- const row=(x,rev)=>`<div class="card cp row" style="margin-bottom:8px;flex-wrap:nowrap;border-left:3px solid ${x.result=="def"?"var(--rd)":"var(--gn)"}"><div style="flex:1"><b>${esc(x.unit)}</b> · ${kindTag(x.kind)} ${x.result=="def"?tag(t("n_def"),"var(--rd)"):tag(t("n_ok"),"var(--gn)")}<div class="mu" style="font-size:calc(12px*var(--fz,1))">${fd(x.date)}${x.driver?" · "+esc(x.driver):""}${x.note?" · "+esc(x.note):""}</div></div>${rev?`<button class="b bs" data-a="inRev" data-id="${x.id}">${t("n_review")}</button>`:""}</div>`;
- let body;
- if(s.tab=="pend")body=pend.length?`<div class="mu" style="margin-bottom:8px">${t("n_defect")}</div>`+pend.map(x=>row(x,true)).join(""):`<div class="em" style="padding:50px">${ic("check",34)}<div>${t("n_pendn")}</div></div>`;
- else if(s.tab=="hist")body=`<div class="row" style="margin-bottom:10px"><div class="gs" style="width:220px;display:block">${ic("srch",15)}<input data-i="inQ" value="${esc(s.q)}" placeholder="${esc(t("n_q"))}" aria-label="${esc(t("n_q"))}"></div><select class="sel" style="width:auto" data-c="inF" data-k="kind"><option value="">${t("n_kind")}</option>${optH([["pre",t("n_pre")],["annual",t("n_ann")],["dot",t("n_dot")]],s.kind)}</select><select class="sel" style="width:auto" data-c="inF" data-k="res"><option value="">${t("n_res")}</option>${optH([["ok",t("n_ok")],["def",t("n_def")]],s.res)}</select><input type="date" data-c="inF" data-k="a" value="${s.a}" style="width:140px"><span class="mu">${t("n_to")}</span><input type="date" data-c="inF" data-k="b" value="${s.b}" style="width:140px"><span class="mu">${t("n_cnt",H.length)}</span><span class="sp"></span><button class="b bp" data-a="inLog">${ic("plus",14)} ${t("n_log")}</button></div>${H.length?H.map(x=>row(x,false)).join(""):`<div class="em" style="padding:40px">${t("n_nomatch")}</div>`}`;
- else if(s.tab=="hd"){const I2=DB.hist;body=I2.length?`<div class="card tw"><table><tr><th>${t("hd_hook")}</th><th>${t("hd_trailer")}</th><th>${t("hd_photos")}</th><th></th></tr>${I2.slice().sort((a,b)=>b.at-a.at).map(h=>`<tr><td>${t("hd_"+h.kind)} · ${fd(h.date)}</td><td>${esc(trailerNum(h.trailer))}</td><td>${h.photos.length}/${h.req}</td><td>${h.complete?tag(t("hd_complete"),"var(--gn)"):tag(t("hd_incomplete"),"var(--am)")}</td></tr>`).join("")}</table></div>`:`<div class="em" style="padding:40px">${t("hd_none")}</div>`}
- else body=ckEditor(s);
- return `<div class="pg n"><h1 style="font-size:calc(20px*var(--fz,1));margin:4px 0 14px">${t("inspections")}</h1><div style="margin-bottom:14px">${tabsH([["pend",t("n_pend"),pend.length],["hist",t("n_hist")],["hd",t("n_hd")],["ck",t("n_ck")]],s.tab,"inTab")}</div>${body}</div>`};
-A.inTab=el=>{inS().tab=el.dataset.v;page()};I.inQ=el=>{inS().q=el.value;page()};C.inF=el=>{inS()[el.dataset.k]=el.value;page()};A.inRev=el=>{byId(DB.insp,el.dataset.id).reviewed=true;refresh()};
-A.inLog=()=>openForm({title:t("n_log"),icon:"clip",
- fields:[{k:"unit",l:t("d_unit"),req:true,ph:t("d_unit_ph"),list:"units"},{k:"kind",l:t("n_kind"),half:true,t:"select",o:[["pre",t("n_pre")],["annual",t("n_ann")],["dot",t("n_dot")]]},{k:"date",l:t("m_date"),half:true,t:"date",val:today()},
- {k:"result",l:t("n_res"),half:true,t:"select",o:[["ok",t("n_ok")],["def",t("n_def")]]},{k:"driver",l:t("tr_driver"),half:true,t:"select",o:[["",t("unassigned")],...DB.drivers.map(d=>[d.name,d.name])]},{k:"note",l:t("n_note"),t:"textarea",rows:3}],
- check:o=>unitByNum(o.unit)?null:t("iv_need"),onSave:o=>{DB.insp.push({id:uid(),...o,reviewed:false});closeDr();refresh()}});
-/* checklist editor */
-function ckEditor(s){const T=s.ckT,list=DB.ck[T]||[],P2=s.phT,ph=DB.ph[P2]||[];
- return `<p class="mu" style="margin-top:0">${t("n_ckdesc")}</p><div class="row" style="margin-bottom:10px">${sgH(CK_TYPES.map(k=>[k,t("ct_"+k)]),T,"ckType")}<span class="sp"></span><button class="b bs" data-a="ckReset">${t("n_reset")}</button></div>
-<div class="card cp"><div class="lbl">${t("n_pre_t",t("ct_"+T))} · ${t("n_item",list.length)}</div>${list.map((x,i)=>`<div class="pr"><button class="bi" data-a="ckUp" data-i="${i}" ${i==0?"disabled":""} aria-label="up">${ic("up",14)}</button><button class="bi" data-a="ckDown" data-i="${i}" ${i==list.length-1?"disabled":""} aria-label="down">${ic("down",14)}</button><input type="text" value="${esc(x.t||t(x.k))}" data-c="ckName" data-i="${i}" aria-label="${t("n_item",1)}"><select class="sel" style="width:150px" data-c="ckMode" data-i="${i}">${optH([["none",t("n_nom")],["photo",t("n_pho")],["video",t("n_vid")]],x.m)}</select>${x.m=="video"?`<input type="number" min="0" style="width:80px" value="${x.min||0}" data-c="ckMin" data-i="${i}" title="${esc(t("n_min",""))}">`:""}<button class="bi" data-a="ckDel" data-i="${i}" aria-label="${t("del")}">${ic("trash",15)}</button></div>`).join("")}
-<div class="pr"><input id="cknew" data-enter="ckAdd" placeholder="${esc(t("n_newitem"))}"><button class="b" data-a="ckAdd">${ic("plus",14)}</button></div></div>
-<div class="row" style="margin:20px 0 10px"><div class="lbl" style="margin:0;flex:1">${ic("cam",13)} ${t("n_handover")}</div>${sgH(CK_TYPES.slice(1).map(k=>[k,t("ct_"+k)]),P2,"phType")}</div>
-<div class="card cp"><div class="lbl">${t("n_photos_t",t("ct_"+P2))} · ${t("n_req",ph.filter(x=>x.req).length)}</div>${ph.map((x,i)=>`<div class="pr"><input type="text" value="${esc(x.t||t(x.k))}" data-c="phName" data-i="${i}"><label class="ck"><input type="checkbox" data-c="phReq" data-i="${i}" ${x.req?"checked":""}> ${t("n_required")}</label><button class="bi" data-a="phDel" data-i="${i}" aria-label="${t("del")}">${ic("trash",15)}</button></div>`).join("")}
-<div class="pr"><input id="phnew" data-enter="phAdd" placeholder="${esc(t("n_newphoto"))}"><button class="b" data-a="phAdd">${ic("plus",14)}</button></div></div>`}
-const ckL=()=>DB.ck[inS().ckT],phL=()=>DB.ph[inS().phT];
-A.ckType=el=>{inS().ckT=el.dataset.v;page()};A.phType=el=>{inS().phT=el.dataset.v;page()};
-A.ckUp=el=>{const L=ckL(),i=+el.dataset.i;if(i>0){[L[i-1],L[i]]=[L[i],L[i-1]];refresh()}};A.ckDown=el=>{const L=ckL(),i=+el.dataset.i;if(i<L.length-1){[L[i+1],L[i]]=[L[i],L[i+1]];refresh()}};
-C.ckName=el=>{const v=el.value.trim();if(v){ckL()[+el.dataset.i].t=v;save()}};C.ckMode=el=>{ckL()[+el.dataset.i].m=el.value;refresh()};C.ckMin=el=>{ckL()[+el.dataset.i].min=+el.value||0;save()};
-A.ckDel=el=>{ckL().splice(+el.dataset.i,1);refresh()};A.ckAdd=()=>{const v=$("#cknew").value.trim();if(!v)return;ckL().push({id:uid(),k:"",t:v,m:"none",min:0});refresh()};
-A.ckReset=()=>{const T=inS().ckT;DB.ck[T]=CK_DEF()[T];if(T!="truck")DB.ph[T]=PH_DEF()[T];refresh()};
-C.phName=el=>{const v=el.value.trim();if(v){phL()[+el.dataset.i].t=v;save()}};C.phReq=el=>{phL()[+el.dataset.i].req=el.checked;refresh()};A.phDel=el=>{phL().splice(+el.dataset.i,1);refresh()};
-A.phAdd=()=>{const v=$("#phnew").value.trim();if(!v)return;phL().push({id:uid(),k:"",t:v,d:"",req:true});refresh()};
-
-/* ===== DOCUMENTS ===== */
-const DOC_REQ={truck:["reg","ins","ann"],trailer:["reg","ins"]};
-const dcS=()=>PG.dc||(PG.dc={f:"all",q:""});
-const unitsDocs=()=>[...DB.trucks.map(x=>({kind:"truck",id:x.id,num:x.num})),...DB.trailers.filter(x=>!x.archived).map(x=>({kind:"trailer",id:x.id,num:x.num}))].map(u=>{const docs=DB.docs.filter(d=>d.kind==u.kind&&d.uid==u.id),miss=DOC_REQ[u.kind].filter(ty=>!docs.some(d=>d.type==ty));return{...u,docs,miss,exp:docs.filter(d=>docSt(d)=="over").length,soon:docs.filter(d=>docSt(d)=="soon").length}});
-PAGES.documents=()=>{const s=dcS(),U=unitsDocs(),q=s.q.toLowerCase();
- const n={all:U.length,exp:U.filter(u=>u.exp).length,soon:U.filter(u=>u.soon).length,miss:U.filter(u=>u.miss.length).length};
- const L=U.filter(u=>(s.f=="all"||(s.f=="exp"&&u.exp)||(s.f=="soon"&&u.soon)||(s.f=="miss"&&u.miss.length))&&(!q||(u.num+" "+u.docs.map(d=>d.title).join(" ")).toLowerCase().includes(q))).sort((a,b)=>natCmp(a.num,b.num));
- return `<div class="pg n"><div class="row" style="margin:4px 0 14px"><h1 style="margin:0;font-size:calc(20px*var(--fz,1));flex:1">${t("documents")}</h1><div class="gs" style="width:220px;display:block">${ic("srch",15)}<input data-i="dcQ" value="${esc(s.q)}" placeholder="${esc(t("d_q"))}" aria-label="${esc(t("d_q"))}"></div><button class="b bp" data-a="addDoc">${ic("plus",14)} ${t("d_add")}</button></div>
-<div style="margin-bottom:12px">${tabsH([["all",t("d_units"),n.all],["exp",t("d_exp"),n.exp],["soon",t("d_30"),n.soon],["miss",t("d_miss"),n.miss]],s.f,"dcTab")}</div>
-${!U.length?`<div class="card">${empty("folder",t("d_empty"))}</div>`:L.length?L.map(u=>`<div class="card cp" style="margin-bottom:10px"><div class="row" style="margin-bottom:6px"><b>${ic(u.kind=="truck"?"truck":"box",15)} ${esc(u.num)}</b>${u.miss.length?tag(t("d_missing_l",u.miss.map(m=>t("dt_"+m)).join(", ")),"var(--am)"):""}</div>${u.docs.length?u.docs.map(d=>{const st=docSt(d);return `<div class="row" style="padding:6px 0;border-top:1px solid var(--ln);flex-wrap:nowrap;cursor:pointer" data-a="openDoc" data-id="${d.id}"><div style="flex:1"><b>${esc(d.title||t("dt_"+d.type))}</b> ${attBadge(d)} <span class="mu">${t("dt_"+d.type)}${d.file?" · "+esc(d.file):""}</span></div>${d.exp?tag(`${t("d_expires")} ${fd(d.exp)}`,st=="over"?"var(--rd)":st=="soon"?"var(--am)":"var(--gn)"):""}</div>`}).join(""):`<div class="mu">–</div>`}</div>`).join(""):`<div class="em" style="padding:40px">${t("d_nomatch")}</div>`}</div>`};
-A.dcTab=el=>{dcS().f=el.dataset.v;page()};I.dcQ=el=>{dcS().q=el.value;page()};A.addDoc=()=>docForm();A.openDoc=el=>docForm(el.dataset.id);
-function docForm(id){const d=id?byId(DB.docs,id):null,f=d||{};if(!DB.trucks.length&&!DB.trailers.length){toast(t("d_empty"),"er");return}
- const cur=d?(d.kind=="truck"?truckNum(d.uid):trailerNum(d.uid)):"";
- openForm({title:d?esc(d.title||t("dt_"+d.type)):t("d_add"),sub:t("d_add_s"),icon:"folder",save:d?t("save"):t("d_add"),
- fields:[{k:"unit",l:t("d_unit"),req:true,ph:t("d_unit_ph"),list:"units",val:cur},{k:"type",l:t("d_type"),half:true,t:"select",o:["reg","ins","perm","ann","other"].map(k=>[k,t("dt_"+k)]),val:f.type||"reg"},{k:"exp",l:t("d_expires"),half:true,t:"date",val:f.exp},
- {k:"title",l:t("d_title"),opt:true,ph:t("d_title_ph"),val:f.title},{k:"files",t:"files",val:f.files,old:f.file},{k:"vis",l:t("d_vis"),t:"check",val:f.vis!==false},{k:"notes",l:t("d_notes"),opt:true,t:"textarea",rows:2,val:f.notes}],
- check:o=>unitByNum(o.unit)?null:t("iv_need"),del:d?()=>{DB.docs=DB.docs.filter(x=>x.id!=id);refresh()}:null,
- onSave:o=>{const u=unitByNum(o.unit),kind=DB.trucks.includes(u)?"truck":"trailer",{unit,files,...r}=o;const row={...r,files:parseFiles(files),kind,uid:u.id};if(d)Object.assign(d,row);else DB.docs.push({id:uid(),...row});closeDr();refresh()}})}
-
-/* ===== VIOLATION REPORT ===== */
-PAGES.violations=()=>{const p=PG.vp||"";const opts=[["today",t("v_today")],["yest",t("v_yest")],["3",t("v_3")],["7",t("v_7")],["c",t("v_c")]];
- return `<div class="pg n"><h1 style="font-size:calc(20px*var(--fz,1));margin:4px 0 6px">${t("violations")}</h1><p class="mu" style="margin:0 0 14px">${t("v_note")}</p>
-<div class="row" style="margin-bottom:14px">${sgH(opts,p,"vpSet")}${p=="c"?`<input type="date" data-c="vpDate" style="width:150px"><span class="mu">${t("iv_to")}</span><input type="date" data-c="vpDate" style="width:150px">`:""}</div>
-<div class="card">${p?empty("shield",t("v_none")+(S.sm?"":"<br><small>"+t("telem")+"</small>")):empty("shield",t("v_pick"))}</div></div>`};
-A.vpSet=el=>{PG.vp=el.dataset.v;page()};C.vpDate=()=>{};
-/* ===== INVOICES ===== */
-const REASONS=["truck","trailer","tires","tow","parts","fuel","other"],METHODS=["efs","cc","zelle","chk"],WHO=["co","ow","dr","sp"];
-const WHO_L={co:"w_co",ow:"w_ow",dr:"w_dr",sp:"w_sp"},WHO_P={co:"iv_cp",ow:"iv_op",dr:"iv_dp"};
-const invAlloc=x=>{const a={co:0,ow:0,dr:0},m=+x.amt||0;if(x.who=="sp")(x.split||[]).forEach(r=>{const v=x.sby=="pct"?m*(+r.v||0)/100:+r.v||0;a[r.p]+=v});else a[x.who||"co"]+=m;return a};
-const ivS=()=>PG.iv||(PG.iv={q:"",per:"all",a:"",b:"",rs:"",pm:"",who:"",unit:"",tab:"unit"});
-function invFiltered(){const s=ivS(),q=s.q.toLowerCase();let[a,b]=s.per=="custom"?[s.a,s.b]:s.per=="30"?[addDays(today(),-30),today()]:periodRange(s.per);
- return DB.inv.filter(x=>inRange(x.date,a,b)&&(!s.rs||x.reason==s.rs)&&(!s.pm||x.method==s.pm)&&(!s.who||(s.who=="sp"?x.who=="sp":invAlloc(x)[s.who]>0))&&(!s.unit||[truckNum(x.truck),trailerNum(x.trailer)].some(n=>n&&n.toLowerCase()==s.unit.toLowerCase()))&&(!q||[x.desc,x.num,x.vendor,x.notes,x.mgr,truckNum(x.truck),trailerNum(x.trailer)].join(" ").toLowerCase().includes(q))).sort((x,y)=>y.date.localeCompare(x.date))}
-const invUnits=x=>[truckNum(x.truck),trailerNum(x.trailer)].filter(Boolean).join(" + ")||"–";
-function invBreak(L,k){const m={};L.forEach(x=>{const key=k=="unit"?invUnits(x):k=="reason"?t("r_t_"+x.reason):k=="month"?x.date.slice(0,7):k=="who"?t(WHO_L[x.who]):t("pm_"+x.method);m[key]=(m[key]||0)+(+x.amt||0)});return Object.entries(m).sort((a,b)=>k=="month"?b[0].localeCompare(a[0]):b[1]-a[1])}
-PAGES.invoices=()=>{const s=ivS(),L=invFiltered(),tot=DB.inv.reduce((a,x)=>a+(+x.amt||0),0),rng=L.reduce((a,x)=>a+(+x.amt||0),0),al={co:0,ow:0,dr:0};L.forEach(x=>{const a=invAlloc(x);al.co+=a.co;al.ow+=a.ow;al.dr+=a.dr});
- const top=invBreak(DB.inv.filter(x=>x.truck||x.trailer),"unit").slice(0,5),br=invBreak(L,s.tab),mx=Math.max(1,...br.map(x=>x[1]));
- return `<div class="pg w"><div class="row" style="margin-bottom:12px"><h2 style="margin:0;font-size:calc(17px*var(--fz,1));flex:1">${t("invoices")}</h2><button class="b" data-a="ivExport" ${L.length?"":"disabled"}>${ic("dl",14)} ${t("iv_exp")}</button><button class="b" data-a="ivReport">${ic("file",14)} ${t("iv_rep")}</button><button class="b bp" data-a="addInv">${ic("plus",15)} ${t("iv_add")}</button></div>
-<div class="card cp row" style="margin-bottom:12px;flex-wrap:nowrap">${ic("srch",15)}<input data-i="ivUnit" id="ivu" list="units" value="${esc(s.unit)}" placeholder="${esc(t("iv_lookup"))}" aria-label="${esc(t("iv_lookup"))}" style="border:0;background:none">${unitList()}${s.unit?`<button class="bi" data-a="ivUnitClr" aria-label="${t("clear")}">${ic("x",14)}</button>`:""}</div>
-<div class="stt"><div><b>${money(tot)}</b><small>${t("iv_tot")}</small></div><div><b>${money(rng)}</b><small>${t("iv_totr")}</small></div><div><b>${money(al.co)}</b><small>${t("iv_cp")}</small></div><div><b>${money(al.ow)}</b><small>${t("iv_op")}</small></div><div><b>${money(al.dr)}</b><small>${t("iv_dp")}</small></div></div>
-<div class="row" style="margin-bottom:12px"><div class="gs" style="width:210px;display:block">${ic("srch",15)}<input data-i="ivQ" value="${esc(s.q)}" placeholder="${esc(t("iv_q"))}" aria-label="${esc(t("iv_q"))}"></div>
-<select class="sel" style="width:auto" data-c="ivF" data-k="per">${optH([["all",t("iv_all")],["month",t("iv_month")],["30",t("iv_30")],["90",t("r_l90")],["year",t("iv_year")],["custom",t("r_custom")]],s.per)}</select>
-${s.per=="custom"?`<input type="date" data-c="ivF" data-k="a" value="${s.a}" style="width:140px"><span class="mu">${t("iv_to")}</span><input type="date" data-c="ivF" data-k="b" value="${s.b}" style="width:140px">`:""}
-<select class="sel" style="width:auto" data-c="ivF" data-k="rs"><option value="">${t("iv_allr")}</option>${optH(REASONS.map(k=>[k,t("r_t_"+k)]),s.rs)}</select><select class="sel" style="width:auto" data-c="ivF" data-k="pm"><option value="">${t("iv_allm")}</option>${optH(METHODS.map(k=>[k,t("pm_"+k)]),s.pm)}</select>
-<select class="sel" style="width:auto" data-c="ivF" data-k="who"><option value="">${t("iv_allp")}</option>${optH([["co",t("iv_cp")],["ow",t("iv_op")],["dr",t("iv_dp")],["sp",t("w_sp")]],s.who)}</select><span class="mu">${t("iv_n",L.length)}</span></div>
-${!DB.inv.length?`<div class="card">${empty("receipt",t("iv_noyet"),`<button class="b bp" data-a="addInv">${t("iv_first")}</button>`)}</div>`:`<div class="vl"><div class="card cp"><div class="lbl">${t("iv_exu")}</div>${top.length?top.map(([n,v])=>`<div class="row" style="justify-content:space-between;padding:5px 0;cursor:pointer" data-a="ivPick" data-n="${esc(n.split(" + ")[0])}"><b>${esc(n)}</b><span>${money(v)}</span></div>`).join(""):`<div class="mu">${t("iv_noyet")}</div>`}
-<div class="lbl" style="margin-top:18px">${t("iv_brk")}</div>${tabsH([["unit",t("iv_bu")],["reason",t("iv_br")],["month",t("iv_bm")],["who",t("iv_bp")],["pm",t("iv_bpm")]],s.tab,"ivTab")}
-<div style="margin-top:10px">${br.length?br.map(([n,v])=>`<div style="margin:6px 0"><div class="row" style="justify-content:space-between;font-size:calc(12px*var(--fz,1))"><span>${esc(n)}</span><b>${money(v)}</b></div><div style="height:6px;border-radius:3px;background:var(--p2)"><div style="height:6px;border-radius:3px;background:var(--ac);width:${Math.round(v/mx*100)}%"></div></div></div>`).join(""):`<div class="mu">${t("iv_nb")}</div>`}</div></div>
-<div><div class="lbl">${t("iv_list")}</div>${L.length?L.map(x=>{const a=invAlloc(x);return `<div class="card cp row" style="margin-bottom:8px;cursor:pointer;flex-wrap:nowrap" data-a="openInv" data-id="${x.id}"><div class="ico">${ic("receipt",15)}</div><div style="flex:1;min-width:0"><b>${esc(invUnits(x))}</b> · ${t("r_t_"+x.reason)}<div class="mu" style="font-size:calc(12px*var(--fz,1))">${esc(x.desc||"–")} · ${fd(x.date)}${x.num?" · #"+esc(x.num):""} ${attBadge(x)}</div></div><div style="text-align:right"><b>${money(x.amt)}</b><div class="mu" style="font-size:calc(11px*var(--fz,1))">${x.who=="sp"?t("w_sp"):t(WHO_L[x.who])}</div></div></div>`}).join(""):`<div class="em" style="padding:30px">${t("iv_none")}</div>`}</div></div>`}</div>`};
-I.ivQ=el=>{ivS().q=el.value;page()};I.ivUnit=el=>{ivS().unit=el.value.trim();page()};A.ivUnitClr=()=>{ivS().unit="";page()};A.ivPick=el=>{ivS().unit=el.dataset.n;page()};C.ivF=el=>{ivS()[el.dataset.k]=el.value;page()};A.ivTab=el=>{ivS().tab=el.dataset.v;page()};
-A.addInv=()=>invForm();A.openInv=el=>invForm(el.dataset.id);
-A.ivExport=()=>{const L=invFiltered();download("invoices.csv",csv([t("iv_date"),t("tl_unit"),t("iv_reason"),t("iv_desc"),t("iv_amt"),t("iv_method"),t("iv_who"),t("iv_num"),t("m_vendor")],L.map(x=>[x.date,invUnits(x),t("r_t_"+x.reason),x.desc,x.amt,t("pm_"+x.method),x.who=="sp"?t("w_sp"):t(WHO_L[x.who]),x.num,x.vendor])))};
-/* split */
-const spTotal=()=>+($("#f_amt")||{}).value||0;
-function spHTML(){const sp=PG.sp,tot=spTotal(),sum=sp.rows.reduce((a,r)=>a+(+r.v||0),0),want=sp.by=="pct"?100:tot,diff=Math.round((want-sum)*100)/100;
- return `<div class="lbl" style="margin-top:6px">${t("sp_by")}</div>${sgH([["pct",t("sp_pct")],["amt",t("sp_amt")]],sp.by,"spBy")}<div style="margin-top:8px">${sp.rows.map((r,i)=>`<div class="pr"><select class="sel" data-c="spP" data-n="${i}" style="width:130px">${optH([["co",t("sp_co")],["dr",t("sp_dr")],["ow",t("sp_ow")]],r.p)}</select><input type="number" min="0" step="0.01" value="${r.v}" data-i="spV" data-n="${i}" aria-label="${sp.by=="pct"?"%":"$"}"><span class="mu">${sp.by=="pct"?"%":"$"}</span><button class="bi" data-a="spDel" data-n="${i}" aria-label="${t("del")}">${ic("trash",14)}</button></div>`).join("")}</div>
-<div class="row"><button class="b bs" data-a="spAdd">${ic("plus",13)} ${t("sp_addo")}</button><span id="spb" class="mu">${spBalTxt(diff,sp.by)}</span></div>`}
-const spBalTxt=(diff,by)=>{const u=v=>by=="pct"?v+"%":money(v);return `${t("sp_bal")}: `+(diff==0?t("sp_ok",by=="pct"?"100%":money(spTotal())):diff<0?t("sp_over",u(-diff)):t("sp_left",u(diff)))};
-const spBal=()=>{const sp=PG.sp,sum=sp.rows.reduce((a,r)=>a+(+r.v||0),0),want=sp.by=="pct"?100:spTotal(),e=$("#spb");if(e)e.textContent=spBalTxt(Math.round((want-sum)*100)/100,sp.by)};
-const spDraw=()=>{const e=$("#spl");if(e)e.innerHTML=$("#f_who").value=="sp"?spHTML():""};
-A.spBy=el=>{PG.sp.by=el.dataset.v;spDraw()};C.spP=el=>{PG.sp.rows[+el.dataset.n].p=el.value};I.spV=el=>{PG.sp.rows[+el.dataset.n].v=el.value;spBal()};A.spDel=el=>{PG.sp.rows.splice(+el.dataset.n,1);spDraw()};A.spAdd=()=>{PG.sp.rows.push({p:"ow",v:""});spDraw()};
-function invForm(id){const x=id?byId(DB.inv,id):null,f=x||{};PG.sp={by:f.sby||"pct",rows:f.split?f.split.map(r=>({...r})):[{p:"co",v:""},{p:"dr",v:""}]};
- openForm({title:x?t("iv_list").replace(/s$/,"")+(f.num?" #"+esc(f.num):""):t("iv_add"),icon:"receipt",save:x?t("save"):t("iv_add"),
- fields:[{k:"date",l:t("iv_date"),half:true,t:"date",req:true,val:f.date||today()},{k:"amt",l:t("iv_amt")+" $",half:true,t:"number",req:true,min:0,step:"0.01",val:f.amt},
- {k:"tn",l:t("iv_truck"),half:true,t:"select",o:[["",t("iv_truck")],...DB.trucks.map(y=>[y.id,y.num])],val:f.truck},{k:"tl",l:t("iv_trailer"),half:true,t:"select",o:[["",t("iv_trailer")],...DB.trailers.map(y=>[y.id,y.num])],val:f.trailer},
- {k:"tp",l:t("ix_tp"),opt:true,t:"number",min:0,step:"0.01",ph:t("ix_tp_h"),val:f.tp},
- {k:"reason",l:t("iv_reason"),half:true,t:"select",o:REASONS.map(k=>[k,t("r_t_"+k)]),val:f.reason||"truck"},{k:"method",l:t("iv_method"),half:true,t:"select",o:METHODS.map(k=>[k,t("pm_"+k)]),val:f.method||"efs"},
- {k:"desc",l:t("iv_desc"),t:"textarea",rows:2,ph:t("iv_desc_ph"),val:f.desc},{k:"who",l:t("iv_who"),t:"select",o:WHO.map(k=>[k,t(WHO_L[k])]),val:f.who||"co"},{k:"sp",t:"html",html:`<div id="spl"></div>`},
- {k:"mgr",l:t("iv_mgr"),opt:true,ph:t("iv_mgr_ph"),val:f.mgr},{k:"num",l:t("iv_num"),half:true,opt:true,val:f.num},{k:"vendor",l:t("m_vendor"),half:true,opt:true,val:f.vendor},{k:"notes",l:t("m_note"),opt:true,t:"textarea",rows:2,val:f.notes},
- {k:"files",t:"files",val:f.files,old:f.file}],
- check:o=>{if(!o.tn&&!o.tl)return t("iv_need");if(o.who=="sp"){const sum=PG.sp.rows.reduce((a,r)=>a+(+r.v||0),0),want=PG.sp.by=="pct"?100:+o.amt;if(Math.abs(sum-want)>0.009)return t("iv_bad")}return null},
- del:x?()=>{DB.inv=DB.inv.filter(y=>y.id!=id);refresh()}:null,
- onSave:o=>{const{tn,tl,sp,files,...r}=o,row={...r,tp:(o.tp===""||o.tp==null||!(tn&&tl))?null:+o.tp,files:parseFiles(files),truck:tn,trailer:tl,amt:+o.amt,split:o.who=="sp"?PG.sp.rows.map(q=>({p:q.p,v:+q.v||0})):[],sby:PG.sp.by};if(x)Object.assign(x,row);else DB.inv.push({id:uid(),by:meName(),byAt:today(),...row});closeDr();refresh()}});
- setTimeout(()=>{const w=$("#f_who"),am=$("#f_amt");if(w){w.onchange=spDraw;spDraw()}if(am)am.addEventListener("input",spBal)},50)}
-A.ivReport=()=>{const L=invFiltered();if(!L.length){modal({title:t("ir_t"),icon:"file",w:420,body:`<div class="em">${t("ir_none")}</div>`,foot:`<button class="b" data-a="mdClose">${t("close")}</button>`});return}
- const st=PG.ir={ord:"exp",det:true},draw=()=>{const m={};L.forEach(x=>{const k=invUnits(x);(m[k]=m[k]||[]).push(x)});let U=Object.entries(m).map(([k,a])=>[k,a,a.reduce((s,x)=>s+(+x.amt||0),0)]);U.sort(st.ord=="exp"?(a,b)=>b[2]-a[2]:(a,b)=>natCmp(a[0],b[0]));PG.irU=U;const mx=Math.max(1,...U.map(u=>u[2]));
-  $("#irb").innerHTML=`<div class="mu" style="margin-bottom:8px">${t("iv_n",L.length)} · ${money(L.reduce((s,x)=>s+(+x.amt||0),0))}</div>`+U.map(([k,a,v])=>`<div style="margin:10px 0"><div class="row" style="justify-content:space-between"><b>${esc(k)}</b><b>${money(v)}</b></div><div style="height:6px;border-radius:3px;background:var(--p2);margin:4px 0"><div style="height:6px;border-radius:3px;background:var(--ac);width:${Math.round(v/mx*100)}%"></div></div>${st.det?a.map(x=>`<div class="mu" style="font-size:calc(12px*var(--fz,1))">${fd(x.date)} · ${t("r_t_"+x.reason)} · ${esc(x.desc||"")} · ${money(x.amt)}</div>`).join(""):""}</div>`).join("")+irMore(L)};
- modal({title:t("ir_t"),icon:"file",w:700,body:`<div class="row" style="margin-bottom:10px"><span class="mu">${t("ir_units")}</span>${sgH([["exp",t("ir_exp1")],["num",t("ir_num")]],"exp","irOrd")}${sgH([["1",t("ir_with")],["0",t("ir_diag")]],"1","irDet")}</div><div id="irb"></div><p class="mu" style="font-size:calc(12px*var(--fz,1))">${t("ir_note")}</p>`,foot:`<button class="b bp" id="irp">${t("ir_dl")}</button>`});
- PG.irRe=draw;draw();$("#irp").onclick=()=>saveBlob("invoice-report-"+fdate()+".pdf",invoiceReportPdf(L,st.ord,st.det,{units:PG.irU,reasonOf:x=>t("r_t_"+x.reason)}),"application/pdf")};
-function irMore(L){const sum=L.reduce((s,x)=>s+(+x.amt||0),0)||1,R={},M={};L.forEach(x=>{R[x.reason]=(R[x.reason]||0)+(+x.amt||0);const k=(x.date||"").slice(0,7)||"?";M[k]=(M[k]||0)+(+x.amt||0)});
- const re=Object.entries(R).sort((a,b)=>b[1]-a[1]),mk=Object.keys(M).sort().slice(-12),mm=Math.max(1,...mk.map(k=>M[k]));
- return `<div class="sec" style="margin:18px 0 6px">${t("ir_reason")}</div>`+re.map(([k,v])=>`<div class="row" style="justify-content:space-between;font-size:calc(13px*var(--fz,1))"><span>${t("r_t_"+k)}</span><b>${money(v)} · ${Math.round(v/sum*100)}%</b></div><div style="height:6px;border-radius:3px;background:var(--p2);margin:3px 0 8px"><div style="height:6px;border-radius:3px;background:var(--ac);width:${Math.round(v/re[0][1]*100)}%"></div></div>`).join("")+(mk.length>1?`<div class="sec" style="margin:18px 0 6px">${t("ir_month")}</div><div style="display:flex;align-items:flex-end;gap:8px;height:120px">${mk.map(k=>`<div style="flex:1;text-align:center;font-size:calc(11px*var(--fz,1))"><div style="font-weight:700">${money(M[k]).replace(/\.00$/,"")}</div><div style="background:var(--ac);border-radius:4px 4px 0 0;height:${Math.max(2,Math.round(M[k]/mm*80))}px"></div><div class="mu">${k.slice(2)}</div></div>`).join("")}</div>`:"")}
-A.irOrd=el=>{PG.ir.ord=el.dataset.v;el.parentElement.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b==el));PG.irRe()};A.irDet=el=>{PG.ir.det=el.dataset.v=="1";el.parentElement.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b==el));PG.irRe()};
-
-/* ===== VENDORS ===== */
-PAGES.vendors=()=>{const q=(PG.vq||"").toLowerCase(),L=DB.vend.filter(v=>!q||[v.name,v.addr,v.phone,v.notes].join(" ").toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
- return `<div class="pg n"><div class="row" style="margin:4px 0 14px"><h1 style="margin:0;font-size:calc(20px*var(--fz,1));flex:1">${t("vendors")}</h1><button class="b bp" data-a="addVendor">${ic("plus",15)} ${t("vn_add")}</button></div>
-<div class="card cp row" style="margin-bottom:10px;flex-wrap:nowrap">${ic("srch",15)}<input id="vmq" placeholder="${esc(t("vn_q"))}" aria-label="${esc(t("vn_q"))}" data-enter="vnMap" style="border:0;background:none"><button class="b" data-a="vnMap">${t("vn_search")}</button></div>
-<div class="row" style="margin-bottom:6px"><span class="mu">${t("vn_part")}</span>${[1,2,3,4,5].map(i=>`<button class="b bs" data-a="vnMap">${t("vn_c"+i)}</button>`).join("")}</div>
-<div class="row" style="margin:16px 0 8px"><div class="sec" style="margin:0;flex:1">${t("vn_mine")}<span>${DB.vend.length}</span></div><div class="gs" style="width:220px;display:block">${ic("srch",15)}<input data-i="vnQ" value="${esc(PG.vq||"")}" placeholder="${esc(t("search"))}" aria-label="${t("search")}"></div></div>
-${DB.vend.length?L.length?L.map(v=>`<div class="card cp row" style="margin-bottom:8px;cursor:pointer;flex-wrap:nowrap" data-a="openVendor" data-id="${v.id}"><div class="ico">${ic("store",15)}</div><div style="flex:1;min-width:0"><b>${esc(v.name)}</b><div class="mu" style="font-size:calc(12px*var(--fz,1))">${esc(v.addr)||"–"}${v.notes?" · "+esc(v.notes):""}</div></div>${v.phone?`<a class="b bs" href="tel:${esc(v.phone)}" onclick="event.stopPropagation()">${esc(v.phone)}</a>`:""}</div>`).join(""):`<div class="em" style="padding:30px">${t("vn_nomatch")}</div>`:`<div class="card">${empty("store",t("vn_empty"))}</div>`}
-<p class="mu" style="font-size:calc(12px*var(--fz,1));margin-top:12px">${t("vn_hint")}</p></div>`};
-I.vnQ=el=>{PG.vq=el.value;page()};A.vnMap=()=>toast(t("vn_mapn"),"er");A.addVendor=()=>vendorForm();A.openVendor=el=>vendorForm(el.dataset.id);
-function vendorForm(id){const v=id?byId(DB.vend,id):null,f=v||{};
- openForm({title:v?esc(v.name):t("vn_add_t"),sub:t("vn_add_s"),icon:"store",save:v?t("save"):t("vn_add"),fields:[{k:"name",l:t("vn_name"),req:true,ph:t("vn_name_ph"),val:f.name},{k:"addr",l:t("vn_addr"),ph:t("vn_addr_ph"),val:f.addr},{k:"phone",l:t("vn_phone"),half:true,t:"tel",val:f.phone},{k:"web",l:t("vn_web"),half:true,val:f.web},{k:"notes",l:t("vn_notes"),t:"textarea",rows:3,ph:t("vn_notes_ph"),val:f.notes}],
- del:v?()=>{DB.vend=DB.vend.filter(x=>x.id!=id);refresh()}:null,onSave:o=>{if(v)Object.assign(v,o);else DB.vend.push({id:uid(),...o});closeDr();refresh()}})}
-
-/* ===== PROFILE ===== */
-const PF=[["app","pf_app","pal"],["lang","pf_lang","lang"],["int","pf_int","zap"],["comp","pf_comp","bld"],["prio","pf_prio","flag"],["team","pf_team","users"],["acc","pf_acc","user"],["pacc","pf_pacc","shield"],["disp","pf_disp","eye"]];
-const pfL=()=>PF.filter(x=>x[0]!="pacc"||(typeof SERVER!="undefined"&&SERVER&&USER&&USER.owner));
-const THN={charcoal:"Charcoal",midnight:"Midnight",forest:"Forest",daylight:"Daylight",paper:"Paper",mist:"Mist"};
-const secH=(id,ti,body)=>`<section id="pf_${id}" class="card cp" style="margin-bottom:16px"><h3 style="margin:0 0 12px;font-size:calc(15px*var(--fz,1))">${t(ti)}</h3>${body}</section>`;
-const thumb=k=>{const c=TH[k];return `<button class="thc ${S.theme==k?"on":""}" data-a="setTheme" data-v="${k}" aria-label="${THN[k]}"><div style="height:44px;border-radius:6px;background:${c[0]};border:1px solid ${c[3]};position:relative"><div style="position:absolute;left:6px;top:6px;width:18px;bottom:6px;border-radius:3px;background:${c[1]}"></div><div style="position:absolute;right:8px;top:10px;width:30px;height:6px;border-radius:3px;background:${c[7]}"></div></div><small style="display:block;margin-top:6px">${THN[k]}</small></button>`};
-let _tzL=null;
-function tzList(){if(_tzL)return _tzL;let L=[];try{L=Intl.supportedValuesOf("timeZone")}catch(e){}
- if(!L.length)L=["Pacific/Honolulu","America/Anchorage","America/Los_Angeles","America/Denver","America/Chicago","America/New_York","America/Toronto","America/Mexico_City","Europe/London","Europe/Berlin","Europe/Moscow","Asia/Tashkent","Asia/Dubai","Asia/Kolkata","Asia/Tokyo","Australia/Sydney"];
- if(!L.includes("UTC"))L=L.concat("UTC");const off=z=>{try{const p=new Intl.DateTimeFormat("en-US",{timeZone:z,timeZoneName:"longOffset"}).formatToParts(new Date()).find(x=>x.type=="timeZoneName");const v=p?p.value.replace("GMT",""):"";return "UTC"+(v||"+00:00")}catch(e){return "UTC"}};
- const G={};L.forEach(z=>{const r=z.includes("/")?z.split("/")[0]:"Other";(G[r]=G[r]||[]).push([z,off(z)])});return _tzL=G}
-function tzSel(val,dis){const G=tzList();let has=false;const o=Object.keys(G).sort().map(r=>`<optgroup label="${esc(r)}">${G[r].sort((a,b)=>a[0]<b[0]?-1:1).map(([z,u])=>{if(z==val)has=true;return `<option value="${esc(z)}"${z==val?" selected":""}>${esc(z.replace(/_/g," "))} (${u})</option>`}).join("")}</optgroup>`).join("");
- return `<select data-c="tgTz"${dis?" disabled":""}>${has?"":`<option value="${esc(val)}" selected>${esc(val)}</option>`}${o}</select>`}
-function tgSec(){const g=S.tg,bot=(typeof PG!="undefined"&&PG.tgi&&PG.tgi.bot)||g.bot||"",ed=canInt(),ro=ed?"":" readonly";
- const fld=(l,k,h,ph)=>`<div class="fd ${h?"h":""}"><label>${t(l)}</label><input value="${esc(g[k])}" data-i="tgF" data-k="${k}" placeholder="${ph||"-1001234567890"}" inputmode="text" autocomplete="off"${ro}>${h?`<div class="hn">${t(h)}</div>`:""}</div>`;
- return `<p class="mu" style="margin-top:0">${t("tq_s",esc(bot?"@"+bot.replace(/^@/,""):"the bot"))}</p>
-<div class="fg">${fld("tq_work","work","tq_work_h")}<div class="fd h"><label>${t("tg_tz")}</label>${tzSel(g.tz||"America/Chicago",!ed)}</div>${g.topic?fld("tg_topic","topic",null,t("tg_topic_ph")):""}</div>
-<div class="row" style="margin-top:10px"><span class="mu">${t("tq_times")}</span>${g.times.map((x,i)=>`<span class="tg" style="gap:6px">${esc(x)} ${ed?`<button class="bi" style="padding:0" data-a="tgTimeDel" data-n="${i}" aria-label="${t("del")}">${ic("x",12)}</button>`:""}</span>`).join("")}${ed?`<input type="time" id="tgt" style="width:110px"><button class="bi" data-a="tgTimeAdd" title="${esc(t("tg_addt"))}" aria-label="${esc(t("tg_addt"))}">${ic("plus",14)}</button>`:""}</div>
-${ed?`<div class="row" style="margin-top:14px"><button class="b bp" data-a="tgSave">${t("tg_save")}</button><button class="b" data-a="tplSend2">${t("tq_now")}</button></div>`:""}`}
-PAGES.profile=()=>{const accs=S.tmAcc||[],me=(typeof SERVER!="undefined"&&SERVER&&USER)?{name:USER.name,user:USER.username,mail:USER.email,role:USER.role,owner:USER.owner,co:USER.companies}:{name:S.name,user:S.user,mail:S.mail,role:"admin",owner:true,co:null};
- return `<div class="pg"><div class="pfw"><nav class="pfn" id="pfn">${pfL().map(([id,k,i])=>`<button class="nv" data-a="pfGo" data-v="${id}" id="pn_${id}">${ic(i,16)}<span class="lb">${t(k)}</span></button>`).join("")}</nav><div>
-<div class="card" style="padding:16px;display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap">${typeof myPhoto=="function"?myPhoto(me):avHtml(me.name,S.col,54)}<div style="flex:1;min-width:180px"><h2 style="margin:0;font-size:calc(18px*var(--fz,1))">${esc(me.name)}</h2><div class="mu">${esc(me.mail)}</div></div><div class="bd" style="margin:0">${tag(t(me.owner?"tm_owner":me.role=="admin"?"tm_admin":"tm_member"),"var(--ac)")}${(me.co&&me.co.length?me.co.map(id=>compOf(id)).filter(Boolean):[]).map(x=>tag(x.n,x.c)).join("")||tag(t("cp_all"),"var(--mu)")}</div></div>
-${secH("app","pf_app",`<p class="mu" style="margin-top:0">${t("pf_app_s")}</p><div class="lbl">${t("th_dark")}</div><div class="ths">${["charcoal","midnight","forest"].map(thumb).join("")}</div><div class="lbl" style="margin-top:14px">${t("th_light")}</div><div class="ths">${["daylight","paper","mist"].map(thumb).join("")}</div>
-<div class="lbl" style="margin-top:16px">${t("pf_col")}</div><p class="mu" style="margin-top:0">${t("pf_col_s")}</p><div class="sw">${USERC.map(c=>`<button class="${S.col==c?"on":""}" style="background:${c}" data-a="setCol" data-v="${c}" aria-label="${c}"></button>`).join("")}</div>`)}
-${secH("lang","pf_lang",`<p class="mu" style="margin-top:0">${t("pf_lang_s")}</p>${tabsH(LG.map((l,i)=>[l,LN[i]]),S.lang,"lang")}`)}
-${secH("int","pf_int",`<p class="mu" style="margin-top:0">${t("pf_int_s")}</p>${accs.length?accs.map((a,i)=>`<div class="row" style="padding:8px 0;border-top:1px solid var(--ln);flex-wrap:nowrap"><div style="flex:1"><b>${esc(a.n)}</b> <span class="mu">${a.p}</span></div>${canInt()?`<button class="bi" data-a="tmDel" data-n="${i}" aria-label="${t("del")}">${ic("trash",15)}</button>`:""}</div>`).join(""):`<div class="mu">${t("pf_noacc")}</div>`}${canInt()?`<button class="b" style="margin-top:10px" data-a="tmAdd">${ic("plus",14)} ${t("pf_addacc")}</button>`:""}<div class="lbl" style="margin-top:20px">${ic("send",13)} Telegram</div>${tgSec()}${typeof inEdPanel=="function"?inEdPanel():""}`)}
-${secH("comp","pf_comp",`<p class="mu" style="margin-top:0">${t("co_s")}</p><p class="mu" style="margin-top:0">${ic("send",12)} ${t("co_inv_s")}</p><div class="cpBox">${typeof teamsBlock=="function"?teamsBlock():""}<div class="lbl" style="margin-top:16px">${t("companies")}</div>${S.comps.map((c,i)=>{const used=DB.trucks.some(x=>x.company==c.id)||DB.trailers.some(x=>x.company==c.id);return `<div class="pr" data-g="comps" data-n="${i}"><span class="gr" data-g="comps" data-n="${i}" title="${esc(t("drag"))}" aria-label="${esc(t("drag"))}">⠿</span><input type="color" value="${c.c}" data-c="coColor" data-n="${i}" aria-label="color"${canComp()?"":" disabled"}><input type="text" value="${esc(c.n)}" data-c="coName" data-n="${i}"${canComp()?"":" readonly"}><button class="bi" data-a="coDel" data-n="${i}" ${used||S.comps.length<2||!canComp()?"disabled":""} title="${used?esc(t("co_used")):""}" aria-label="${t("del")}">${ic("trash",15)}</button><div class="coch"><input type="text" class="coinv" value="${esc(c.inv||"")}" data-c="coInv" data-n="${i}" placeholder="${esc(t("co_inv"))}" title="${esc(t("co_inv_h"))}" inputmode="text" autocomplete="off"${canComp()?"":" readonly"}><input type="text" class="coinv" value="${esc(c.mgr||"")}" data-c="coMgr" data-n="${i}" placeholder="${esc(t("co_mgr"))}" title="${esc(t("co_mgr_h"))}" inputmode="text" autocomplete="off"${canComp()?"":" readonly"}></div></div>`}).join("")}<div class="pr"><input type="color" id="ncc" value="#3b82f6"${canComp()?"":" disabled"}><input id="ncn" placeholder="${esc(t("co_new"))}" data-enter="coAdd"${canComp()?"":" readonly"}><button class="b" data-a="coAdd"${canComp()?"":" disabled"}>${t("co_add")}</button></div>${typeof compEdPanel=="function"?compEdPanel():""}</div>`)}
-${secH("prio","pf_prio",`<p class="mu" style="margin-top:0">${t("pr_s")}</p><div class="prioBox">${prioInner()}</div><p class="mu" style="font-size:calc(12px*var(--fz,1))">${t("pr_s2")}</p>${typeof prEdPanel=="function"?prEdPanel():""}`)}
-${pfL().some(x=>x[0]=="team")?secH("team","pf_team",teamBody()):""}
-${secH("acc","pf_acc",accBody())}
-${pfL().some(x=>x[0]=="pacc")&&typeof paccBody=="function"?secH("pacc","pf_pacc",paccBody()):""}
-${secH("disp","pf_disp",dispBody())}
-</div></div></div>`};
-A.setTheme=el=>{S.theme=el.dataset.v;save();theme();page()};A.setCol=el=>{S.col=el.dataset.v;const m=S.team.find(x=>x.u==S.user)||S.team[0];if(m)m.c=el.dataset.v;refresh();toast(t("pf_upd"))};
-A.pfGo=el=>{const s=$("#pf_"+el.dataset.v);if(s)s.scrollIntoView({behavior:"smooth",block:"start"})};
-PG.after=null;
-const pfSpy=()=>{const c=$("#c");if(!c||V!="profile")return;const fn=()=>{let cur=PF[0][0];pfL().forEach(([id])=>{const s=$("#pf_"+id);if(s&&s.getBoundingClientRect().top<140)cur=id});pfL().forEach(([id])=>{const b=$("#pn_"+id);b&&b.classList.toggle("on",id==cur)})};if(!c._spy){c._spy=1;c.addEventListener("scroll",fn)}fn()};
-const _pp=PAGES.profile;PAGES.profile=()=>{PG.after=pfSpy;return _pp()};
-I.tgF=el=>{if(!canInt())return;S.tg[el.dataset.k]=el.value.trim();save()};A.tgSave=()=>{save();toast(t("tg_saved"))};A.tplSend2=()=>toast(t("tg_nosend"),"er");
-A.tgTimeAdd=()=>{if(!canInt())return;const v=$("#tgt").value;if(v&&!S.tg.times.includes(v)){S.tg.times.push(v);S.tg.times.sort();save();page()}};A.tgTimeDel=el=>{if(!canInt())return;S.tg.times.splice(+el.dataset.n,1);save();page()};
-A.tgPrev=()=>{const L=DB.issues.filter(i=>i.status!="closed"&&effPrio(i).id==S.prio[0].id);modal({title:t("tg_hp"),icon:"send",w:480,body:L.length?L.map(i=>`<div style="padding:5px 0;border-top:1px solid var(--ln)"><b>${esc(i.title||"–")}</b> ${esc(i.desc||"")}</div>`).join(""):`<div class="em">${t("tg_noprev")}</div>`,foot:`<button class="b" data-a="mdClose">${t("close")}</button>`})};
-A.tmAdd=()=>{if(!canInt())return;const o=[["samsara","Samsara"],["motive","Motive"]];modal({title:t("tm_title"),icon:"zap",w:460,body:`<div class="fg"><div class="fd h"><label>${t("tm_prov")}</label><select id="tmp" data-c="tmProv">${optH(o,"samsara")}</select></div><div class="fd h"><label>${t("tm_name")}</label><input id="tmn"></div><div class="fd"><label>${t("tm_key")}</label><input id="tmk" type="password" autocomplete="off"><div class="hn" id="tmh">${t("tm_h_s")}</div></div><div class="note er" style="grid-column:auto">${t("tm_srv")}</div></div>`,foot:`<button class="b" data-a="mdClose">${t("cancel")}</button><button class="b bp" id="tms">${t("tm_save")}</button>`});
- $("#tms").onclick=()=>{const n=$("#tmn").value.trim();if(!n){$("#tmn").classList.add("bad");return}(S.tmAcc=S.tmAcc||[]).push({n,p:$("#tmp").value});closeMd();save();page();toast(t("srv"),"er")}};
-C.tmProv=el=>{$("#tmh").textContent=t(el.value=="samsara"?"tm_h_s":"tm_h_m")};A.tmDel=el=>{if(!canInt())return;S.tmAcc.splice(+el.dataset.n,1);save();page()};
-C.coColor=el=>{S.comps[+el.dataset.n].c=el.value;refresh()};C.tgTz=el=>{if(!canInt())return;S.tg.tz=el.value;save();toast(t("tg_saved"))};C.coMgr=el=>{const v=el.value.trim().replace(/\s+/g,"");if(v&&!/^-?\d{5,20}$/.test(v)){toast(t("co_inv_bad"),"er");el.value=S.comps[+el.dataset.n].mgr||"";return}S.comps[+el.dataset.n].mgr=v;refresh();toast(t(v?"co_mgr_ok":"co_mgr_off"))};C.coInv=el=>{const v=el.value.trim().replace(/\s+/g,"");if(v&&!/^-?\d{5,20}$/.test(v)){toast(t("co_inv_bad"),"er");el.value=S.comps[+el.dataset.n].inv||"";return}S.comps[+el.dataset.n].inv=v;refresh();toast(t(v?"co_inv_ok":"co_inv_off"))};C.coName=el=>{const v=el.value.trim();if(v){S.comps[+el.dataset.n].n=v;refresh()}};
-A.coDel=el=>{const c=S.comps[+el.dataset.n];if(DB.trucks.some(x=>x.company==c.id)||DB.trailers.some(x=>x.company==c.id)||S.comps.length<2)return;S.comps.splice(+el.dataset.n,1);refresh()};
-A.coAdd=()=>{const n=$("#ncn").value.trim();if(!n){$("#ncn").focus();return}S.comps.push({id:uid(),n,c:$("#ncc").value});refresh()};
-A.tmRemove=el=>{const m=S.team[+el.dataset.n];if(m.owner){toast(t("tm_cant"),"er");return}ask(t("confirm"),()=>{S.team.splice(+el.dataset.n,1);DB.issues.forEach(i=>{if(i.owner==m.id)i.owner=""});refresh()},t("tm_remove"))};
-A.tmInvite=()=>modal({title:t("iu_t"),icon:"link",w:420,body:`<div class="note er" style="grid-column:auto">${t("iu_n")}</div>`,foot:`<button class="b" data-a="mdClose">${t("close")}</button><button class="b bp" disabled>${t("iu_b")}</button>`});
-const userForm=test=>openForm({title:test?t("tt_t"):t("tu_t"),sub:test?t("tt_note"):"",icon:"user",save:t("tm_addu"),
- fields:[{k:"n",l:t("ac_full"),req:true},{k:"u",l:t("tu_user"),req:true,half:true,hint:t("tu_user_h")},{k:"m",l:t("ac_mail"),req:true,t:"email",half:true},{k:"r",l:t("tu_role"),t:"select",o:[["member",t("tm_member")],["admin",t("tm_admin")]],hint:t("tu_role_h")},{k:"c",l:t("tu_col"),t:"select",o:USERC.map((c,i)=>[c,"#"+(i+1)+" "+c])},
- ...(test?[]:[{k:"pw",l:t("password"),t:"password",hint:t("dr_tmp_h")}])],
- check:o=>!/^[a-z0-9._-]{3,30}$/.test(o.u)?t("tu_bad"):S.team.some(x=>x.u==o.u||x.m.toLowerCase()==o.m.toLowerCase())?t("tu_dupe"):(!test&&(o.pw||"").length<8?t("dr_pw_short"):null),
- onSave:o=>{const{pw,...r}=o;S.team.push({id:uid(),...r,test:!!test});closeDr();refresh()}});
-A.tmUser=()=>userForm(false);A.tmTest=()=>userForm(true);
-I.acF=el=>{S[el.dataset.k]=el.value.trim()};A.acSave=()=>{const m=S.team.find(x=>x.id=="u1");if(m){m.n=S.name;m.u=S.user;m.m=S.mail}refresh();toast(t("pf_upd"))};
-A.acPw=()=>modal({title:t("ac_pw"),icon:"key",w:420,body:`<div class="fg"><div class="fd"><label>${t("ac_cur")}</label><input type="password" autocomplete="current-password"></div><div class="fd"><label>${t("ac_new")}</label><input type="password" autocomplete="new-password" data-i="pw"><div class="bars"><i></i><i></i><i></i><i></i></div></div><div class="note er" style="grid-column:auto">${t("ac_pwn")}</div></div>`,foot:`<button class="b" data-a="mdClose">${t("close")}</button>`});
-A.demoReset=()=>ask(t("dm_sure"),()=>{const keep={lang:S.lang,theme:S.theme,in:true};S=Object.assign(DEF_S(),keep);DB=DEF_D();save();render()},t("dm_reset"));
-A.demoLoad=()=>{const co=S.comps[0].id,[sA,sS,sO]=S.stat.map(x=>x.id);S.stat.forEach((s,i)=>{if(s.w==null)s.w=i==0});
- const tr=(n,mk,md,y,mi,st,cab,p)=>({id:uid(),num:n,status:st,company:co,ins:"cov",own:"co",owner:"",year:y,make:mk,model:md,vin:"1FUJGHDV8KLK"+n.padStart(5,"0"),plate:p,cab,driver:"",miles:mi,tg:""}),T=[tr("4382","Freightliner","Cascadia",2019,412300,sA,addDays(today(),200),"P1215429"),tr("4391","Volvo","VNL 760",2020,298400,sA,addDays(today(),9),"P2281110"),tr("5120","Kenworth","T680",2021,201900,sS,addDays(today(),120),"P3350021"),tr("5127","Peterbilt","579",2018,538200,sO,addDays(today(),-4),"P4410088"),tr("6003","International","LT",2022,121000,sA,addDays(today(),300),"P5527763")];
- T[0].tg="-1001111111111";T[1].tg="-1002222222222";DB.trucks=T;
- DB.trailers=[["T-101","dry","ready"],["T-102","reefer","loaded"],["T-103","dry","parking"],["T-104","flat","shop"]].map(([n,ty,st],i)=>({id:uid(),num:n,type:ty,status:st,truck:i==1?T[0].id:"",loc:i==2?"Dallas yard":"",pnote:i==2?"Row B":"",company:co,ins:"cov",year:2020,model:"Utility",plate:"TR"+(1000+i),vin:"",notes:"",archived:false}));
- const D2=["Jake Miller","Sam Carter","Luis Ortega","Ali Karimov"].map((n,i)=>({id:uid(),name:n,mail:n.split(" ")[0].toLowerCase()+"@example.com",phone:"(555) 010-"+(2000+i),truck:T[i].id,duty:i==3?"off":"on",lic:addDays(today(),i==1?20:400),med:addDays(today(),i==2?-3:250)}));DB.drivers=D2;
- const pl=(tk,n,e,ed,lm,ld)=>({id:uid(),truck:tk.id,name:n,everyMi:e,everyDays:ed,lastMi:lm,lastDate:ld});
- DB.plans=[pl(T[0],"Oil change",25000,"",T[0].miles-23000,addDays(today(),-60)),pl(T[1],"Oil change",25000,180,T[1].miles-26500,addDays(today(),-200)),pl(T[2],"Brakes",100000,"",T[2].miles-40000,addDays(today(),-90)),pl(T[4],"Oil change",25000,"",T[4].miles-3000,addDays(today(),-20))];
- DB.svc=[{id:uid(),truck:T[0].id,plan:"Oil change",date:addDays(today(),-60),mi:T[0].miles-23000,cost:420,vendor:"Andy’s Truck Repair",note:""}];
- const[p1,p2,p3]=S.prio.map(x=>x.id),me=S.team[0].id;DB.issues=[{id:uid(),created:Date.now()-5e6,status:"open",title:"4382",desc:"Check engine light on",pr:p1,owner:me,sched:""},{id:uid(),created:Date.now()-4e6,status:"open",title:"T-104",desc:"Replace brake chambers",pr:p2,owner:"",sched:""},{id:uid(),created:Date.now()-3e6,status:"open",title:"",desc:"Renew IFTA decal",pr:p3,owner:me,sched:addDays(today(),1)}];
- DB.docs=[{id:uid(),kind:"truck",uid:T[0].id,type:"reg",title:"2026 registration",exp:addDays(today(),18),file:"reg-4382.pdf",vis:true,notes:""},{id:uid(),kind:"truck",uid:T[0].id,type:"ins",title:"",exp:addDays(today(),200),file:"",vis:true,notes:""},{id:uid(),kind:"trailer",uid:DB.trailers[0].id,type:"reg",title:"",exp:addDays(today(),-10),file:"",vis:true,notes:""}];
- DB.inv=[{id:uid(),date:addDays(today(),-12),truck:T[0].id,trailer:"",reason:"truck",method:"efs",desc:"Oil leak repair",amt:640,who:"co",split:[],sby:"pct",mgr:"",num:"1042",vendor:"Andy’s Truck Repair",notes:"",file:""},{id:uid(),date:addDays(today(),-5),truck:T[2].id,trailer:DB.trailers[3].id,reason:"tires",method:"cc",desc:"Two steer tires",amt:900,who:"sp",split:[{p:"co",v:60},{p:"dr",v:40}],sby:"pct",mgr:"",num:"7781",vendor:"Big Rig Tires",notes:"",file:""}];
- DB.vend=[{id:uid(),name:"Andy’s Truck Repair",addr:"1200 Industrial Blvd, Dallas, TX 75207",phone:"(214) 555-0142",web:"",notes:"Ask for Andy. Net 15."}];
- DB.insp=[{id:uid(),unit:"4382",kind:"pre",date:today(),result:"def",driver:D2[0].name,note:"Left marker light out",reviewed:false},{id:uid(),unit:"4391",kind:"pre",date:addDays(today(),-1),result:"ok",driver:D2[1].name,note:"",reviewed:false}];
- DB.pti={};T.slice(0,2).forEach(x=>{DB.pti[x.id]={};for(let i=1;i<=5;i++)DB.pti[x.id][addDays(today(),-i)]=(i==2&&x==T[1])?"no":"yes"});
- save();render();toast(t("dm_done"))};
-
-/* ===== COMPANIES: switcher, scoping, page, seed ===== */
-Object.assign(D,{
-companies:["Companies","Kompaniyalar","Компании"],
-cp_all:["All companies","Barcha kompaniyalar","Все компании"],
-cp_sub:["Every carrier you run. Pick one to see only its trucks, trailers and drivers.","Siz yuritadigan barcha kompaniyalar. Birini tanlasangiz, faqat uning truck, treyler va haydovchilari ko‘rinadi.","Все ваши перевозчики. Выберите один, чтобы видеть только его траки, трейлеры и водителей."],
-cp_open:["Open","Ochish","Открыть"],cp_cur:["Viewing","Ko‘rilmoqda","Просмотр"],
-cp_iss:["Open issues","Ochiq issue","Открытые задачи"],cp_iss_s:["open issues","ochiq issue","открытых задач"],cp_tr:["Trucks","Truck","Траки"],cp_tl:["Trailers","Treyler","Трейлеры"],cp_dr:["Drivers","Haydovchi","Водители"],
-cp_manage:["Manage companies","Kompaniyalarni boshqarish","Управление компаниями"],
-cp_new:["Company name","Kompaniya nomi","Название компании"],cp_add:["Add company","Kompaniya qo‘shish","Добавить компанию"],
-cp_seed:["Add the 14 companies","14 ta kompaniyani qo‘shish","Добавить 14 компаний"],
-cp_adm:["Only administrators can add or edit companies.","Kompaniyani faqat administrator qo‘shadi va tahrirlaydi.","Компании добавляет и меняет только администратор."]});
-const SEED14=["XZYRIA XPRESS INC","DOCK 2 DOCK FREIGHT LLC","KAIZEN LEASING","JMJK TRANSPORT LLC","NOVI TRUCKING INC","TURAN CARGO","RAWDEAL LOGISTICS LLC","B ONE TRUCKING","BELTRANS MVP INC","ESL TRUCKING LLC","TRANZIFY INC","EFRATOV INC","BILLAD TRUCKING LLC","DORAT LOGISTICS LLC"];
-const CO_COLORS=["#3b82f6","#22c55e","#f59e0b","#ef4444","#a855f7","#14b8a6","#ec4899","#84cc16","#f97316","#06b6d4","#6366f1","#eab308","#10b981","#e11d48"];
-function seedCompanies(){
- if(S.seed14)return;
- const only=S.comps.length==1&&S.comps[0].n=="TOPGFLEET"&&!DB.trucks.some(x=>x.company==S.comps[0].id)&&!DB.trailers.some(x=>x.company==S.comps[0].id);
- if(only)S.comps=[];
- SEED14.forEach((n,i)=>{if(!S.comps.some(c=>c.n.toLowerCase()==n.toLowerCase()))S.comps.push({id:uid(),n,c:CO_COLORS[i%CO_COLORS.length]})});
- S.seed14=1;save()}
-const myComps=()=>(typeof USER!="undefined"&&USER&&Array.isArray(USER.companies))?S.comps.filter(c=>USER.companies.includes(c.id)):S.comps;
-const canInt=()=>!(typeof SERVER!="undefined"&&SERVER&&USER)||USER.owner||(S.intEd||[]).includes(USER.id);
-const canComp=()=>!(typeof SERVER!="undefined"&&SERVER&&USER)||USER.owner||(S.compEd||[]).includes(USER.id);
-let DBR=null;const RD=()=>DBR||DB;
-function issN(cid){const low=x=>String(x||"").trim().toLowerCase(),d=RD(),nums=new Set([...d.trucks,...d.trailers].filter(x=>x.company==cid).map(x=>low(x.num)));return d.issues.filter(x=>x.status!="closed"&&nums.has(low(x.title))).length}
-const issPill=(n,txt)=>n?`<span class="tg" style="background:color-mix(in srgb,var(--rd) 18%,transparent);color:var(--rd)">${txt}</span>`:"";
-const respsOf=tm=>Array.isArray(tm.resps)?tm.resps:(tm.resp?[tm.resp]:[]);
-const teamOf=id=>(S.teams||[]).find(x=>x.id==id),teamIds=id=>{const tm=teamOf(id);return tm?tm.cos.filter(i=>myComps().some(c=>c.id==i)):[]};
-function curSel(){let v="all";try{v=localStorage.getItem("tf_cur")||"all"}catch(e){}if(v.slice(0,2)=="t:")return teamIds(v.slice(2)).length?v:"all";return v!="all"&&myComps().some(c=>c.id==v)?v:"all"}
-function curCo(){const v=curSel();return v.slice(0,2)=="t:"?"all":v}
-function setCur(v){try{localStorage.setItem("tf_cur",v)}catch(e){}}
-function scopeDB(real,cur){
- const low=x=>String(x||"").trim().toLowerCase();
- const set=new Set(cur.slice(0,2)=="t:"?teamIds(cur.slice(2)):[cur]),trucks=real.trucks.filter(x=>set.has(x.company)),trailers=real.trailers.filter(x=>set.has(x.company)),tid=new Set(trucks.map(x=>x.id)),rid=new Set(trailers.map(x=>x.id));
- const mine=new Set([...trucks,...trailers].map(x=>low(x.num))),known=new Set([...real.trucks,...real.trailers].map(x=>low(x.num))),ok=n=>!known.has(low(n))||mine.has(low(n));
- return Object.assign({},real,{trucks,trailers,
-  drivers:real.drivers.filter(x=>!x.truck||tid.has(x.truck)),issues:real.issues.filter(x=>ok(x.title)),plans:real.plans.filter(x=>tid.has(x.truck)),svc:real.svc.filter(x=>tid.has(x.truck)),
-  docs:real.docs.filter(x=>x.kind=="truck"?tid.has(x.uid):rid.has(x.uid)),inv:real.inv.filter(x=>(!x.truck||tid.has(x.truck))&&(!x.trailer||rid.has(x.trailer))),
-  links:real.links.filter(x=>rid.has(x.trailer)),hist:real.hist.filter(x=>rid.has(x.trailer)),insp:real.insp.filter(x=>ok(x.unit))})}
-function scoped(fn){const cur=curSel();if(cur=="all"||V=="companies"&&fn!==shell0)return fn();const real=DB;DBR=real;DB=scopeDB(real,cur);try{return fn()}finally{DB=real;DBR=null}}
-function coSwitch(){const L=myComps(),cur=curSel(),c=byId(S.comps,cur),tc=cur.slice(0,2)=="t:"?teamOf(cur.slice(2)):null;if(L.length<2&&cur=="all"&&L.length<1)return"";
- const n=co=>RD().trucks.filter(x=>x.company==co).length,tms=(S.teams||[]).filter(x=>teamIds(x.id).length),inTeam=new Set(tms.flatMap(x=>teamIds(x.id))),rest=L.filter(x=>!inTeam.has(x.id));
- const row=(x,ind)=>`<button class="pi" data-a="coPick" data-v="${x.id}" style="${ind?"padding-left:30px":""}">${dot(x.c)}<span style="flex:1">${esc(x.n)}</span><small class="mu">${n(x.id)}</small>${issPill(issN(x.id),issN(x.id))}${cur==x.id?ic("check",15):""}</button>`;
- return `<div class="pw"><button class="chip" data-a="shpop" data-p="cop" style="display:flex;align-items:center;gap:7px;border:1px solid var(--bd);background:var(--cd);color:var(--tx);border-radius:9px;padding:6px 10px;font:600 13px inherit;cursor:pointer" aria-label="${esc(t("companies"))}">${tc?ic("users",15)+esc(tc.n):c?dot(c.c)+esc(c.n):ic("store",15)+t("cp_all")}${ic("chev",14)}</button>
-<div class="pop sh" id="cop" style="width:310px;max-height:70vh;overflow:auto"><div class="ph"><span>${t("companies")}</span><span class="mu">${L.length}</span></div>
-<button class="pi" data-a="coPick" data-v="all">${ic("store",16)}<span style="flex:1">${t("cp_all")}</span>${cur=="all"?ic("check",15):""}</button>
-${tms.map(tm=>{const rs=respsOf(tm).map(id=>S.team.find(x=>x.id==id)).filter(Boolean);return `<div style="padding:8px 10px 2px;border-top:1px solid var(--ln);margin-top:4px"><button class="pi" data-a="coPick" data-v="t:${tm.id}" style="width:100%;padding:2px 4px;min-width:0">${ic("users",15)}<span style="flex:1;min-width:0"><b>${esc(tm.n)}</b>${rs.length?` <span class="mu">— ${rs.map(r=>esc(r.n)).join(", ")}</span>`:""}</span>${cur=="t:"+tm.id?ic("check",15):""}</button>${rs.some(r=>r.tg)?`<div style="display:flex;flex-wrap:wrap;gap:4px 12px;padding:0 4px 2px 26px">${rs.filter(r=>r.tg).map(r=>`<a href="https://t.me/${esc(r.tg)}" target="_blank" rel="noopener" style="color:var(--ac);font-size:calc(12px*var(--fz,1));white-space:nowrap">${ic("send",11)} @${esc(r.tg)}</a>`).join("")}</div>`:""}</div>${teamIds(tm.id).map(id=>row(byId(S.comps,id),true)).join("")}`}).join("")}
-${tms.length&&rest.length?`<div class="mu" style="padding:8px 12px 2px;border-top:1px solid var(--ln);margin-top:4px;font-size:calc(11px*var(--fz,1));text-transform:uppercase;letter-spacing:.06em">${t("gt_other")}</div>`:""}${rest.map(x=>row(x,false)).join("")}
-<button class="pi" data-a="nav" data-v="companies" style="justify-content:center;color:var(--ac)">${t("cp_manage")}</button></div></div>`}
-A.coPick=el=>{setCur(el.dataset.v);closePops();shellRefresh()};
-const isAdm=()=>typeof USER=="undefined"||!USER||USER.role=="admin";
-PAGES.companies=()=>{const L=myComps(),cur=curSel(),adm=isAdm()&&canComp(),tms=(S.teams||[]).filter(x=>teamIds(x.id).length),inT=new Set(tms.flatMap(x=>teamIds(x.id))),rest=L.filter(c=>!inT.has(c.id));
- const card=c=>{const T=DB.trucks.filter(x=>x.company==c.id),R=DB.trailers.filter(x=>x.company==c.id),ids=new Set(T.map(x=>x.id)),Dn=DB.drivers.filter(d=>d.truck&&ids.has(d.truck)).length,idx=S.comps.indexOf(c),used=T.length||R.length,iss=issN(c.id);
-  return `<div class="card" data-g="comps" data-n="${idx}" style="padding:14px;border-left:4px solid ${c.c}">
-<div style="display:flex;align-items:center;gap:8px;min-height:36px">${adm&&L.length==S.comps.length?`<span class="gr" data-g="comps" data-n="${idx}" title="${esc(t("drag"))}" aria-label="${esc(t("drag"))}">⠿</span>`:""}${adm?`<input type="color" value="${c.c}" data-c="coColor" data-n="${idx}" aria-label="color"><input type="text" value="${esc(c.n)}" data-c="coName" data-n="${idx}" style="flex:1;min-width:0">`:`${dot(c.c)}<b style="flex:1;min-width:0;overflow-wrap:anywhere">${esc(c.n)}</b>`}</div>
-<div style="display:flex;gap:18px;margin:12px 0"><span><b>${T.length}</b><br><small class="mu">${t("cp_tr")}</small></span><span><b>${R.length}</b><br><small class="mu">${t("cp_tl")}</small></span><span><b>${Dn}</b><br><small class="mu">${t("cp_dr")}</small></span><span><b style="${iss?"color:var(--rd)":""}">${iss}</b><br><small class="mu">${t("cp_iss")}</small></span></div>
-<div style="display:flex;gap:8px"><button class="b ${cur==c.id?"bp":""}" data-a="coPick" data-v="${c.id}" style="flex:1">${cur==c.id?t("cp_cur"):t("cp_open")}</button>${adm?`<button class="bi" data-a="coDel" data-n="${idx}" ${used||S.comps.length<2?"disabled":""} title="${used?esc(t("co_used")):""}" aria-label="${t("del")}">${ic("trash",15)}</button>`:""}</div></div>`};
- const grid=a=>`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px">${a.map(card).join("")}</div>`;
- const head=tm=>{const rs=respsOf(tm).map(id=>S.team.find(x=>x.id==id)).filter(Boolean),ids=teamIds(tm.id);return `<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:22px 0 10px"><span style="display:flex;align-items:center;gap:8px;font-size:calc(15px*var(--fz,1))">${ic("users",17)}<b>${esc(tm.n)}</b></span>${rs.length?`<span class="mu">— ${rs.map(r=>esc(r.n)).join(", ")}</span>`:""}${rs.filter(r=>r.tg).map(r=>`<a href="https://t.me/${esc(r.tg)}" target="_blank" rel="noopener" style="color:var(--ac);font-size:calc(12.5px*var(--fz,1));white-space:nowrap">${ic("send",11)} @${esc(r.tg)}</a>`).join("")}<span class="tg">${ids.length}</span>${issPill(ids.reduce((a,id)=>a+issN(id),0),ids.reduce((a,id)=>a+issN(id),0)+" "+t("cp_iss_s"))}<button class="b bs ${cur=="t:"+tm.id?"bp":""}" data-a="coPick" data-v="t:${tm.id}" style="margin-left:auto">${cur=="t:"+tm.id?t("cp_cur"):t("gt_open")}</button></div>`};
- return `<div class="pg"><div class="ph2"><div><h2 style="margin:0">${t("companies")}</h2><p class="mu" style="margin:4px 0 0">${t("cp_sub")}</p></div></div>
-${adm?"":`<p class="mu">${t("cp_adm")}</p>`}
-${tms.map(tm=>head(tm)+grid(teamIds(tm.id).map(id=>byId(S.comps,id)))).join("")}
-${tms.length&&rest.length?`<div style="display:flex;align-items:center;gap:8px;margin:22px 0 10px;font-size:calc(15px*var(--fz,1))">${ic("store",17)}<b>${t("gt_other")}</b><span class="tg">${rest.length}</span></div>`:`<div style="height:14px"></div>`}
-${grid(rest)}
-${adm?`<div class="card" style="padding:14px;margin-top:14px"><div class="pr"><input type="color" id="ncc" value="#3b82f6"><input id="ncn" placeholder="${esc(t("cp_new"))}" data-enter="coAdd"><button class="b" data-a="coAdd">${t("cp_add")}</button></div></div>`:""}</div>`};
-A.coPick=el=>{setCur(el.dataset.v);closePops();if(V=="companies")go("trucks");else shellRefresh()};
-
-/* ===== drag to reorder (mouse + touch) via the ⠿ handle ===== */
-Object.assign(D,{drag:["Drag to reorder","Tartibni o‘zgartirish uchun suring","Перетащите, чтобы изменить порядок"]});
-(()=>{let st=null;const lists={comps:()=>S.comps,prio:()=>S.prio,stat:()=>S.stat},after={comps:()=>refresh(),prio:()=>prioRefresh(),stat:()=>stRefresh()};
- const rowAt=(g,x,y)=>{const e=document.elementFromPoint(x,y),r=e&&e.closest&&e.closest('[data-g="'+g+'"]');return r&&r.dataset.n!==undefined?r:null};
- const clear=()=>$$(".dzt,.dzb,.dragging").forEach(e=>e.classList.remove("dzt","dzb","dragging"));
- document.addEventListener("pointerdown",e=>{const h=e.target.closest&&e.target.closest(".gr");if(!h||(e.button&&e.button!==0))return;if(h.dataset.g=="prio"&&!canPrio())return;if(h.dataset.g=="comps"&&!canComp())return;e.preventDefault();
-  st={g:h.dataset.g,from:+h.dataset.n,to:+h.dataset.n};const r=h.closest('[data-g]');r&&r.classList.add("dragging");document.body.style.userSelect="none"});
- document.addEventListener("pointermove",e=>{if(!st)return;const r=rowAt(st.g,e.clientX,e.clientY);$$(".dzt,.dzb").forEach(x=>x.classList.remove("dzt","dzb"));
-  if(r){const n=+r.dataset.n;st.to=n;if(n!==st.from)r.classList.add(n<st.from?"dzt":"dzb")}});
- const end=()=>{if(!st)return;const s=st;st=null;document.body.style.userSelect="";clear();if(s.to!==s.from){const L=lists[s.g]();const[x]=L.splice(s.from,1);L.splice(s.to,0,x);after[s.g]()}};
- document.addEventListener("pointerup",end);document.addEventListener("pointercancel",()=>{st=null;document.body.style.userSelect="";clear()})})();
-/* ===== EXPORT: real .xlsx and .pdf writers (no libraries) ===== */
-const CRCT=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
-const crc32=b=>{let c=~0;for(let i=0;i<b.length;i++)c=CRCT[(c^b[i])&255]^(c>>>8);return(~c)>>>0};
-const U8=s=>new TextEncoder().encode(s);
-function zipStore(files){const parts=[],cen=[];let off=0;
- const le=(n,b)=>{const a=new Uint8Array(b);for(let i=0;i<b;i++)a[i]=(n>>>(8*i))&255;return a};
- const cat=(...a)=>{const n=a.reduce((x,y)=>x+y.length,0),o=new Uint8Array(n);let p=0;a.forEach(y=>{o.set(y,p);p+=y.length});return o};
- files.forEach(([name,data])=>{const nm=U8(name),crc=crc32(data),h=cat(le(0x04034b50,4),le(20,2),le(0,2),le(0,2),le(0,2),le(0x21,2),le(crc,4),le(data.length,4),le(data.length,4),le(nm.length,2),le(0,2),nm);
-  parts.push(h,data);cen.push(cat(le(0x02014b50,4),le(20,2),le(20,2),le(0,2),le(0,2),le(0,2),le(0x21,2),le(crc,4),le(data.length,4),le(data.length,4),le(nm.length,2),le(0,2),le(0,2),le(0,2),le(0,2),le(0,4),le(off,4),nm));off+=h.length+data.length});
- const cd=cat(...cen);return cat(...parts,cd,le(0x06054b50,4),le(0,2),le(0,2),le(files.length,2),le(files.length,2),le(cd.length,4),le(off,4),le(0,2))}
-const xe=s=>String(s??"").replace(/[<>&"]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;"}[c])).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,"");
-const xcol=i=>{let s="";i++;while(i>0){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26)}return s};
-function xlsxBytes(cols,rows,sheet){
- const cell=(v,r,c,h)=>{const ref=xcol(c)+(r+1);if(typeof v=="number"&&isFinite(v))return `<c r="${ref}"><v>${v}</v></c>`;return `<c r="${ref}" t="inlineStr"${h?' s="1"':""}><is><t xml:space="preserve">${xe(v)}</t></is></c>`};
- const w=cols.map((c,i)=>Math.min(48,Math.max(8,String(c).length+2,...rows.map(r=>String(r[i]??"").length+2))));
- const sh=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>${w.map((x,i)=>`<col min="${i+1}" max="${i+1}" width="${x}" customWidth="1"/>`).join("")}</cols><sheetData><row r="1">${cols.map((c,i)=>cell(String(c),0,i,1)).join("")}</row>${rows.map((r,ri)=>`<row r="${ri+2}">${r.map((v,ci)=>cell(typeof v=="string"&&v!==""&&/^-?\d{1,15}(\.\d+)?$/.test(v)&&!/^0\d/.test(v)&&ci>=0&&COLNUM.has(cols[ci])?+v:v,ri+1,ci)).join("")}</row>`).join("")}</sheetData></worksheet>`;
- const F=[["[Content_Types].xml",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`],
- ["_rels/.rels",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`],
- ["xl/workbook.xml",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="${xe(String(sheet||"Sheet1").replace(/[\\\/?*\[\]:]/g,"").slice(0,31)||"Sheet1")}" sheetId="1" r:id="rId1"/></sheets></workbook>`],
- ["xl/_rels/workbook.xml.rels",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`],
- ["xl/styles.xml",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFE8EEF8"/></patternFill></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf/></cellStyleXfs><cellXfs count="2"><xf/><xf fontId="1" fillId="2" applyFont="1" applyFill="1"/></cellXfs></styleSheet>`],
- ["xl/worksheets/sheet1.xml",sh]];
- return zipStore(F.map(([n,s])=>[n,U8(s)]))}
-let COLNUM=new Set();
-const CYR={"а":"a","б":"b","в":"v","г":"g","д":"d","е":"e","ё":"yo","ж":"zh","з":"z","и":"i","й":"y","к":"k","л":"l","м":"m","н":"n","о":"o","п":"p","р":"r","с":"s","т":"t","у":"u","ф":"f","х":"kh","ц":"ts","ч":"ch","ш":"sh","щ":"shch","ъ":"","ы":"y","ь":"","э":"e","ю":"yu","я":"ya"};
-const asc=s=>String(s??"").replace(/•/g,"-").replace(/[‘’ʻʼ`]/g,"'").replace(/[“”]/g,'"').replace(/[–—]/g,"-").replace(/[А-Яа-яЁё]/g,c=>{const l=c.toLowerCase(),r=CYR[l]||"";return c==l?r:r.charAt(0).toUpperCase()+r.slice(1)}).replace(/[oO]ʻ/g,"o'").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^\x20-\x7e\xb7]/g,"?");
-const pe=s=>asc(s).replace(/[\\()]/g,"\\$&");
-function pdfBytes(title,cols,rows,sub){
- const W=842,H=595,M=34,fs=8.5,lh=14,CW=5.0;                       // A4 landscape, Helvetica 8.5pt (~avg glyph 5pt)
- const want=cols.map((c,i)=>Math.min(34,Math.max(String(c).length,...rows.map(r=>asc(r[i]).length))+2)),tot=want.reduce((a,b)=>a+b,0),sc=Math.min(1,(W-2*M)/(tot*CW)),cw=want.map(x=>x*CW*sc);
- const maxc=cw.map(x=>Math.max(3,Math.floor(x/(CW*sc))-1));
- const pages=[];let cur=null,y=0;
- const newPage=()=>{cur=[];pages.push(cur);y=H-M;cur.push(`BT /F2 14 Tf ${M} ${y} Td (${pe(title)}) Tj ET`);y-=16;if(sub){cur.push(`BT /F1 9 Tf ${M} ${y} Td (${pe(sub)}) Tj ET`);y-=16}head()};
- const rowTxt=(r,f)=>{let x=M;r.forEach((v,i)=>{let s=asc(v);if(s.length>maxc[i])s=s.slice(0,maxc[i]-1)+".";cur.push(`BT /${f} ${fs} Tf ${x} ${y} Td (${pe(s)}) Tj ET`);x+=cw[i]})};
- const head=()=>{cur.push(`0.9 0.93 0.97 rg ${M-3} ${y-4} ${W-2*M+6} ${lh} re f 0 g`);rowTxt(cols,"F2");y-=lh+2};
- newPage();rows.forEach((r,ri)=>{if(y<M+10){newPage()}if(ri%2)cur.push(`0.97 0.97 0.98 rg ${M-3} ${y-4} ${W-2*M+6} ${lh} re f 0 g`);rowTxt(r,"F1");y-=lh});
- pages.forEach((p,i)=>p.push(`BT /F1 7.5 Tf ${W-M-60} ${M-16} Td (${i+1} / ${pages.length}) Tj ET`));
- const objs=[];const add=s=>(objs.push(s),objs.length);
- add("<< /Type /Catalog /Pages 2 0 R >>");add("PAGES");const f1=add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>"),f2=add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>");
- const kids=[];pages.forEach(p=>{const body=p.join("\n"),c=add(`<< /Length ${body.length} >>\nstream\n${body}\nendstream`),pg=add(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 ${f1} 0 R /F2 ${f2} 0 R >> >> /Contents ${c} 0 R >>`);kids.push(pg+" 0 R")});
- objs[1]=`<< /Type /Pages /Kids [${kids.join(" ")}] /Count ${pages.length} >>`;
- let out="%PDF-1.4\n";const offs=[];objs.forEach((o,i)=>{offs.push(out.length);out+=`${i+1} 0 obj\n${o}\nendobj\n`});
- const xr=out.length;out+=`xref\n0 ${objs.length+1}\n0000000000 65535 f \n`+offs.map(o=>String(o).padStart(10,"0")+" 00000 n \n").join("")+`trailer\n<< /Size ${objs.length+1} /Root 1 0 R >>\nstartxref\n${xr}\n%%EOF`;
- return Uint8Array.from(out,c=>c.charCodeAt(0)&255)}
-function saveBlob(name,bytes,type){try{const u=URL.createObjectURL(new Blob([bytes],{type})),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000)}catch(e){toast(t("srv"),"er")}}
-const XLSX_T="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-const fdate=()=>new Date().toISOString().slice(0,10);
-function exportXlsx(name,cols,rows,sheet,numCols){COLNUM=new Set(numCols||[]);saveBlob(name+"-"+fdate()+".xlsx",xlsxBytes(cols,rows,sheet),XLSX_T)}
-function exportPdf(name,title,cols,rows,sub){saveBlob(name+"-"+fdate()+".pdf",pdfBytes(title,cols,rows,sub),"application/pdf")}
-/* truck report: On the board / All trucks, sort, copy, Excel, PDF */
-Object.assign(D,{rp_scope:["Show","Ko‘rsatish","Показать"],rp_board:["On the board","Taxtada","На доске"],rp_all:["All trucks","Barcha truck","Все траки"],rp_sort:["Sort","Saralash","Сортировка"],rp_st:["Status","Status","Статус"],rp_un:["Unit #","Unit #","Unit #"],rp_copy:["Copy text","Matnni nusxalash","Копировать текст"],rp_xl:["Excel","Excel","Excel"],rp_pdf:["PDF","PDF","PDF"],rp_own:["Ownership","Egalik","Владение"]});
-function trReportRows(scope,sort){let L=scope=="all"?DB.trucks.slice():trucksFiltered();const si=x=>{const i=S.stat.findIndex(s=>s.id==x.status);return i<0?99:i};
- L.sort(sort=="unit"?(a,b)=>natCmp(a.num,b.num):(a,b)=>si(a)-si(b)||natCmp(a.num,b.num));
- return L.map(tr=>{const d=driverOf(tr.id),s=statOf(tr.status),c=compOf(tr.company),tl=DB.trailers.find(x=>x.truck==tr.id&&!x.archived);return[tr.num,s?s.n:"",c?c.n:"",d?d.name:"",tl?tl.num:"",[tr.year,tr.make,tr.model].filter(Boolean).join(" "),tr.plate||"",OWNL[tr.own]||"",tr.miles===""||tr.miles==null?"":+tr.miles,tr.cab||""]})}
-A.trReport=()=>{const R=PG.rp=PG.rp||{scope:"board",sort:"status"},cols=[t("tl_unit"),t("tr_status"),t("tr_comp"),t("tr_driver"),t("hd_trailer"),t("tr_vehicle"),t("tr_plate"),t("rp_own"),t("tr_miles"),t("tr_cabs")];
- const draw=()=>{const rows=trReportRows(R.scope,R.sort);
-  modal({title:t("tr_rep"),icon:"file",w:900,sub:`${rows.length} ${t("t_total")}`,body:`<div class="row" style="gap:14px;margin-bottom:10px"><div class="tabs">${[["board",t("rp_board")],["all",t("rp_all")]].map(([k,l])=>`<button class="${R.scope==k?"on":""}" data-a="rpSet" data-k="scope" data-v="${k}">${l}</button>`).join("")}</div><div class="tabs">${[["status",t("rp_st")],["unit",t("rp_un")]].map(([k,l])=>`<button class="${R.sort==k?"on":""}" data-a="rpSet" data-k="sort" data-v="${k}">${t("rp_sort")}: ${l}</button>`).join("")}</div></div><div class="tw" style="max-height:52vh;overflow:auto"><table style="min-width:760px"><tr>${cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr>${rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</table></div>`,
-  foot:`<button class="b" id="rcp">${t("rp_copy")}</button><button class="b" id="rxl">${ic("dl",14)} ${t("rp_xl")}</button><button class="b bp" id="rpd">${ic("dl",14)} ${t("rp_pdf")}</button>`});
-  $("#rcp").onclick=()=>copyText([cols.join("\t")].concat(rows.map(r=>r.join("\t"))).join("\n"));
-  $("#rxl").onclick=()=>exportXlsx("trucks",cols,rows,t("tr_rep"),[t("tr_miles")]);
-  $("#rpd").onclick=()=>exportPdf("trucks",t("tr_rep"),cols,rows,`TOPGFLEET · ${new Date().toLocaleString()} · ${rows.length} ${t("t_total")}`)};
- A.rpSet=el=>{R[el.dataset.k]=el.dataset.v;draw()};draw()};
-
-/* ===== PDF documents with charts (invoice report) ===== */
-function PDFDoc(W0,H0){const W=W0||595,H=H0||842,M=40,pages=[];let cur=null,y=0;
- const rgb=h=>{h=String(h||"#000000").replace("#","");return[0,2,4].map(i=>(parseInt(h.substr(i,2),16)/255).toFixed(3)).join(" ")};
- const tw=(s,sz,b)=>{let w=0;for(const ch of asc(s))w+=/\d/.test(ch)?.556:/[A-Z]/.test(ch)?.68:ch==" "?.278:/[ilI.,:;'|!]/.test(ch)?.26:/[mwMW]/.test(ch)?.8:.52;return w*sz*(b?1.06:1)};
- const d={W,H,M,get y(){return y},set y(v){y=v},
-  page(){cur=[];pages.push(cur);y=H-M;return d},
-  need(h){if(!cur||y-h<M+16)d.page()},
-  text(s,x,sz,o){o=o||{};let X=x;if(o.right)X=x-tw(s,sz,o.b);else if(o.center)X=x-tw(s,sz,o.b)/2;cur.push(`BT /${o.b?"F2":"F1"} ${sz} Tf ${rgb(o.c||"#111111")} rg ${X.toFixed(1)} ${y.toFixed(1)} Td (${pe(s)}) Tj ET`)},
-  rect(x,yy,w,h,c){if(w>0&&h>0)cur.push(`${rgb(c)} rg ${x.toFixed(1)} ${yy.toFixed(1)} ${w.toFixed(1)} ${h.toFixed(1)} re f`)},
-  hr(c){cur.push(`${rgb(c||"#dddddd")} RG 0.6 w ${M} ${y.toFixed(1)} m ${W-M} ${y.toFixed(1)} l S`)},
-  fit(s,w,sz,b){s=asc(s);if(tw(s,sz,b)<=w)return s;while(s.length>1&&tw(s+"...",sz,b)>w)s=s.slice(0,-1);return s+"..."},
-  tw,
-  bytes(footer){const objs=[];const add=s=>(objs.push(s),objs.length);add("<< /Type /Catalog /Pages 2 0 R >>");add("PAGES");const f1=add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>"),f2=add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>"),kids=[];
-   pages.forEach((p,i)=>{const ft=[`BT /F1 8 Tf ${rgb("#888888")} rg ${M} 24 Td (${pe(footer||"")}) Tj ET`,`BT /F1 8 Tf ${rgb("#888888")} rg ${(W-M-tw("Page "+(i+1)+" of "+pages.length,8)).toFixed(1)} 24 Td (Page ${i+1} of ${pages.length}) Tj ET`],body=p.concat(ft).join("\n"),c=add(`<< /Length ${body.length} >>\nstream\n${body}\nendstream`),pg=add(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 ${f1} 0 R /F2 ${f2} 0 R >> >> /Contents ${c} 0 R >>`);kids.push(pg+" 0 R")});
-   objs[1]=`<< /Type /Pages /Kids [${kids.join(" ")}] /Count ${pages.length} >>`;let out="%PDF-1.4\n";const offs=[];objs.forEach((o,i)=>{offs.push(out.length);out+=`${i+1} 0 obj\n${o}\nendobj\n`});
-   const xr=out.length;out+=`xref\n0 ${objs.length+1}\n0000000000 65535 f \n`+offs.map(o=>String(o).padStart(10,"0")+" 00000 n \n").join("")+`trailer\n<< /Size ${objs.length+1} /Root 1 0 R >>\nstartxref\n${xr}\n%%EOF`;return Uint8Array.from(out,c=>c.charCodeAt(0)&255)}};
- return d}
-const BARC=["#6d5ae6","#3b82f6","#14b8a6","#f59e0b","#ec4899","#22c55e","#a855f7","#ef4444"];
-function pdfHBars(doc,title,rows,fmt){ // rows: [label, value]
- if(!rows.length)return;const tot=rows.reduce((s,r)=>s+r[1],0)||1,mx=Math.max(1,...rows.map(r=>r[1])),lw=120,rw=118,bx=doc.M+lw+8,bw=doc.W-doc.M-rw-bx;
- doc.need(40);doc.text(title,doc.M,11,{b:1});doc.y-=8;doc.hr();doc.y-=14;
- rows.forEach(([k,v],i)=>{doc.need(20);doc.text(doc.fit(k,lw,9,1),doc.M,9,{b:1});doc.rect(bx,doc.y-3,bw,10,"#eceef3");doc.rect(bx,doc.y-3,Math.max(1.5,bw*v/mx),10,BARC[i%BARC.length]);doc.text(fmt(v)+"  "+Math.round(v/tot*100)+"%",doc.W-doc.M,9,{right:1,b:1});doc.y-=19});
- doc.y-=6}
-function pdfVBars(doc,title,rows,fmt){ // months
- if(!rows.length)return;const mx=Math.max(1,...rows.map(r=>r[1])),ch=110,n=rows.length,gap=10,bw=Math.min(54,(doc.W-2*doc.M-gap*(n-1))/n);
- doc.need(ch+60);doc.text(title,doc.M,11,{b:1});doc.y-=8;doc.hr();doc.y-=16;const base=doc.y-ch,x0=doc.M+((doc.W-2*doc.M)-(n*bw+(n-1)*gap))/2;
- rows.forEach(([k,v],i)=>{const h=Math.max(1.5,ch*v/mx),x=x0+i*(bw+gap);doc.rect(x,base,bw,h,BARC[0]);const sv=doc.y;doc.y=base+h+4;doc.text(fmt(v),x+bw/2,8,{center:1,b:1});doc.y=base-12;doc.text(k,x+bw/2,8,{center:1,c:"#555555"});doc.y=sv});
- doc.y=base-30}
-function invoiceReportPdf(L,ord,det,m){ // m = {units:[[label,[inv],total]], reasonOf, unitOf}
- const doc=PDFDoc().page(),sum=L.reduce((s,x)=>s+(+x.amt||0),0),$$=n=>"$"+(+n||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
- doc.text("Invoice report",doc.M,20,{b:1});doc.y-=18;doc.text("TOPGFLEET  ·  "+new Date().toLocaleDateString("en-US",{year:"numeric",month:"short",day:"numeric"}),doc.M,9,{c:"#777777"});doc.y-=22;
- const kp=[["Total",$$(sum)],["Invoices",String(L.length)],["Units",String(m.units.length)],["Average",$$(L.length?sum/L.length:0)]],kw=(doc.W-2*doc.M-3*10)/4;
- kp.forEach(([k,v],i)=>{const x=doc.M+i*(kw+10);doc.rect(x,doc.y-30,kw,44,"#f3f4f8");const sv=doc.y;doc.y=sv-2;doc.text(k,x+10,8,{c:"#777777"});doc.y=sv-20;doc.text(v,x+10,13,{b:1});doc.y=sv});doc.y-=52;
- pdfHBars(doc,"By unit",m.units.map(u=>[u[0],u[2]]),$$);
- const R={};L.forEach(x=>{const k=m.reasonOf(x);R[k]=(R[k]||0)+(+x.amt||0)});pdfHBars(doc,"By reason",Object.entries(R).sort((a,b)=>b[1]-a[1]),$$);
- const M2={};L.forEach(x=>{const k=(x.date||"").slice(0,7)||"?";M2[k]=(M2[k]||0)+(+x.amt||0)});const mk=Object.keys(M2).sort().slice(-12);
- if(mk.length>1)pdfVBars(doc,"By month",mk.map(k=>[k=="?"?"?":new Date(k+"-15").toLocaleDateString("en-US",{month:"short",year:"2-digit"}),M2[k]]),$$);
- if(det){doc.page();doc.text("Invoices by unit",doc.M,14,{b:1});doc.y-=22;
-  m.units.forEach(([k,a,v])=>{doc.need(46);doc.rect(doc.M-4,doc.y-5,doc.W-2*doc.M+8,17,"#eef0f6");doc.text(doc.fit(k,300,10,1),doc.M,10,{b:1});doc.text($$(v),doc.W-doc.M,10,{right:1,b:1});doc.y-=20;
-   a.slice().sort((p,q)=>String(p.date).localeCompare(q.date)).forEach(x=>{doc.need(14);doc.text(x.date||"",doc.M,8.5,{c:"#555555"});doc.text(doc.fit(m.reasonOf(x),90,8.5),doc.M+62,8.5);doc.text(doc.fit(x.desc||"",doc.W-2*doc.M-62-90-80-70,8.5),doc.M+160,8.5,{c:"#555555"});doc.text(doc.fit(x.num?"#"+x.num:"",70,8.5),doc.W-doc.M-85,8.5,{right:1,c:"#777777"});doc.text($$(x.amt),doc.W-doc.M,8.5,{right:1});doc.y-=13});doc.y-=8})}
- return doc.bytes("TOPGFLEET · Invoice report")}
-/* ===== ATTACHMENTS: choose / drag & drop / paste, upload to the server ===== */
-Object.assign(D,{
-att_t:["Attachments","Fayllar","Файлы"],att_pick:["Choose files","Fayl tanlash","Выбрать файлы"],
-att_hint:["Or drag & drop here, or paste a screenshot (Ctrl+V). PDF, JPG, PNG up to 20 MB.","Yoki shu yerga tashlang, yoki rasmni qo‘ying (Ctrl+V). PDF, JPG, PNG, 20 MB gacha.","Или перетащите сюда, или вставьте скриншот (Ctrl+V). PDF, JPG, PNG до 20 МБ."],
-att_up:["Uploading…","Yuklanmoqda…","Загрузка…"],att_bad:["Only PDF, JPG or PNG files can be attached.","Faqat PDF, JPG yoki PNG biriktiriladi.","Можно прикрепить только PDF, JPG или PNG."],
-att_big:["That file is too large (max 20 MB).","Fayl juda katta (20 MB gacha).","Файл слишком большой (макс. 20 МБ)."],att_wait:["Wait until the upload finishes.","Yuklash tugashini kuting.","Дождитесь окончания загрузки."],
-att_rm:["Remove","Olib tashlash","Убрать"],att_fail:["Upload failed. Try again.","Yuklab bo‘lmadi. Qayta urining.","Не удалось загрузить. Повторите."],att_open:["Open","Ochish","Открыть"],att_old:["Earlier file name","Avvalgi fayl nomi","Прежнее имя файла"]});
-P.paperclip='<path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>';
-let FS={items:[],busy:0};
-const fsz=n=>n<1024?n+" B":n<1048576?Math.round(n/1024)+" KB":(n/1048576).toFixed(1)+" MB";
-function attField(f){FS={items:Array.isArray(f.val)?f.val.map(x=>({...x,done:1})):[],busy:0,old:f.old||""};
- return `<div class="fd"><label>${t("att_t")}</label><div id="dz" tabindex="0" style="border:1.5px dashed var(--bd);border-radius:12px;padding:12px;transition:.15s">
-<div class="row" style="gap:10px;flex-wrap:nowrap;align-items:center"><button type="button" class="b" data-a="fPick" style="flex:none">${ic("paperclip",15)} ${t("att_pick")}</button><span class="mu" style="font-size:calc(12px*var(--fz,1))">${t("att_hint")}</span></div>
-<input type="file" id="fin" multiple accept="application/pdf,image/*" hidden><input type="hidden" name="files" id="fval" value="[]"><div id="flist" style="margin-top:8px"></div></div></div>`}
-function fsDraw(){const L=$("#flist"),h=$("#fval");if(!L)return;
- h.value=JSON.stringify(FS.items.filter(x=>x.done).map(({id,name,type,size})=>({id,name,type,size})));
- L.innerHTML=(FS.old?`<div class="mu" style="font-size:calc(12px*var(--fz,1));margin-bottom:6px">${t("att_old")}: ${esc(FS.old)}</div>`:"")+FS.items.map((x,i)=>`<div class="row" style="gap:10px;flex-wrap:nowrap;padding:6px 0;border-top:1px solid var(--ln)">
-${x.type&&x.type.startsWith("image/")?`<img src="${x.prev||"/api/files/"+x.id}" alt="" style="width:38px;height:38px;object-fit:cover;border-radius:7px;flex:none">`:`<span style="width:38px;height:38px;border-radius:7px;background:var(--cd2,rgba(127,127,127,.15));display:grid;place-items:center;flex:none">${ic("file",16)}</span>`}
-<div style="flex:1;min-width:0"><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b>${esc(x.name)}</b></div><small class="mu">${x.err?`<span style="color:var(--rd)">${esc(x.err)}</span>`:x.done?fsz(x.size):t("att_up")}</small></div>
-${x.done?`<a class="b bs" href="/api/files/${x.id}" target="_blank" rel="noopener" style="text-decoration:none">${t("att_open")}</a>`:""}<button type="button" class="bi" data-a="fDel" data-n="${i}" aria-label="${t("att_rm")}">${ic("x",14)}</button></div>`).join("")}
-function shrink(file){return new Promise(res=>{const ok=/^image\/(jpeg|png)$/.test(file.type);
- if(!file.type.startsWith("image/")||(ok&&file.size<2.5e6))return res(file);
- const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{try{const m=2400,k=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);
-  c.toBlob(b=>{URL.revokeObjectURL(u);res(b?new File([b],file.name.replace(/\.[^.]+$/,"")+".jpg",{type:"image/jpeg"}):file)},"image/jpeg",.85)}catch(e){URL.revokeObjectURL(u);res(file)}};
- im.onerror=()=>{URL.revokeObjectURL(u);res(file)};im.src=u})}
-async function fsAdd(files){if(!$("#dz"))return;
- for(const f0 of files){const isPdf=f0.type=="application/pdf"||/\.pdf$/i.test(f0.name),isImg=f0.type.startsWith("image/");
-  if(!isPdf&&!isImg){toast(t("att_bad"),"er");continue}
-  const file=isPdf?(f0.type?f0:new File([f0],f0.name,{type:"application/pdf"})):await shrink(f0);
-  if(!/^(application\/pdf|image\/jpeg|image\/png)$/.test(file.type)){toast(t("att_bad"),"er");continue}
-  if(file.size>20*1048576){toast(t("att_big"),"er");continue}
-  const it={name:file.name||"file",type:file.type,size:file.size,done:0,prev:file.type.startsWith("image/")?URL.createObjectURL(file):""};FS.items.push(it);FS.busy++;fsDraw();
-  try{const r=await fetch("/api/files",{method:"POST",credentials:"same-origin",headers:{"Content-Type":file.type,"X-Filename":encodeURIComponent(it.name),"X-Requested-With":"tf"},body:file});
-   if(!r.ok)throw 0;const j=await r.json();it.id=j.id;it.done=1}catch(e){it.err=t("att_fail")}
-  FS.busy--;if(it.err){setTimeout(()=>{FS.items=FS.items.filter(x=>x!==it);fsDraw()},2500)}fsDraw()}}
-A.fPick=()=>{const i=$("#fin");if(i)i.click()};
-A.fDel=el=>{FS.items.splice(+el.dataset.n,1);fsDraw()};
-document.addEventListener("change",e=>{if(e.target&&e.target.id=="fin"){fsAdd([...e.target.files]);e.target.value=""}});
-["dragenter","dragover"].forEach(ev=>document.addEventListener(ev,e=>{const z=$("#dz");if(!z||!e.dataTransfer||![...e.dataTransfer.types].includes("Files"))return;e.preventDefault();z.style.borderColor="var(--ac)";z.style.background="color-mix(in srgb,var(--ac) 8%,transparent)"}));
-["dragleave","drop"].forEach(ev=>document.addEventListener(ev,e=>{const z=$("#dz");if(!z)return;if(ev=="dragleave"&&e.relatedTarget&&document.body.contains(e.relatedTarget))return;z.style.borderColor="";z.style.background=""}));
-document.addEventListener("drop",e=>{if(!$("#dz")||!e.dataTransfer)return;e.preventDefault();fsAdd([...e.dataTransfer.files])});
-document.addEventListener("paste",e=>{if(!$("#dz")||!e.clipboardData)return;const fl=[...e.clipboardData.files];if(fl.length){e.preventDefault();fsAdd(fl)}});
-const _drSave=A.drSave;A.drSave=function(){if(FS.busy>0&&$("#dz")){toast(t("att_wait"),"er");return}return _drSave.apply(this,arguments)};
-const parseFiles=s=>{try{const a=JSON.parse(s||"[]");return Array.isArray(a)?a.filter(x=>x&&/^[A-Za-z0-9_-]{1,40}$/.test(x.id)).map(x=>({id:x.id,name:String(x.name||"file").slice(0,120),type:x.type,size:+x.size||0})):[]}catch(e){return[]}};
-const attBadge=x=>x.files&&x.files.length?`<span class="mu" title="${esc(t("att_t"))}" style="display:inline-flex;align-items:center;gap:3px;font-size:calc(12px*var(--fz,1))">${ic("paperclip",12)}${x.files.length}</span>`:"";
-/* ===== INVOICES v2: unit record, chips, KPI cards, paged table, side panel, report (matches the reference) ===== */
-Object.assign(D,{
-ix_unit_ph:["Find a truck or trailer #","Truck yoki treyler raqami","Номер грузовика или прицепа"],
-ix_mrec_t:["Truck maintenance record","Truck servis tarixi","История обслуживания грузовика"],ix_mrec_l:["Trailer maintenance record","Treyler servis tarixi","История обслуживания прицепа"],
-ix_spent:["Spent to date","Hozirgacha sarflangan","Потрачено на сегодня"],ix_allf:["All time (filtered)","Hammasi (filtr bilan)","За всё время (с фильтром)"],ix_byr:["By reason (to date)","Sabab bo‘yicha","По причине"],
-ix_open_t:["Open truck page","Truck sahifasi","Страница грузовика"],ix_open_l:["Open trailer page","Treyler sahifasi","Страница прицепа"],ix_clr:["Clear unit","Unitni olib tashlash","Убрать юнит"],
-ix_tot:["Total to date","Jami (hozirgacha)","Всего на сегодня"],ix_oft:["of total","jamidan","от общего"],ix_inv:["invoices","ta hisob","счетов"],
-ix_q:["Search invoices…","Hisoblarni izlash…","Поиск счетов…"],ix_refresh:["Refresh","Yangilash","Обновить"],
-ix_h_date:["Date","Sana","Дата"],ix_h_unit:["Unit","Unit","Юнит"],ix_h_vendor:["Vendor","Servis","Подрядчик"],ix_h_reason:["Reason","Sabab","Причина"],ix_h_desc:["Description","Izoh","Описание"],ix_h_amt:["Amount","Summa","Сумма"],ix_h_via:["Paid via","To‘lov turi","Способ оплаты"],ix_h_chg:["Charged to","Kimdan","С кого"],ix_h_by:["Added by","Kim qo‘shgan","Кто добавил"],ix_h_mgr:["Manager","Menejer","Менеджер"],ix_h_act:["Actions","Amallar","Действия"],
-ix_view:["View","Ko‘rish","Открыть"],ix_dl:["Download file","Faylni yuklab olish","Скачать файл"],ix_send:["Send to Telegram","Telegramga yuborish","Отправить в Telegram"],ix_edit:["Edit","Tahrirlash","Изменить"],ix_nofile:["No file attached","Fayl biriktirilmagan","Файл не прикреплён"],
-ix_show:["Showing","Ko‘rsatilmoqda","Показано"],ix_of:["of","dan","из"],ix_prev:["Prev","Oldingi","Назад"],ix_next:["Next","Keyingi","Далее"],ix_life:["invoices lifetime","ta hisob (hammasi)","счетов за всё время"],
-ix_note:["An invoice on both a truck and a trailer counts each unit’s part (half each unless the invoice divides it differently).","Truck va treylerga bitta hisob bo‘lsa, har bir unit o‘z ulushini oladi (boshqacha bo‘linmasa, yarmi-yarmi).","Счёт на грузовик и прицеп делится между юнитами (поровну, если не указано иначе)."],
-ix_viewf:["View file","Faylni ochish","Открыть файл"],ix_d_vendor:["Vendor","Servis","Подрядчик"],ix_d_units:["Units","Unitlar","Юниты"],ix_d_desc:["Description","Izoh","Описание"],ix_d_paid:["Paid via","To‘lov turi","Способ оплаты"],ix_d_chg:["Charged to","Kimdan","С кого"],ix_d_mgr:["Manager","Menejer","Менеджер"],ix_d_by:["Added by","Kim qo‘shgan","Кто добавил"],ix_d_tg:["Telegram","Telegram","Telegram"],ix_posted:["Posted","Yuborilgan","Отправлено"],ix_notposted:["Not sent","Yuborilmagan","Не отправлено"],
-ix_tp:["Truck’s part $","Truckning ulushi $","Доля грузовика $"],ix_tp_h:["Only when you pick a truck and a trailer. Empty = half and half.","Faqat truck va treyler tanlanganda. Bo‘sh = yarmi-yarmi.","Только если выбраны грузовик и прицеп. Пусто = поровну."],
-ix_selall:["Select all","Hammasini tanlash","Выбрать все"],ix_selcnt:["{0} of {1} selected","{0} / {1} tanlangan","Выбрано {0} из {1}"],ix_nolink:["No link for this message. It was posted before links were saved, or the group is a basic group. Send it again from a supergroup to get the link.","Bu xabar uchun havola yo‘q: u havola saqlanishidan oldin yuborilgan yoki guruh oddiy guruh. Supergroup guruhga qayta yuborsangiz, havola chiqadi.","Для этого сообщения нет ссылки: оно отправлено до сохранения ссылок или группа обычная. Отправьте снова в супергруппу."],
-ix_resend_t:["Send to Telegram again?","Telegramga qayta yuborilsinmi?","Отправить в Telegram ещё раз?"],ix_resend_q:["Already sent on {0}. Do you want to send it again?","{0} sanasida allaqachon yuborilgan. Yana yuborilsinmi?","Уже отправлено {0}. Отправить ещё раз?"],ix_resend:["Send again","Qayta yuborish","Отправить снова"],ix_sent_t:["Sent {0} · click to send again","{0} yuborilgan · qayta yuborish uchun bosing","Отправлено {0} · нажмите, чтобы отправить снова"],ix_jump:["Open in the Telegram group","Telegram guruhda ochish","Открыть в группе Telegram"],
-ix_sent:["Sent to the Telegram group.","Telegram guruhga yuborildi.","Отправлено в группу Telegram."],ix_sent_no:["Telegram is not connected or the invoice group is not set.","Telegram ulanmagan yoki invoice guruhi kiritilmagan.","Telegram не подключён или не указана группа счетов."],
-ix_trucks:["Trucks","Truck‘lar","Грузовики"],ix_trailers:["Trailers","Treylerlar","Прицепы"],ix_rep_cov:["The report covers the invoices listed on the page now. To change what is in it, close this and change the dates, who pays or the other filters there.","Hisobot sahifadagi hisoblarni qamrab oladi. O‘zgartirish uchun buni yoping va sana, kim to‘lashi yoki boshqa filtrlarni o‘zgartiring.","Отчёт включает счета, показанные на странице. Чтобы изменить состав, закройте окно и поменяйте даты, плательщика или другие фильтры."],
-ix_allunits:["All units","Barcha unitlar","Все юниты"],ix_noun:["No unit","Unitsiz","Без юнита"]});
-const ivS2=()=>{const s=ivS();if(s.pg==null)s.pg=1;if(!s.tab)s.tab="unit";return s};
-const meName=()=>USER?USER.name:(S.name||"");
-const EN=k=>(D[k]||[k])[0];
-function uDesc(k,id){const y=byId(k=="t"?DB.trucks:DB.trailers,id);if(!y)return"";return k=="t"?[y.year,y.make,y.model].filter(Boolean).join(" "):[y.type,[y.make,y.model].filter(Boolean).join(" ")].filter(Boolean).join(" · ")}
-/* an invoice on a truck AND a trailer counts each unit's part: tp = truck's part, default half */
-function invParts(x){const m=+x.amt||0,a=x.truck&&byId(DB.trucks,x.truck),b=x.trailer&&byId(DB.trailers,x.trailer),r2=v=>Math.round(v*100)/100;
- if(a&&b){const tp=x.tp===undefined||x.tp===null||x.tp===""?r2(m/2):Math.min(m,Math.max(0,+x.tp||0));return[{k:"t",id:a.id,num:a.num,n:"Truck #"+a.num,a:tp},{k:"l",id:b.id,num:b.num,n:"Trailer #"+b.num,a:r2(m-tp)}]}
- if(a)return[{k:"t",id:a.id,num:a.num,n:"Truck #"+a.num,a:m}];if(b)return[{k:"l",id:b.id,num:b.num,n:"Trailer #"+b.num,a:m}];return[]}
-function unitSel(){const s=ivS();if(!s.unit)return null;const n=s.unit.toLowerCase(),tr=DB.trucks.find(y=>String(y.num).toLowerCase()==n);if(tr)return{k:"t",o:tr,label:"Truck #"+tr.num,desc:uDesc("t",tr.id)};const tl=DB.trailers.find(y=>String(y.num).toLowerCase()==n);if(tl)return{k:"l",o:tl,label:"Trailer #"+tl.num,desc:uDesc("l",tl.id)};return null}
-const partOf=(x,u)=>{if(!u)return+x.amt||0;const p=invParts(x).find(q=>q.id==u.o.id);return p?p.a:0};
-const allocOf=(x,part)=>{const a=invAlloc(x),m=+x.amt||0,f=m?part/m:0;return{co:a.co*f,ow:a.ow*f,dr:a.dr*f}};
-function ivTotals(L,u){const T={tot:0,co:0,ow:0,dr:0};L.forEach(x=>{const p=partOf(x,u),a=allocOf(x,p);T.tot+=p;T.co+=a.co;T.ow+=a.ow;T.dr+=a.dr});return T}
-const pct=(v,t0)=>t0?Math.round(v/t0*100):0;
-const WHOSHORT={co:["Company","Kompaniya","Компания"],ow:["Owner","Egasi","Владелец"],dr:["Driver","Driver","Водитель"],sp:["Split","Bo‘lingan","Разделён"]};
-const whoTxt=k=>{const e=WHOSHORT[k]||WHOSHORT.co;return e[LG.indexOf(S.lang)]||e[0]};
-const whoChip2=x=>{const k=x.who||"co",c={co:"#3b82f6",ow:"#a855f7",dr:"#f59e0b",sp:"#14b8a6"}[k]||"#3b82f6";return `<span class="tg" style="color:${c};background:transparent;border:1px solid ${c}">${whoTxt(k)}</span>`};
-const unitChip=(label,k)=>`<span class="tg" style="color:${k=="t"?"#a78bfa":"#60a5fa"};background:color-mix(in srgb,${k=="t"?"#8b5cf6":"#3b82f6"} 18%,transparent)">${esc(label)}</span>`;
-function exUnits(){const m={};DB.inv.forEach(x=>invParts(x).forEach(p=>{const e=m[p.k+p.id]||(m[p.k+p.id]={n:p.n,v:0,c:0});e.v+=p.a;e.c++}));return Object.values(m).sort((a,b)=>b.v-a.v)}
-function ivBreak2(L,k,u){const m={};L.forEach(x=>{const part=partOf(x,u);if(k=="unit"){const ps=invParts(x).filter(p=>!u||p.id==u.o.id);if(!ps.length)m[t("ix_noun")]=(m[t("ix_noun")]||0)+part;ps.forEach(p=>m[p.n]=(m[p.n]||0)+p.a);return}
- if(k=="who"){const a=allocOf(x,part);[["co","iv_cp"],["ow","iv_op"],["dr","iv_dp"]].forEach(([w,l])=>{if(a[w]>0)m[t(l)]=(m[t(l)]||0)+a[w]});return}
- const key=k=="reason"?t("r_t_"+x.reason):k=="month"?(x.date||"").slice(0,7)||"?":t("pm_"+x.method);m[key]=(m[key]||0)+part});
- return Object.entries(m).sort((a,b)=>k=="month"?b[0].localeCompare(a[0]):b[1]-a[1])}
-const PER=10;
-PAGES.invoices=()=>{const s=ivS2(),L=invFiltered(),u=unitSel(),T=ivTotals(L,u),mx2=0;
- const ex=exUnits().slice(0,5),br=ivBreak2(L,s.tab,u),mx=Math.max(1,...br.map(x=>x[1])),pages=Math.max(1,Math.ceil(L.length/PER));if(s.pg>pages)s.pg=pages;
- const rows=L.slice((s.pg-1)*PER,s.pg*PER),hasV=L.some(x=>x.vendor);
- const sv=s.per;s.per="all";const Lall=u?invFiltered():[];s.per=sv;const Tall=u?ivTotals(Lall,u):null;
- const byRs=u?(()=>{const m={};L.forEach(x=>{const k=t("r_t_"+x.reason);m[k]=(m[k]||0)+partOf(x,u)});return Object.entries(m).sort((a,b)=>b[1]-a[1])})():[];
- const per=[["all",t("iv_all")],["month",t("iv_month")],["30",t("iv_30")],["90",t("iv_90")],["year",t("iv_year")]];
- const kp=(k,l,v,c)=>`<button class="ivk ${s.who==k?"on":""}" data-a="ivWho" data-v="${k}"><small>${c?`<i style="background:${c}"></i>`:""}${l}</small><b>${money(v)}</b><em>${k?pct(v,T.tot)+"% "+t("ix_oft"):L.length+" "+t("ix_inv")}</em></button>`;
- const pgBtns=(()=>{const a=[],add=n=>a.push(`<button class="${n==s.pg?"on":""}" data-a="ivPg" data-v="${n}">${n}</button>`);const w=new Set([1,2,3,4,pages,s.pg-1,s.pg,s.pg+1].filter(n=>n>=1&&n<=pages)),ns=[...w].sort((p,q)=>p-q);let last=0;ns.forEach(n=>{if(n-last>1)a.push(`<span class="mu">…</span>`);add(n);last=n});return a.join("")})();
- return `<div class="pg w ivx"><div class="row" style="margin-bottom:12px;gap:10px"><div style="flex:1;min-width:240px;max-width:520px">${u&&!s.edit?`<div class="ivu" data-a="ivUnitEdit"><b>${esc(u.label)}</b><span class="mu">${esc(u.desc)}</span><button class="bi" data-a="ivUnitClr" aria-label="${t("ix_clr")}">${ic("x",14)}</button><span class="mu">${ic("chev",14)}</span></div>`:`<div class="ivu">${ic("srch",15)}<input data-i="ivUnit" id="ivu" list="units" value="${esc(s.unit)}" placeholder="${esc(t("ix_unit_ph"))}" aria-label="${esc(t("ix_unit_ph"))}">${unitList()}${s.unit?`<button class="bi" data-a="ivUnitClr" aria-label="${t("ix_clr")}">${ic("x",14)}</button>`:""}</div>`}</div>
-<span style="flex:1"></span><div class="gs" style="width:200px;display:block">${ic("srch",15)}<input data-i="ivQ" value="${esc(s.q)}" placeholder="${esc(t("ix_q"))}" aria-label="${esc(t("ix_q"))}"></div><button class="b" data-a="ivRefresh" title="${esc(t("ix_refresh"))}" aria-label="${esc(t("ix_refresh"))}">${ic("refresh",14)}</button><button class="b" data-a="ivExport" ${L.length?"":"disabled"}>${ic("dl",14)} ${t("iv_exp")}</button><button class="b" data-a="ivReport">${ic("file",14)} ${t("iv_rep")}</button><button class="b bp" data-a="addInv">${ic("plus",15)} ${t("iv_add")}</button></div>
-<div class="row" style="margin-bottom:14px;gap:8px">${sgH(per,s.per,"ivPer")}<input type="date" data-c="ivDate" data-k="a" value="${s.a||""}" style="width:140px" aria-label="from"><span class="mu">${t("iv_to")}</span><input type="date" data-c="ivDate" data-k="b" value="${s.b||""}" style="width:140px" aria-label="to">
-<select class="sel" style="width:auto" data-c="ivF" data-k="rs"><option value="">${t("iv_allr")}</option>${optH(REASONS.map(k=>[k,t("r_t_"+k)]),s.rs)}</select><select class="sel" style="width:auto" data-c="ivF" data-k="pm"><option value="">${t("iv_allm")}</option>${optH(METHODS.map(k=>[k,t("pm_"+k)]),s.pm)}</select><select class="sel" style="width:auto" data-c="ivF" data-k="who"><option value="">${t("iv_allp")}</option>${optH([["co",t("iv_cp")],["ow",t("iv_op")],["dr",t("iv_dp")],["sp",t("w_sp")]],s.who)}</select></div>
-${u?`<div class="card cp" style="margin-bottom:14px"><div class="row" style="align-items:flex-start;gap:10px"><div style="flex:1"><div class="lbl" style="margin:0 0 6px">${t(u.k=="t"?"ix_mrec_t":"ix_mrec_l")}</div><div><b style="font-size:calc(22px*var(--fz,1))">#${esc(u.o.num)}</b> <span class="mu" style="font-size:calc(13px*var(--fz,1))">${esc(u.desc)}</span></div></div><button class="b bs" data-a="ivOpenUnit">${t(u.k=="t"?"ix_open_t":"ix_open_l")}</button><button class="b bs" data-a="ivUnitClr">${ic("x",12)} ${t("ix_clr")}</button></div>
-<div class="ivg"><div class="ivm"><small>${t("ix_spent")}</small><b>${money(T.tot)}</b><em>${L.length} ${t("ix_inv")}</em></div><div class="ivm"><small>${t("ix_allf")}</small><b>${money(Tall.tot)}</b><em>${Lall.length} ${t("ix_inv")}</em></div><div class="ivm" style="flex:2"><small>${t("ix_byr")}</small>${byRs.length?byRs.map(([k,v])=>{const m=byRs[0][1]||1;return `<div class="row" style="gap:8px;flex-wrap:nowrap;margin:4px 0"><span style="width:90px;font-size:calc(12px*var(--fz,1))">${esc(k)}</span><div style="flex:1;height:7px;border-radius:4px;background:var(--p2)"><div style="height:7px;border-radius:4px;background:var(--ac);width:${Math.round(v/m*100)}%"></div></div><span style="width:90px;text-align:right;font-size:calc(12px*var(--fz,1))">${money(v)}</span></div>`}).join(""):`<div class="mu">–</div>`}</div></div></div>`:""}
-<div class="ivkw">${kp("",t("ix_tot"),T.tot)}${kp("co",t("iv_cp"),T.co,"#3b82f6")}${kp("ow",t("iv_op"),T.ow,"#a855f7")}${kp("dr",t("iv_dp"),T.dr,"#f59e0b")}</div>
-${!DB.inv.length?`<div class="card">${empty("receipt",t("iv_noyet"),`<button class="b bp" data-a="addInv">${t("iv_first")}</button>`)}</div>`:`<div class="ivl"><div class="card" style="margin:0"><div class="row" style="padding:12px 14px 6px"><b style="font-size:calc(12px*var(--fz,1));letter-spacing:.04em;text-transform:uppercase;color:var(--mu)">${t("invoices")}</b><span class="tg">${L.length}</span></div>
-${rows.length?`<div class="tw"><table class="ivt"><tr><th>${t("ix_h_date")}</th><th>${t("ix_h_unit")}</th>${hasV?`<th>${t("ix_h_vendor")}</th>`:""}<th>${t("ix_h_reason")}</th><th>${t("ix_h_desc")}</th><th style="text-align:right">${t("ix_h_amt")}</th><th>${t("ix_h_via")}</th><th>${t("ix_h_chg")}</th><th>${t("ix_h_by")}</th><th>${t("ix_h_mgr")}</th><th>${t("ix_h_act")}</th></tr>${rows.map(x=>{const ps=invParts(x),both=ps.length==2,hasF=x.files&&x.files.length;return `<tr class="rw" data-a="ivView" data-id="${x.id}"><td style="white-space:nowrap">${fd(x.date)}</td><td>${ps.map(p=>`<div style="margin:1px 0">${unitChip(p.n,p.k)}</div>`).join("")||"–"}</td>${hasV?`<td>${esc(x.vendor||"–")}</td>`:""}<td><span class="tg">${esc(t("r_t_"+x.reason))}</span></td><td><div class="dsc" title="${esc(x.desc||"")}">${esc(x.desc||"–")}</div>${x.num?`<div class="mu" style="font-size:calc(11px*var(--fz,1))">#${esc(x.num)}</div>`:""}</td><td style="text-align:right;white-space:nowrap"><b>${money(x.amt)}</b>${both?`<div class="mu" style="font-size:calc(11px*var(--fz,1))">${ps.map(p=>(p.k=="t"?"Truck ":"Trailer ")+money(p.a)).join("<br>")}</div>`:""}</td><td style="white-space:nowrap">${t("pm_"+x.method)}</td><td>${whoChip2(x)}</td><td style="white-space:nowrap">${x.by?esc(x.by):"–"}<div class="mu" style="font-size:calc(11px*var(--fz,1))">${x.byAt?fd(x.byAt):""}</div></td><td>${esc(x.mgr||"–")}</td><td style="white-space:nowrap"><div class="row" style="gap:4px;flex-wrap:nowrap"><button class="b bs" data-a="ivView" data-id="${x.id}" title="${esc(t("ix_view"))}" aria-label="${esc(t("ix_view"))}">${ic("eye",13)}</button><button class="bi" data-a="ivDl" data-id="${x.id}" title="${esc(t(hasF?"ix_dl":"ix_nofile"))}" aria-label="${esc(t("ix_dl"))}" ${hasF?"":"disabled"}>${ic("dl",14)}</button>${ivSendBtn(x)}<button class="bi" data-a="openInv" data-id="${x.id}" title="${esc(t("ix_edit"))}" aria-label="${esc(t("ix_edit"))}">${ic("pen",14)}</button></div></td></tr>`}).join("")}</table></div>
-<div class="row" style="justify-content:space-between;padding:10px 14px"><span class="mu" style="font-size:calc(12px*var(--fz,1))">${t("ix_show")} ${(s.pg-1)*PER+1}–${Math.min(L.length,s.pg*PER)} ${t("ix_of")} ${L.length}</span><div class="sg"><button data-a="ivPg" data-v="${s.pg-1}" ${s.pg<=1?"disabled":""}>${t("ix_prev")}</button>${pgBtns}<button data-a="ivPg" data-v="${s.pg+1}" ${s.pg>=pages?"disabled":""}>${t("ix_next")}</button></div></div>`:`<div class="em" style="padding:30px">${t("iv_none")}</div>`}</div>
-<div class="card cp" style="margin:0"><div class="lbl" style="margin-top:0">${t("iv_exu")}</div>${ex.length?ex.map((e,i)=>`<div class="row ivx-ex" data-a="ivPick" data-n="${esc(e.n.replace(/^(Truck|Trailer) #/,""))}" style="gap:10px;flex-wrap:nowrap;cursor:pointer"><span class="ivn">${i+1}</span><div style="flex:1;min-width:0"><b>${esc(e.n)}</b><div class="mu" style="font-size:calc(11px*var(--fz,1))">${e.c} ${t("ix_life")}</div></div><b>${money(e.v)}</b></div>`).join(""):`<div class="mu">${t("iv_noyet")}</div>`}
-<div class="lbl" style="margin-top:18px">${t("iv_brk")}</div>${sgH([["unit",t("iv_bu")],["reason",t("iv_br")],["month",t("iv_bm")],["who",t("iv_bp")],["pm",t("iv_bpm")]],s.tab,"ivTab")}
-<div style="margin-top:10px">${br.length?br.slice(0,12).map(([n,v])=>`<div style="margin:8px 0"><div class="row" style="justify-content:space-between;font-size:calc(12.5px*var(--fz,1))"><b>${esc(n)}</b><b>${money(v)}</b></div><div style="height:6px;border-radius:3px;background:var(--p2);margin-top:3px"><div style="height:6px;border-radius:3px;background:var(--ac);width:${Math.max(1,Math.round(v/mx*100))}%"></div></div></div>`).join(""):`<div class="mu">${t("iv_nb")}</div>`}</div>
-<p class="mu" style="font-size:calc(11.5px*var(--fz,1));margin:14px 0 0">${t("ix_note")}</p></div></div>`}</div>`};
-/* filters and navigation */
-const ivReset=()=>{ivS2().pg=1};
-I.ivQ=el=>{const s=ivS2();s.q=el.value;ivReset();page();const i=$('[data-i="ivQ"]');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}};
-I.ivUnit=el=>{const s=ivS2();s.unit=el.value.trim();ivReset();if(unitSel())s.edit=false;else s.edit=true;page();const i=$("#ivu");if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}};
-A.ivUnitClr=()=>{const s=ivS2();s.unit="";s.edit=false;ivReset();page()};A.ivUnitEdit=()=>{ivS2().edit=true;page();const i=$("#ivu");if(i){i.focus();i.select()}};
-A.ivPick=el=>{const s=ivS2();s.unit=el.dataset.n;s.edit=false;ivReset();page()};
-C.ivF=el=>{const s=ivS2();s[el.dataset.k]=el.value;ivReset();page()};
-A.ivPer=el=>{const s=ivS2();s.per=el.dataset.v;s.a="";s.b="";ivReset();page()};
-C.ivDate=el=>{const s=ivS2();s[el.dataset.k]=el.value;if(s.a||s.b)s.per="custom";ivReset();page()};
-A.ivWho=el=>{const s=ivS2();s.who=s.who==el.dataset.v?"":el.dataset.v;ivReset();page()};
-A.ivTab=el=>{ivS2().tab=el.dataset.v;page()};A.ivPg=el=>{const n=+el.dataset.v;if(n>=1){ivS2().pg=n;page()}};
-A.ivRefresh=()=>{if(SERVER&&typeof pullRemote=="function")Promise.resolve(pullRemote(true)).then(()=>page());else page()};
-A.ivOpenUnit=()=>{const u=unitSel();if(!u)return;go(u.k=="t"?"trucks":"trailers");setTimeout(()=>{if(u.k=="t"&&typeof openTruck=="function")openTruck(u.o.id)},60)};
-/* one invoice, side panel */
-function ivKV(l,v){return `<div class="row" style="gap:10px;flex-wrap:nowrap;padding:7px 0;border-top:1px solid var(--ln)"><span class="mu" style="width:110px;flex:none;font-size:calc(12px*var(--fz,1))">${l}</span><span style="flex:1;min-width:0;word-break:break-word">${v}</span></div>`}
-let IVS={id:null,sel:{},cur:0};
-const ivFiles=x=>{const fl=x.files||[],ch=fl.filter(f=>IVS.sel[f.id]);return ch.length?ch:fl};
-A.ivView=el=>{const x=byId(DB.inv,el.dataset.id);if(!x)return;IVS={id:x.id,sel:{},cur:0};const fl=x.files||[],ps=invParts(x),img=f=>f&&f.type&&f.type.startsWith("image/");
- const rows=fl.map((f,i)=>`<label class="ivfr"><input type="checkbox" data-c="ivSel" data-f="${f.id}"><span class="ico" style="width:30px;height:30px">${ic(img(f)?"file":"file",14)}</span><span style="flex:1;min-width:0"><b class="ivfn" data-a="ivPrev" data-n="${i}">${esc(f.name)}</b><span class="mu" style="font-size:calc(11.5px*var(--fz,1));display:block">${fsz(f.size)}</span></span></label>`).join("");
- const files=fl.length?`<div class="ivfh"><label class="row" style="gap:8px;cursor:pointer"><input type="checkbox" data-c="ivAll"><b style="font-size:calc(12.5px*var(--fz,1))">${t("ix_selall")}</b></label><span class="mu" id="ivcnt" style="font-size:calc(12px*var(--fz,1))">${t("ix_selcnt",0,fl.length)}</span></div><div class="ivfl">${rows}</div>
- <div class="row" style="gap:8px;margin:10px 0 4px"><button class="b" data-a="ivViewF">${ic("eye",14)} ${t("ix_viewf")}</button><button class="b" data-a="ivDlF">${ic("dl",14)} ${t("ix_dl")}</button></div><div id="ivprev"></div>`:`<div class="em" style="padding:26px;border:1px dashed var(--ln);border-radius:10px">${t("ix_nofile")}</div>`;
- const tg=x.tg?`${t("ix_posted")} ${fd(x.tg)} ${x.tgm&&x.tgm.link?`<button class="b bs" data-a="ivJump" data-id="${x.id}" style="margin-left:8px">${ic("link",12)} ${t("ix_jump")}</button>`:`<button class="b bs" data-a="ivJump" data-id="${x.id}" style="margin-left:8px;opacity:.7">${ic("link",12)} ${t("ix_jump")}</button>`}`:t("ix_notposted");
- drawer({title:`${money(x.amt)} <span class="mu" style="font-size:calc(13px*var(--fz,1));font-weight:500">${fd(x.date)} · ${esc(t("r_t_"+x.reason))}</span>`,sub:t("invoices").replace(/s$/,""),icon:"receipt",
-  body:`${files}
-<div style="margin-top:14px">${ivKV(t("ix_d_vendor"),esc(x.vendor||"–"))}${ivKV(t("ix_d_units"),ps.map(p=>unitChip(p.n,p.k)+(ps.length==2?` <span class="mu">${money(p.a)}</span>`:"")).join(" ")||"–")}${ivKV(t("ix_d_desc"),esc(x.desc||"–").replace(/\n/g,"<br>"))}${ivKV(t("ix_d_paid"),esc(t("pm_"+x.method)))}${ivKV(t("ix_d_chg"),whoChip2(x))}${ivKV(t("ix_d_mgr"),esc(x.mgr||"–"))}${ivKV(t("ix_d_by"),x.by?esc(x.by)+(x.byAt?" · "+fd(x.byAt):""):"–")}${ivKV(t("ix_d_tg"),tg)}</div>`,
-  foot:`<button class="b" data-a="drClose" style="flex:1">${t("close")}</button>`});
- if(fl.length)ivShowPrev(x,0)};
-function ivShowPrev(x,i){const f=(x.files||[])[i],el=document.getElementById("ivprev");if(!f||!el)return;IVS.cur=i;el.innerHTML=f.type&&f.type.startsWith("image/")?`<img src="/api/files/${f.id}" alt="" style="width:100%;max-height:360px;object-fit:contain;border-radius:10px;background:var(--p2)">`:""}
-A.ivPrev=el=>{const x=byId(DB.inv,IVS.id);if(x){el.closest("label").querySelector("input").checked=el.closest("label").querySelector("input").checked;ivShowPrev(x,+el.dataset.n)}};
-const ivCnt=()=>{const x=byId(DB.inv,IVS.id);if(!x)return;const n=Object.values(IVS.sel).filter(Boolean).length,c=document.getElementById("ivcnt");if(c)c.textContent=t("ix_selcnt",n,(x.files||[]).length);const al=document.querySelector("[data-c=ivAll]");if(al)al.checked=n&&n==(x.files||[]).length};
-C.ivSel=el=>{IVS.sel[el.dataset.f]=el.checked;ivCnt()};
-C.ivAll=el=>{const x=byId(DB.inv,IVS.id);(x&&x.files||[]).forEach(f=>IVS.sel[f.id]=el.checked);document.querySelectorAll("[data-c=ivSel]").forEach(i=>i.checked=el.checked);ivCnt()};
-A.ivViewF=()=>{const x=byId(DB.inv,IVS.id);if(!x)return;ivFiles(x).forEach(f=>window.open("/api/files/"+f.id,"_blank","noopener"))};
-A.ivDlF=()=>{const x=byId(DB.inv,IVS.id);if(!x)return;ivFiles(x).forEach((f,i)=>setTimeout(()=>{const a=document.createElement("a");a.href="/api/files/"+f.id;a.download=f.name;document.body.appendChild(a);a.click();a.remove()},i*350))};
-
-A.ivDl=el=>{const x=byId(DB.inv,el.dataset.id),f=x&&x.files&&x.files[0];if(!f){toast(t("ix_nofile"),"er");return}const a=document.createElement("a");a.href="/api/files/"+f.id;a.download=f.name||"invoice";document.body.appendChild(a);a.click();a.remove()};
-const ivDoSend=async x=>{if(!SERVER){toast(t("ix_sent_no"),"er");return}closeMd();const r=await api("POST","/api/invoices/"+encodeURIComponent(x.id)+"/telegram",{});if(r.s==200&&r.j&&r.j.ok){x.tg=r.j.tg||today();if(r.j.tgm)x.tgm=r.j.tgm;refresh();toast(t("ix_sent"))}else toast(t("ix_sent_no"),"er")};
-A.ivSend=el=>{const x=byId(DB.inv,el.dataset.id);if(!x)return;if(!x.tg){ivDoSend(x);return}
- modal({title:t("ix_resend_t"),icon:"send",w:420,body:`<p class="mu" style="margin:0">${t("ix_resend_q",esc(x.tg))}</p>`,foot:`<button class="b" data-a="mdClose">${t("cancel")}</button><button class="b bp" data-a="ivSend2" data-id="${x.id}">${ic("send",14)} ${t("ix_resend")}</button>`})};
-A.ivSend2=el=>{const x=byId(DB.inv,el.dataset.id);if(x)ivDoSend(x)};
-A.ivJump=el=>{const x=byId(DB.inv,el.dataset.id);if(!x)return;if(x.tgm&&x.tgm.link)window.open(x.tgm.link,"_blank","noopener");else toast(t("ix_nolink"),"er")};
-const ivSendBtn=x=>{const sent=!!x.tg,lk=sent;return (lk?`<button class="bi" data-a="ivJump" data-id="${x.id}" title="${esc(t("ix_jump"))}" aria-label="${esc(t("ix_jump"))}" style="color:var(--ac)">${ic("link",14)}</button>`:"")+`<button class="bi" data-a="ivSend" data-id="${x.id}" title="${esc(sent?t("ix_sent_t",x.tg):t("ix_send"))}" aria-label="${esc(t("ix_send"))}" style="color:var(--gn)">${ic(sent?"check":"send",14)}</button>`};
-const _ivExport=A.ivExport;
-A.ivExport=()=>{const L=invFiltered();download("invoices.csv",csv([t("ix_h_date"),t("ix_h_unit"),t("ix_h_reason"),t("ix_h_desc"),t("ix_h_amt"),t("ix_h_via"),t("ix_h_chg"),t("iv_num"),t("m_vendor"),t("ix_h_by"),t("ix_h_mgr")],L.map(x=>[x.date,invUnits(x),t("r_t_"+x.reason),x.desc,x.amt,t("pm_"+x.method),x.who=="sp"?t("w_sp"):whoTxt(x.who||"co"),x.num,x.vendor,x.by||"",x.mgr||""])))};
-
-/* ===== report model, modal and PDF ===== */
-function irModel(L,u,ord,det){const m={};L.forEach(x=>invParts(x).filter(p=>!u||p.id==u.o.id).forEach(p=>{const e=m[p.k+p.id]||(m[p.k+p.id]={k:p.k,id:p.id,num:p.num,n:p.n,desc:uDesc(p.k,p.id),rows:[],spent:0});e.rows.push({x,part:p.a,other:invParts(x).find(q=>q.id!=p.id)});e.spent+=p.a}));
- const cmp=ord=="exp"?(a,b)=>b.spent-a.spent||natCmp(a.num,b.num):(a,b)=>natCmp(a.num,b.num),all=Object.values(m),tr=all.filter(e=>e.k=="t").sort(cmp),tl=all.filter(e=>e.k=="l").sort(cmp),T=ivTotals(L,u);
- const s=ivS(),per=s.per=="custom"?`${s.a?fd(s.a):"…"} – ${s.b?fd(s.b):"…"}`:({all:EN("iv_all"),month:EN("iv_month"),30:EN("iv_30"),90:EN("iv_90"),year:EN("iv_year")})[s.per]||EN("iv_all");
- return{u,tr,tl,T,det,ord,L,period:per,co:(typeof curCo=="function"&&curCo()&&(compOf(curCo())||{}).n)||"TOPGFLEET",sum:T.tot,spent:e=>e.spent}}
-const irPlural=(n,w)=>n+" "+w+(n==1?"":"s");
-A.ivReport=()=>{const L=invFiltered(),u=unitSel();if(!L.length){modal({title:t("ir_t"),icon:"file",w:420,body:`<div class="em">${t("ir_none")}</div>`,foot:`<button class="b" data-a="mdClose">${t("close")}</button>`});return}
- const st=PG.ir={ord:"exp",det:true},draw=()=>{const M=irModel(L,u,st.ord,st.det);PG.irM=M;  const list=(arr,name,c)=>arr.length?`<div class="irg"><i style="background:${c}"></i><b>${name}</b></div>`+arr.map(e=>`<div class="iru"><b>${esc(e.n)}</b> <span class="mu">${esc(e.desc)}</span></div>`).join(""):"";
-  $("#irb").innerHTML=`<div class="ivkw" style="margin:0 0 12px">${[["","TOTAL",M.T.tot],["#3b82f6",t("iv_cp").toUpperCase(),M.T.co],["#a855f7",t("iv_op").toUpperCase(),M.T.ow],["#f59e0b",t("iv_dp").toUpperCase(),M.T.dr]].map(([c,l,v],i)=>`<div class="ivk" style="cursor:default"><small>${c?`<i style="background:${c}"></i>`:""}${l}</small><b>${money(v)}</b><em>${i?pct(v,M.T.tot)+"% "+t("ix_oft"):L.length+" "+t("ix_inv")}</em></div>`).join("")}</div><div class="irbox"><div class="mu" style="font-size:calc(11px*var(--fz,1));letter-spacing:.05em;padding:8px 12px;border-bottom:1px solid var(--ln)">UNIT</div>${list(M.tr,t("ix_trucks"),"#3b82f6")}${list(M.tl,t("ix_trailers"),"#f97316")}</div>`;
-  const sub=$("#irsub");if(sub)sub.textContent=`${M.period}${u?" · "+u.label:""} · ${L.length} ${t("ix_inv")} · ${M.tr.length} ${M.tr.length==1?"truck":"trucks"} · ${M.tl.length} ${M.tl.length==1?"trailer":"trailers"} · ${money(M.T.tot)}`};
- modal({title:t("ir_t"),sub:`<span id="irsub"></span>`,icon:"file",w:760,body:`<div class="row" style="margin-bottom:10px;gap:14px"><span class="mu" style="font-size:calc(11px*var(--fz,1));letter-spacing:.05em">${t("ir_units").toUpperCase()}</span>${sgH([["exp",t("ir_exp1")],["num",t("ir_num")]],"exp","irOrd")}<span class="mu" style="font-size:calc(11px*var(--fz,1));letter-spacing:.05em">PDF</span>${sgH([["1",t("ir_with")],["0",t("ir_diag")]],"1","irDet")}</div><p class="mu" style="font-size:calc(12px*var(--fz,1));margin:0 0 12px">${t("ix_rep_cov")}</p><div id="irb"></div>`,foot:`<button class="b bp" id="irp">${ic("file",14)} ${t("ir_dl")}</button>`});
- PG.irRe=draw;draw();$("#irp").onclick=()=>{const M=irModel(L,u,st.ord,st.det);saveBlob("invoice-report-"+fdate()+".pdf",irPdf(M),"application/pdf")}};
-/* the PDF: same layout as the reference (Letter, spending by unit with bars, invoices by unit) */
-function irPdf(M){const W=612,Mg=40,R=W-Mg,doc=PDFDoc(612,792).page(),$$=n=>"$"+(+n||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}),u=M.u,tz=new Date().toLocaleString("en-US",{month:"2-digit",day:"2-digit",year:"numeric",hour:"numeric",minute:"2-digit",timeZoneName:"short"}).replace(",",""),
- T=(s,x,sz,o,yb)=>{doc.y=yb;doc.text(s,x,sz,o)},BLUE="#2f6fdc",ORG="#ee6a39",GREY="#6b7280",dmy=d=>{const p=String(d||"").split("-");return p.length==3?`${p[1]}/${p[2]}/${p[0]}`:""},
- share=(v)=>{const p=M.sum?v/M.sum*100:0;return v<=0?"0%":p<0.5?"<1%":Math.round(p)+"%"},
- foot=`TOPGFLEET · Invoice report · ${M.period}${u?" · "+u.label:""} · ${tz}`,nTr=M.tr.length,nTl=M.tl.length,
- sumTr=M.tr.reduce((a,e)=>a+e.spent,0),sumTl=M.tl.reduce((a,e)=>a+e.spent,0),tot=`${irPlural(M.L.length,"invoice")} · ${u?"1 "+(u.k=="t"?"truck":"trailer"):irPlural(nTr,"truck")+" · "+irPlural(nTl,"trailer")} · ${$$(M.T.tot)}`.replace(/ · 0 trailers/,"").replace(/ · 0 trucks/,"");
- doc.y=792-48;doc.text(M.co,Mg,10,{b:1,c:"#6b7280"});doc.y-=30;doc.text("Invoice report",Mg,26,{b:1,c:"#14161a"});doc.y-=22;doc.text(M.period+(u?" · "+u.label:""),Mg,12.5,{c:"#222222"});doc.y-=15;
- doc.text(`${irPlural(M.L.length,"invoice")} · ${u?"1 "+(u.k=="t"?"truck":"trailer"):irPlural(nTr,"truck")+" · "+irPlural(nTl,"trailer")} · made ${tz}`,Mg,9,{c:GREY});doc.y-=12;
- if(u){doc.text(`Only this ${u.k=="t"?"truck":"trailer"}'s part of each invoice is counted.`,Mg,9,{c:GREY});doc.y-=12}
- doc.y-=8;{const top=doc.y,kw=(R-Mg-3*10)/4;[["#ffffff","TOTAL",M.T.tot,M.L.length+" invoices"],["#3b82f6","COMPANY PAYS",M.T.co,pct(M.T.co,M.T.tot)+"% of total"],["#a855f7","OWNER PAYS",M.T.ow,pct(M.T.ow,M.T.tot)+"% of total"],["#f59e0b","DRIVER PAYS",M.T.dr,pct(M.T.dr,M.T.tot)+"% of total"]].forEach(([c,l,v,s2],i)=>{const x=Mg+i*(kw+10);doc.rect(x,top-50,kw,50,"#f3f4f7");let tx=x+12;if(i){doc.rect(x+12,top-17,6,6,c);tx=x+22}T(l,tx,7.5,{b:1,c:GREY},top-16);T($$(v),x+12,15,{b:1,c:"#14161a"},top-33);T(s2,x+12,8,{c:GREY},top-44)});doc.y=top-50-26}
- const hdr=cols=>{const top=doc.y;doc.rect(Mg,top-20,R-Mg,20,"#e6e9ef");cols.forEach(([s,x,r])=>T(s,x,7.5,{b:1,c:GREY,right:!!r},top-13.5));doc.y=top-20},
-  band=(name,color,right,cont)=>{const top=doc.y;doc.rect(Mg,top-22,R-Mg,22,"#eef0f5");doc.rect(Mg+7,top-15,8,8,color);T(name+(cont?" (continued)":""),Mg+22,10.5,{b:1,c:"#14161a"},top-15.5);T(right,R-8,10,{b:1,right:1,c:"#14161a"},top-15.5);doc.y=top-22},
-  total=()=>{doc.need(40);const top=doc.y;doc.rect(Mg,top-22,R-Mg,22,"#e6e9ef");T("Total",Mg+8,10.5,{b:1,c:"#14161a"},top-15.5);T(tot,R-8,10,{b:1,right:1,c:"#14161a"},top-15.5);doc.y=top-22};
- doc.y-=2;doc.text("Spending by unit",Mg,17,{b:1,c:"#14161a"});doc.y-=14;doc.text(u?"This unit with invoices in this report. All bars are on one scale.":"Every truck and trailer with invoices in this report, the most expensive first. All bars are on one scale.",Mg,9,{c:GREY});doc.y-=10;
- const SC=[["UNIT",Mg+8,0],["SPENT",479,1],["SHARE",515,1],["INVOICES",566,1]],gmax=Math.max(1,...M.tr.concat(M.tl).map(e=>e.spent));
- let hdDone=false;const grpRows=(arr,name,color,sum,cnt)=>{if(!arr.length)return;let first=true;arr.forEach(e=>{
-   if(doc.y-(first?44:22)-6<56){const c=!first;doc.page();doc.y=792-40;hdr(SC);hdDone=true;band(name,color,cnt+" · "+$$(sum),c);first=false}
-   else if(first){if(!hdDone){hdr(SC);hdDone=true}band(name,color,cnt+" · "+$$(sum));first=false}
-   const top=doc.y;T(e.n,Mg+6,9.5,{b:1,c:"#14161a"},top-15);const lx=Mg+6+doc.tw(e.n,9.5,1)+5;T(doc.fit(e.desc,229-8-lx,8),lx,8,{c:"#7b8190"},top-15);
-   const bw=Math.max(e.spent>0?1.6:0,165*e.spent/gmax);doc.rect(229,top-16,bw,9,color);T($$(e.spent),479,9.5,{b:1,right:1,c:"#14161a"},top-15);T(share(e.spent),515,9,{right:1,c:"#7b8190"},top-15);T(String(e.rows.length),566,9,{right:1,c:"#7b8190"},top-15);doc.y=top-22;doc.hr("#e4e6eb")})};
- grpRows(M.tr,"Trucks",BLUE,sumTr,irPlural(nTr,"truck"));grpRows(M.tl,"Trailers",ORG,sumTl,irPlural(nTl,"trailer"));total();
- if(M.det){if(doc.y<300){doc.page();doc.y=792-48}else doc.y-=28;doc.text("Invoices by unit",Mg,17,{b:1,c:"#14161a"});doc.y-=14;doc.text(u?`Each invoice with this ${u.k=="t"?"truck":"trailer"}'s part of it.`:"An invoice on both a truck and a trailer is listed under each, with that unit's part of it.",Mg,9,{c:GREY});doc.y-=10;
-  const DC=[["DATE",Mg+6,0],["WHAT IT WAS FOR",106,0],["PAID VIA",342,0],["CHARGED TO",423,0],["AMOUNT",566,1]],units=M.tr.concat(M.tl);let hd=false;
-  const wrap=(s,w,sz)=>{const out=[];String(s||"").split(/\n/).forEach(line=>{let cur="";line.split(/\s+/).filter(Boolean).forEach(wd=>{const nx=cur?cur+" "+wd:wd;if(doc.tw(nx,sz)<=w)cur=nx;else{if(cur)out.push(cur);cur=wd}});out.push(cur)});return out.filter((l,i,a)=>l||a.length==1)};
-  units.forEach(e=>{const color=e.k=="t"?BLUE:ORG,gname=`${e.n}${e.desc?" · "+e.desc:""}`,gright=`${irPlural(e.rows.length,"invoice")} · ${$$(e.spent)}`;let first=true,alt=0;
-   e.rows.slice().sort((a,b)=>String(b.x.date).localeCompare(String(a.x.date))).forEach(({x,part,other})=>{
-    let L=wrap(asc(x.desc||""),228,8.8);if(L.length>3){L=L.slice(0,3);L[2]=L[2].replace(/\s*\S*$/,"")+"..."}if(!L.length)L=[""];
-    const sub=EN("r_t_"+x.reason)+(other?` · part of ${$$(+x.amt||0)}, shared with ${other.n}`:""),h=9+L.length*11+11+6;
-    if(doc.y-(first?22:0)-h<56){doc.page();doc.y=792-40;hdr(DC);band(gname,color,gright,true);first=false;hd=true}else if(!hd){hdr(DC);hd=true}
-    if(first){band(gname,color,gright);first=false}
-    const top=doc.y;if(alt%2)doc.rect(Mg,top-h,R-Mg,h,"#f6f7f9");alt++;
-    T(dmy(x.date),Mg+6,9,{c:"#222222"},top-15);L.forEach((l,i)=>T(l,106,8.8,{c:"#14161a"},top-15-i*11));T(doc.fit(sub,230,7.5),106,7.5,{c:"#8a909c"},top-15-L.length*11-1);
-    T(EN("pm_"+x.method),342,9,{c:"#222222"},top-15);T(whoTxtEn(x.who||"co"),423,9,{c:"#222222"},top-15);T($$(part),566,9.5,{b:1,right:1,c:"#14161a"},top-15);doc.y=top-h});
-   doc.y-=0});
-  total()}
- return doc.bytes(foot)}
-const whoTxtEn=k=>(WHOSHORT[k]||WHOSHORT.co)[0];
-/* ===== VENDORS: Google Maps ===== */
-Object.assign(D,{
-
-
-vm_load:["Loading the map…","Xarita yuklanmoqda…","Загрузка карты…"],
-
-
-vm_save:["Save as vendor","Servis sifatida saqlash","Сохранить как подрядчика"],vm_saved:["Saved","Saqlandi","Сохранено"],
-vm_inv:["invoices","faktura","счетов"],vm_dir:["Directions","Yo‘nalish","Маршрут"],vm_call:["Call","Qo‘ng‘iroq","Позвонить"],vm_site:["Website","Sayt","Сайт"],
-vm_edit:["Edit","Tahrirlash","Изменить"],
-vm_newinv:["Invoice from this vendor","Shu servisdan faktura","Счёт от этого подрядчика"],vm_recent:["Recent invoices","So‘nggi fakturalar","Последние счета"],
-vm_spend:["Spend","Xarajat","Расход"],vm_noinv:["No invoices from this vendor yet.","Bu servisdan hali faktura yo‘q.","Счетов от этого подрядчика пока нет."],
-vm_imp:["Import from Google Maps","Google Maps’dan import","Импорт из Google Maps"],
-vm_imp_s:["Bring in your saved places. Supported files: KML (My Maps), Saved Places .json (Google Takeout) and Takeout list .csv.","Saqlangan joylaringizni olib kiring. Fayllar: KML (My Maps), Saved Places .json (Google Takeout) va Takeout ro‘yxat .csv.","Загрузите сохранённые места. Файлы: KML (My Maps), Saved Places .json (Google Takeout) и список .csv из Takeout."],
-vm_imp_h:["My Maps: ⋮ menu → Export to KML/KMZ → untick “Export as KMZ” → Download. Takeout: takeout.google.com → Maps (your places) or Saved.","My Maps: ⋮ menyu → Export to KML/KMZ → “Export as KMZ” belgisini oling → Download. Takeout: takeout.google.com → Maps (your places) yoki Saved.","My Maps: меню ⋮ → Export to KML/KMZ → снимите «Export as KMZ» → Download. Takeout: takeout.google.com → Maps (your places) или Saved."],
-
-vm_imp_done:["Imported {0} vendors ({1} skipped).","{0} ta servis import qilindi ({1} ta o‘tkazib yuborildi).","Импортировано подрядчиков: {0} (пропущено: {1})."],
-vm_imp_err:["Could not read this file.","Faylni o‘qib bo‘lmadi.","Не удалось прочитать файл."],
-vm_imp_prog:["Importing… {0} / {1}","Import qilinmoqda… {0} / {1}","Импорт… {0} / {1}"],
-vm_free_t:["Show your Google map here","Google xaritangizni shu yerda ko‘rsating","Покажите здесь вашу карту Google"],
-vm_free_s:["Paste the link of your Google My Maps map. It appears here for the whole team, free of charge.","Google My Maps xaritangiz havolasini qo‘ying. U butun jamoaga shu yerda ko‘rinadi, bepul.","Вставьте ссылку на вашу карту Google My Maps. Она появится здесь для всей команды, бесплатно."],
-vm_free_h:["In My Maps: Share → set “Anyone with the link can view” → copy the link (or Embed on my site code).","My Maps’da: Share → “Anyone with the link can view” ni tanlang → havolani (yoki Embed on my site kodini) nusxalang.","В My Maps: Share → «Anyone with the link can view» → скопируйте ссылку (или код Embed on my site)."],
-vm_free_ph:["https://www.google.com/maps/d/viewer?mid=…","https://www.google.com/maps/d/viewer?mid=…","https://www.google.com/maps/d/viewer?mid=…"],
-vm_free_bad:["This link has no map id (mid=…). Copy the My Maps link again.","Havolada xarita ID (mid=…) yo‘q. My Maps havolasini qaytadan nusxalang.","В ссылке нет идентификатора карты (mid=…). Скопируйте ссылку My Maps ещё раз."],
-vm_free_mine:["My map","Mening xaritam","Моя карта"],vm_free_only:["The owner or an admin has not connected the map yet.","Owner yoki admin xaritani hali ulamagan.","Владелец или админ ещё не подключил карту."],
-
-vm_link:["Add from Google link","Google havolasidan qo‘shish","Добавить по ссылке Google"],
-vm_link_s:["Open the shop in Google Maps, copy the full address-bar link and paste it here. The name and pin are filled in for you.","Ustaxonani Google Maps’da oching, manzil satridagi to‘liq havolani nusxalab shu yerga qo‘ying. Nomi va joyi o‘zi to‘ldiriladi.","Откройте мастерскую в Google Maps, скопируйте полную ссылку из адресной строки и вставьте сюда. Название и метка заполнятся сами."],
-vm_link_bad:["Could not read this link. Use the long link from the address bar (google.com/maps/place/…).","Havolani o‘qib bo‘lmadi. Manzil satridagi uzun havoladan foydalaning (google.com/maps/place/…).","Не удалось прочитать ссылку. Используйте длинную ссылку из адресной строки (google.com/maps/place/…)."],
-
-vm_from:["From: your location","Qayerdan: joylashuvingiz","Откуда: ваше местоположение"],vm_to:["To: shop, address or saved vendor","Qayerga: servis, manzil yoki saqlangan servis","Куда: мастерская, адрес или сохранённый"],vm_dirs:["Directions","Yo‘nalish olish","Маршрут"],
-vm_big:["Enlarge map","Xaritani kattalashtirish","Увеличить карту"],vm_small:["Exit full screen","Kichraytirish","Свернуть"],
-vm_pl_tab:["Map shops","Xaritadagi do‘konlar","Места на карте"],vm_pl_none:["No shops found on the map yet.","Xaritada hali do‘kon topilmadi.","На карте пока нет мест."],vm_pl_err:["Could not read the map list. Make sure the map is shared with “Anyone with the link”.","Xarita ro‘yxatini o‘qib bo‘lmadi. Xarita “Anyone with the link” bilan ulashilganini tekshiring.","Не удалось прочитать список. Убедитесь, что карта открыта по ссылке."],
-
-});
-const VM={tab:"mine"};
-const vnStat=v=>{const n=(v.name||"").trim().toLowerCase(),L=DB.inv.filter(x=>(x.vendor||"").trim().toLowerCase()==n&&n);return{n:L.length,sum:L.reduce((a,x)=>a+(+x.amt||0),0),L}};
-const vnUrl=v=>/^https?:\/\//i.test(v.web||"")?v.web:v.web?"https://"+v.web:"";
-function vnMsg(h){const m=$("#vmsg");if(m){m.innerHTML=h?`<div class="vnMsg">${h}</div>`:"";m.style.display=h?"flex":"none"}}
-PAGES.vendors=()=>{PG.after=vnInit;
- return `<div class="pg w"><div class="row" id="vtop" style="margin:4px 0 12px;flex-wrap:wrap;gap:10px"><div class="card cp vnQ" id="vbar" style="flex:1 1 560px;min-width:0"><div class="row vnQs" id="vqs" style="flex-wrap:nowrap;flex:1;min-width:0"><input id="vmq" value="${esc(PG.vmq||"")}" placeholder="${esc(t("vn_q"))}" aria-label="${esc(t("vn_q"))}" data-i="vnQ0" data-enter="vnSearch" style="border:0;background:none;flex:2;min-width:0"><button class="b bp" data-a="vnSearch">${ic("srch",14)} <span class="vnHide">${t("vn_search")}</span></button></div>
-</div>${vnOwn()?`<button class="b" data-a="vnLink">${ic("link",15)} <span class="vnHide">${t("vm_link")}</span></button><button class="b" data-a="vnMapSet">${ic("pin",15)} <span class="vnHide">${t("vm_free_mine")}</span></button><button class="b" data-a="vnImport">${ic("up2",15)} <span class="vnHide">${t("vm_imp")}</span></button>`:""}<button class="b" data-a="addVendor">${ic("plus",15)} <span class="vnHide">${t("vn_add")}</span></button></div>
-<div class="row" style="margin-bottom:10px"><span class="mu">${t("vn_part")}</span>${[1,2,3,4,5].map(i=>`<button class="b bs" data-a="vnChip" data-q="${esc(D["vn_c"+i][0])}">${t("vn_c"+i)}</button>`).join("")}</div>
-<div class="vnWrap"><div class="card vnSide"><div class="vnTabs"><button class="${VM.tab=="mine"?"on":""}" data-a="vnTab" data-v="mine">${t("vn_mine")} <b id="vnN1">${DB.vend.length}</b></button><button class="${VM.tab=="pl"?"on":""}" data-a="vnTab" data-v="pl">${t("vm_pl_tab")} <b id="vnN3">${(VM.pl||[]).length}</b></button></div><div class="vnList" id="vlist"></div><div class="vnList" id="vplwrap" style="display:none"><input class="vnPlQ vnSrch" data-i="vnPlQ" placeholder="${esc(t("vm_shopq"))}" value="${esc(VM.plq||"")}"><div id="vplist"></div></div></div>
-<div class="card vnMapBox" id="vbox"><div id="vmap"></div><button class="vnFs" id="vfsOn" data-a="vnFull" title="${esc(t("vm_big"))}" aria-label="${esc(t("vm_big"))}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button><button class="vnFsOff" data-a="vnFull"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg> ${t("vm_small")}</button><div id="vmsg" style="display:flex"><div class="vnMsg">${t("vm_load")}</div></div></div></div></div>`};
-I.vnQ0=el=>{PG.vmq=el.value};I.vnN0=el=>{PG.vmn=el.value};I.vnRF=el=>{PG.vrf=el.value};I.vnRT=el=>{PG.vrt=el.value};
-A.vnSwap=()=>{const a=$("#vrf"),b=$("#vrt");if(!a||!b)return;const x=a.value;a.value=b.value;b.value=x;PG.vrf=a.value;PG.vrt=b.value};
-/*vnFull defined below*/
-document.addEventListener("keydown",e=>{if(e.key=="Escape"){const b=$("#vbox");if(b&&b.classList.contains("full"))A.vnFull()}});
-/*vnRoute defined below*/
-function vnList(){const b=$("#vlist");if(!b)return;const n1=$("#vnN1");if(n1)n1.textContent=DB.vend.length;
- $$(".vnTabs button").forEach(x=>x.classList.toggle("on",x.dataset.v==VM.tab));const pw=$("#vplwrap");if(pw){pw.style.display=VM.tab=="pl"?"block":"none";b.style.display=VM.tab=="pl"?"none":"block"}if(VM.tab=="pl"){vnPlDraw();return}
- if(VM.tab=="mine"){const L=DB.vend.slice().sort((a,b)=>(a.name||"").localeCompare(b.name||""));
-  b.innerHTML=L.length?L.map(v=>{const s=vnStat(v),w=vnUrl(v);return `<div class="vnC" data-a="vnOpen" data-id="${v.id}"><div class="row" style="flex-wrap:nowrap;gap:8px;align-items:flex-start"><span class="vnDot"></span><div style="flex:1;min-width:0"><b>${esc(v.name)}</b><div class="mu vnS">${esc(v.addr)||"–"}</div><div class="vnS" style="margin-top:4px"><span class="vnLk">${ic("file",11)} ${s.n} ${t("vm_inv")} · ${money(s.sum)}</span>${v.phone?` <a class="vnLk" href="tel:${esc(v.phone)}" data-stop="1">${ic("send",11)} ${esc(v.phone)}</a>`:""}</div><div class="vnS" style="margin-top:3px">${w?`<a class="vnLk" href="${esc(w)}" target="_blank" rel="noopener" data-stop="1">${ic("link",11)} ${t("vm_site")}</a> `:""}<button class="vnLk" data-a="vnDir" data-ll="${v.lat!=null?v.lat+","+v.lng:""}" data-n="${esc(v.name)}">${ic("pin",11)} ${t("vm_dir")}</button></div></div><button class="bi" data-a="vnEdit" data-id="${v.id}" aria-label="${t("vm_edit")}">${ic("pen",14)}</button></div></div>`}).join(""):`<p class="mu" style="padding:14px">${t("vn_empty")}</p>`}
- }
-document.addEventListener("click",e=>{if(e.target.closest("[data-stop]"))e.stopPropagation()},true);
-function vnInit(){VM.plLoaded=false;vnList();vnFree()}
-const vnGo=q0=>vnFreeSearch(q0);
-A.vnSearch=()=>{const el=$("#vmq"),q=((el&&el.value)||"").trim();if(!q)return;PG.vmq=q;PG.vmn=($("#vmn")||{}).value||"";vnGo(q)};
-A.vnChip=el=>{const i=$("#vmq");if(i)i.value=el.dataset.q;PG.vmq=el.dataset.q;vnGo(el.dataset.q)};
-A.vnTab=el=>{VM.tab=el.dataset.v;vnList()};
-A.vnOpen=el=>{const v=byId(DB.vend,el.dataset.id);if(!v)return;if(VM.lmap&&v.lat!=null)VM.lmap.setView([+v.lat,+v.lng],Math.max(VM.lmap.getZoom(),15));vnDrawer(v)};
-function vnDrawer(v){const s=vnStat(v),w=vnUrl(v);
- drawer({title:esc(v.name),sub:esc(v.addr||""),icon:"store",body:`<div class="row" style="gap:8px;margin-bottom:12px">${v.phone?`<a class="b" href="tel:${esc(v.phone)}">${ic("send",14)} ${t("vm_call")}</a>`:""}<button class="b" data-a="vnDir" data-ll="${v.lat!=null?v.lat+","+v.lng:""}" data-n="${esc(v.name)}">${ic("pin",14)} ${t("vm_dir")}</button>${w?`<a class="b" href="${esc(w)}" target="_blank" rel="noopener">${ic("link",14)} ${t("vm_site")}</a>`:""}</div>
-<div class="fg" style="margin-bottom:14px"><div class="card cp"><div class="lbl">${t("vm_inv")}</div><b style="font-size:calc(20px*var(--fz,1))">${s.n}</b></div><div class="card cp"><div class="lbl">${t("vm_spend")}</div><b style="font-size:calc(20px*var(--fz,1))">${money(s.sum)}</b></div></div>
-${v.phone?`<div class="mu" style="margin-bottom:4px">${t("vn_phone")}: ${esc(v.phone)}</div>`:""}${v.notes?`<div class="mu" style="margin-bottom:10px">${esc(v.notes)}</div>`:""}
-<div class="lbl">${t("vm_recent")}</div>${s.L.length?s.L.slice().sort((a,b)=>(b.date||"").localeCompare(a.date||"")).slice(0,8).map(x=>`<div class="row" style="padding:7px 0;border-top:1px solid var(--ln);flex-wrap:nowrap"><span class="mu" style="width:96px">${fd(x.date)}</span><span style="flex:1;min-width:0">${esc(x.desc||"")}</span><b>${money(x.amt)}</b></div>`).join(""):`<p class="mu">${t("vm_noinv")}</p>`}`,
- foot:`<button class="b" data-a="drClose">${t("cancel")}</button><button class="b" data-a="vnEdit" data-id="${v.id}">${ic("pen",14)} ${t("vm_edit")}</button><button class="b bp" data-a="vnNewInv" data-id="${v.id}">${ic("plus",14)} ${t("vm_newinv")}</button>`})}
-A.vnNewInv=el=>{const v=byId(DB.vend,el.dataset.id);closeDr();if(V!="invoices")go("invoices");setTimeout(()=>{invForm();setTimeout(()=>{const f=$("#dr [name=vendor]");if(f&&v){f.value=v.name;f.dispatchEvent(new Event("input",{bubbles:true}))}},60)},120)};
-A.vnEdit=el=>{closeDr();vendorForm(el.dataset.id)};
-/* free mode: My Maps embed + Google Maps links, no API key */
-const vnMid=()=>{const m=String(S.myMap||"").match(/^[A-Za-z0-9_-]{10,}$/);return m?m[0]:""};
-const vnAdm=()=>!!(USER&&USER.role=="admin");
-function vnFrame(ll,z,bounds){if(!vnMid())return vnFree();vnLive(ll,z,bounds)}
-function vnFree(){const mid=vnMid();
- if(mid){vnMsg("");vnFrame();vnPlLoad();return}
- vnMsg(vnOwn()?`<b style="color:var(--tx)">${t("vm_free_t")}</b><p>${t("vm_free_s")}</p><input id="vmmid" placeholder="${esc(t("vm_free_ph"))}" style="width:100%;margin:6px 0" data-enter="vnMapSave"><p style="font-size:calc(12px*var(--fz,1))">${t("vm_free_h")}</p><button class="b bp" data-a="vnMapSave">${t("save")}</button>`:t("vm_free_only"))}
-/* shops listed on the My Maps map (read through the server) */
-function vnPlLoad(){if(VM.plLoaded)return vnPlDraw();VM.plLoaded=true;api("GET","/api/mymap").then(r=>{VM.pl=(r.s==200&&r.j&&r.j.places)||[];VM.plErr=r.j&&r.j.error;if(VM.pl.length&&VM.tab=="mine"&&!DB.vend.length)VM.tab="pl";vnList();vnPlDraw()}).catch(()=>{VM.pl=[];vnPlDraw()})}
-function vnClean(n){return String(n||"").split(/\s*[·•|\n]+\s*/).map(x=>x.replace(/<[^>]*>/g,"").trim()).filter(x=>x&&!/^[A-Za-z ]{2,24}:\s*$/.test(x)&&!/^(longitude|latitude|shop name)\s*:/i.test(x)).join(" · ")}
-function vnParts(n){const a=vnClean(n).split(" · "),ph=a.find(x=>/^\+?[\d\s().-]{9,}$/.test(x)),web=a.find(x=>/^(https?:\/\/)?[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(x)&&!/\s/.test(x)&&/[a-z]/i.test(x)),ad=a.filter(x=>x!==ph&&x!==web).join(", ");return{addr:ad,phone:ph||"",web:web||""}}
-const vnHav=(a,b)=>{const r=Math.PI/180,dx=(b.lat-a.lat)*r,dy=(b.lng-a.lng)*r,x=Math.sin(dx/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dy/2)**2;return 3958.8*2*Math.asin(Math.sqrt(x))};
-const vnLL=s=>{const m=String(s||"").match(/^\s*(-?\d{1,3}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)\s*$/);return m?{lat:+m[1],lng:+m[2]}:null};
-const vnWords=q=>String(q||"").toLowerCase().split(/[\s,]+/).filter(w=>w.length>1&&!["near","in","the","and"].includes(w));
-const vnPlMatch=(p,ws)=>{const h=(p.name+" "+vnClean(p.note)).toLowerCase();return ws.every(w=>h.includes(w))};
-async function vnWhere(txt){txt=String(txt||"").trim();const x=vnLL(txt);if(x)return x;
- const v=vnFindV(txt);if(v&&v.lat!=null)return{lat:+v.lat,lng:+v.lng,label:v.name};
- const p=(VM.pl||[]).find(p=>p.name.toLowerCase()==txt.toLowerCase());if(p)return{lat:p.lat,lng:p.lng,label:p.name};
- const r=await api("GET","/api/geo?q="+encodeURIComponent(txt));VM.geoSt=r.s;VM.geoErr=r.j&&r.j.error;return r.s==200&&r.j&&r.j.lat!=null?{lat:r.j.lat,lng:r.j.lng,label:txt}:null}
-async function vnFreeSearch(q0){const q=(q0||"").trim(),nr=(($("#vmn")||{}).value||"").trim();
- if(!VM.plLoaded)vnPlLoad();
- let near=null,ws=vnWords(q);
- if(nr)near=await vnWhere(nr);
- else if(!(VM.pl||[]).some(p=>vnPlMatch(p,ws))){near=await vnWhere(q);ws=[]}
- if(!near&&nr)toast(t("vm_nf"),"er");
- VM.near=near;VM.plq=ws.length&&(VM.pl||[]).some(p=>vnPlMatch(p,ws))?ws.join(" "):"";
- $$(".vnPlQ").forEach(x=>x.value=VM.plq);
- VM.tab="pl";vnList();vnPlDraw();
- if(near)vnFrame(near.lat+","+near.lng,9);else{const m=VM.plq?(VM.pl||[]).filter(p=>vnPlMatch(p,vnWords(VM.plq))).map(p=>[p.lat,p.lng]):[];vnFrame(null,null,m.length?m:null)}}
-async function vnFreeRoute(){const fE=$("#vrf"),dE=$("#vrt"),f=((fE?fE.value:PG.vrf)||"").trim(),d=((dE?dE.value:PG.vrt)||"").trim();if(!d)return toast(t("vm_to"),"er");
- PG.vrf=f;PG.vrt=d;VM.dirOn=true;VM.dirBusy=true;vnDirRender();
- const done=m=>{VM.dirBusy=false;vnDirRender();if(m)toast(m,"er")};
- const o=f?await vnWhere(f):vnLL(await vnGeo()),dd=VM.dest&&VM.dest.label==d&&vnLL(VM.dest.ll)?vnLL(VM.dest.ll):await vnWhere(d);
- const why=()=>VM.geoSt==404?t("vm_srv_old"):VM.geoErr?t("vm_net"):t("vm_nf");
- if(!o)return done(f?why():t("vm_from_need"));
- if(!dd)return done(why());
- const r=await api("GET","/api/eta?full=1&a="+o.lat+","+o.lng+"&b="+dd.lat+","+dd.lng);
- if(!(r.s==200&&r.j&&r.j.routes&&r.j.routes.length))return done(r.s==404?t("vm_srv_old"):r.j&&r.j.error=="net"?t("vm_net"):t("vm_eta_err"));
- try{await vnLeaflet()}catch(e){return done(t("vm_lf_err"))}
- VM.rt={o,dd,of:f||t("vm_you"),df:d,rs:r.j.routes,sel:0,fresh:true};VM.dirBusy=false;vnRouteDraw()}
-function vnLeaflet(){if(window.L&&L.map)return Promise.resolve();if(VM.lf)return VM.lf;
- VM.lf=new Promise((res,rej)=>{const l=document.createElement("link");l.rel="stylesheet";l.href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";document.head.appendChild(l);const s=document.createElement("script");s.src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";s.onload=()=>res();s.onerror=()=>{VM.lf=null;rej(new Error("lf"))};document.head.appendChild(s)});return VM.lf}
-function vnLiveBuild(){const b=$("#vmap");if(!b)return null;if(VM.lmap){try{VM.lmap.remove()}catch(e){}VM.lmap=null}
- VM.view="live";const m=$("#vmsg");if(m)m.style.display="none";
- b.innerHTML=`<div class="vnFrm"><div id="vlf" style="position:absolute;inset:0;z-index:0;isolation:isolate"></div><div id="vsb" style="position:absolute;z-index:1001;top:10px;left:56px;width:min(420px,calc(100% - 190px))"><div style="display:flex;gap:6px"><input id="vsi" data-i="vsI" data-enter="vsGo" autocomplete="off" placeholder="${esc(t("vm_sb"))}" style="flex:1;min-width:0;padding:11px 14px;border-radius:10px;border:1px solid var(--ln);background:var(--pn);color:var(--tx);font:14px Inter,system-ui,sans-serif;box-shadow:0 4px 14px #0009"><button data-a="vnDirOpen" title="${esc(t("vm_dirs"))}" aria-label="${esc(t("vm_dirs"))}" style="width:44px;flex:none;border-radius:10px;border:0;background:#6d5df6;color:#fff;cursor:pointer;box-shadow:0 4px 14px #0009;display:flex;align-items:center;justify-content:center">${ic("send",18)}</button></div><div id="vsr" style="margin-top:4px;border-radius:10px;overflow:hidden;box-shadow:0 4px 14px #0009"></div></div><div id="vrp" style="display:none;position:absolute;z-index:1000;top:64px;left:56px;width:min(340px,calc(100% - 70px));max-height:calc(100% - 130px);overflow:auto;background:var(--pn);color:var(--tx);border:1px solid var(--ln);border-radius:12px;padding:12px;box-shadow:0 6px 20px #0009;font:13px Inter,system-ui,sans-serif"></div></div>`;
- const mp=L.map("vlf",{preferCanvas:true}).setView([39.5,-98.35],4);
- const sat=L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,attribution:"Imagery \u00a9 Esri"}),osm=L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,referrerPolicy:"origin",attribution:"\u00a9 OpenStreetMap"});
- sat.addTo(mp);VM.llabels=L.layerGroup().addTo(mp);L.control.layers({[t("vm_sat")]:sat,[t("vm_street")]:osm},{[t("vm_labels")]:VM.llabels},{position:"topright"}).addTo(mp);mp.on("moveend zoomend overlayadd overlayremove",vnLabelsDraw);
- VM.lmap=mp;VM.lpins=L.layerGroup().addTo(mp);VM.lrt=L.layerGroup().addTo(mp);VM.llines=[];
- const lc=L.control({position:"topleft"});lc.onAdd=()=>{const d=L.DomUtil.create("div","leaflet-bar"),a=L.DomUtil.create("a","",d);a.href="#";a.title=t("vm_loc");a.setAttribute("aria-label",t("vm_loc"));a.textContent="◎";a.style.cssText="font-size:18px;line-height:30px;text-align:center;width:30px;height:30px;display:block;cursor:pointer";L.DomEvent.on(a,"click",e=>{L.DomEvent.preventDefault(e);vnLocate()});return d};lc.addTo(mp);
- try{new ResizeObserver(()=>{try{mp.invalidateSize()}catch(e){}}).observe(b)}catch(e){}
- const sb=$("#vsb");if(sb)L.DomEvent.on(sb,"mousedown dblclick touchstart wheel contextmenu",L.DomEvent.stopPropagation);
- vnPinsDraw();vnLabelsDraw();return mp}
-async function vnLocate(){const g=vnLL(await vnGeo());if(!g||!VM.lmap)return toast(t("vm_from_need"),"er");
- if(VM.me)VM.me.remove();VM.me=L.circleMarker([g.lat,g.lng],{radius:8,color:"#fff",weight:2,fillColor:"#2563eb",fillOpacity:1}).addTo(VM.lmap);VM.lmap.setView([g.lat,g.lng],11)}
-async function vnLive(ll,z,bounds){
- try{await vnLeaflet()}catch(e){return toast(t("vm_lf_err"),"er")}
- if(!VM.lmap||!$("#vlf")||!document.body.contains(VM.lmap.getContainer()))vnLiveBuild();
- const mp=VM.lmap;if(!mp)return;
- if(bounds&&bounds.length)mp.fitBounds(L.latLngBounds(bounds),{padding:[40,40],maxZoom:12});else if(ll){const c=vnLL(ll);if(c)mp.setView([c.lat,c.lng],z||14)}
- VM.view=VM.rt?"route":"live"}
-const vnLum=c=>{const m=String(c||"").match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);return m?(.299*parseInt(m[1],16)+.587*parseInt(m[2],16)+.114*parseInt(m[3],16))/255:0};
-/* place names built from the shop addresses + shop names when zoomed in (no outside label service) */
-function vnCities(){const n=(VM.pl||[]).length;if(VM._ct&&VM._ctN===n)return VM._ct;const m={};
- (VM.pl||[]).forEach(p=>{const a=vnParts(p.note).addr,x=a.match(/(?:^|,)\s*([A-Za-z.'\- ]{2,30}),\s*([A-Z]{2})\b/);if(!x)return;const k=x[1].trim()+", "+x[2],c=m[k]||(m[k]={name:x[1].trim(),n:0,la:0,ln:0});c.n++;c.la+=p.lat;c.ln+=p.lng});
- VM._ctN=n;return VM._ct=Object.values(m).map(c=>({name:c.name,n:c.n,lat:c.la/c.n,lng:c.ln/c.n})).sort((a,b)=>b.n-a.n)}
-function vnLabelsDraw(){const mp=VM.lmap,g=VM.llabels;if(!mp||!g||!window.L)return;g.clearLayers();if(!mp.hasLayer(g))return;
- const z=mp.getZoom(),bd=mp.getBounds().pad(.05),used={};
- const put=(lat,lng,txt,css,w)=>{const p=mp.latLngToContainerPoint([lat,lng]),k=Math.round(p.x/(w||110))+","+Math.round(p.y/24);if(used[k])return;used[k]=1;
-  L.marker([lat,lng],{interactive:false,keyboard:false,icon:L.divIcon({className:"",html:`<span style="position:absolute;white-space:nowrap;pointer-events:none;color:#fff;font:600 12px Inter,system-ui,sans-serif;text-shadow:0 0 3px #000,0 0 3px #000,0 1px 2px #000;${css}">${esc(txt)}</span>`,iconSize:[0,0]})}).addTo(g)};
- if(z>=12){let k=0;for(const p of VM.pl||[]){if(k>=160)break;if(bd.contains([p.lat,p.lng])){put(p.lat,p.lng,p.name,"transform:translate(13px,-50%)",150);k++}}}
- const min=z<5?12:z<6?6:z<8?3:1;let k=0;
- for(const c of vnCities()){if(k>=140)break;if(c.n>=min&&bd.contains([c.lat,c.lng])){put(c.lat,c.lng,c.name,"transform:translate(-50%,14px);font-size:"+(c.n>=8?13:12)+"px",100);k++}}}
-let vnStarC=null;
-function vnStar(){if(vnStarC)return vnStarC;vnStarC=L.CircleMarker.extend({_updatePath(){const r=this._renderer;if(!r||!r._ctx||this._empty())return;const c=r._ctx,p=this._point,R=this._radius,o=this.options;
-  c.beginPath();c.arc(p.x,p.y,R,0,6.2832);c.fillStyle=o.fillColor;c.fill();c.lineWidth=o.weight;c.strokeStyle=o.color;c.stroke();
-  c.beginPath();for(let i=0;i<10;i++){const a=-1.5708+i*.62832,rr=i%2?R*.28:R*.62;c.lineTo(p.x+Math.cos(a)*rr,p.y+Math.sin(a)*rr)}c.closePath();c.fillStyle=o.starColor||"#fff";c.fill()}});return vnStarC}
-function vnPinsDraw(){if(!VM.lmap||!VM.lpins||!window.L)return;VM.lpins.clearLayers();const SM=vnStar();
- const ws=vnWords(VM.plq),all=(VM.pl||[]).filter(p=>!ws.length||vnPlMatch(p,ws));
- all.forEach(p=>{const c=new SM([p.lat,p.lng],{radius:8,color:"#fff",weight:1.5,fillColor:p.c||"#111",starColor:vnLum(p.c)>.7?"#222":"#fff",fillOpacity:1}).addTo(VM.lpins);c.on("click",()=>vnPinPop(p,[p.lat,p.lng],(VM.pl||[]).indexOf(p)))});
- DB.vend.filter(v=>v.lat!=null).forEach(v=>{const c=new SM([+v.lat,+v.lng],{radius:11,color:"#fff",weight:2,fillColor:"#16a34a",fillOpacity:1}).addTo(VM.lpins);c.on("click",()=>vnPinPop({name:v.name,note:"",_v:v},[+v.lat,+v.lng],-1))})}
-function vnPinPop(p,ll,i){const x=p._v?{addr:p._v.addr,phone:p._v.phone,web:p._v.web}:vnParts(p.note),btn="display:inline-block;margin:6px 6px 0 0;padding:6px 10px;border-radius:8px;border:0;background:#6d5df6;color:#fff;font:600 12px Inter,system-ui,sans-serif;cursor:pointer;text-decoration:none",lk="color:#2563eb";
- const h=`<div style="font:13px Inter,system-ui,sans-serif;color:#111;min-width:190px"><b style="font-size:14px">${esc(p.name)}</b>${x.addr?`<div style="margin-top:3px">${esc(x.addr)}</div>`:""}${x.phone?`<div><a style="${lk}" href="tel:${esc(x.phone)}">${esc(x.phone)}</a></div>`:""}${x.web?`<div><a style="${lk}" target="_blank" rel="noopener" href="${esc(/^https?:/.test(x.web)?x.web:"https://"+x.web)}">${esc(x.web)}</a></div>`:""}
- <button style="${btn}" data-a="vnDir" data-ll="${ll[0]},${ll[1]}" data-n="${esc(p.name)}">${t("vm_dir")}</button>${i>=0?`<button style="${btn};background:#16a34a" data-a="vnPlSave" data-i="${i}">${t("vm_save")}</button>`:""}</div>`;
- VM.lmap.once("popupopen",e=>{const el=e.popup.getElement();el&&el.querySelectorAll("[data-a]").forEach(b=>b.addEventListener("click",ev=>{ev.preventDefault();if(typeof roGuard=="function"&&roGuard(b.dataset.a))return;const f=A[b.dataset.a];if(f){VM.lmap.closePopup();f(b)}}))});
- L.popup({maxWidth:300}).setLatLng(ll).setContent(h).openOn(VM.lmap)}
-function vnRouteDraw(){const R=VM.rt;if(!R)return;
- if(!VM.lmap||!$("#vlf"))vnLiveBuild();const mp=VM.lmap;if(!mp)return;
- VM.lrt.clearLayers();VM.llines=[];mp.closePopup();VM.dirOn=true;
- R.rs.forEach((x,i)=>{const pl=L.polyline(x.line,{color:"#4f8cff",weight:6,opacity:.9}).addTo(VM.lrt);pl.on("click",()=>{R.sel=i;vnRouteDraw()});VM.llines.push(pl)});
- const mk=(p,c,l)=>L.marker([p.lat,p.lng],{icon:L.divIcon({className:"",html:`<div style="width:26px;height:26px;border-radius:50%;background:${c};color:#fff;font:700 13px Inter,sans-serif;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 2px 6px #0009">${l}</div>`,iconSize:[26,26],iconAnchor:[13,13]})}).addTo(VM.lrt);
- mk(R.o,"#16a34a","A");mk(R.dd,"#dc2626","B");
- if(R.fresh){R.fresh=false;mp.fitBounds(L.latLngBounds(R.rs.flatMap(x=>x.line)),{paddingTopLeft:[380,40],paddingBottomRight:[40,40]})}
- VM.llines.forEach((pl,i)=>{pl.setStyle({color:i==R.sel?"#4f8cff":"#8a94ad",weight:i==R.sel?6:4,opacity:i==R.sel?.95:.7});if(i==R.sel)pl.bringToFront()});
- vnDirRender()}
-/* one directions panel: From / To / swap, then the route options and the steps */
-function vnDirRender(){const pn=$("#vrp");if(!pn)return;if(!VM.dirOn){pn.style.display="none";return}
- const R=VM.rt,inp="width:100%;padding:9px 10px;border-radius:8px;border:1px solid var(--ln);background:var(--bg);color:var(--tx);font:inherit",tmf=m=>(m>=60?Math.floor(m/60)+" h ":"")+(m%60)+" min";
- let h=`<div class="row" style="flex-wrap:nowrap;align-items:center;gap:8px"><b style="flex:1;font-size:15px">${t("vm_dirs")}</b><button class="bi" data-a="vnDirClose" aria-label="${esc(t("close"))}" title="${esc(t("close"))}" style="font-size:20px;line-height:1">×</button></div>
- <div style="display:flex;gap:6px;align-items:center;margin-top:10px"><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px"><input id="vrf" value="${esc(PG.vrf||"")}" placeholder="${esc(t("vm_from"))}" list="vlst" data-i="vnRF" data-enter="vnRoute" style="${inp}"><input id="vrt" value="${esc(PG.vrt||"")}" placeholder="${esc(t("vm_to"))}" list="vlst" data-i="vnRT" data-enter="vnRoute" style="${inp}"></div><button class="bi" data-a="vnSwap" aria-label="swap" title="swap" style="font-size:20px">⇅</button></div>
- <datalist id="vlst">${DB.vend.map(v=>`<option value="${esc(v.name)}">${esc(v.addr||"")}</option>`).join("")}</datalist>
- <button class="b bp" data-a="vnRoute" style="width:100%;margin-top:8px"${VM.dirBusy?" disabled":""}>${VM.dirBusy?"…":t("vm_dirs")}</button>`;
- if(R){const x=R.rs[R.sel],gm="https://www.google.com/maps/dir/?api=1&travelmode=driving&origin="+encodeURIComponent(R.o.lat+","+R.o.lng)+"&destination="+encodeURIComponent(R.dd.lat+","+R.dd.lng);
-  h+=R.rs.map((y,i)=>`<button data-a="vnRtSel" data-i="${i}" style="display:block;width:100%;text-align:left;margin:8px 0 0;padding:8px 10px;border-radius:9px;border:1px solid ${i==R.sel?"#4f8cff":"var(--ln)"};background:${i==R.sel?"#4f8cff22":"none"};color:var(--tx);cursor:pointer"><b style="font-size:16px">${tmf(y.min)}</b> <span style="color:var(--mu)">· ${y.mi} mi${i==0?" · "+t("vm_fastest"):""}</span></button>`).join("")
-  +`<p style="color:var(--mu);margin:8px 0">${t("vm_eta_note")}</p><a class="b bs" target="_blank" rel="noopener" href="${gm}">${t("vm_eta_open")}</a>
-  <ol style="margin:10px 0 0;padding-left:20px">${(x.steps||[]).map(st=>`<li style="margin:5px 0">${esc(st.t)} <span style="color:var(--mu)">${st.mi} mi</span></li>`).join("")}</ol>`}
- pn.style.display="block";pn.innerHTML=h}
-A.vnDirOpen=async()=>{if(!vnMid())return vnFree();if(!VM.lmap||!$("#vlf"))await vnLive();VM.dirOn=true;vnDirRender();const f=$("#vrt");if(f)f.focus()};
-A.vnDirClose=()=>{VM.dirOn=false;VM.rt=null;if(VM.lrt)VM.lrt.clearLayers();vnDirRender()};
-I.vsI=el=>{VM.vsq=el.value;vnSugDraw()};
-function vnSugDraw(){const box=$("#vsr");if(!box)return;const q=(VM.vsq||"").trim();if(q.length<2){box.innerHTML="";return}
- const ws=vnWords(q),H=(VM.pl||[]).map((p,i)=>[p,i]).filter(([p])=>vnPlMatch(p,ws)).slice(0,6),css="display:block;width:100%;text-align:left;padding:9px 12px;border:0;border-bottom:1px solid var(--ln);background:var(--pn);color:var(--tx);cursor:pointer;font:13px Inter,system-ui,sans-serif";
- box.innerHTML=H.map(([p,i])=>`<button style="${css}" data-a="vsPick" data-i="${i}"><b>${esc(p.name)}</b><div style="color:var(--mu);font-size:12px">${esc(vnParts(p.note).addr)}</div></button>`).join("")+`<button style="${css}" data-a="vsPlace">${ic("pin",12)} ${t("vm_sb_pl")}: <b>${esc(q)}</b></button>`}
-A.vsPick=el=>{const p=(VM.pl||[])[+el.dataset.i];if(!p||!VM.lmap)return;const b=$("#vsr");if(b)b.innerHTML="";VM.lmap.setView([p.lat,p.lng],16);vnPinPop(p,[p.lat,p.lng],+el.dataset.i)};
-A.vsPlace=async()=>{const q=(VM.vsq||"").trim();if(!q||!VM.lmap)return;const w=await vnWhere(q);if(!w)return toast(VM.geoSt==404?t("vm_srv_old"):VM.geoErr?t("vm_net"):t("vm_nf"),"er");
- const b=$("#vsr");if(b)b.innerHTML="";VM.near=w;VM.plq="";VM.tab="pl";vnList();vnPlDraw();if(VM.me)VM.me.remove();VM.me=L.circleMarker([w.lat,w.lng],{radius:9,color:"#fff",weight:2,fillColor:"#2563eb",fillOpacity:1}).addTo(VM.lmap);VM.lmap.setView([w.lat,w.lng],12)};
-A.vsGo=()=>{const b=$("#vsr"),f=b&&b.querySelector("[data-a]");if(f)f.click()};
-A.vnRtSel=el=>{if(VM.rt){VM.rt.sel=+el.dataset.i;vnRouteDraw()}};
-Object.assign(D,{vm_sat:["Satellite","Sun‘iy yo‘ldosh","Спутник"],vm_street:["Map","Xarita","Карта"],vm_labels:["Labels","Nomlar","Подписи"],vm_sb:["Search shops or places (city, address, ZIP)","Do‘kon yoki joy qidiring (shahar, manzil, ZIP)","Поиск сервиса или места (город, адрес, ZIP)"],vm_sb_pl:["Go to place","Joyga o‘tish","Перейти к месту"],vm_loc:["My location","Mening joylashuvim","Моё местоположение"],vm_lf_err:["The map could not load. Check the internet connection and try again.","Xarita yuklanmadi. Internetni tekshirib qayta urinib ko‘ring.","Карта не загрузилась. Проверьте интернет и повторите."],vm_srv_old:["The server is not updated yet. Upload the new server.js to GitHub and wait for Railway to redeploy.","Server hali yangilanmagan. Yangi server.js ni GitHub’ga yuklab, Railway qayta deploy qilishini kuting.","Сервер ещё не обновлён. Загрузите новый server.js в GitHub и дождитесь деплоя Railway."],vm_net:["The free map service did not answer. Try again in a minute.","Bepul xarita xizmati javob bermadi. Bir daqiqadan keyin qayta urinib ko‘ring.","Бесплатный картографический сервис не ответил. Повторите через минуту."],vm_fastest:["fastest","eng tez","быстрее всего"],});
-Object.assign(D,{vm_nf:["Place not found. Try a city, address or ZIP.","Joy topilmadi. Shahar, manzil yoki ZIP yozing.","Место не найдено. Введите город, адрес или ZIP."],vm_eta_err:["Could not calculate the route right now.","Hozir yo‘nalishni hisoblab bo‘lmadi.","Сейчас не удалось рассчитать маршрут."],vm_eta_note:["Driving time for a car. A loaded truck usually takes 15–25% longer.","Yengil mashina uchun vaqt. Yuklangan truck odatda 15–25% uzoqroq ketadi.","Время для легковой. Гружёному траку обычно на 15–25% дольше."],vm_eta_open:["Open in Google Maps","Google Maps’da ochish","Открыть в Google Maps"],vm_you:["Your location","Joylashuvingiz","Ваше местоположение"],vm_away:["mi away","mil uzoqlikda","миль"]});
-function vnPlHtml(){const ws=vnWords(VM.plq);let L=(VM.pl||[]).filter(p=>!ws.length||vnPlMatch(p,ws));
- if(VM.near){L=L.map(p=>({p,d:vnHav(VM.near,p)})).sort((a,b)=>a.d-b.d).map(x=>(x.p._d=x.d,x.p))}
- const sv=p=>DB.vend.some(v=>(v.name||"").toLowerCase()==p.name.toLowerCase()&&v.lat!=null&&Math.abs(v.lat-p.lat)<.001&&Math.abs(v.lng-p.lng)<.001);
- return L.length?L.slice(0,300).map(p=>`<div class="vnC" data-a="vnPlGo" data-ll="${p.lat},${p.lng}"><div class="row" style="flex-wrap:nowrap;gap:8px;align-items:flex-start"><span class="vnDot"></span><div style="flex:1;min-width:0"><b>${esc(p.name)}</b>${VM.near&&p._d!=null?` <span class="mu vnS">${Math.round(p._d)} ${t("vm_away")}</span>`:""}${vnClean(p.note)?`<div class="mu vnS">${esc(vnClean(p.note))}</div>`:""}<div class="vnS" style="margin-top:4px"><button class="vnLk" data-a="vnDir" data-ll="${p.lat},${p.lng}" data-n="${esc(p.name)}">${ic("pin",11)} ${t("vm_dir")}</button>${sv(p)?`<span class="vnLk" style="cursor:default">${ic("check",11)} ${t("vm_saved")}</span>`:`<button class="vnLk" data-a="vnPlSave" data-i="${(VM.pl||[]).indexOf(p)}">${ic("plus",11)} ${t("vm_save")}</button>`}</div></div></div></div>`).join(""):`<p class="mu" style="padding:14px">${VM.pl===undefined?t("vm_load"):VM.plErr?t("vm_pl_err"):t("vm_pl_none")}</p>`}
-function vnPlDraw(){const h=vnPlHtml(),a=$("#vplist");if(a)a.innerHTML=h;const n=$("#vnN3");if(n)n.textContent=(VM.pl||[]).length;vnPinsDraw();vnLabelsDraw()}
-I.vnPlQ=el=>{VM.plq=el.value;$$(".vnPlQ").forEach(x=>{if(x!==el)x.value=el.value});vnPlDraw()};
-A.vnPlGo=el=>{vnFrame(el.dataset.ll)};
-A.vnPlSave=el=>{const p=(VM.pl||[])[+el.dataset.i];if(!p)return;if(DB.vend.some(v=>(v.name||"").toLowerCase()==p.name.toLowerCase()&&v.lat!=null&&Math.abs(v.lat-p.lat)<.001))return toast(t("vm_saved"));{const x=vnParts(p.note);DB.vend.push({id:uid(),name:p.name,addr:x.addr,phone:x.phone,web:x.web,notes:"",lat:p.lat,lng:p.lng,pid:""})};save();vnList();vnPlDraw();toast(t("vm_saved"))};
-A.vnMapSave=()=>{if(!vnOwn())return;const el=$("#vmmid"),v=((el&&el.value)||"").trim(),m=v.match(/[?&]mid=([A-Za-z0-9_-]+)/)||(/^[A-Za-z0-9_-]{10,}$/.test(v)?[0,v]:null);if(!m)return toast(t("vm_free_bad"),"er");S.myMap=m[1];save();VM.pl=undefined;VM.plLoaded=false;closeMd();toast(t("pf_upd"));Promise.resolve(typeof flushNow=="function"?flushNow():0).catch(()=>{}).then(()=>{vnFree();if(VM.tab=="mine"&&!DB.vend.length)VM.tab="pl"})};
-A.vnMapSet=()=>modal({title:t("vm_free_mine"),icon:"pin",w:520,body:`<p class="mu" style="margin-top:0">${t("vm_free_s")}</p><input id="vmmid" value="${esc(vnMid()?"https://www.google.com/maps/d/viewer?mid="+vnMid():"")}" placeholder="${esc(t("vm_free_ph"))}" data-enter="vnMapSave" style="width:100%"><p class="mu" style="font-size:calc(12px*var(--fz,1))">${t("vm_free_h")}</p>`,foot:`<button class="b" data-a="mdClose">${t("cancel")}</button><button class="b bp" data-a="vnMapSave">${t("save")}</button>`});
-A.vnLink=()=>modal({title:t("vm_link"),icon:"link",w:520,body:`<p class="mu" style="margin-top:0">${t("vm_link_s")}</p><input id="vmlk" placeholder="https://www.google.com/maps/place/…" data-enter="vnLinkGo" style="width:100%">`,foot:`<button class="b" data-a="mdClose">${t("cancel")}</button><button class="b bp" data-a="vnLinkGo">${t("vn_add")}</button>`});
-A.vnLinkGo=()=>{const el=$("#vmlk"),u=((el&&el.value)||"").trim();let name="",lat=null,lng=null;
- try{const m=decodeURIComponent(u).match(/\/maps\/place\/([^\/@?]+)/);if(m)name=m[1].replace(/\+/g," ").trim();const c=u.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/)||u.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);if(c){lat=+c[1];lng=+c[2]}}catch(e){}
- if(!name||!/google\.[a-z.]+\/maps/i.test(u))return toast(t("vm_link_bad"),"er");
- const v={id:uid(),name,addr:"",phone:"",web:"",notes:"",lat,lng,pid:""};DB.vend.push(v);save();closeMd();vnList();vendorForm(v.id)};
-/* import */
-A.vnImport=()=>modal({title:t("vm_imp"),icon:"up2",w:520,body:`<p class="mu" style="margin-top:0">${t("vm_imp_s")}</p><p class="mu" style="font-size:calc(12px*var(--fz,1))">${t("vm_imp_h")}</p><input type="file" id="vnfile" accept=".kml,.json,.geojson,.csv,text/csv,application/json,application/vnd.google-earth.kml+xml" data-c="vnFile" style="margin-top:6px">`,foot:`<button class="b" data-a="mdClose">${t("cancel")}</button>`});
-function vnCsv(tx){const rows=[];let r=[],c="",q=false;for(let i=0;i<tx.length;i++){const ch=tx[i];if(q){if(ch=='"'){if(tx[i+1]=='"'){c+='"';i++}else q=false}else c+=ch}else if(ch=='"')q=true;else if(ch==","){r.push(c);c=""}else if(ch=="\n"||ch=="\r"){if(ch=="\r"&&tx[i+1]=="\n")i++;r.push(c);c="";if(r.some(x=>x))rows.push(r);r=[]}else c+=ch}if(c||r.length){r.push(c);rows.push(r)}return rows}
-const vnStrip=s=>(s||"").replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim();
-C.vnFile=async el=>{const f=el.files&&el.files[0];if(!f)return;let items=[],todo=[];
- try{const tx=await f.text(),nm=f.name.toLowerCase();
-  if(nm.endsWith(".kml")||tx.trimStart().startsWith("<")){const x=new DOMParser().parseFromString(tx,"text/xml");x.querySelectorAll("Placemark").forEach(p=>{const g=p.querySelector("Point coordinates");if(!g)return;const[lng,lat]=g.textContent.trim().split(",").map(Number);const ad=p.querySelector("address");items.push({name:(p.querySelector("name")||{}).textContent||"",addr:ad?ad.textContent:vnStrip((p.querySelector("description")||{}).textContent).slice(0,160),lat,lng})})}
-  else if(nm.endsWith(".json")||nm.endsWith(".geojson")||tx.trimStart().startsWith("{")){const j=JSON.parse(tx);(j.features||[]).forEach(ft=>{const c=ft.geometry&&ft.geometry.coordinates,pr=ft.properties||{},lo=pr.Location||pr.location||{};if(!c||(!c[0]&&!c[1]))return;items.push({name:pr.Title||pr.title||pr.name||lo["Business Name"]||"",addr:lo.Address||lo.address||"",lat:+c[1],lng:+c[0],url:pr["Google Maps URL"]||pr.google_maps_url||""})})}
-  else{const rows=vnCsv(tx),h=(rows.shift()||[]).map(x=>x.trim().toLowerCase()),ti=h.findIndex(x=>x=="title"||x=="name"),ai=h.findIndex(x=>x.includes("address")),la=h.findIndex(x=>x=="latitude"||x=="lat"),lo=h.findIndex(x=>x=="longitude"||x=="lng"||x=="lon"),ni=h.findIndex(x=>x=="note"||x=="notes"||x=="comment");
-   rows.forEach(r=>{const name=(r[ti<0?0:ti]||"").trim();if(!name)return;if(la>=0&&lo>=0&&r[la]&&r[lo])items.push({name,addr:ai>=0?r[ai]:"",lat:+r[la],lng:+r[lo]});else todo.push({name,note:ni>=0?r[ni]:""})})}
- }catch(e){return toast(t("vm_imp_err"),"er")}
- closeMd();
- if(todo.length){todo=todo.slice(0,60);let k=0;
-  for(const o of todo){k++;toast(t("vm_imp_prog",k,todo.length));try{const w=await vnWhere(o.name);if(w)items.push({name:o.name,addr:"",lat:w.lat,lng:w.lng,notes:o.note||""})}catch(e){}await new Promise(r=>setTimeout(r,1100))}}
- let add=0,skip=0;items.forEach(o=>{if(!o.name||isNaN(o.lat)||isNaN(o.lng)){skip++;return}
-  const dup=DB.vend.some(v=>(o.pid&&v.pid==o.pid)||((v.name||"").toLowerCase()==o.name.toLowerCase()&&v.lat!=null&&Math.abs(v.lat-o.lat)<.001&&Math.abs(v.lng-o.lng)<.001));if(dup){skip++;return}
-  DB.vend.push({id:uid(),name:o.name.trim(),addr:o.addr||"",phone:o.phone||"",web:o.web||"",notes:o.notes||"",lat:o.lat,lng:o.lng,pid:o.pid||""});add++});
- if(add)save();VM.tab="mine";vnList();vnPinsDraw();toast(t("vm_imp_done",add,skip))};
-/* ===== in-map views (search / route inside the page) + owner layout ===== */
-Object.assign(D,{
-vm_shopq:["Search by shop name","Do‘kon nomi bo‘yicha izlash","Поиск по названию"],
-
-
-vm_from_need:["Allow location, or type where you start (From).","Joylashuvga ruxsat bering yoki qayerdan boshlashni (From) yozing.","Разрешите геолокацию или укажите, откуда выезжать (From)."],
-});
-const vnOwn=()=>!!(USER&&USER.owner);
-const vnFindV=n=>{n=(n||"").trim().toLowerCase();return n?DB.vend.find(x=>(x.name||"").toLowerCase()==n):null};
-const vnGeo=()=>new Promise(res=>{if(!navigator.geolocation)return res("");navigator.geolocation.getCurrentPosition(p=>res(p.coords.latitude+","+p.coords.longitude),()=>res(""),{timeout:8000,maximumAge:60000})});
-A.vnRoute=()=>vnFreeRoute();
-A.vnDir=async el=>{const n=el.dataset.n||"",ll=el.dataset.ll||"";closeDr();if(!vnMid())return vnFree();if(!VM.lmap||!$("#vlf"))await vnLive();PG.vrt=n||ll;VM.dest=ll?{label:PG.vrt,ll}:null;VM.dirOn=true;vnDirRender();A.vnRoute()};
-/* fullscreen with floating widgets */
-A.vnFull=()=>{const b=$("#vbox");if(!b)return;const on=!b.classList.contains("full");b.classList.toggle("full",on);document.body.classList.toggle("vnLock",on);setTimeout(()=>{if(VM.lmap)VM.lmap.invalidateSize()},60)};
-document.addEventListener("pointerdown",e=>{const g=e.target.closest&&e.target.closest(".vnGrip");if(!g||!VM.edit)return;e.preventDefault();
- const w=g.parentElement,b=$("#vbox"),R=b.getBoundingClientRect(),r=w.getBoundingClientRect(),dx=e.clientX-r.left,dy=e.clientY-r.top;g.setPointerCapture(e.pointerId);
- const mv=ev=>{w.style.left=Math.max(0,Math.min(R.width-40,ev.clientX-R.left-dx))+"px";w.style.top=Math.max(0,Math.min(R.height-30,ev.clientY-R.top-dy))+"px"};
- const up=()=>{g.removeEventListener("pointermove",mv);g.removeEventListener("pointerup",up)};g.addEventListener("pointermove",mv);g.addEventListener("pointerup",up)});
-/* ===== AI page: Telegram AI bot access, usage log (PDF) and expenses ===== */
-Object.assign(D,{g_ai:["AI","AI","ИИ"],aibot:["Telegram AI bot","Telegram AI bot","Telegram ИИ-бот"],aiexp:["Expenses","Xarajatlar","Расходы"],
-ai_srv:["The AI page works on the live site only.","AI sahifasi faqat jonli saytda ishlaydi.","Страница ИИ работает только на живом сайте."],
-ai_h1:["Telegram AI bot","Telegram AI bot","Telegram ИИ-бот"],
-ai_s1:["Write to the bot in plain words and it looks things up or changes data on the site. You decide who may use it and what they may do.","Botga oddiy so‘zlar bilan yozasiz: u saytdan ma’lumot topadi yoki o‘zgartiradi. Kim foydalanishi va nima qila olishini siz hal qilasiz.","Пишите боту обычными словами: он найдёт данные или изменит их на сайте. Кто и что может делать — решаете вы."],
-ai_my:["Your access","Sizning ruxsatingiz","Ваш доступ"],
-ai_lv_owner:["Owner: full access","Owner: to‘liq ruxsat","Владелец: полный доступ"],ai_lv_edit:["Can look up and change records","Ma’lumot topadi va o‘zgartira oladi","Может искать и менять записи"],ai_lv_read:["Read only: can look things up","Faqat o‘qish: ma’lumot topa oladi","Только чтение: может искать данные"],ai_lv_none:["No access yet. Ask the owner.","Hozircha ruxsat yo‘q. Owner dan so‘rang.","Доступа пока нет. Попросите владельца."],
-ai_how:["Connect Telegram in Profile → Integrations, then write to the bot.","Profile → Integrations da Telegram ni ulang, so‘ng botga yozing.","Подключите Telegram в Profile → Integrations и пишите боту."],
-ai_ctl:["Who can use the bot","Botdan kim foydalana oladi","Кто может пользоваться ботом"],
-ai_on:["AI bot is on","AI bot yoqilgan","ИИ-бот включён"],ai_onh:["Switch off to stop everyone except you.","O‘chirsangiz sizdan boshqa hamma to‘xtaydi.","Выключите, чтобы остановить всех, кроме вас."],
-ai_open:["Open for everyone who linked Telegram","Telegram ulagan hamma uchun ochiq","Открыто всем, кто подключил Telegram"],ai_openh:["Everyone on the team gets the level below, unless you set a person yourself.","Jamoadagi hamma pastdagi darajani oladi, agar odamga alohida belgilamasangiz.","Все в команде получают уровень ниже, если вы не задали человеку отдельно."],
-ai_lvl:["Level for everyone","Hamma uchun daraja","Уровень для всех"],ai_ro:["Read only","Faqat o‘qish","Только чтение"],ai_ed:["Can change records","Yozuvlarni o‘zgartira oladi","Может менять записи"],ai_no:["No access","Ruxsat yo‘q","Нет доступа"],ai_def:["Default","Umumiy qoida","По умолчанию"],
-ai_cap:["Monthly budget ($)","Oylik byudjet ($)","Месячный бюджет ($)"],ai_caph:["0 = no limit. When it is used up everyone except you is stopped.","0 = cheklov yo‘q. Tugasa sizdan boshqa hamma to‘xtaydi.","0 = без лимита. Когда исчерпан, все кроме вас останавливаются."],
-ai_person:["Person","Odam","Человек"],ai_linked:["Telegram","Telegram","Telegram"],ai_perm:["Access","Ruxsat","Доступ"],ai_you:["Owner","Owner","Владелец"],ai_full:["Full access","To‘liq ruxsat","Полный доступ"],
-ai_note:["Read only and Can change records: only the companies that person is allowed to see; they cannot delete, change settings or message groups.","Faqat o‘qish va Yozuvlarni o‘zgartirish: faqat odamga ruxsat berilgan kompaniyalar; o‘chira olmaydi, sozlamalarni o‘zgartira olmaydi, guruhlarga yoza olmaydi.","Только чтение и Менять записи: только компании, доступные человеку; удалять, менять настройки и писать в группы нельзя."],
-ai_use:["Who asked what","Kim nima so‘ragan","Кто что спрашивал"],ai_req:["Requests","So‘rovlar","Запросы"],ai_tok:["Tokens","Tokenlar","Токены"],ai_mon:["This month","Shu oy","Этот месяц"],ai_alt:["All time","Hammasi","За всё время"],ai_last:["Last request","Oxirgi so‘rov","Последний запрос"],
-ai_pdf:["Download PDF","PDF yuklash","Скачать PDF"],ai_pdfall:["Download PDF: everyone","PDF yuklash: hamma","Скачать PDF: все"],ai_per:["Period","Davr","Период"],ai_p7:["Last 7 days","Oxirgi 7 kun","Последние 7 дней"],ai_p30:["Last 30 days","Oxirgi 30 kun","Последние 30 дней"],ai_pall:["Everything","Hammasi","Всё"],ai_nolog:["Nothing was asked in this period.","Bu davrda hech narsa so‘ralmagan.","За этот период запросов нет."],
-ai_recent:["Latest requests","Oxirgi so‘rovlar","Последние запросы"],ai_none:["No requests yet.","Hozircha so‘rov yo‘q.","Запросов пока нет."],
-ai_h2:["Expenses","Xarajatlar","Расходы"],ai_s2:["What the AI costs and why. Figures are estimates from token counts; the exact bill is in console.anthropic.com → Usage.","AI qancha turadi va nega. Raqamlar token hisobidan taxminiy; aniq hisob console.anthropic.com → Usage da.","Сколько стоит ИИ и почему. Цифры — оценка по токенам; точный счёт в console.anthropic.com → Usage."],
-ai_xw:["Who can see Expenses","Xarajatlarni kim ko‘ra oladi","Кто видит расходы"],ai_xwh:["Only you see this section unless you open it. Tap a person to show it to them; tap again to hide.","Bu bo‘limni siz ochmasangiz faqat o‘zingiz ko‘rasiz. Odamni bosing: unga ko‘rinadi; yana bosing: yashiriladi.","Раздел виден только вам, пока вы его не откроете. Нажмите на человека, чтобы показать; ещё раз — скрыть."],ai_xall:["Show to everyone","Hammaga ko‘rsatish","Показать всем"],ai_xon:["{0} can see Expenses","{0} Xarajatlarni ko‘ra oladi","{0} видит расходы"],ai_xoff:["{0} can no longer see Expenses","{0} endi Xarajatlarni ko‘ra olmaydi","{0} больше не видит расходы"],
-ai_k_today:["Today","Bugun","Сегодня"],ai_k_week:["Last 7 days","Oxirgi 7 kun","7 дней"],ai_k_month:["This month","Shu oy","Этот месяц"],ai_k_fc:["Forecast for the month","Oy oxirigacha prognoz","Прогноз на месяц"],ai_k_all:["All time","Hammasi","За всё время"],ai_k_avg:["Average per request","O‘rtacha bir so‘rov","В среднем за запрос"],
-ai_budget:["Budget used","Byudjet ishlatildi","Бюджет использован"],ai_days:["Cost per day (last 30 days)","Kunlik xarajat (oxirgi 30 kun)","Расход по дням (30 дней)"],
-ai_where:["Where the money goes this month","Pul shu oy nimaga ketdi","На что уходят деньги в этом месяце"],
-ai_w_out:["The AI’s answers","AI ning javoblari","Ответы ИИ"],ai_w_out2:["The words the AI writes back. They cost 5 times more than words it reads.","AI yozgan so‘zlar. O‘qigan so‘zlariga qaraganda 5 baravar qimmat.","Слова, которые пишет ИИ. Они в 5 раз дороже слов, которые он читает."],
-ai_w_sys:["Rules and tool list","Qoidalar va asboblar ro‘yxati","Правила и список инструментов"],ai_w_sys2:["Sent again at every step of every request, so it adds up even for tiny questions.","Har bir so‘rovning har qadamida qayta yuboriladi, shuning uchun kichik savolda ham yig‘iladi.","Отправляется заново на каждом шаге каждого запроса, поэтому набегает даже на мелких вопросах."],
-ai_w_his:["Conversation memory","Suhbat xotirasi","Память разговора"],ai_w_his2:["The last messages are sent along so the AI remembers. /new clears them and makes the next request cheaper.","So‘nggi xabarlar AI eslab qolishi uchun qo‘shib yuboriladi. /new ularni tozalaydi va keyingi so‘rov arzonlashadi.","Последние сообщения отправляются, чтобы ИИ помнил. /new очищает их — следующий запрос дешевле."],
-ai_w_ask:["The question itself","Savolning o‘zi","Сам вопрос"],ai_w_ask2:["Usually the smallest part.","Odatda eng kichik qism.","Обычно самая маленькая часть."],
-ai_w_res:["Data fetched from the site","Saytdan olingan ma’lumot","Данные с сайта"],ai_w_res2:["Lists of trucks, issues, invoices… the AI reads for an answer. Big lists cost the most.","Truck, issue, invoice ro‘yxatlari: AI javob uchun o‘qiydi. Katta ro‘yxat eng qimmat.","Списки машин, проблем, счетов, которые ИИ читает для ответа. Большие списки дороже всего."],
-ai_sum:["{0} requests, {1} AI steps. Price per 1M tokens: input ${2}, output ${3} ({4}).","{0} so‘rov, {1} AI qadam. 1M token narxi: kirish ${2}, chiqish ${3} ({4}).","{0} запросов, {1} шагов ИИ. Цена за 1 млн токенов: вход ${2}, выход ${3} ({4})."],
-ai_byu:["By person this month","Shu oy odamlar bo‘yicha","По людям за месяц"],ai_top:["Most expensive requests this month","Shu oyning eng qimmat so‘rovlari","Самые дорогие запросы месяца"],ai_steps:["{0} steps","{0} qadam","{0} шагов"],
-ai_tools:["What the AI did","AI nima qildi","Что делал ИИ"],
-ai_noc:["No access to this section.","Bu bo‘limga ruxsat yo‘q.","Нет доступа к этому разделу."],ai_saved:["Saved","Saqlandi","Сохранено"],ai_err:["Could not save. Try again.","Saqlab bo‘lmadi. Qayta urining.","Не удалось сохранить. Повторите."],
-ai_pdf_t:["AI requests","AI so‘rovlari","Запросы к ИИ"],ai_pdf_n:["{0} requests · total ${1}","{0} so‘rov · jami ${1}","{0} запросов · всего ${1}"]});
-const AI_TL={fleet_overview:["Overview","Umumiy ko‘rinish","Обзор"],list_records:["Looked up records","Yozuv qidirdi","Искал записи"],save_record:["Added / changed a record","Yozuv qo‘shdi / o‘zgartirdi","Добавил / изменил запись"],delete_record:["Deleted a record","Yozuv o‘chirdi","Удалил запись"],get_setting:["Read a setting","Sozlama o‘qidi","Прочитал настройку"],set_setting:["Changed a setting","Sozlama o‘zgartirdi","Изменил настройку"],list_users:["Looked up the team","Jamoani ko‘rdi","Смотрел команду"],send_telegram:["Sent a Telegram message","Telegram xabar yubordi","Отправил сообщение в Telegram"],send_workers_list:["Sent the workers list","Ishchilar ro‘yxatini yubordi","Отправил список работникам"]};
-const aiSrv=()=>!!(typeof SERVER!="undefined"&&SERVER&&USER);
-const aiBotOk=()=>aiSrv()&&!!(USER.owner||(USER.ai&&USER.ai.access));
-const aiExpOk=()=>aiSrv()&&!!(USER.owner||(USER.ai&&USER.ai.costOk));
-const pageMode=k=>!aiSrv()||USER.owner||!NAV_KEYS().includes(k)?"edit":(USER.deny||[]).includes(k)?"none":(USER.ro||[]).includes(k)?"read":"edit";
-const pageOk=k=>!(aiSrv()&&!USER.owner&&(USER.deny||[]).includes(k));
-const aiNavOk=k=>pageOk(k)&&(k=="aibot"?aiBotOk():k=="aiexp"?aiExpOk():true);
-const NAV_KEYS=()=>NAVS.flatMap(g=>g[1].map(x=>x[0]));
-function pageAllowed(v){if(!aiSrv()||!NAV_KEYS().includes(v)||aiNavOk(v))return v;const f=NAV_KEYS().find(aiNavOk);return f||"profile"}
-const aiM=n=>{n=+n||0;return "$"+n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:n&&n<0.1?3:2})};
-const aiTz=()=>(PG.aiA&&PG.aiA.tz)||(PG.aiC&&PG.aiC.tz)||"America/Chicago";
-const aiDT=(x,o)=>{try{return new Date(x).toLocaleString("en-US",Object.assign({timeZone:aiTz(),month:"short",day:"numeric",hour:"numeric",minute:"2-digit"},o||{}))}catch(e){return String(x)}};
-const aiDay=x=>{const d=new Date(x+"T12:00:00");return d.toLocaleDateString("en-US",{month:"short",day:"numeric"})};
-const aiLabel=k=>{const v=AI_TL[k];return v?v[LG.indexOf(S.lang)>=0?LG.indexOf(S.lang):0]:k};
-function aiLoad(){if(PG.aiLoad)return;PG.aiLoad=1;const own=USER.owner,ok=USER.ai&&USER.ai.costOk;
- Promise.all([own?api("GET","/api/ai/admin"):null,ok?api("GET","/api/ai/costs"):null,own?api("GET","/api/tg/info"):null]).then(([a,c,i])=>{if(a&&a.s==200)PG.aiA=a.j;if(c&&c.s==200)PG.aiC=c.j;if(i&&i.s==200)PG.aiI=i.j;PG.aiDone=1;if(V=="aibot"||V=="aiexp")page()})}
-async function aiSave(b){const r=await api("POST","/api/ai/config",b);if(r.s==200){toast(t("ai_saved"));PG.aiLoad=0;page()}else toast(t("ai_err"),"er")}
-const aiPct=p=>p<=0?"0%":p<1?"<1%":p<10?(Math.round(p*10)/10)+"%":Math.round(p)+"%";
-function aiBar(p,c){return `<div style="height:8px;border-radius:4px;background:var(--ln);overflow:hidden"><div style="height:100%;width:${p>0?Math.max(.4,Math.min(100,p)):0}%;background:${c||"var(--ac)"}"></div></div>`}
-function aiAccessCard(){const a=USER.ai||{},own=USER.owner,lv=own?"owner":a.access||"none";
- return `<div class="card" style="padding:14px;margin-bottom:12px"><div class="lbl" style="margin-top:0">${t("ai_my")}</div><div class="row" style="gap:10px;margin-top:6px">${tag(t("ai_lv_"+lv),lv=="none"?"var(--mu)":lv=="read"?"var(--ac)":"var(--gr)")}</div><p class="mu" style="margin:10px 0 0">${t("ai_how")}</p></div>`}
-function aiCtlCard(){const A=PG.aiA;if(!A)return `<div class="mu">…</div>`;const c=A.cfg,ai=PG.aiI,people=A.users.filter(u=>!u.owner);
- const sel=(id,v)=>`<select data-c="aiUser" data-id="${id}" style="min-width:130px">${[["default","ai_def"],["none","ai_no"],["read","ai_ro"],["edit","ai_ed"]].map(([k,l])=>`<option value="${k}"${v==k?" selected":""}>${t(l)}</option>`).join("")}</select>`;
- return `${ai&&ai.ai===false?`<div class="note er" style="grid-column:auto;margin-bottom:12px">${t("tgc_noai")}</div>`:""}
-<div class="card" style="padding:14px;margin-bottom:12px"><div class="lbl" style="margin-top:0">${t("ai_ctl")}</div>
-<label class="ck" style="display:flex;gap:8px;align-items:flex-start;margin:8px 0"><input type="checkbox" data-c="aiOn" ${c.on?"checked":""}><span><b style="color:var(--tx)">${t("ai_on")}</b><br><span class="mu">${t("ai_onh")}</span></span></label>
-<label class="ck" style="display:flex;gap:8px;align-items:flex-start;margin:8px 0"><input type="checkbox" data-c="aiOpen" ${c.open?"checked":""}><span><b style="color:var(--tx)">${t("ai_open")}</b><br><span class="mu">${t("ai_openh")}</span></span></label>
-${c.open?`<div class="fd h" style="max-width:280px"><label>${t("ai_lvl")}</label><select data-c="aiLevel"><option value="read"${c.level=="read"?" selected":""}>${t("ai_ro")}</option><option value="edit"${c.level=="edit"?" selected":""}>${t("ai_ed")}</option></select></div>`:""}
-<div class="fd h" style="max-width:280px;margin-top:8px"><label>${t("ai_cap")}</label><input type="number" min="0" step="1" value="${c.cap||0}" data-c="aiCap" inputmode="decimal"><div class="hn">${t("ai_caph")}</div></div>
-<div style="margin-top:14px;border-top:1px solid var(--ln)"><div class="row" style="padding:8px 0;font-size:calc(10px*var(--fz,1));text-transform:uppercase;letter-spacing:.04em;color:var(--mu)"><span style="flex:1">${t("ai_person")}</span><span style="width:70px">${t("ai_linked")}</span><span style="width:140px">${t("ai_perm")}</span></div>
-<div class="row" style="padding:8px 0;border-top:1px solid var(--ln);flex-wrap:nowrap"><span style="flex:1"><b>${esc(A.users.find(u=>u.owner)?.name||"")}</b> ${tag(t("ai_you"),"var(--ac)")}</span><span style="width:70px">${(A.users.find(u=>u.owner)||{}).linked?"✓":"–"}</span><span style="width:140px" class="mu">${t("ai_full")}</span></div>
-${people.map(u=>`<div class="row" style="padding:8px 0;border-top:1px solid var(--ln);flex-wrap:nowrap"><span style="flex:1;min-width:0"><b>${esc(u.name)}</b> <span class="mu">${t(u.role=="admin"?"tm_admin":"tm_member")}</span></span><span style="width:70px">${u.linked?"✓":"–"}</span><span style="width:140px">${sel(u.id,u.setting)}</span></div>`).join("")||`<div class="mu" style="padding:8px 0">–</div>`}</div>
-<p class="mu" style="font-size:calc(12px*var(--fz,1));margin:12px 0 0">${t("ai_note")}</p></div>`}
-function aiUseCard(){const A=PG.aiA;if(!A)return "";const d=PG.aiDays==null?30:PG.aiDays;
- const tot=A.users.reduce((s,u)=>s+u.tot,0);
- return `<div class="card" style="padding:14px;margin-bottom:12px"><div class="row" style="justify-content:space-between;gap:10px;align-items:center"><div class="lbl" style="margin:0">${t("ai_use")}</div><div class="row" style="gap:8px;flex-wrap:nowrap;align-items:center"><span class="mu">${t("ai_per")}</span><select data-c="aiDays"><option value="7"${d==7?" selected":""}>${t("ai_p7")}</option><option value="30"${d==30?" selected":""}>${t("ai_p30")}</option><option value="0"${d==0?" selected":""}>${t("ai_pall")}</option></select><button class="b bp" data-a="aiPdf" data-id="all">${t("ai_pdfall")}</button></div></div>
-<div style="overflow:auto;margin-top:8px"><table class="ivt" style="width:100%;min-width:560px"><thead><tr><th>${t("ai_person")}</th><th>${t("ai_req")}</th><th>${t("ai_tok")}</th><th>${t("ai_mon")}</th><th>${t("ai_alt")}</th><th>${t("ai_last")}</th><th></th></tr></thead><tbody>${A.users.map(u=>`<tr><td><b>${esc(u.name)}</b></td><td>${u.n}</td><td>${u.tok.toLocaleString("en-US")}</td><td>${aiM(u.mon)}</td><td>${aiM(u.tot)}</td><td class="mu">${u.last?aiDT(u.last):"–"}</td><td style="text-align:right"><button class="b bs" data-a="aiPdf" data-id="${u.id}" ${u.n?"":"disabled"}>${t("ai_pdf")}</button></td></tr>`).join("")}</tbody></table></div>
-<div class="lbl">${t("ai_recent")}</div>${A.recent.length?A.recent.map(r=>`<div style="padding:7px 0;border-top:1px solid var(--ln);display:flex;gap:10px"><div style="flex:1;min-width:0"><b>${esc(r.who)}</b> <span class="mu">${aiDT(r.at)}</span><div style="overflow-wrap:anywhere">${esc(r.q)}</div></div><div class="mu" style="white-space:nowrap">${aiM(r.cost)}</div></div>`).join(""):`<div class="mu">${t("ai_none")}</div>`}</div>`}
-function aiCostWho(){const A=PG.aiA;if(!A||!USER.owner)return "";const c=A.cfg,ids=c.costUsers||[];
- return `<div class="card" style="padding:14px;margin-bottom:12px"><div class="lbl" style="margin-top:0">${t("ai_xw")}</div><p class="mu" style="margin-top:0;font-size:calc(12px*var(--fz,1))">${t("ai_xwh")}</p>
-<label class="ck" style="display:flex;gap:8px;margin:8px 0"><input type="checkbox" data-c="aiCostAll" ${c.costAll?"checked":""}><span style="color:var(--tx)">${t("ai_xall")}</span></label>
-<div style="display:flex;flex-wrap:wrap;gap:6px;${c.costAll?"opacity:.5;pointer-events:none":""}">${A.users.filter(u=>!u.owner).map(u=>`<button class="tmc ${ids.includes(u.id)?"":"off"}" data-a="aiCostTog" data-id="${u.id}">${ids.includes(u.id)?ic("check",11):""}<span>${esc(u.name)}</span><span class="mu" style="font-size:calc(10px*var(--fz,1))">${t(u.role=="admin"?"tm_admin":"tm_member")}</span></button>`).join("")||`<span class="mu">–</span>`}</div></div>`}
-function aiCostBody(){const C=PG.aiC;if(!C)return `<div class="mu">…</div>`;const B=C.breakdown,own=USER.owner,mx=Math.max(0.0001,...C.days.map(x=>x.cost)),tot=B.costIn+B.costOut||1;
- const kp=(l,v,s)=>`<div class="card" style="padding:12px"><div class="mu" style="font-size:calc(11px*var(--fz,1))">${l}</div><div style="font-size:calc(20px*var(--fz,1));font-weight:800;margin-top:2px">${v}</div>${s?`<div class="mu" style="font-size:calc(11px*var(--fz,1))">${s}</div>`:""}</div>`;
- const parts=[["ai_w_out",B.costOut,"ai_w_out2","var(--ac)"],["ai_w_sys",B.parts.sys+B.parts.tools,"ai_w_sys2","#3b82f6"],["ai_w_his",B.parts.hist,"ai_w_his2","#14b8a6"],["ai_w_ask",B.parts.ask,"ai_w_ask2","#f59e0b"],["ai_w_res",B.parts.res,"ai_w_res2","#ec4899"]];
- const avg=C.month.n?C.month.cost/C.month.n:0,tl=Object.entries(C.tools).sort((a,b)=>b[1]-a[1]);
- return `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px">${kp(t("ai_k_today"),aiM(C.today.cost),C.today.n+" "+t("ai_req").toLowerCase())}${kp(t("ai_k_week"),aiM(C.week.cost),C.week.n+" "+t("ai_req").toLowerCase())}${kp(t("ai_k_month"),aiM(C.month.cost),C.month.n+" "+t("ai_req").toLowerCase())}${kp(t("ai_k_fc"),aiM(C.forecast))}${kp(t("ai_k_avg"),aiM(avg))}${kp(t("ai_k_all"),aiM(C.all.cost),C.all.n+" "+t("ai_req").toLowerCase())}</div>
-${C.cap>0?`<div class="card" style="padding:12px;margin-bottom:12px"><div class="row" style="justify-content:space-between"><span>${t("ai_budget")}</span><b>${aiM(C.month.cost)} / ${aiM(C.cap)}</b></div>${aiBar(C.month.cost/C.cap*100,C.month.cost>=C.cap?"#ef4444":C.month.cost>=C.cap*.8?"#f59e0b":"#22c55e")}</div>`:""}
-<div class="card" style="padding:14px;margin-bottom:12px"><div class="lbl" style="margin-top:0">${t("ai_days")}</div><div style="display:flex;align-items:flex-end;gap:3px;height:110px;margin-top:8px">${C.days.length?C.days.map(x=>`<div title="${esc(aiDay(x.d)+" · "+aiM(x.cost)+" · "+x.n)}" style="flex:1;min-width:4px;background:var(--ac);border-radius:3px 3px 0 0;height:${Math.max(3,x.cost/mx*100)}%"></div>`).join(""):`<span class="mu">${t("ai_none")}</span>`}</div>${C.days.length?`<div class="row" style="justify-content:space-between;margin-top:4px"><span class="mu">${aiDay(C.days[0].d)}</span><span class="mu">${aiDay(C.days[C.days.length-1].d)}</span></div>`:""}</div>
-<div class="card" style="padding:14px;margin-bottom:12px"><div class="lbl" style="margin-top:0">${t("ai_where")}</div><p class="mu" style="margin:4px 0 10px">${t("ai_sum",B.requests,B.steps,C.rates.inp,C.rates.out,esc(C.rates.model))}</p>
-${parts.map(([k,v,h,c])=>`<div style="margin:10px 0"><div class="row" style="justify-content:space-between"><b>${t(k)}</b><span><b>${aiM(v)}</b> <span class="mu">${aiPct(v/tot*100)}</span></span></div>${aiBar(v/tot*100,c)}<div class="mu" style="font-size:calc(12px*var(--fz,1));margin-top:3px">${t(h)}</div></div>`).join("")}</div>
-<div class="card" style="padding:14px;margin-bottom:12px"><div class="lbl" style="margin-top:0">${t("ai_byu")}</div>${C.byUser.length?C.byUser.map(u=>`<div class="row" style="padding:7px 0;border-top:1px solid var(--ln);justify-content:space-between"><span><b>${esc(u.name)}</b> <span class="mu">${u.n} ${t("ai_req").toLowerCase()} · ${u.tok.toLocaleString("en-US")} ${t("ai_tok").toLowerCase()}</span></span><b>${aiM(u.cost)}</b></div>`).join(""):`<div class="mu">${t("ai_none")}</div>`}</div>
-${C.top.length?`<div class="card" style="padding:14px;margin-bottom:12px"><div class="lbl" style="margin-top:0">${t("ai_top")}</div>${C.top.map(x=>`<div style="padding:7px 0;border-top:1px solid var(--ln);display:flex;gap:10px"><div style="flex:1;min-width:0"><b>${esc(x.who)}</b> <span class="mu">${aiDT(x.at)} · ${t("ai_steps",x.steps)} · ${(x.inTok+x.outTok).toLocaleString("en-US")} ${t("ai_tok").toLowerCase()}</span>${x.q?`<div style="overflow-wrap:anywhere">${esc(x.q)}</div>`:""}</div><b>${aiM(x.cost)}</b></div>`).join("")}</div>`:""}
-${tl.length?`<div class="card" style="padding:14px;margin-bottom:12px"><div class="lbl" style="margin-top:0">${t("ai_tools")}</div>${tl.map(([k,n])=>`<div class="row" style="padding:6px 0;border-top:1px solid var(--ln);justify-content:space-between"><span>${esc(aiLabel(k))}</span><b>${n}</b></div>`).join("")}</div>`:""}`}
-const aiSec=(ti,sub,body)=>`<section class="card cp" style="margin-bottom:16px"><h3 style="margin:0 0 6px;font-size:calc(15px*var(--fz,1))">${t(ti)}</h3><p class="mu" style="margin-top:0">${t(sub)}</p>${body}</section>`;
-PAGES.aibot=()=>{if(!aiSrv())return `<div class="pg"><div class="em">${t("ai_srv")}</div></div>`;if(!aiBotOk())return `<div class="pg"><div class="em">${t("ai_noc")}</div></div>`;aiLoad();
- return `<div class="pg" style="max-width:920px">${aiSec("ai_h1","ai_s1",USER.owner?aiCtlCard()+aiUseCard():aiAccessCard())}</div>`};
-PAGES.aiexp=()=>{if(!aiSrv())return `<div class="pg"><div class="em">${t("ai_srv")}</div></div>`;if(!aiExpOk())return `<div class="pg"><div class="em">${t("ai_noc")}</div></div>`;aiLoad();
- return `<div class="pg" style="max-width:920px">${aiSec("ai_h2","ai_s2",aiCostWho()+aiCostBody())}</div>`};
-C.aiOn=el=>aiSave({on:el.checked});C.aiOpen=el=>aiSave({open:el.checked});C.aiLevel=el=>aiSave({level:el.value});C.aiCostAll=el=>aiSave({costAll:el.checked});
-C.aiCap=el=>aiSave({cap:Math.max(0,+el.value||0)});
-C.aiUser=el=>aiSave({users:{[el.dataset.id]:el.value}});
-C.aiDays=el=>{PG.aiDays=+el.value};
-A.aiCostTog=el=>{const A0=PG.aiA;if(!A0)return;const id=el.dataset.id,ids=(A0.cfg.costUsers||[]).slice(),i=ids.indexOf(id),m=A0.users.find(u=>u.id==id);if(i<0)ids.push(id);else ids.splice(i,1);aiSave({costUsers:ids});if(m)toast(t(i<0?"ai_xon":"ai_xoff",m.name))};
-function aiWrap(doc,s,w,sz,b){const out=[];String(s||"").split(/\r?\n/).forEach(par=>{let line="";par.split(/\s+/).filter(Boolean).forEach(wd=>{const tr=line?line+" "+wd:wd;if(doc.tw(tr,sz,b)<=w)line=tr;else{if(line)out.push(line);while(doc.tw(wd,sz,b)>w&&wd.length>4){let k=wd.length;while(k>1&&doc.tw(wd.slice(0,k),sz,b)>w)k--;out.push(wd.slice(0,k));wd=wd.slice(k)}line=wd}});out.push(line)});return out}
-A.aiPdf=async el=>{const id=el.dataset.id,days=PG.aiDays==null?30:PG.aiDays;el.disabled=true;
- const r=await api("GET","/api/ai/log?user="+encodeURIComponent(id)+"&days="+days);el.disabled=false;if(r.s!=200){toast(t("ai_err"),"er");return}
- const L=r.j.rows;if(!L.length){toast(t("ai_nolog"),"er");return}
- const who=id=="all"?"Everyone":(L[0].who||"user"),tot=L.reduce((s,x)=>s+x.cost,0),doc=PDFDoc(612,792).page(),W=doc.W-2*doc.M,tzn=r.j.tz;
- const dt=x=>{try{return new Date(x).toLocaleString("en-US",{timeZone:tzn,year:"numeric",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}catch(e){return String(x)}};
- doc.text("AI requests - "+who,doc.M,20,{b:1});doc.y-=18;
- doc.text("TOPGFLEET  ·  "+(days?"last "+days+" days":"all time")+"  ·  "+L.length+" requests  ·  total "+aiM(tot),doc.M,9,{c:"#777777"});doc.y-=18;doc.hr();doc.y-=14;
- const put=(txt,sz,o)=>aiWrap(doc,txt,W-(o&&o.ind||0),sz,o&&o.b).forEach(ln=>{doc.need(sz+4);doc.text(ln,doc.M+(o&&o.ind||0),sz,o);doc.y-=sz+3});
- L.slice().reverse().forEach(x=>{doc.need(70);
-  doc.text(dt(x.at)+"  ·  "+(x.who||"-")+(x.level&&x.level!="owner"?" ("+x.level+")":"")+"  ·  "+aiM(x.cost)+"  ·  "+x.steps+" step"+(x.steps==1?"":"s"),doc.M,8.5,{b:1,c:"#6d5ae6"});doc.y-=13;
-  put("Q: "+x.q,9.5,{b:1});put("A: "+(x.a||"-").replace(/<[^>]+>/g,""),9,{c:"#333333",ind:0});doc.y-=4;doc.hr("#eeeeee");doc.y-=10});
- saveBlob("ai-requests-"+(id=="all"?"everyone":who.replace(/[^A-Za-z0-9]+/g,"-").toLowerCase())+"-"+fdate()+".pdf",doc.bytes("TOPGFLEET · AI requests · "+who),"application/pdf")};
-
-/* ----- section access: the owner switches any section on/off for any person ----- */
-Object.assign(D,{pf_pacc:["Section access","Bo‘limlarga ruxsat","Доступ к разделам"],
-pacc_s:["Choose which sections each person can open. A blocked section disappears from their menu and they cannot change its data. Tap a section to switch it for that person.","Har odam qaysi bo‘limlarni ochishini tanlang. Yopilgan bo‘lim menyudan yo‘qoladi va uning ma’lumotini o‘zgartira olmaydi. Bo‘limni bosing: shu odam uchun yoqiladi/o‘chadi.","Выберите, какие разделы может открывать каждый человек. Закрытый раздел пропадает из меню, его данные менять нельзя. Нажмите на раздел, чтобы включить/выключить."],
-pacc_all:["Allow all","Hammasiga ruxsat","Разрешить всё"],pacc_none:["Block all","Hammasini yopish","Закрыть всё"],
-pacc_on:["{0} can open {1}","{0} {1} ni ocha oladi","{0} может открыть {1}"],pacc_off:["{0} can no longer open {1}","{0} endi {1} ni ocha olmaydi","{0} больше не может открыть {1}"],
-pacc_err:["Could not save. Try again.","Saqlab bo‘lmadi. Qayta urining.","Не удалось сохранить. Повторите."],pacc_none_p:["No other people yet.","Hozircha boshqa odam yo‘q.","Других людей пока нет."]});
-Object.assign(D,{pacc_s:["Every section of the menu is listed here. Tap the pencil next to a section and choose, for each person, No access, Only read or Can edit. A section with no access disappears from that person’s menu.","Menyudagi hamma bo‘lim shu yerda. Bo‘lim yonidagi qalamchani bosing va har odam uchun tanlang: Ruxsat yo‘q, Faqat o‘qish yoki Tahrirlay oladi. Ruxsat berilmagan bo‘lim odamning menyusidan yo‘qoladi.","Здесь все разделы меню. Нажмите на карандаш рядом с разделом и выберите для каждого: Нет доступа, Только чтение или Может менять. Раздел без доступа пропадает из меню человека."],
-pacc_every:["Everyone","Hamma","Все"],pacc_only:["Only you","Faqat siz","Только вы"],pacc_n:["{0} of {1} people","{0} / {1} odam","{0} из {1}"],pacc_edit:["Choose who sees it","Kimga ko‘rinishini tanlang","Выбрать, кому показывать"],
-pacc_selall:["Select all","Hammasini belgilash","Выбрать всех"],pacc_clear:["Clear all","Hammasini olib tashlash","Снять всех"],pacc_done:["Done","Tayyor","Готово"],pacc_md_s:["Tick the people who may open this section. Saved at once.","Bu bo‘limni ocha oladigan odamlarni belgilang. Darrov saqlanadi.","Отметьте людей, которым разрешён раздел. Сохраняется сразу."],
-pacc_aib:["Set what each person may do with the bot. Default follows the “open for everyone” switch on the AI page.","Har odam bot bilan nima qila olishini belgilang. Umumiy qoida AI sahifasidagi “hamma uchun ochiq” tugmasiga bog‘liq.","Задайте, что каждый может делать с ботом. По умолчанию — по переключателю «открыто всем» на странице ИИ."],pacc_open_ai:["Open the AI page for bot on/off and budget","Bot yoqish/o‘chirish va byudjet uchun AI sahifasini oching","Откройте страницу ИИ: включение бота и бюджет"]});
-Object.assign(D,{pacc_lv_none:["No access","Ruxsat yo‘q","Нет доступа"],pacc_lv_read:["Only read","Faqat o‘qish","Только чтение"],pacc_lv_edit:["Can edit","Tahrirlay oladi","Может менять"],pacc_all_edit:["All can edit","Hammasi tahrirlasin","Всем менять"],pacc_all_ro:["All only read","Hammasi faqat o‘qisin","Всем только чтение"],pacc_ro:["read only","faqat o‘qish","только чтение"],
-pacc_deny:["You don’t have access to do this. This section is read only for you.","Sizda bu amalga ruxsat yo‘q. Bu bo‘lim siz uchun faqat o‘qish.","У вас нет доступа к этому действию. Раздел только для чтения."],
-pacc_banner:["Read only: you can look at this section but not change anything in it.","Faqat o‘qish: bu bo‘limni ko‘rasiz, lekin hech narsani o‘zgartira olmaysiz.","Только чтение: раздел можно смотреть, но нельзя ничего менять."],
-pacc_md_s:["Choose for each person: No access, Only read (can look, cannot change) or Can edit. Saved at once.","Har odam uchun tanlang: Ruxsat yo‘q, Faqat o‘qish (ko‘radi, o‘zgartira olmaydi) yoki Tahrirlay oladi. Darrov saqlanadi.","Для каждого выберите: Нет доступа, Только чтение (смотрит, не меняет) или Может менять. Сохраняется сразу."]});
-const RO_A=/^(mdClose|drClose|nav|menu|logout|pop|shpop|noop|eye|setTheme|setCol|pfGo|gopen|coPick|ivUnitClr|vnTab|vnDir|vnMode|vnFull|vnFocus|vnChip|vnSearch|vnPanTog|vnBackMy|vnRoute|vnDirOpen|vnDirClose|vnSwap|vnRecGo|vnPlGo|vnRtSel|vsPick|vsPlace|vsGo|vnStepsTog|vnMsgX|ivPg|ivJump|ivView|ivViewF|ivReport|ivExport|ivPick|ivPrev|ivDl|ivDlF|ivRefresh|trView|trReport|trFind|trAll|tlRefresh|tlChip|issueTab|issueSort|issueGrp|alertTab|advClear|phView|mtReport|rpSet|ivCopy)$/;
-const RO_C=/^(ivF|tlF|inF|trSort|ivSel|ivAll|ivDate|vpDate|advComp|tgF)$/;
-const RO_I=/^(vsI|trq|tlq|iq|gq|drQ|dcQ|hdQ|inQ|ivQ|ivUnit|vnQ|vnQ0|vnN0|vnPlQ|tgF)$/;
-function roBlock(re,name){if(!aiSrv()||USER.owner||pageMode(V)!="read"||re.test(name))return false;toast(t("pacc_deny"),"er");return true}
-function roGuard(name,kind){return roBlock(kind=="c"?RO_C:kind=="i"?RO_I:RO_A,name)}
-const roBanner=()=>`<div class="note" style="margin:0 0 12px;grid-column:auto">${ic("eye",14)} ${t("pacc_banner")}</div>`;
-NAV_KEYS().forEach(k=>{const f=PAGES[k];if(typeof f=="function")PAGES[k]=(...a)=>{const h=f(...a);return typeof h=="string"&&pageMode(k)=="read"?roBanner()+h:h}});
-function paccLoad(){if(!PG.pacc&&!PG.paccBusy){PG.paccBusy=1;api("GET","/api/access").then(r=>{PG.pacc=r.s==200?r.j.deny:{};PG.paccR=r.s==200?r.j.read||{}:{};PG.paccBusy=0;if(V=="profile")page()})}
- if(!PG.aiA&&!PG.paccAiBusy){PG.paccAiBusy=1;api("GET","/api/ai/admin").then(r=>{if(r.s==200)PG.aiA=r.j;PG.paccAiBusy=0;if(V=="profile")page()})}}
-const paccPeople=()=>(S.team||[]).filter(m=>!m.owner&&m.r!="driver");
-const paccLv=(k,id)=>((PG.pacc||{})[id]||[]).includes(k)?"none":((PG.paccR||{})[id]||[]).includes(k)?"read":"edit";
-function paccAllowed(k){const P=paccPeople();
- if(k=="aiexp"){const c=PG.aiA&&PG.aiA.cfg;if(!c)return null;return c.costAll?P.map(m=>m.id):P.filter(m=>(c.costUsers||[]).includes(m.id)).map(m=>m.id)}
- if(k=="aibot"){const A0=PG.aiA;if(!A0)return null;return P.filter(m=>{const u=A0.users.find(x=>x.id==m.id),st=u?u.setting:"default";return st=="read"||st=="edit"||(st=="default"&&A0.cfg.open)}).map(m=>m.id)}
- return P.filter(m=>paccLv(k,m.id)!="none").map(m=>m.id)}
-function paccBody(){if(!(aiSrv()&&USER.owner))return "";paccLoad();if(!PG.pacc)return `<div class="mu">…</div>`;
- const P=paccPeople();
- return `<p class="mu" style="margin-top:0">${t("pacc_s")}</p>${NAVS.map(([g,it])=>`<div class="lbl">${t(g)}</div>${it.map(([k,i])=>{const a=paccAllowed(k),n=a?a.length:0,rn=a&&k!="aibot"&&k!="aiexp"?a.filter(id=>paccLv(k,id)=="read").length:0,ro=rn?" · "+(rn==n&&n==P.length?t("pacc_ro"):rn+" "+t("pacc_ro")):"",txt=a==null?"…":!P.length?"–":n>=P.length?t("pacc_every")+ro:n==0?t("pacc_only"):t("pacc_n",n,P.length)+ro;
-  return `<div class="row" style="padding:9px 0;border-top:1px solid var(--ln);flex-wrap:nowrap;gap:10px"><span style="display:flex;color:var(--mu)">${ic(i,16)}</span><b style="flex:1;min-width:0">${esc(t(k))}</b><span class="mu" style="white-space:nowrap">${txt}</span><button class="bi" data-a="paccEd" data-k="${k}" title="${esc(t("pacc_edit"))}" aria-label="${esc(t("pacc_edit"))}">${ic("pen",14)}</button></div>`}).join("")}`).join("")}`}
-function paccModal(k){const P=paccPeople(),a=paccAllowed(k)||[],ai=PG.aiA;let body;
- const nm=m=>`<span style="flex:1;min-width:0"><b>${esc(m.n)}</b> <span class="mu">${t(m.r=="admin"?"tm_admin":"tm_member")}</span></span>`;
- if(k=="aibot"){const lv=id=>{const u=ai&&ai.users.find(x=>x.id==id);return u?u.setting:"default"};
-  body=`<p class="mu" style="margin-top:0">${t("pacc_aib")}</p>${P.map(m=>`<div class="row" style="padding:8px 0;border-top:1px solid var(--ln);flex-wrap:nowrap">${nm(m)}<select data-c="paccAiB" data-id="${m.id}" style="width:170px;flex:none">${[["default","ai_def"],["none","ai_no"],["read","ai_ro"],["edit","ai_ed"]].map(([v,l])=>`<option value="${v}"${lv(m.id)==v?" selected":""}>${t(l)}</option>`).join("")}</select></div>`).join("")||`<div class="mu">${t("pacc_none_p")}</div>`}<div style="margin-top:12px"><button class="b" data-a="paccGoAi">${t("pacc_open_ai")}</button></div>`}
-else if(k=="aiexp"){body=`<p class="mu" style="margin-top:0">${t("pacc_md_s")}</p><label class="ck" style="display:flex;gap:8px;margin:8px 0"><input type="checkbox" data-c="paccAiXAll" ${ai&&ai.cfg.costAll?"checked":""}><span style="color:var(--tx)">${t("ai_xall")}</span></label>
-  ${P.map(m=>`<label class="ck row" style="padding:8px 0;border-top:1px solid var(--ln);flex-wrap:nowrap;gap:10px;cursor:pointer"><input type="checkbox" data-c="paccChk" data-k="${k}" data-id="${m.id}" ${a.includes(m.id)?"checked":""}>${nm(m)}</label>`).join("")||`<div class="mu">${t("pacc_none_p")}</div>`}`}
- else{body=`<p class="mu" style="margin-top:0">${t("pacc_md_s")}</p>
-  <div class="row" style="gap:8px;margin:6px 0"><button class="b bs" data-a="paccSet" data-k="${k}" data-v="edit">${t("pacc_all_edit")}</button><button class="b bs" data-a="paccSet" data-k="${k}" data-v="read">${t("pacc_all_ro")}</button><button class="b bs" data-a="paccSet" data-k="${k}" data-v="none">${t("pacc_clear")}</button></div>
-  ${P.map(m=>`<div class="row" style="padding:8px 0;border-top:1px solid var(--ln);flex-wrap:nowrap;gap:10px">${nm(m)}<select data-c="paccLv" data-k="${k}" data-id="${m.id}" style="width:150px;flex:none">${[["none","pacc_lv_none"],["read","pacc_lv_read"],["edit","pacc_lv_edit"]].map(([v,l])=>`<option value="${v}"${paccLv(k,m.id)==v?" selected":""}>${t(l)}</option>`).join("")}</select></div>`).join("")||`<div class="mu">${t("pacc_none_p")}</div>`}`}
- modal({title:esc(t(k)),sub:esc(t("pf_pacc")),icon:"shield",w:480,body,foot:`<button class="b bp" data-a="mdClose">${t("pacc_done")}</button>`})}
-async function paccSaveSec(k,ids){
- if(k=="aiexp"){const r=await api("POST","/api/ai/config",{costUsers:ids});return r.s==200&&paccAiRefresh()}
- return false}
-async function paccSaveLv(k,lv){const allow=Object.keys(lv).filter(id=>lv[id]!="none"),read=allow.filter(id=>lv[id]=="read");const r=await api("POST","/api/access/section",{section:k,allow,read});if(r.s!=200)return false;PG.pacc=r.j.deny;PG.paccR=r.j.read||{};return true}
-async function paccAiRefresh(){const r=await api("GET","/api/ai/admin");if(r.s==200){PG.aiA=r.j;return true}return false}
-async function paccDone(k,ok){if(!ok){toast(t("pacc_err"),"er");return}paccModal(k);if(V=="profile")page();toast(t("ai_saved"))}
-C.paccChk=async el=>{const k=el.dataset.k,id=el.dataset.id,cur=new Set(paccAllowed(k)||[]);if(el.checked)cur.add(id);else cur.delete(id);paccDone(k,await paccSaveSec(k,[...cur]))};
-A.paccSet=async el=>{const k=el.dataset.k,v=el.dataset.v,lv={};paccPeople().forEach(m=>lv[m.id]=v);paccDone(k,await paccSaveLv(k,lv))};
-C.paccLv=async el=>{const k=el.dataset.k,lv={};paccPeople().forEach(m=>lv[m.id]=paccLv(k,m.id));lv[el.dataset.id]=el.value;paccDone(k,await paccSaveLv(k,lv))};
-C.paccAiXAll=async el=>{const r=await api("POST","/api/ai/config",{costAll:el.checked});paccDone("aiexp",r.s==200&&await paccAiRefresh())};
-C.paccAiB=async el=>{const r=await api("POST","/api/ai/config",{users:{[el.dataset.id]:el.value}});paccDone("aibot",r.s==200&&await paccAiRefresh())};
-A.paccEd=el=>paccModal(el.dataset.k);
-A.paccGoAi=()=>{closeMd();go("aibot")};
-/* ===== SERVER MODE: real login, shared data, sync =====
-   When /api answers (the site is served by server.js) the app uses the server.
-   Anywhere else (a preview, a file on disk) it falls back to the local demo mode. */
-Object.assign(D,{
-sv_noconn:["Connection problem","Ulanishda muammo","Проблема соединения"],sv_noconn_s:["The server is not responding. Please try again in a moment.","Server javob bermayapti. Birozdan keyin qayta urinib ko‘ring.","Сервер не отвечает. Повторите попытку через минуту."],sv_retry:["Try again","Qayta urinish","Повторить"],
-sv_edit:["Edit","Tahrirlash","Изменить"],sv_cur:["Current password","Joriy parol","Текущий пароль"],tm_color:["Change colour","Rangni o‘zgartirish","Сменить цвет"],pw:["Password","Parol","Пароль"],
-sv_bad:["Wrong e-mail or password.","E-mail yoki parol noto‘g‘ri.","Неверный e-mail или пароль."],
-sv_locked:["Too many attempts. This account is locked for 15 minutes.","Juda ko‘p urinish. Akkaunt 15 daqiqaga bloklandi.","Слишком много попыток. Аккаунт заблокирован на 15 минут."],
-sv_rate:["Too many requests. Wait a few minutes and try again.","Juda ko‘p so‘rov. Bir necha daqiqa kutib, qayta urining.","Слишком много запросов. Подождите несколько минут."],
-sv_code:["Authenticator code","Authenticator kodi","Код из приложения"],
-sv_code_s:["Open your authenticator app and enter the 6-digit code for TOPGFLEET.","Authenticator ilovasini ochib, TOPGFLEET uchun 6 xonali kodni kiriting.","Откройте приложение-аутентификатор и введите 6-значный код для TOPGFLEET."],
-sv_verify:["Verify","Tasdiqlash","Подтвердить"],sv_back:["Back","Orqaga","Назад"],
-sv_code_bad:["That code is not right.","Kod noto‘g‘ri.","Неверный код."],
-sv_off:["Can’t reach the server. Check your connection.","Serverga ulanib bo‘lmadi. Internetni tekshiring.","Нет связи с сервером. Проверьте интернет."],
-sv_driver:["Driver accounts use the TOPGFLEET driver app. This website is for the office.","Driver akkauntlari TOPGFLEET driver ilovasidan foydalanadi. Bu sayt ofis uchun.","Аккаунты водителей работают в приложении TOPGFLEET. Этот сайт для офиса."],
-sv_sess:["Your session ended. Sign in again.","Seans tugadi. Qayta kiring.","Сеанс завершён. Войдите снова."],
-sv_syncerr:["Could not save. Retrying…","Saqlab bo‘lmadi. Qayta urinilmoqda…","Не удалось сохранить. Повторяем…"],
-sv_forbid:["You don’t have permission to change that.","Buni o‘zgartirishga ruxsatingiz yo‘q.","У вас нет прав на это изменение."],
-sv_no2fa:["Turn on two-step sign-in (Profile → Account) to protect your account.","Akkauntni himoya qilish uchun ikki bosqichli kirishni yoqing (Profil → Akkaunt).","Включите двухэтапный вход (Профиль → Аккаунт) для защиты аккаунта."],
-tf_req_t:["Owner approves every sign-in (authenticator)","Har bir kirishni faqat owner tasdiqlaydi (authenticator)","Каждый вход подтверждает только владелец (аутентификатор)"],tf_req_s:["Everyone else signs in with a 6-digit code from YOUR authenticator app. They must ask you for it, so nobody gets in without you. You get a Telegram message when someone signs in or out.","Qolgan hamma kirishda SIZNING authenticator ilovangizdagi 6 xonali kodni kiritadi. Ular kodni sizdan so‘rashi kerak, shuning uchun sizsiz hech kim kira olmaydi. Kimdir kirsa yoki chiqsa, Telegramga xabar keladi.","Все остальные входят с 6-значным кодом из ВАШЕГО приложения. Они должны попросить его у вас, без вас никто не войдёт. При входе и выходе вам приходит сообщение в Telegram."],
-tf_req_on:["To sign in you need the current code from the owner. Ask the owner.","Kirish uchun ownerning hozirgi kodi kerak. Ownerdan so‘rang.","Для входа нужен текущий код владельца. Попросите его у владельца."],tf_req_set:["Required for everyone","Hamma uchun majburiy","Обязательно для всех"],tf_req_off:["No longer required","Majburiy emas","Больше не обязательно"],
-tf_own_s:["Enter the 6-digit code from the owner’s authenticator app. Ask the owner for it.","Owner authenticator ilovasidagi 6 xonali kodni kiriting. Uni ownerdan so‘rang.","Введите 6-значный код из приложения владельца. Попросите его у владельца."],tf_req_first:["Turn on your own authenticator first (button above).","Avval o‘zingizning authenticatoringizni yoqing (yuqoridagi tugma).","Сначала включите свой аутентификатор (кнопка выше)."],tm_online:["Online","Onlayn","Онлайн"],tm_last:["Last sign-in","Oxirgi kirish","Последний вход"],tm_out:["Sign out","Chiqarish","Выйти"],tm_outd:["{0} was signed out","{0} tizimdan chiqarildi","{0} вышел из системы"],tm_never:["never signed in","hali kirmagan","ещё не входил"],
-ph_take:["Take a photo","Kameradan suratga olish","Сделать снимок"],ph_file:["Choose from files","Fayllardan tanlash","Выбрать из файлов"],ph_snap:["Capture","Suratga olish","Снять"],ph_nocam:["Camera is not available. Allow camera access in the browser, or choose from files.","Kamera ochilmadi. Brauzerda kameraga ruxsat bering yoki fayllardan tanlang.","Камера недоступна. Разрешите доступ в браузере или выберите файл."],ph_drag:["or drag a photo here","yoki rasmni shu yerga sudrab tashlang","или перетащите фото сюда"],ph_change:["Change photo","Rasmni almashtirish","Сменить фото"],ph_remove:["Remove photo","Rasmni olib tashlash","Удалить фото"],ph_allowed:["Photo changes allowed. Click to block.","Rasm o‘zgartirish ruxsat etilgan. Taqiqlash uchun bosing.","Смена фото разрешена. Нажмите, чтобы запретить."],ph_blocked:["Photo changes blocked. Click to allow.","Rasm o‘zgartirish taqiqlangan. Ruxsat berish uchun bosing.","Смена фото запрещена. Нажмите, чтобы разрешить."],ph_allowed_set:["{0} can change their photo","{0} rasmini o‘zgartira oladi","{0} может менять фото"],ph_blocked_set:["{0} can no longer change their photo","{0} endi rasmini o‘zgartira olmaydi","{0} больше не может менять фото"],ph_locked_msg:["The owner turned off photo changes for you.","Owner sizga rasm o‘zgartirishni taqiqlagan.","Владелец запретил вам менять фото."],ph_bad:["Could not use this image.","Bu rasmni ishlatib bo‘lmadi.","Не удалось использовать это изображение."],ph_saved:["Photo updated","Rasm yangilandi","Фото обновлено"],ph_removed:["Photo removed","Rasm olib tashlandi","Фото удалено"],
-tf_force_t:["Set up two-step sign-in","Ikki bosqichli kirishni sozlang","Настройте двухэтапный вход"],tf_force_s:["Your admin requires two-step sign-in. Set it up now to continue.","Admin ikki bosqichli kirishni majburiy qildi. Davom etish uchun hozir sozlang.","Администратор требует двухэтапный вход. Настройте его, чтобы продолжить."],tm_2fa:["2FA","2FA","2FA"],tm_no2fa:["no 2FA","2FA yo‘q","нет 2FA"],
-sv_2fa_t:["Two-step sign-in (2FA)","Ikki bosqichli kirish (2FA)","Двухэтапный вход (2FA)"],
-sv_2fa_on:["On. A code from your authenticator app is asked at every sign-in.","Yoqilgan. Har kirishda authenticator ilovasidagi kod so‘raladi.","Включено. При каждом входе запрашивается код из приложения."],
-sv_2fa_off:["Off. Anyone with your password can sign in.","O‘chiq. Parolni bilgan istalgan odam kira oladi.","Выключено. Любой, кто знает пароль, может войти."],
-sv_2fa_start:["Turn on","Yoqish","Включить"],sv_2fa_disable:["Turn off","O‘chirish","Выключить"],
-sv_2fa_steps:["1. Open Google Authenticator, Microsoft Authenticator or 1Password. 2. Add an account, choose “Enter a setup key” and type the key below (on a phone you can tap the link). 3. Type the 6-digit code it shows.","1. Google Authenticator, Microsoft Authenticator yoki 1Password ni oching. 2. Akkaunt qo‘shing, “Enter a setup key” ni tanlab, quyidagi kalitni kiriting (telefonda havolani bosish mumkin). 3. U ko‘rsatgan 6 xonali kodni yozing.","1. Откройте Google Authenticator, Microsoft Authenticator или 1Password. 2. Добавьте аккаунт, выберите «Ввести ключ» и введите ключ ниже (на телефоне можно нажать ссылку). 3. Введите 6-значный код."],
-sv_key:["Setup key","Sozlash kaliti","Ключ настройки"],
-sv_pw_ok:["Password changed.","Parol o‘zgartirildi.","Пароль изменён."],
-sv_pw_short:["Use at least 10 characters.","Kamida 10 ta belgi kiriting.","Минимум 10 символов."],
-sv_pw_common:["That password is too common.","Bu parol juda oddiy.","Слишком простой пароль."],
-sv_pw_personal:["Don’t put your name or e-mail in the password.","Parolga ism yoki e-mailni qo‘shmang.","Не используйте имя или e-mail в пароле."],
-sv_pw_wrong:["The current password is wrong.","Joriy parol noto‘g‘ri.","Текущий пароль неверен."],
-sv_pw_same:["The two new passwords are different.","Ikkala yangi parol bir xil emas.","Новые пароли не совпадают."],
-sv_must:["You must choose a new password before you continue.","Davom etishdan oldin yangi parol tanlang.","Выберите новый пароль, чтобы продолжить."],
-sv_new2:["Repeat new password","Yangi parolni takrorlang","Повторите новый пароль"],
-sv_dis:["Disable","O‘chirish (blok)","Отключить"],sv_ena:["Enable","Yoqish","Включить"],sv_reset:["Reset password","Parolni tiklash","Сбросить пароль"],
-sv_tmp:["New temporary password","Yangi vaqtincha parol","Новый временный пароль"],sv_dis_t:["Disabled","Bloklangan","Отключён"],
-sv_tm_drv:["Driver","Driver","Водитель"],
-sv_audit:["Activity log","Faoliyat jurnali","Журнал действий"],sv_audit_s:["Last 300 events: who signed in, who changed what.","Oxirgi 300 hodisa: kim kirdi, kim nimani o‘zgartirdi.","Последние 300 событий: кто входил и что менял."],
-sv_srv:["Signed in on the server. Your name and e-mail are managed by an administrator.","Serverga kirgansiz. Ism va e-mailni administrator boshqaradi.","Вы вошли на сервере. Имя и e-mail управляет администратор."],
-sv_member_note:["Only administrators can change company, status and priority settings.","Kompaniya, status va prioritet sozlamalarini faqat administrator o‘zgartiradi.","Настройки компаний, статусов и приоритетов меняет только администратор."],
-sv_live:["Live: shared with your team","Jonli: jamoa bilan umumiy","Онлайн: общие данные команды"],
-sv_roles:["Role","Rol","Роль"],sv_when:["When","Qachon","Когда"],sv_who:["Who","Kim","Кто"],sv_what:["What","Nima","Что"],
-sv_dupe:["That e-mail or username is already used.","Bu e-mail yoki username band.","Такой e-mail или логин уже используется."]
-});
-let SERVER=false,USER=null,INV=null,PULL=null,LS={step:"pw",err:"",busy:false,email:""},SNAP={rec:{},kv:{}},SYNC={timer:null,busy:false,again:false,pending:false,retry:null},LASTR="";
-const COLLS=["trucks","trailers","drivers","issues","plans","svc","docs","inv","vend","links","hist","insp"],KVF=["pti","ck","ph"],KVS=["prio","prioEd","compEd","teams","comps","stat","tg","tpl","ptiOff","tmAcc","seed14","myMap","vnLay","intEd"];
-const uSig=u=>u&&[u.permEdit,u.role,u.tg,u.avLock,JSON.stringify(u.ai||null),JSON.stringify(u.deny||[]),JSON.stringify(u.ro||[])];
-const hashN=s=>{let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))>>>0;return h};
-
-async function api(method,url,body,ms){const ac=new AbortController(),tm=ms?setTimeout(()=>ac.abort(),ms):null;let r;
- try{r=await fetch(url,{method,credentials:"same-origin",signal:ac.signal,headers:{"X-Requested-With":"tf",...(body!==undefined?{"Content-Type":"application/json"}:{})},body:body!==undefined?JSON.stringify(body):undefined})}catch(e){return{s:0,j:null,json:false}}finally{tm&&clearTimeout(tm)}
- const json=(r.headers.get("content-type")||"").includes("json");let j=null;if(json){try{j=await r.json()}catch(e){}}if(r.status==403&&j&&j.error=="2fa_setup"&&typeof USER!="undefined"&&USER&&!FORCE2){USER.need2fa=true;setTimeout(force2fa,0)}return{s:r.status,j,json}}
-
-/* ----- login screen (server + local demo) ----- */
-function loginView(){if(INV)return invView();const sv_=SERVER,tot=sv_&&LS.step=="totp";
- if(!sv_)return `<div style="margin:auto;width:min(380px,92vw)"><div class="card cp" style="padding:26px;text-align:center"><div class="brand" style="font-size:calc(22px*var(--fz,1));padding:0 0 10px;justify-content:center"><div class="logo" style="width:44px;height:44px">${logo(28)}</div><span>TOPG<b style="color:var(--ac)">FLEET</b></span></div><h3 style="margin:6px 0">${t("sv_noconn")}</h3><p class="mu" style="font-size:calc(12.5px*var(--fz,1))">${t("sv_noconn_s")}</p><button class="b bp" data-a="retry" style="width:100%;padding:10px;margin-top:10px">${t("sv_retry")}</button></div><div class="row" style="justify-content:center;margin-top:14px">${tabsH(LG.map((l,i)=>[l,LN[i]]),S.lang,"lang")}</div></div>`;
- return `<div style="margin:auto;width:min(360px,92vw)"><div class="card cp" style="padding:26px"><div class="brand" style="font-size:calc(22px*var(--fz,1));padding:0 0 4px"><div class="logo" style="width:44px;height:44px">${logo(28)}</div><span>TOPG<b style="color:var(--ac)">FLEET</b></span></div><p class="mu" style="margin:0 0 18px;font-size:calc(12px*var(--fz,1))">${t("signto")}</p>
-${LS.err?`<div class="note er" style="grid-column:auto;margin-bottom:12px" role="alert">${esc(LS.err)}</div>`:""}
-${tot?`<p class="mu" style="margin:0 0 10px">${t(LS.owner?"tf_own_s":"sv_code_s")}</p><div class="fd" style="margin-bottom:14px"><input id="lcode" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456" aria-label="${t("sv_code")}" data-enter="login" style="font-size:calc(20px*var(--fz,1));letter-spacing:.3em;text-align:center"></div><button class="b bp" data-a="login" style="width:100%;padding:10px">${t("sv_verify")}</button><button class="b" data-a="loginBack" style="width:100%;margin-top:8px;border:0;background:none;color:var(--mu)">${t("sv_back")}</button>`
- :`<div class="fd" style="margin-bottom:12px"><input id="lem" type="${sv_?"text":"email"}" value="${esc(sv_?LS.email:S.mail)}" autocomplete="username" aria-label="${t("email")}" placeholder="${t("email")}" data-enter="login"></div><div class="fd" style="margin-bottom:14px"><input id="lpw" type="password" ${sv_?"":'value="demo-password"'} autocomplete="current-password" aria-label="${t("password")}" placeholder="${t("password")}" data-enter="login"></div><button class="b bp" data-a="login" style="width:100%;padding:10px" ${LS.busy?"disabled":""}>${t("signin")}</button>`}
-<p class="mu" style="text-align:center;font-size:calc(11.5px*var(--fz,1));margin:14px 0 4px">${t("needacc")}</p>${sv_?"":`<p class="mu" style="text-align:center;font-size:calc(11px*var(--fz,1));margin:0">${t("demomode")}</p>`}</div>
-<div class="row" style="justify-content:center;margin-top:14px">${tabsH(LG.map((l,i)=>[l,LN[i]]),S.lang,"lang")}</div></div>`}
-const errMsg=r=>r.s==0?t("sv_off"):r.s==429?t(r.j&&r.j.error=="locked"?"sv_locked":"sv_rate"):r.j&&r.j.error=="code"?t("sv_code_bad"):t("sv_bad");
-A.loginBack=()=>{LS.step="pw";LS.err="";render()};
-A.login=async()=>{
- if(!SERVER){const m=$("#lem").value.trim();if(m)S.mail=m;S.in=true;save();V=viewFromHash();render();return}
- if(LS.busy)return;LS.busy=true;let r;
- if(LS.step=="pw"){LS.email=($("#lem").value||"").trim();const pw=$("#lpw").value;if(!LS.email||!pw){LS.busy=false;return}r=await api("POST","/api/login",{email:LS.email,password:pw})}
- else{r=await api("POST","/api/login/totp",{code:$("#lcode").value})}
- LS.busy=false;
- if(r.s==200&&r.j&&r.j.next=="totp"){LS.step="totp";LS.owner=!!r.j.owner;LS.err="";render();setTimeout(()=>{const c=$("#lcode");c&&c.focus()},30);return}
- if(r.s==200&&r.j&&r.j.user){LS.err="";LS.step="pw";await afterLogin(r.j.user);return}
- if(LS.step=="totp"&&r.s==401&&r.j&&r.j.error=="auth"){LS.step="pw";LS.err=t("sv_sess")}else LS.err=errMsg(r);
- render();setTimeout(()=>{const c=$("#lcode")||$("#lpw");c&&c.focus()},30)};
-function applyPrefs(u){const p=(u&&u.prefs)||{};let ch=false;if(p.sz&&typeof p.sz=="object"){S.sz={fz:+p.sz.fz||100,mz:+p.sz.mz||100,pz:+p.sz.pz||100};sv("tf2_sz",S.sz)}else if(u&&u.prefs&&!p.sz){S.sz=null;sv("tf2_sz",null)}szApply();if(p.theme&&TH[p.theme]&&S.theme!=p.theme){S.theme=p.theme;ch=true}if(p.lang&&["en","uz","ru"].includes(p.lang)&&S.lang!=p.lang){S.lang=p.lang;ch=true}if(ch)sv("tf2_p",{lang:S.lang,theme:S.theme,col:S.col,sm:S.sm});if(!p.theme)setTimeout(savePrefs,1500)}
-const SZK=[["fz","sz_text"],["mz","sz_menu"],["pz","sz_page"]];
-const SZR={fz:[50,150],mz:[50,120],pz:[50,100]};
-const szGet=()=>{const z=S.sz||{},c=(k,v)=>Math.max(SZR[k][0],Math.min(SZR[k][1],Math.round(+v)||100));return{fz:c("fz",z.fz),mz:c("mz",z.mz),pz:c("pz",z.pz)}};
-function szApply(){const z=szGet(),r=document.documentElement.style;r.setProperty("--fz",z.fz/100);r.setProperty("--mz",z.mz/100);r.setProperty("--pz",z.pz/100)}
-function dispBody(){const z=szGet();return `<p class="mu" style="margin-top:0">${t("sz_s")}</p>${SZK.map(([k,l])=>`<div class="szr"><span class="nm">${t(l)}</span><input type="range" min="${SZR[k][0]}" max="${SZR[k][1]}" step="1" value="${z[k]}" data-i="szSet" data-k="${k}" id="szr_${k}" style="--p:${(z[k]-SZR[k][0])/(SZR[k][1]-SZR[k][0])}" aria-label="${t(l)}"><span class="szn"><input type="number" min="${SZR[k][0]}" max="${SZR[k][1]}" step="1" inputmode="numeric" value="${z[k]}" data-i="szSet" data-c="szFix" data-k="${k}" id="szv_${k}" aria-label="${t(l)} %"><b>%</b></span></div>`).join("")}<p class="mu" style="font-size:calc(12px*var(--fz,1));margin:8px 0 0">${t("sz_rng",SZR.fz.join("–"),SZR.mz.join("–"),SZR.pz.join("–"))}</p><div class="row" style="margin-top:12px"><button class="b" data-a="szReset">${t("sz_reset")}</button></div>`}
-const szClamp=(k,v)=>Math.max(SZR[k][0],Math.min(SZR[k][1],Math.round(+v)||100));
-function szPaint(k,v){const r=$("#szr_"+k);if(r){r.value=v;r.style.setProperty("--p",(v-SZR[k][0])/(SZR[k][1]-SZR[k][0]))}}
-function szSetK(k,v){szPaint(k,v);S.sz={...szGet(),[k]:v};szApply();sv("tf2_sz",S.sz);clearTimeout(szApply.tm);szApply.tm=setTimeout(savePrefs,500)}
-I.szSet=el=>{const k=el.dataset.k,isN=el.type=="number",raw=el.value;if(isN&&(raw===""||+raw<SZR[k][0]||+raw>SZR[k][1]))return;const v=szClamp(k,raw);if(isN){const r=$("#szr_"+k);if(r)r.value=v}else{const n=$("#szv_"+k);if(n)n.value=v}szSetK(k,v)};
-C.szFix=el=>{const k=el.dataset.k,v=szClamp(k,el.value);el.value=v;const r=$("#szr_"+k);if(r)r.value=v;szSetK(k,v)};
-A.szReset=()=>{S.sz={fz:100,mz:100,pz:100};szApply();sv("tf2_sz",S.sz);savePrefs();page();toast(t("pf_upd"))};
-try{const q=JSON.parse(localStorage.getItem("tf2_sz")||"null");if(q)S.sz=q}catch(e){}
-Object.assign(D,{pf_disp:["Display","Ko'rinish o'lchamlari","Размеры интерфейса"],sz_s:["Adjust sizes to fit you. Saved on your account and used on every device.","O'zingizga moslab sozlang. Akkauntingizda saqlanadi va barcha qurilmalarda ishlaydi.","Настройте под себя. Сохраняется в аккаунте и действует на всех устройствах."],sz_text:["Text size","Yozuv o'lchami","Размер текста"],sz_menu:["Menu size","Menyu o'lchami","Размер меню"],sz_page:["Section / page size","Bo'lim / sahifa o'lchami","Размер разделов / страницы"],sz_rng:["Allowed: text {0}%, menu {1}%, section/page {2}%. Drag the slider or type a number.","Ruxsat: yozuv {0}%, menyu {1}%, bo‘lim/sahifa {2}%. Surgichni torting yoki raqam yozing.","Допустимо: текст {0}%, меню {1}%, разделы {2}%. Двигайте ползунок или введите число."],sz_reset:["Reset to default","Asl holiga qaytarish","Сбросить по умолчанию"]});
-function savePrefs(){if(SERVER&&USER&&S.in)api("PATCH","/api/me",{prefs:{theme:S.theme,lang:S.lang,sz:szGet()}}).then(r=>{if(r.s==200&&r.j&&r.j.user)USER.prefs=r.j.user.prefs})}
-async function afterLogin(user){USER=user;applyPrefs(user);if(user.need2fa){S.in=true;V=viewFromHash();render();force2fa();return}const ok=await loadRemote();if(!ok){render();return}
- S.in=true;V=viewFromHash();render();
- if(!user.totp&&user.role=="admin")setTimeout(()=>toast(t("sv_no2fa")),900)}
-A.logout=async()=>{if(SERVER){await flushNow();await api("POST","/api/logout",{})}S.in=false;USER=null;if(SERVER){DB=DEF_D();LASTR="";SNAP={rec:{},kv:{}}}else save();LS={step:"pw",err:"",busy:false,email:""};PG={};closeDr();closeMd();render()};
-const expired=()=>{S.in=false;USER=null;LS.err=t("sv_sess");LS.step="pw";closeDr();closeMd();render()};
-
-/* ----- loading + applying server state ----- */
-function applyRemote(st){const d0=DEF_D();DB=Object.assign(d0,st.DB||{});CK_TYPES.forEach(k=>{if(!DB.ck[k])DB.ck[k]=CK_DEF()[k]});CK_TYPES.slice(1).forEach(k=>{if(!DB.ph[k])DB.ph[k]=PH_DEF()[k]});
- const sx=st.S||{};Object.keys(sx).forEach(k=>S[k]=sx[k]);S.tg=Object.assign(DEF_S().tg,S.tg||{});S.tpl=Object.assign(DEF_S().tpl,S.tpl||{});
- S.team=(st.team||[]).map(u=>({...u,c:USERC[hashN(u.id)%USERC.length]}));
- const me=S.team.find(u=>USER&&u.id==USER.id);if(me)S.col=S.col||me.c;
- SNAP={rec:{},kv:{}};COLLS.forEach(c=>{SNAP.rec[c]={};(DB[c]||[]).forEach(x=>SNAP.rec[c][x.id]=JSON.stringify(x))});
- KVF.forEach(k=>{if(st.DB&&st.DB[k]!==undefined)SNAP.kv[k]=JSON.stringify(DB[k])});KVS.forEach(k=>{if(sx[k]!==undefined)SNAP.kv[k]=JSON.stringify(S[k])})}
-async function loadRemote(){const r=await api("GET","/api/state");
- if(r.s==403){toast(t("sv_driver"),"er");await api("POST","/api/logout",{});LS.err=t("sv_driver");USER=null;return false}
- if(r.s!=200||!r.j){LS.err=r.s==401?t("sv_sess"):t("sv_off");USER=null;return false}
- LASTR=JSON.stringify([r.j.DB,r.j.S,r.j.team,uSig(r.j.user)]);applyRemote(r.j);if(r.j.user){if(r.j.user.ai)USER.ai=r.j.user.ai;USER.deny=r.j.user.deny||[];USER.ro=r.j.user.ro||[]}S.name=USER.name;S.user=USER.username;S.mail=USER.email;return true}
-
-/* ----- saving: send only what changed ----- */
-function diff(){const up=[],del=[],kv={},isA=USER&&USER.role=="admin";
- COLLS.forEach(c=>{const old=SNAP.rec[c]||{},seen={};(DB[c]||[]).forEach(x=>{seen[x.id]=1;const j=JSON.stringify(x);if(old[x.id]!==j)up.push({c,id:x.id,d:x,j})});Object.keys(old).forEach(id=>{if(!seen[id])del.push({c,id})})});
- KVF.forEach(k=>{const j=JSON.stringify(DB[k]);if(SNAP.kv[k]!==j)kv[k]=DB[k]});
- KVS.forEach(k=>{if(!(k=="prio"?canPrio():k=="comps"||k=="teams"?canComp():k=="tg"||k=="tmAcc"?canInt():k=="prioEd"||k=="compEd"||k=="intEd"||k=="myMap"||k=="vnLay"?!!USER.owner:isA))return;const j=JSON.stringify(S[k]);if(S[k]!==undefined&&SNAP.kv[k]!==j)kv[k]=S[k]});
- return up.length||del.length||Object.keys(kv).length?{up,del,kv}:null}
-function serverSave(){sv("tf2_p",{lang:S.lang,theme:S.theme,col:S.col,sm:S.sm});if(!S.in)return;SYNC.pending=true;clearTimeout(SYNC.timer);SYNC.timer=setTimeout(flush,500)}
-async function flushNow(){clearTimeout(SYNC.timer);await flush()}
-async function flush(){if(!SERVER||!USER)return;if(SYNC.busy){SYNC.again=true;return}
- const p=diff();if(!p){SYNC.pending=false;return}
- SYNC.busy=true;const r=await api("POST","/api/sync",{upserts:p.up.map(x=>({c:x.c,id:x.id,d:x.d})),deletes:p.del,kv:p.kv});SYNC.busy=false;
- if(r.s==200){p.up.forEach(x=>{(SNAP.rec[x.c]=SNAP.rec[x.c]||{})[x.id]=x.j});p.del.forEach(x=>{delete (SNAP.rec[x.c]||{})[x.id]});Object.keys(p.kv).forEach(k=>SNAP.kv[k]=JSON.stringify(p.kv[k]));
-  if(SYNC.again||diff()){SYNC.again=false;return flush()}SYNC.pending=false;return}
- if(r.s==401){expired();return}
- if(r.s==403){SYNC.pending=false;toast(t("sv_forbid"),"er");await loadRemote();shellRefresh();return}
- if(r.s==400){SYNC.pending=false;toast(t("sv_syncerr"),"er");return}
- toast(t("sv_syncerr"),"er");clearTimeout(SYNC.retry);SYNC.retry=setTimeout(flush,5000)}
-addEventListener("pagehide",()=>{if(!SERVER||!USER||!SYNC.pending)return;const p=diff();if(!p)return;try{fetch("/api/sync",{method:"POST",keepalive:true,credentials:"same-origin",headers:{"X-Requested-With":"tf","Content-Type":"application/json"},body:JSON.stringify({upserts:p.up.map(x=>({c:x.c,id:x.id,d:x.d})),deletes:p.del,kv:p.kv})})}catch(e){}});
-
-/* ----- keep every screen in step with the team ----- */
-const busyUI=()=>!!($("#dr")&&$("#dr").innerHTML)||!!($("#md")&&$("#md").innerHTML)||/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||"")||!!PG.pop;
-async function pullRemote(force){if(!SERVER||!S.in||SYNC.busy||SYNC.pending||(!force&&busyUI()))return;
- const r=await api("GET","/api/state");if(r.s==401){expired();return}if(r.s!=200||!r.j)return;
- const str=JSON.stringify([r.j.DB,r.j.S,r.j.team,uSig(r.j.user)]);if(!force&&str==LASTR)return;LASTR=str;if(r.j.user&&USER){const ch=USER.permEdit!=r.j.user.permEdit;Object.assign(USER,r.j.user);if(ch)PG.users=null}applyRemote(r.j);shellRefresh()}
-setInterval(()=>{if(document.visibilityState=="visible")pullRemote()},15000);
-
-/* ----- password + 2FA + users (server mode) ----- */
-const pwWhy=w=>t(w=="short"?"sv_pw_short":w=="personal"?"sv_pw_personal":"sv_pw_common");
-function pwModal(forced){modal({title:t("ac_pw"),icon:"key",w:420,sub:forced?t("sv_must"):"",body:`<div class="fg"><div class="fd"><label>${t("ac_cur")}</label><input id="pw0" type="password" autocomplete="current-password" placeholder="${esc(t("pw_ph0"))}"></div><div class="fd"><label>${t("ac_new")}</label><input id="pw1" type="password" autocomplete="new-password" data-i="pw" placeholder="${esc(t("pw_ph1"))}"><div class="bars"><i></i><i></i><i></i><i></i></div><div class="hn">${t("pw_h")}</div></div><div class="fd"><label class="ck" style="text-transform:none;letter-spacing:0;font-size:calc(13px*var(--fz,1))"><input type="checkbox" id="pw3" checked><span style="color:var(--tx)">${t("pw_out")}</span></label><div class="hn">${t("pw_out_h")}</div></div><div class="note er hide" id="pwe" style="grid-column:auto"></div></div>`,
- foot:`${forced?"":`<button class="b" data-a="mdClose">${t("cancel")}</button>`}<button class="b bp" id="pws">${t("save")}</button>`});
- $("#pws").onclick=async()=>{const e=$("#pwe"),show=m=>{e.textContent=m;e.classList.remove("hide")};
-  const r=await api("POST","/api/password",{current:$("#pw0").value,next:$("#pw1").value,signoutOthers:$("#pw3").checked});
-  if(r.s==200){USER.mustChange=false;closeMd();toast(t("sv_pw_ok"));return}
-  show(r.s==401?t("sv_pw_wrong"):r.j&&r.j.error=="weak"?pwWhy(r.j.why):r.s==429?t("sv_rate"):t("sv_off"))}}
-A.acPw=()=>SERVER?pwModal(false):modal({title:t("ac_pw"),icon:"key",w:420,body:`<div class="note er" style="grid-column:auto">${t("ac_pwn")}</div>`,foot:`<button class="b" data-a="mdClose">${t("close")}</button>`});
-function tfPolicy(){if(USER.viaOwner)return `<p class="mu" style="margin-bottom:0">${t("tf_req_on")}</p>`;
- if(!USER.owner)return "";
- if(PG.req2fa===undefined&&!PG.req2faBusy){PG.req2faBusy=1;api("GET","/api/2fa/policy").then(r=>{PG.req2fa=r.s==200?!!r.j.on:false;PG.req2faBusy=0;if(V=="profile")page()})}
- return `<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--ln)"><label class="ck"><input type="checkbox" data-c="tfReq" ${PG.req2fa?"checked":""} ${USER.totp?"":"disabled"}><span style="color:var(--tx)"><b>${t("tf_req_t")}</b></span></label><p class="mu" style="margin:6px 0 0">${t(USER.totp?"tf_req_s":"tf_req_first")}</p></div>`}
-C.tfReq=async el=>{const on=el.checked,r=await api("POST","/api/2fa/policy",{on});if(r.s==200){PG.req2fa=on;PG.users=null;toast(t(on?"tf_req_set":"tf_req_off"));page()}else{el.checked=!on;toast(t(r.j&&r.j.error=="ownerfirst"?"tf_req_first":"sv_forbid"),"er")}};
-A.tfStart=async()=>{const r=await api("POST","/api/2fa/start",{});if(r.s!=200){toast(t("sv_off"),"er");return}
- modal({title:t(FORCE2?"tf_force_t":"sv_2fa_t"),icon:"shield",w:480,body:`${FORCE2?`<div class="note" style="grid-column:auto;margin-bottom:12px">${t("tf_force_s")}</div>`:""}<p class="mu" style="margin-top:0">${t("sv_2fa_steps")}</p><div class="lbl">${t("sv_key")}</div><div class="note" style="grid-column:auto;font-family:monospace;font-size:calc(14px*var(--fz,1));letter-spacing:.08em;user-select:all;word-break:break-all">${esc(r.j.secret)}</div><p style="margin:6px 0 14px"><a href="${esc(r.j.uri)}">${t("copy")} → otpauth</a></p>
- <div class="fd"><label>${t("sv_code")}</label><input id="tfc" inputmode="numeric" maxlength="8" autocomplete="one-time-code" placeholder="123456" data-enter="tfOn"></div><div class="note er hide" id="tfe" style="grid-column:auto;margin-top:10px"></div>`,foot:`${FORCE2?`<button class="b" data-a="logout">${t("logout")}</button>`:`<button class="b" data-a="mdClose">${t("cancel")}</button>`}<button class="b bp" data-a="tfOn">${t("sv_verify")}</button>`});$("#tfc").focus()};
-function force2fa(){if(FORCE2)return;FORCE2=true;$("#md").innerHTML="";A.tfStart()}
-A.tfOn=async()=>{const r=await api("POST","/api/2fa/enable",{code:$("#tfc").value});if(r.s==200){USER.totp=true;const f=FORCE2;FORCE2=false;USER.need2fa=false;closeMd();toast(t("saved"));if(f){afterLogin(USER)}else page();return}const e=$("#tfe");e.textContent=r.s==429?t("sv_rate"):t("sv_code_bad");e.classList.remove("hide")};
-A.tfOff=()=>modal({title:t("sv_2fa_disable"),icon:"shield",w:420,body:`<div class="fg"><div class="fd"><label>${t("password")}</label><input id="tfp" type="password" autocomplete="current-password"></div><div class="fd"><label>${t("sv_code")}</label><input id="tfc" inputmode="numeric" maxlength="8" autocomplete="one-time-code"></div><div class="note er hide" id="tfe" style="grid-column:auto"></div></div>`,foot:`<button class="b" data-a="mdClose">${t("cancel")}</button><button class="b bp" data-a="tfOffGo" style="background:var(--rd);border-color:var(--rd)">${t("sv_2fa_disable")}</button>`});
-A.tfOffGo=async()=>{const r=await api("POST","/api/2fa/disable",{password:$("#tfp").value,code:$("#tfc").value});if(r.s==403&&r.j&&r.j.error=="required"){closeMd();toast(t("tf_req_on"),"er");return}if(r.s==200){USER.totp=false;closeMd();page();return}const e=$("#tfe");e.textContent=r.s==401?(r.j&&r.j.error=="code"?t("sv_code_bad"):t("sv_pw_wrong")):t("sv_off");e.classList.remove("hide")};
-A.auditOpen=async()=>{const r=await api("GET","/api/audit");if(r.s!=200){toast(t("sv_forbid"),"er");return}
- modal({title:t("sv_audit"),sub:t("sv_audit_s"),icon:"clip",w:860,body:`<div class="tw"><table style="min-width:640px"><tr><th>${t("sv_when")}</th><th>${t("sv_who")}</th><th>${t("sv_what")}</th><th>IP</th></tr>${r.j.rows.map(x=>`<tr><td style="white-space:nowrap">${new Date(x.at).toLocaleString()}</td><td>${esc(x.wname?x.wname+" · "+(x.who||""):(x.who||x.target||"–"))}</td><td><b>${esc(x.action)}</b>${x.who&&x.target?` <span class="mu">→ ${esc(x.target)}</span>`:""}${x.detail&&x.action=="sync"?` <span class="mu">${x.detail.upN||0}↑ ${x.detail.delN||0}✕</span>`:""}</td><td class="mu">${esc(x.ip||"")}</td></tr>`).join("")}</table></div>`})};
-async function loadUsers(){PG.usersBusy=true;const r=await api("GET","/api/users");PG.usersBusy=false;if(r.s==200){PG.users=r.j.users;if(V=="profile")page()}}
-function userModal(u,test){const add=!u,cos=u?u.companies:null;
- const coBox=`<div class="fd"><label>${t("companies")}</label><label class="ck"><input type="checkbox" id="um_all" ${cos?"":"checked"}><span style="color:var(--tx)">${t("cp_all")}</span></label><div id="um_cos" style="max-height:170px;overflow:auto;margin-top:6px;${cos?"":"opacity:.45;pointer-events:none"}">${S.comps.map(c=>`<label class="ck" style="margin-bottom:5px"><input type="checkbox" name="co_${c.id}" data-co="${c.id}" ${cos&&cos.includes(c.id)?"checked":""}>${dot(c.c)}<span style="color:var(--tx)">${esc(c.n)}</span></label>`).join("")}</div></div>`;
- modal({title:add?t(test?"tm_tests":"tu_t"):t("sv_edit"),sub:add?"":esc(u.email),icon:"user",w:480,body:`<div class="fg"><div class="fd"><label>${t("ac_full")}</label><input id="um_n" value="${esc(u?u.name:test?"Test User":"")}"></div>
-${add?"":`<div class="fd h"><label>${t("ac_tg")}</label><input id="um_t" value="${esc(u.tg||"")}" placeholder="username" autocomplete="off"></div>`}<div class="fd h"><label>${t(add?"tm_mail_opt":"ac_mail")}</label><input id="um_e" type="email" value="${add?(test?"test"+Date.now().toString(36)+"@test.local":""):u.noMail?"":esc(u.email||"")}"></div>
-${add||USER.owner||u.role=="driver"?`<div class="fd"><label>${t("tu_role")}</label><select id="um_r">${optH([["member",t("tm_member")],...(USER.owner?[["admin",t("tm_admin")]]:[]),["driver",t("sv_tm_drv")]],u?u.role:"member")}</select></div>`:""}
-${add?`<div class="fd"><label>${t("dr_tmp")}</label><input id="um_p" type="password" autocomplete="new-password"><div class="hn">${t("dr_tmp_h")}</div></div>`:""}${coBox}</div><div class="note er hide" id="um_x" style="grid-column:auto;margin-top:10px"></div>`,
- foot:(!add&&!u.owner&&!(USER&&u.id==USER.id)?`${USER.owner?`<button class="b dng" data-a="usrDel" data-id="${u.id}" style="margin-right:auto">${t("tm_remove")}</button>`:""}<button class="b" data-a="usrToggle" data-id="${u.id}">${t(u.disabled?"tm_react":"sv_dis")}</button>`:"")+`<button class="b" data-a="mdClose">${t("cancel")}</button><button class="b bp" id="um_s">${t("save")}</button>`});
- $("#um_all").onchange=e=>{const b=$("#um_cos");b.style.opacity=e.target.checked?".45":"";b.style.pointerEvents=e.target.checked?"none":""};
- $("#um_s").onclick=async()=>{const cos=$("#um_all").checked?null:[...$$("#um_cos [data-co]")].filter(x=>x.checked).map(x=>x.dataset.co),body={name:$("#um_n").value.trim(),companies:cos};if($("#um_r"))body.role=$("#um_r").value;
-  if(add){body.email=$("#um_e").value.trim();body.password=$("#um_p").value;body.test=!!test;let sl=(test?"test":(body.email||body.name).split("@")[0]).toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,20)||"user";if(sl.length<3)sl+="user";body.username=sl+Math.floor(100+Math.random()*900)}
-  if(!add){body.tg=$("#um_t").value.trim();body.email=$("#um_e").value.trim()}
-  const r=await api(add?"POST":"PATCH",add?"/api/users":"/api/users/"+u.id,body);
-  if(r.s==200){closeMd();PG.users=null;await loadRemote();toast(t("saved"));shellRefresh();return}
-  const e=$("#um_x");e.textContent=r.s==409?t("sv_dupe"):r.s==403?t("sv_forbid"):r.j&&r.j.error=="weak"?pwWhy(r.j.why):r.s==400?t("tu_bad"):t("sv_off");e.classList.remove("hide")}}
-function srvUserForm(test){userModal(null,test)}
-A.usrEdit=el=>userModal(PG.users.find(x=>x.id==el.dataset.id));
-A.usrAdm=async el=>{const u=PG.users.find(x=>x.id==el.dataset.id),nr=u.role=="admin"?"member":"admin",r=await api("PATCH","/api/users/"+u.id,{role:nr});if(r.s==200){PG.users=null;await loadRemote();shellRefresh()}else toast(t("sv_forbid"),"er")};
-C.usrColor=async el=>{const me=USER&&el.dataset.id==USER.id,r=me?await api("PATCH","/api/me",{color:el.value}):await api("PATCH","/api/users/"+el.dataset.id,{color:el.value});if(r.s==200){if(me)USER=r.j.user;PG.users=null;await loadRemote();shellRefresh()}else toast(t("sv_forbid"),"er")};
-A.acEdit=el=>{const k=el.dataset.k,lab={name:t("ac_full"),username:t("ac_user"),email:t("ac_mail_new"),tg:t("ac_tg")}[k],ttl={name:t("ac_full"),username:t("ac_user_t"),email:t("ac_mail_t2"),tg:t("ac_tg")}[k],
- hint={username:`<div class="hn">${t("ac_user_h")}</div>`,email:`<div class="hn" style="color:var(--am)">⚠ ${t(USER.mailOn?"ac_mail_w":"ac_mail_h2")}</div>`,tg:`<div class="hn">${t("ac_tg_h")}</div>`}[k]||"",
- cur=k=="tg"?(USER.tg||""):k=="email"&&USER.noMail?"":USER[k];
- modal({title:ttl,icon:k=="email"?"mail":k=="tg"?"send":"pen",w:420,body:`<div class="fd"><label>${lab}</label><input id="ae_v" value="${esc(cur)}" ${k=="email"?'type="email"':""} ${k=="tg"?'placeholder="username"':""} autocomplete="off" data-enter="acSave"></div>${hint}<div class="note er hide" id="ae_x" style="grid-column:auto;margin-top:10px"></div>`,foot:`<button class="b" data-a="mdClose">${t("cancel")}</button><button class="b bp" id="ae_s" data-a="acSave" data-k="${k}">${t("save")}</button>`});
- setTimeout(()=>$("#ae_v")&&$("#ae_v").focus(),40)};
-A.acSave=async()=>{const k=$("#ae_s").dataset.k,v=$("#ae_v").value.trim(),e=$("#ae_x");if(k=="email"&&v==USER.email){closeMd();return}
- const r=await api("PATCH","/api/me",{[k]:v});
- if(r.s==200){USER=r.j.user;closeMd();await loadRemote();toast(r.j.email=="pending"?t("ac_mail_sent",v):t("saved"));shellRefresh();return}
- e.textContent=r.s==409?t("sv_dupe"):r.s==502?t("ac_mail_fail"):t("tu_bad");e.classList.remove("hide")};
-A.tmUser=()=>SERVER?srvUserForm(false):userForm(false);A.tmTest=()=>SERVER?srvUserForm(true):userForm(true);
-A.usrToggle=async el=>{const u=PG.users.find(x=>x.id==el.dataset.id);const r=await api("PATCH","/api/users/"+u.id,{disabled:!u.disabled});if(r.s==200){closeMd();PG.users=null;page()}else toast(t("sv_forbid"),"er")};
-A.usrReset=el=>{const u=PG.users.find(x=>x.id==el.dataset.id);modal({title:t("sv_reset"),sub:esc(u.email),icon:"key",w:420,body:`<div class="fd"><label>${t("sv_tmp")}</label><input id="rpw" type="password" autocomplete="new-password" data-i="pw"><div class="bars"><i></i><i></i><i></i><i></i></div></div><div class="note er hide" id="rpe" style="grid-column:auto;margin-top:10px"></div>`,foot:`<button class="b" data-a="mdClose">${t("cancel")}</button><button class="b bp" id="rpg">${t("save")}</button>`});
- $("#rpg").onclick=async()=>{const r=await api("POST","/api/users/"+u.id+"/reset",{password:$("#rpw").value});if(r.s==200){closeMd();toast(t("saved"));PG.users=null;page();return}const e=$("#rpe");e.textContent=r.j&&r.j.error=="weak"?pwWhy(r.j.why):t("sv_off");e.classList.remove("hide")}};
-A.usrDel=el=>{const u=PG.users.find(x=>x.id==el.dataset.id);ask(t("confirm"),async()=>{const r=await api("DELETE","/api/users/"+u.id);if(r.s==200){PG.users=null;page()}else toast(t("tm_cant"),"er")},t("tm_remove"))};
-A.usrRole=async el=>{const r=await api("PATCH","/api/users/"+el.dataset.id,{role:el.value});if(r.s==200){PG.users=null;page()}else{toast(t("sv_forbid"),"er");page()}};
-C.usrRole=el=>A.usrRole(el);
-
-A.tmPerm=async el=>{const u=(PG.users||[]).find(x=>x.id==el.dataset.id);if(!u)return;const on=!u.permEdit,r=await usrPatch(u.id,{permEdit:on});if(r.s==200){u.permEdit=on;toast(t(on?"tm_perm_on":"tm_perm_off",u.name));page()}else toast(t("sv_forbid"),"er")};
-async function loadInvites(){PG.invBusy=true;const r=await api("GET","/api/invites");PG.invBusy=false;PG.invites=r.s==200?r.j.invites:[];if(V=="profile")page()}
-A.ivRevoke=async el=>{const r=await api("DELETE","/api/invites/"+el.dataset.id);if(r.s==200){PG.invites=undefined;page()}else toast(t("sv_forbid"),"er")};
-const _inv0=A.tmInvite;
-A.tmInvite=()=>{if(!SERVER)return _inv0();const own=USER.owner;
- modal({title:t("iv_t"),icon:"send",w:420,body:`<div class="fd"><label>${t("iv_mail")}</label><input id="iv_e" type="email" placeholder="jane@company.com" autocomplete="off" data-enter="ivMake"></div>${own?`<div class="fd" style="margin-top:12px"><label>${t("tu_role")}</label><select id="iv_r">${optH([["member",t("tm_member")],["admin",t("tm_admin")]],"member")}</select></div>`:""}<div class="note er hide" id="iv_x" style="grid-column:auto;margin-top:10px"></div>`,foot:`<button class="b" data-a="mdClose">${t("cancel")}</button><button class="b bp" id="iv_s" data-a="ivMake">${t("iv_make")}</button>`});
- setTimeout(()=>$("#iv_e")&&$("#iv_e").focus(),40)};
-A.ivMake=async()=>{const em=($("#iv_e").value||"").trim(),e=$("#iv_x");if(!/^[^@\s]+@[^@\s]+$/.test(em)){e.textContent=t("iv_bad");e.classList.remove("hide");return}
- const r=await api("POST","/api/invites",{email:em,role:$("#iv_r")?$("#iv_r").value:"member"});
- if(r.s!=200){e.textContent=r.s==409?t("iv_dupe"):r.s==429?t("sv_rate"):t("iv_bad");e.classList.remove("hide");return}
- PG.invites=undefined;const L=r.j.link;
- modal({title:t("iv_t"),icon:"send",w:420,body:`<div class="note" style="grid-column:auto">${t("iv_sent",esc(r.j.email))}${r.j.mailed?" "+t("iv_mailed"):""}</div><div class="row" style="margin-top:12px;flex-wrap:nowrap"><input id="iv_l" readonly value="${esc(L)}" style="flex:1;min-width:0"><button class="b bp" id="iv_c" data-a="ivCopy">${t("iv_copy")}</button></div>`,foot:`<button class="b bp" data-a="ivDone" style="width:100%">${t("iv_done")}</button>`});
- $("#iv_l").select()};
-A.ivCopy=async()=>{const i=$("#iv_l");i.select();let ok=false;try{await navigator.clipboard.writeText(i.value);ok=true}catch(e){try{ok=document.execCommand("copy")}catch(e2){}}const b=$("#iv_c");b.innerHTML=ic("check",13)+" "+t("iv_copied");if(!ok)toast(t("iv_copyman"))};
-A.ivDone=()=>{closeMd();PG.invites=undefined;page()};
-function invView(){const I=INV,brand=`<div class="brand" style="font-size:calc(22px*var(--fz,1));padding:0 0 4px"><div class="logo" style="width:44px;height:44px">${logo(28)}</div><span>TOPG<b style="color:var(--ac)">FLEET</b></span></div>`;
- const body=I.bad?`<div class="note er" style="grid-column:auto">${t("inv_bad")}</div>`:I.done?`<div class="note" style="grid-column:auto;margin-bottom:14px">${t("inv_ok")}</div><button class="b bp" style="width:100%;justify-content:center" data-a="invGo">${t("sv_back")}</button>`
- :`<p class="mu" style="margin:0 0 16px;font-size:calc(13px*var(--fz,1))">${t("inv_t",esc(t(I.role=="admin"?"tm_admin":"tm_member")))}</p>${I.err?`<div class="note er" style="grid-column:auto;margin-bottom:12px" role="alert">${esc(I.err)}</div>`:""}
-<div class="fd" style="margin-bottom:12px"><label>${t("inv_mail")}</label><input value="${esc(I.email)}" readonly style="opacity:.75"></div>
-<div class="fd" style="margin-bottom:12px"><label>${t("inv_name")}</label><input id="iv_n" value="${esc(I.n||"")}" autocomplete="name" data-enter="invJoin"></div>
-<div class="fd" style="margin-bottom:12px"><label>${t("inv_pw")}</label><input id="iv_p" type="password" autocomplete="new-password" data-i="pw" data-enter="invJoin"><div class="bars"><i></i><i></i><i></i><i></i></div><div class="hn">${t("inv_pw_h")}</div></div>
-<div class="fd" style="margin-bottom:16px"><label>${t("inv_pw2")}</label><input id="iv_p2" type="password" autocomplete="new-password" data-enter="invJoin"></div>
-<button class="b bp" style="width:100%;justify-content:center" data-a="invJoin">${t("inv_join")}</button>`;
- return `<div style="margin:auto;width:min(380px,92vw)"><div class="card cp" style="padding:26px">${brand}${body}</div><div class="row" style="justify-content:center;margin-top:14px">${tabsH(LG.map((l,i)=>[l,LN[i]]),S.lang,"lang")}</div></div>`}
-A.invJoin=async()=>{if(!INV||INV.busy)return;const n=($("#iv_n").value||"").trim(),p=$("#iv_p").value,p2=$("#iv_p2").value;INV.n=n;
- if(!n){INV.err=t("inv_noname");render();return}
- if(p!=p2){INV.err=t("sv_pw_same");render();return}
- INV.busy=true;const r=await api("POST","/api/invite/"+INV.tok+"/accept",{name:n,password:p});INV.busy=false;
- if(r.s==200){INV.done=true;INV.err="";render();return}
- if(r.s==404){INV={bad:true};render();return}
- INV.err=r.j&&r.j.error=="weak"?pwWhy(r.j.why):r.s==429?t("sv_rate"):r.s==409?t("sv_dupe"):t("sv_off");render()};
-A.invGo=()=>{const e=INV&&INV.email;INV=null;history.replaceState(null,"","/");LS={step:"pw",err:"",busy:false,email:e||""};render()};
-const coNames=u=>!u.co?t("cp_all"):(u.co.map(id=>(compOf(id)||{n:"?"}).n).join(", ")||"–");
-Object.assign(D,{tm_nomail:["{0} people have no email address yet. People sign in with their email; until you add one (the envelope button), they keep signing in with their username.","{0} kishida hali email yo‘q. Odamlar email bilan kiradi; email qo‘shmaguningizcha (konvert tugmasi) ular username bilan kiraveradi.","У {0} человек пока нет email. Входят по email; пока вы его не добавите (кнопка с конвертом), они входят по логину."],
-tm_s3:["Click a company to show or hide it for that person.","Kompaniyani bosing: shu odam uchun ko‘rsatiladi yoki yashiriladi.","Нажмите на компанию, чтобы показать или скрыть её для человека."],
-tm_noemail:["no email","email yo‘q","нет email"],tm_undo:["Undo","Bekor qilish","Отменить"],tm_inact:["Inactive","Nofaol","Неактивные"],tm_react:["Reactivate","Qayta yoqish","Включить"],
-tm_now:["{0} is now {1}","{0} endi {1}","{0} теперь {1}"],tm_nosee:["{0} no longer sees {1}","{0} endi {1} ni ko‘rmaydi","{0} больше не видит {1}"],tm_sees:["{0} now sees {1}","{0} endi {1} ni ko‘radi","{0} теперь видит {1}"],
-tm_mail_t:["Email address","Email manzil","Адрес email"],tm_mail_h:["They can then sign in with this email or their username.","Endi shu email yoki username bilan kira oladi.","Можно входить по этому email или логину."],tm_mail_bad:["That email does not look right.","Email noto‘g‘ri ko‘rinadi.","Email выглядит неверно."],tm_mail_dup:["Someone already uses that email.","Bu emailni boshqa odam ishlatmoqda.","Этот email уже используется."],
-tm_none:["No companies","Kompaniya yo‘q","Нет компаний"],tm_done:["Done","Tayyor","Готово"],tm_addco:["Add company","Kompaniya qo‘shish","Добавить компанию"],tm_selall:["All companies","Hammasi","Все компании"],tm_clr:["Clear all","Hammasini olish","Снять все"],tm_allset:["{0} now sees all companies","{0} endi hamma kompaniyani ko‘radi","{0} теперь видит все компании"],tm_noneset:["{0} has no companies","{0} da kompaniya qolmadi","У {0} нет компаний"],
-tm_mail_opt:["Email (optional)","Email (ixtiyoriy)","Email (необязательно)"],tm_colr:["Colour","Rang","Цвет"],tm_reset:["Reset password","Parolni tiklash","Сбросить пароль"],tm_more:["Edit person","Tahrirlash","Изменить"],tm_aon:["Admin","Admin","Админ"]});
-Object.assign(D,{
-tf_req_t:["Staff sign in with the owner’s code","Xodimlar owner kodi bilan kiradi","Сотрудники входят с кодом владельца"],
-tf_req_s:["When on, every admin and member must enter a 6-digit code from YOUR authenticator app after their password. Only you can give them the code, so nobody signs in without you. Your own sign-in always uses your own code. You get a Telegram message when someone signs in or out.","Yoqilsa, har bir admin va member parolidan keyin SIZNING authenticator ilovangizdagi 6 xonali kodni kiritadi. Kodni faqat siz bera olasiz, shuning uchun sizsiz hech kim kira olmaydi. O‘zingiz esa doim o‘z kodingiz bilan kirasiz. Kimdir kirsa yoki chiqsa, Telegramga xabar keladi.","Если включено, каждый админ и участник после пароля вводит 6-значный код из ВАШЕГО приложения. Код может дать только вы, без вас никто не войдёт. Вы сами всегда входите со своим кодом. При входе и выходе вам приходит сообщение в Telegram."],
-sv_srv:["You are signed in. Change your own details here.","Siz tizimdasiz. O‘z ma’lumotlaringizni shu yerda o‘zgartiring.","Вы вошли. Свои данные можно менять здесь."],
-sv_audit_s:["Everything that happened: who signed in, who changed what. Only you can see this.","Hamma voqealar: kim kirdi, kim nimani o‘zgartirdi. Buni faqat siz ko‘rasiz.","Все события: кто входил и что менял. Это видите только вы."],
-ac_full:["Username","Username","Имя пользователя"],ac_user_t:["Change username","Username o‘zgartirish","Сменить логин"],ac_user_h:["3–30 characters: lowercase letters, numbers, dots, underscores or dashes. You sign in with it.","3–30 belgi: kichik harf, raqam, nuqta, pastki chiziq yoki chiziqcha. Shu bilan kirasiz.","3–30 символов: строчные буквы, цифры, точки, подчёркивания или дефисы. Им можно входить."],
-ac_mail_new:["New email","Yangi email","Новый email"],ac_mail_t2:["Change email","Email o‘zgartirish","Сменить email"],
-ac_mail_w:["Email verification will be sent to the new address","Tasdiqlash xati yangi manzilga yuboriladi","Письмо с подтверждением придёт на новый адрес"],ac_mail_h2:["The new address is saved right away. (Email sending is not set up yet, so it stays marked “not confirmed”.)","Yangi manzil darhol saqlanadi. (Email yuborish hali ulanmagan, shuning uchun “tasdiqlanmagan” deb turadi.)","Новый адрес сохранится сразу. (Отправка почты не настроена, поэтому он будет отмечен как «не подтверждён».)"],
-ac_mail_sent:["We sent a confirmation link to {0}. Your email changes after you open it.","{0} manziliga tasdiqlash havolasi yuborildi. Havolani ochgach email almashadi.","Ссылка для подтверждения отправлена на {0}. Email сменится после перехода по ней."],
-ac_mail_fail:["Could not send the email. Try again later.","Xat yuborib bo‘lmadi. Keyinroq urinib ko‘ring.","Не удалось отправить письмо. Попробуйте позже."],
-ac_pend:["Waiting for confirmation: {0}","Tasdiqlanishi kutilmoqda: {0}","Ждёт подтверждения: {0}"],ac_unver:["Not confirmed","Tasdiqlanmagan","Не подтверждён"],
-ac_verified:["Email confirmed.","Email tasdiqlandi.","Email подтверждён."],ac_verbad:["That confirmation link is not valid or has expired.","Tasdiqlash havolasi yaroqsiz yoki muddati tugagan.","Ссылка недействительна или устарела."],
-ac_tg:["Telegram username","Telegram username","Telegram username"],ac_tg_h:["Without @. Letters, numbers and underscores, 5–32 characters. Clicking it opens that Telegram profile.","@ siz yozing. Harf, raqam va pastki chiziq, 5–32 belgi. Bossangiz shu Telegram profil ochiladi.","Без @. Буквы, цифры и подчёркивания, 5–32 символа. По клику откроется этот профиль Telegram."],ac_tg_none:["Not set","Kiritilmagan","Не указан"],
-pw_ph0:["Enter current password","Joriy parolni kiriting","Введите текущий пароль"],pw_ph1:["Enter new password","Yangi parolni kiriting","Введите новый пароль"],
-pw_h:["At least 10 characters. No common passwords, names or usernames.","Kamida 10 belgi. Oddiy parol, ism yoki username bo‘lmasin.","Минимум 10 символов. Без простых паролей, имён и логинов."],
-pw_out:["Sign out of all other devices","Boshqa hamma qurilmalardan chiqarish","Выйти на всех остальных устройствах"],pw_out_h:["Other browsers and phones signed in as you will need the new password. This one stays signed in.","Siz kirgan boshqa brauzer va telefonlarga yangi parol kerak bo‘ladi. Bu qurilma kirgan holda qoladi.","Другим браузерам и телефонам понадобится новый пароль. Это устройство останется в системе."],
-tm_perm:["Can edit members","Memberlarni tahrirlay oladi","Может менять участников"],tm_perm_h:["Allow this admin to edit members’ details and companies","Bu adminga memberlarning ma’lumoti va kompaniyalarini tahrirlashga ruxsat berish","Разрешить этому админу менять данные и компании участников"],
-tm_perm_on:["{0} can now edit members","{0} endi memberlarni tahrirlay oladi","{0} теперь может менять участников"],tm_perm_off:["{0} can no longer edit members","{0} endi memberlarni tahrirlay olmaydi","{0} больше не может менять участников"],
-tm_adm_note:["You can see members here. Only the owner can allow you to edit them.","Bu yerda memberlarni ko‘rasiz. Tahrirlashga faqat owner ruxsat beradi.","Здесь вы видите участников. Менять их может разрешить только владелец."],
-iv_t:["Invite someone","Odamni taklif qilish","Пригласить человека"],iv_mail:["Email","Email","Email"],iv_make:["Create invite link","Taklif havolasini yaratish","Создать ссылку-приглашение"],
-iv_sent:["Send this link to {0}. It works once, for 7 days. They choose their name and password, then sign in with this email from then on.","Bu havolani {0} ga yuboring. U bir marta, 7 kun ishlaydi. U ism va parolini o‘zi tanlaydi, keyin shu email bilan kiradi.","Отправьте эту ссылку на {0}. Она работает один раз, 7 дней. Человек выберет имя и пароль и дальше входит с этим email."],
-iv_mailed:["We also emailed it to them.","Email orqali ham yuborildi.","Мы также отправили её по почте."],iv_copy:["Copy","Nusxalash","Копировать"],iv_copied:["Copied","Nusxalandi","Скопировано"],iv_copyman:["Press Ctrl+C to copy the link.","Havolani Ctrl+C bilan nusxalang.","Скопируйте ссылку клавишами Ctrl+C."],iv_done:["Done","Tayyor","Готово"],
-iv_pend:["Invited, not joined yet","Taklif qilingan, hali kirmagan","Приглашены, ещё не вошли"],iv_until:["link valid until {0}","havola {0} gacha amal qiladi","ссылка действует до {0}"],iv_revoke:["Cancel invite","Taklifni bekor qilish","Отменить приглашение"],
-iv_bad:["Enter a valid email.","To‘g‘ri email kiriting.","Введите правильный email."],iv_dupe:["That email already has an account.","Bu emailda akkaunt allaqachon bor.","С этим email уже есть аккаунт."],
-inv_t:["You are invited to TOPGFLEET as {0}.","Siz TOPGFLEET ga {0} sifatida taklif qilindingiz.","Вас пригласили в TOPGFLEET как: {0}."],inv_mail:["Email (you sign in with it)","Email (shu bilan kirasiz)","Email (по нему вы входите)"],inv_name:["Username","Username","Имя пользователя"],inv_pw:["Choose a password","Parol tanlang","Придумайте пароль"],
-inv_pw_h:["At least 10 characters, not a common password, and not your name or email.","Kamida 10 belgi, oddiy parol bo‘lmasin, ism yoki email ham bo‘lmasin.","Минимум 10 символов, не простой пароль и не ваше имя или email."],inv_pw2:["Password again","Parolni takrorlang","Пароль ещё раз"],inv_join:["Join and sign in","Qo‘shilish va kirish","Присоединиться и войти"],
-inv_bad:["This invite link is not valid any more. Ask for a new one.","Taklif havolasi endi yaroqsiz. Yangisini so‘rang.","Ссылка-приглашение больше не действует. Попросите новую."],inv_ok:["Your account is ready. Sign in with your email and password.","Akkauntingiz tayyor. Email va parolingiz bilan kiring.","Аккаунт готов. Войдите с email и паролем."],inv_noname:["Enter your name.","Ismingizni kiriting.","Введите имя."]
-});
-Object.assign(D,{pr_ed_t:["Who can edit priorities","Prioritetlarni kim tahrirlay oladi","Кто может менять приоритеты"],pr_ed_s:["Only you can change priorities. Tap a person to let them edit; tap again to take it back.","Prioritetlarni faqat siz o‘zgartira olasiz. Odamni bosing: unga tahrirlash ochiladi; yana bosing: qaytib yopiladi.","Приоритеты меняете только вы. Нажмите на человека, чтобы разрешить ему менять; ещё раз, чтобы запретить."],pr_lock:["Not allowed. You can’t change priorities.","Ruxsat yo‘q. Prioritetlarni o‘zgartira olmaysiz.","Нет доступа. Вы не можете менять приоритеты."],pr_allowed:["The owner allowed you to edit priorities.","Owner sizga prioritetlarni tahrirlashga ruxsat berdi.","Владелец разрешил вам менять приоритеты."],pr_ed_on:["{0} can edit priorities","{0} prioritetlarni tahrirlay oladi","{0} может менять приоритеты"],pr_ed_off:["{0} can no longer edit priorities","{0} endi prioritetlarni tahrirlay olmaydi","{0} больше не может менять приоритеты"]});
-Object.assign(D,{in_ed_t:["Who can edit integrations","Integrations ni kim tahrirlay oladi","Кто может менять интеграции"],in_ed_s:["Only you can change integrations (Telegram groups, time zone, send times, Samsara / Motive accounts). Tap a person to let them edit; tap again to take it back.","Integrations ni (Telegram guruhlar, vaqt zonasi, yuborish vaqtlari, Samsara / Motive akkauntlar) faqat siz o‘zgartira olasiz. Odamni bosing: unga tahrirlash ochiladi; yana bosing: qaytib yopiladi.","Интеграции (группы Telegram, часовой пояс, время отправки, аккаунты Samsara / Motive) меняете только вы. Нажмите на человека, чтобы разрешить; ещё раз, чтобы запретить."],in_lock:["Not allowed. You can’t change integrations.","Ruxsat yo‘q. Integrations ni o‘zgartira olmaysiz.","Нет доступа. Вы не можете менять интеграции."],in_allowed:["The owner allowed you to edit integrations.","Owner sizga integrations ni tahrirlashga ruxsat berdi.","Владелец разрешил вам менять интеграции."],in_ed_on:["{0} can edit integrations","{0} integrations ni tahrirlay oladi","{0} может менять интеграции"],in_ed_off:["{0} can no longer edit integrations","{0} endi integrations ni tahrirlay olmaydi","{0} больше не может менять интеграции"],
-tgc_s_own:["Link your account and the bot becomes your assistant: write to it in plain words and it looks things up and changes data on the site for you. It answers only you; messages from anyone else get no reply. You also get the morning summary and urgent alerts here.","Akkauntni ulang va bot sizning yordamchingizga aylanadi: oddiy so‘zlar bilan yozing, u ma’lumotni topadi va saytda o‘zgartirib beradi. U faqat sizga javob beradi; boshqalarning xabariga javob bermaydi. Ertalabki xulosa va shoshilinch ogohlantirishlar ham shu yerga keladi.","Привяжите аккаунт, и бот станет вашим помощником: пишите обычными словами, он найдёт данные и изменит их на сайте. Отвечает только вам; сообщения других остаются без ответа. Утренняя сводка и срочные оповещения тоже приходят сюда."],tgc_noai:["The AI is off: add ANTHROPIC_API_KEY in Railway → Variables and redeploy.","AI o‘chiq: Railway → Variables ga ANTHROPIC_API_KEY ni qo‘shing va qayta deploy qiling.","ИИ выключен: добавьте ANTHROPIC_API_KEY в Railway → Variables и передеплойте."],
-co_mgr:["Managers chat ID","Managers chat ID","ID чата менеджеров"],co_mgr_h:["New High priority issues of this company's trucks go to this Telegram chat.","Shu kompaniya truck larining yangi High priority muammolari shu Telegram chatga ketadi.","Новые проблемы High priority по машинам этой компании уходят в этот чат Telegram."],co_mgr_ok:["Managers chat saved","Managers chat saqlandi","Чат менеджеров сохранён"],co_mgr_off:["Managers chat removed","Managers chat olib tashlandi","Чат менеджеров удалён"],
-co_inv_h:["Invoices of this company's trucks and trailers go to this Telegram chat. Empty = not sent.","Shu kompaniya truck/treylerlarining invoice'lari shu Telegram chatga ketadi. Bo‘sh = yuborilmaydi.","Счета этой компании уходят в этот чат Telegram. Пусто = не отправляются."],co_inv_off:["Invoice chat removed","Invoice chat olib tashlandi","Чат счетов удалён"],
-co_inv_s:["Every company has its own two Telegram chats: invoices and managers. Put each chat ID next to the company name. Add the bot to that group and send /chatid there to get the ID.","Har kompaniyaning o‘zining 2 ta Telegram chati bor: invoice va managers. Har bir chat ID sini kompaniya nomi ostiga yozing. Botni o‘sha guruhga qo‘shing va ID olish uchun u yerda /chatid yuboring.","У каждой компании свои два чата Telegram: счета и менеджеры. Впишите ID каждого чата под названием компании. Добавьте бота в группу и отправьте там /chatid."],
-tq_s:["Add {0} to the workers Telegram group, send /chatid in it, and paste the number below. Invoice and managers chats are set per company (Companies section).","{0} ni ishchilar Telegram guruhiga qo‘shing, guruhda /chatid yuboring va chiqqan raqamni pastga qo‘ying. Invoice va managers chatlari har kompaniya uchun alohida (Companies bo‘limi).","Добавьте {0} в группу работников, отправьте в ней /chatid и вставьте номер ниже. Чаты счетов и менеджеров задаются для каждой компании (раздел Companies)."],
-ix_sent_no:["Telegram is not connected or this company has no invoice chat.","Telegram ulanmagan yoki bu kompaniyada invoice chat yo‘q.","Telegram не подключён или у компании нет чата счетов."]});
-function edPanel(key,act,tK,sK,lockK,okK){if(!(typeof SERVER!="undefined"&&SERVER&&USER))return "";
- if(!USER.owner)return `<p class="mu" style="font-size:calc(12px*var(--fz,1));margin-top:10px">${t((key=="prioEd"?canPrio():key=="intEd"?canInt():canComp())?okK:lockK)}</p>`;
- const ed=S[key]||[];return `<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--ln)"><div class="lbl">${t(tK)}</div><p class="mu" style="margin-top:0;font-size:calc(12px*var(--fz,1))">${t(sK)}</p><div style="display:flex;flex-wrap:wrap;gap:6px">${S.team.filter(m=>!m.owner&&m.r!="driver").map(m=>`<button class="tmc ${ed.includes(m.id)?"":"off"}" data-a="${act}" data-id="${m.id}">${ed.includes(m.id)?ic("check",11):""}<span>${esc(m.n)}</span><span class="mu" style="font-size:calc(10px*var(--fz,1))">${t(m.r=="admin"?"tm_admin":"tm_member")}</span></button>`).join("")||`<span class="mu">–</span>`}</div></div>`}
-const prEdPanel=()=>edPanel("prioEd","prEd","pr_ed_t","pr_ed_s","pr_lock","pr_allowed"),compEdPanel=()=>edPanel("compEd","coEd","co_ed_t","co_ed_s","co_lock","co_allowed");
-const edTog=(key,el,onK,offK)=>{const id=el.dataset.id,m=S.team.find(x=>x.id==id);if(!m)return;const ed=(S[key]||[]).slice(),i=ed.indexOf(id);if(i<0)ed.push(id);else ed.splice(i,1);S[key]=ed;save();toast(t(i<0?onK:offK,m.n));page()};
-A.prEd=el=>edTog("prioEd",el,"pr_ed_on","pr_ed_off");const inEdPanel=()=>edPanel("intEd","inEd","in_ed_t","in_ed_s","in_lock","in_allowed");A.inEd=el=>edTog("intEd",el,"in_ed_on","in_ed_off");A.coEd=el=>edTog("compEd",el,"co_ed_on","co_ed_off");
-Object.assign(D,{gt_open:["Open team","Teamni ochish","Открыть команду"],gt_min:["at least 1 person","kamida 1 ta odam","минимум 1 человек"],gt_addp:["Add person","Odam qo‘shish","Добавить человека"],gt_t:["Teams","Teamlar","Команды"],gt_s:["Make a team, pick who is responsible (1 or more people) and add its companies. A company already in another team is not offered again.","Team yarating, mas’ullarni tanlang (1 yoki undan ko‘p odam) va kompaniyalarini qo‘shing. Boshqa teamda bor kompaniya qayta taklif qilinmaydi.","Создайте команду, выберите ответственных (1 и более) и добавьте компании. Компания из другой команды не предлагается."],gt_add:["Add team","Team qo‘shish","Добавить команду"],gt_resp:["Responsible","Mas’ullar","Ответственные"],gt_other:["Other companies","Boshqa kompaniyalar","Остальные компании"],
-co_ed_t:["Who can edit companies and teams","Kompaniya va teamlarni kim tahrirlay oladi","Кто может менять компании и команды"],co_ed_s:["Only you can change them. Tap a person to let them edit; tap again to take it back.","Ularni faqat siz o‘zgartira olasiz. Odamni bosing: unga ruxsat beriladi; yana bossangiz: qaytib olinadi.","Менять их можете только вы. Нажмите на человека, чтобы разрешить; ещё раз, чтобы запретить."],co_lock:["Not allowed. You can’t change companies or teams.","Ruxsat yo‘q. Kompaniya va teamlarni o‘zgartira olmaysiz.","Нет доступа. Вы не можете менять компании и команды."],co_allowed:["The owner allowed you to edit companies and teams.","Owner sizga kompaniya va teamlarni tahrirlashga ruxsat berdi.","Владелец разрешил вам менять компании и команды."],co_ed_on:["{0} can edit companies and teams","{0} kompaniya va teamlarni tahrirlay oladi","{0} может менять компании и команды"],co_ed_off:["{0} can no longer edit companies and teams","{0} endi kompaniya va teamlarni tahrirlay olmaydi","{0} больше не может менять компании и команды"]});
-function teamsBlock(){const ed=canComp(),dis=ed?"":" disabled",staff=S.team.filter(m=>m.r!="driver"),tms=S.teams||[];
- return `<div class="lbl" style="margin-top:4px">${ic("users",13)} ${t("gt_t")}</div><p class="mu" style="margin-top:0;font-size:calc(12px*var(--fz,1))">${t("gt_s")}</p>${tms.map((tm,i)=>`<div class="card" style="padding:12px;margin-bottom:10px"><div class="pr" style="margin-bottom:8px"><input type="text" value="${esc(tm.n)}" data-c="gtName" data-i="${i}"${ed?"":" readonly"} style="font-weight:700"><button class="bi" data-a="gtDel" data-i="${i}"${dis} aria-label="${t("del")}" style="margin-left:auto">${ic("trash",15)}</button></div><div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px"><span class="mu" style="font-size:calc(12px*var(--fz,1))">${t("gt_resp")}:</span>${respsOf(tm).map(id=>{const m=staff.find(x=>x.id==id);return m?`<button class="tmc" data-a="gtRm" data-i="${i}" data-id="${id}"${dis||respsOf(tm).length<2?" disabled":""} title="${esc(respsOf(tm).length<2?t("gt_min"):"")}"><span>${esc(m.n)}</span>${ed&&respsOf(tm).length>1?ic("x",10):""}</button>`:""}).join("")}${respsOf(tm).length==0?`<span class="tmro" style="background:color-mix(in srgb,var(--am) 18%,transparent);color:var(--am)">${t("gt_min")}</span>`:""}<select data-c="gtResp" data-i="${i}"${dis} style="flex:0 1 190px"><option value="">+ ${t("gt_addp")}</option>${staff.filter(m=>!respsOf(tm).includes(m.id)).map(m=>`<option value="${m.id}">${esc(m.n)}</option>`).join("")}</select></div><div style="display:flex;flex-wrap:wrap;gap:6px">${S.comps.map(c=>{const on=tm.cos.includes(c.id),other=!on&&tms.some(x=>x!==tm&&x.cos.includes(c.id));if(other)return "";return `<button class="tmc ${on?"":"off"}" data-a="gtCo" data-i="${i}" data-co="${c.id}"${dis} style="text-decoration:none">${dot(c.c)}<span>${esc(c.n)}</span></button>`}).join("")}</div></div>`).join("")}<button class="b" data-a="gtAdd"${dis}>${ic("plus",14)} ${t("gt_add")}</button>`}
-A.gtAdd=()=>{if(!canComp())return;S.teams=S.teams||[];const n=S.teams.length;S.teams.push({id:uid(),n:"Team "+String.fromCharCode(65+n%26)+(n>=26?Math.floor(n/26):""),resp:"",cos:[]});refresh()};
-C.gtName=el=>{if(!canComp())return;const v=el.value.trim();if(v){S.teams[+el.dataset.i].n=v;refresh()}};
-C.gtResp=el=>{if(!canComp()||!el.value)return;const tm=S.teams[+el.dataset.i],l=respsOf(tm);if(!l.includes(el.value))l.push(el.value);tm.resps=l;delete tm.resp;refresh()};
-A.gtRm=el=>{if(!canComp())return;const tm=S.teams[+el.dataset.i],l=respsOf(tm);if(l.length<2)return;tm.resps=l.filter(x=>x!=el.dataset.id);delete tm.resp;refresh()};
-A.gtDel=el=>{if(!canComp())return;S.teams.splice(+el.dataset.i,1);refresh()};
-A.gtCo=el=>{if(!canComp())return;const tm=S.teams[+el.dataset.i],id=el.dataset.co,had=tm.cos.includes(id);S.teams.forEach(x=>{x.cos=x.cos.filter(c=>c!=id)});if(!had)tm.cos.push(id);refresh()};
-["coDel","coAdd"].forEach(k=>{const f=A[k];if(f)A[k]=(...a)=>canComp()&&f(...a)});["coColor","coName","coInv"].forEach(k=>{const f=C[k];if(f)C[k]=(...a)=>canComp()&&f(...a)});
-const coShort=n=>String(n||"");
-const devOf=ua=>{ua=String(ua||"");return (/iPhone|iPad/.test(ua)?"iPhone":/Android/.test(ua)?"Android":/Windows/.test(ua)?"Windows":/Mac OS/.test(ua)?"Mac":/Linux/.test(ua)?"Linux":"")+(/Edg\//.test(ua)?" · Edge":/Chrome\//.test(ua)?" · Chrome":/Firefox\//.test(ua)?" · Firefox":/Safari\//.test(ua)?" · Safari":"")};
-const seenH=u=>u.online?`<span style="color:var(--gr)">● ${t("tm_online")}</span> ${esc(devOf(u.lastUa))} ${u.lastIp?"· "+esc(u.lastIp):""}`:u.lastIn?`${t("tm_last")}: ${esc(new Date(u.lastIn).toLocaleString())}`:t("tm_never");
-function tmRow(u,isA,inactive){const me=USER&&u.id==USER.id,own=!!(USER&&USER.owner),col=u.color||USERC[hashN(u.id)%USERC.length],adm=u.role=="admin",
- ctl=own&&!u.owner&&!me,ced=!!isA&&!inactive&&!u.owner&&!me&&(own||(USER.permEdit&&u.role=="member")),can=ced,dis=!!isA&&!own&&!me&&!u.owner&&u.role=="member",
- onIds=u.co||S.comps.map(c=>c.id),open=PG.tmOpen==u.id&&can,
- chipB=(c,on,x)=>`<button class="tmc ${on?"":"off"}" data-a="tmCo" data-id="${u.id}" data-co="${c.id}" ${can?"":"disabled"} title="${esc(c.n)}">${dot(c.c)}<span style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(coShort(c.n))}</span>${x&&can?ic("x",10):""}</button>`,
- chips=adm?`<span class="mu" style="font-size:calc(12px*var(--fz,1));display:inline-block;margin-top:4px">${ic("store",11)} ${t("cp_all")}</span>`:
-  (u.co&&!u.co.length?`<span class="tmro" style="background:color-mix(in srgb,var(--am) 18%,transparent);color:var(--am);margin-top:4px;display:inline-block">${t("tm_none")}</span>`:"")+S.comps.filter(c=>onIds.includes(c.id)).map(c=>chipB(c,true,true)).join("")+(can?`<button class="tmc tmadd" data-a="tmOpen" data-id="${u.id}">${ic(open?"x":"plus",11)} ${t(open?"tm_done":"tm_addco")}</button>`:"")
-  +(open?`<div class="tmpop"><div class="row" style="gap:6px;margin-bottom:6px"><button class="b bs" data-a="tmAll" data-id="${u.id}">${t("tm_selall")}</button><button class="b bs" data-a="tmNone" data-id="${u.id}">${t("tm_clr")}</button></div>${S.comps.map(c=>chipB(c,onIds.includes(c.id),false)).join("")}</div>`:"");
- const ib=(a,k,i)=>`<button class="bi" data-a="${a}" data-id="${u.id}" title="${esc(t(k))}" aria-label="${esc(t(k))}">${ic(i,15)}</button>`;
- const act=ctl?`<label class="bi" style="cursor:pointer;position:relative;display:inline-flex" title="${esc(t("tm_colr"))}"><span style="width:16px;height:16px;border-radius:50%;background:${col};display:inline-block;border:2px solid var(--pn);box-shadow:0 0 0 1px var(--ln)"></span><input type="color" value="${col}" data-c="usrColor" data-id="${u.id}" style="position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer"></label>
-${inactive?`<button class="b bs" data-a="usrToggle" data-id="${u.id}">${t("tm_react")}</button>`:`<div class="tmb" role="group" aria-label="${esc(t("tu_role"))}"><button class="${adm?"on":""}" data-a="tmRole" data-id="${u.id}" data-v="admin">${t("tm_admin")}</button><button class="${!adm?"on":""}" data-a="tmRole" data-id="${u.id}" data-v="member">${t("tm_member")}</button></div>`}
-${!inactive&&adm?`<button class="b bs ${u.permEdit?"bp":""}" data-a="tmPerm" data-id="${u.id}" title="${esc(t("tm_perm_h"))}" aria-pressed="${!!u.permEdit}">${ic("pen",12)} ${t("tm_perm")}</button>`:""}${u.online?`<button class="b bs" data-a="tmOut" data-id="${u.id}">${t("tm_out")}</button>`:""}<button class="bi" data-a="phLock" data-id="${u.id}" title="${esc(t(u.avLock?"ph_blocked":"ph_allowed"))}" aria-label="${esc(t(u.avLock?"ph_blocked":"ph_allowed"))}" style="${u.avLock?"color:var(--rd)":""}">${ic(u.avLock?"camoff":"cam",14)}</button>${ib("tmMail","tm_mail_t","mail")}${ib("usrReset","tm_reset","key")}${ib("usrEdit","tm_more","user")}`
-  :(ced||dis)?(ced?ib("usrEdit","tm_more","user"):"")+(dis?`<button class="b bs" data-a="usrToggle" data-id="${u.id}">${t(inactive?"tm_react":"sv_dis")}</button>`:"")
-  :me?`<button class="bi" data-a="acEdit" data-k="name" aria-label="${t("sv_edit")}">${ic("pen",15)}</button>`:"";
- return `<div class="tmr" style="${inactive?"opacity:.75":""}">${own||me?`<button class="avb" data-a="phPick" data-id="${u.id}" title="${esc(t("ph_change"))}" aria-label="${esc(t("ph_change"))}">${avatar({n:u.name,c:col})}</button>`:avatar({n:u.name,c:col})}<div class="tmi"><div><b>${esc(u.name)}</b> ${u.owner?`<span class="tmro" style="background:color-mix(in srgb,var(--ac) 18%,transparent);color:var(--ac)">${t("tm_owner")}</span>`:`<span class="tmro" style="background:var(--p2);color:var(--mu)">${t(adm?"tm_admin":"tm_member")}</span>`} ${me?`<span class="mu">${t("tm_you")}</span>`:""}${u.test?tag("test","var(--am)"):""}${u.disabled?tag(t("sv_dis_t"),"var(--rd)"):""}</div><div class="mu" style="font-size:calc(12px*var(--fz,1));margin-top:2px">${[own?seenH(u):"",u.tg?`<a href="https://t.me/${esc(u.tg)}" target="_blank" rel="noopener" style="color:var(--ac)">${ic("send",11)} @${esc(u.tg)}</a>`:"",u.noMail?`<span class="tmro" style="background:color-mix(in srgb,var(--am) 18%,transparent);color:var(--am)">${t("tm_noemail")}</span>`:esc(u.email||"")].filter(Boolean).join(" · ")}</div></div><div class="row" style="gap:8px;flex-wrap:nowrap;align-items:center">${act}</div><div class="tmch">${chips}</div></div>`}
-function teamBody(){
- if(SERVER){const own=USER&&USER.owner,isA=USER&&USER.role=="admin";
-  if(!isA)return `<p class="mu" style="margin-top:0">${t("tm_s")} <a href="#drivers" data-a="nav" data-v="drivers">${t("drivers")}</a> ${t("tm_s2")}</p>`+S.team.filter(m=>!m.owner&&m.r!="driver").map(m=>`<div class="tmr">${avatar({n:m.n,c:m.c})}<div class="tmi"><div><b>${esc(m.n)}</b> ${m.owner?`<span class="tmro" style="background:color-mix(in srgb,var(--ac) 18%,transparent);color:var(--ac)">${t("tm_owner")}</span>`:`<span class="tmro" style="background:var(--p2);color:var(--mu)">${t(m.r=="admin"?"tm_admin":"tm_member")}</span>`} ${USER&&m.id==USER.id?`<span class="mu">${t("tm_you")}</span>`:""}</div>${m.tg?`<div class="mu" style="font-size:calc(12px*var(--fz,1));margin-top:2px"><a href="https://t.me/${esc(m.tg)}" target="_blank" rel="noopener" style="color:var(--ac)">${ic("send",11)} @${esc(m.tg)}</a></div>`:""}</div></div>`).join("");
-  if(!PG.users&&!PG.usersBusy)loadUsers();if(PG.invites===undefined&&!PG.invBusy)loadInvites();
-  const src=(PG.users||[]).filter(u=>u.role!="driver").map(u=>({id:u.id,name:u.name,username:u.username,email:u.email,noMail:u.noMail,role:u.role,owner:u.owner,disabled:u.disabled,color:u.color,co:u.companies,test:u.test,totp:u.totp,avatar:u.avatar,online:u.online,avLock:u.avLock,lastIn:u.lastIn,lastIp:u.lastIp,lastUa:u.lastUa,tg:u.tg,permEdit:u.permEdit})),
-   act=src.filter(u=>!u.disabled),off=src.filter(u=>u.disabled),nm=own?act.filter(u=>u.noMail).length:0,
-   invs=PG.invites||[],invB=invs.length?`<div style="border:1px dashed var(--ln);border-radius:10px;padding:10px 12px;margin-top:12px"><div class="mu" style="font-size:calc(11px*var(--fz,1));letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">${t("iv_pend")}</div>${invs.map(i=>`<div class="row" style="flex-wrap:nowrap;padding:5px 0"><div style="flex:1;min-width:0"><b>${esc(i.email)}</b> <span class="tmro" style="background:var(--p2);color:var(--mu)">${t(i.role=="admin"?"tm_admin":"tm_member")}</span> <span class="mu" style="font-size:calc(12px*var(--fz,1))">${t("iv_until",new Date(i.expires_at).toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"}))}</span></div><button class="bi" data-a="ivRevoke" data-id="${i.id}" title="${esc(t("iv_revoke"))}" aria-label="${esc(t("iv_revoke"))}">${ic("x",14)}</button></div>`).join("")}</div>`:"";
-  return `${nm?`<div class="tmn">${ic("info",14)} ${t("tm_nomail",nm)}</div>`:""}<p class="mu" style="margin-top:0">${t("tm_s")} <a href="#drivers" data-a="nav" data-v="drivers">${t("drivers")}</a> ${t("tm_s2")}${own||USER.permEdit?" "+t("tm_s3"):""}</p>${own||USER.permEdit?"":`<p class="mu">${t("tm_adm_note")}</p>`}
-${act.map(u=>tmRow(u,isA,false)).join("")||`<div class="mu">–</div>`}
-${off.length?`<div class="tmr" style="padding:10px 0"><button class="b bs" data-a="tmInact">${ic("chev",12)} ${t("tm_inact")} <b>${off.length}</b></button></div>${PG.tmOff?off.map(u=>tmRow(u,isA,true)).join(""):""}`:""}
-${invB}<div class="row" style="margin-top:12px"><button class="b" data-a="tmInvite">${ic("link",14)} ${t("tm_inv")}</button><button class="b bp" data-a="tmUser">${ic("plus",14)} ${t("tm_addu")}</button></div>`}
- return `<p class="mu" style="margin-top:0">${t("tm_s")} <a href="#drivers" data-a="nav" data-v="drivers">${t("drivers")}</a> ${t("tm_s2")}</p>${S.team.map((m,i)=>`<div class="row" style="padding:8px 0;border-top:1px solid var(--ln);flex-wrap:nowrap">${avatar(m)}<div style="flex:1"><b>${esc(m.n)}</b> ${m.id=="u1"||m.u==S.user?`<span class="mu">(${t("tm_you")})</span>`:""}${m.test?tag("test","var(--am)"):""}<div class="mu" style="font-size:calc(12px*var(--fz,1))">${esc(m.m)} · ${m.owner?t("tm_owner"):t(m.r=="admin"?"tm_admin":"tm_member")}</div></div><button class="bi" data-a="tmRemove" data-n="${i}" aria-label="${t("tm_remove")}">${ic("trash",15)}</button></div>`).join("")}<div class="row" style="margin-top:12px"><button class="b" data-a="tmInvite">${ic("link",14)} ${t("tm_inv")}</button><button class="b" data-a="tmTest">${t("tm_tests")}</button><button class="b bp" data-a="tmUser">${ic("plus",14)} ${t("tm_addu")}</button></div>`}
-let tsU=null;function toastU(m,fn){const e=$("#ts");e.className="";e.innerHTML=esc(m)+`<button data-a="tsUndo">${t("tm_undo")}</button>`;e.style.display="block";tsU=fn;clearTimeout(tsT);tsT=setTimeout(()=>{e.style.display="none";tsU=null},7000)}
-A.tsUndo=()=>{const f=tsU;tsU=null;$("#ts").style.display="none";f&&f()};
-A.tmOut=async el=>{const u=(PG.users||[]).find(x=>x.id==el.dataset.id);if(!u)return;const r=await api("POST","/api/users/"+u.id+"/signout",{});if(r.s==200){toast(t("tm_outd",u.name));PG.users=null;page()}else toast(t("sv_forbid"),"er")};
-A.tmInact=()=>{PG.tmOff=!PG.tmOff;page()};
-const usrPatch=async(id,body)=>{const r=await api("PATCH","/api/users/"+id,body);return r};
-const usrReload=async()=>{PG.users=null;await loadRemote();shellRefresh()};
-A.tmRole=async el=>{const u=(PG.users||[]).find(x=>x.id==el.dataset.id),nr=el.dataset.v;if(!u||u.role==nr)return;const old=u.role,r=await usrPatch(u.id,{role:nr});
- if(r.s==200){await usrReload();toastU(t("tm_now",u.name,t(nr=="admin"?"tm_admin":"tm_member")),async()=>{await usrPatch(u.id,{role:old});await usrReload()})}else toast(t("sv_forbid"),"er")};
-A.tmCo=async el=>{const u=(PG.users||[]).find(x=>x.id==el.dataset.id),c=compOf(el.dataset.co);if(!u||!c)return;const all=S.comps.map(x=>x.id),cur=u.companies||all,had=cur.includes(c.id),next=had?cur.filter(x=>x!=c.id):[...cur,c.id],val=n=>all.every(x=>n.includes(x))?null:n,old=u.companies||null;
- const r=await usrPatch(u.id,{companies:val(next)});if(r.s==200){u.companies=val(next);await usrReload();toastU(t(had?"tm_nosee":"tm_sees",u.name,c.n),async()=>{await usrPatch(u.id,{companies:old});await usrReload()})}else toast(t("sv_forbid"),"er")};
-A.tmOpen=el=>{PG.tmOpen=PG.tmOpen==el.dataset.id?null:el.dataset.id;page()};
-const tmSet=async(el,val,msgK)=>{const u=(PG.users||[]).find(x=>x.id==el.dataset.id);if(!u)return;const old=u.companies||null,r=await usrPatch(u.id,{companies:val});if(r.s==200){u.companies=val;await usrReload();toastU(t(msgK,u.name),async()=>{await usrPatch(u.id,{companies:old});await usrReload()})}else toast(t("sv_forbid"),"er")};
-A.tmAll=el=>tmSet(el,null,"tm_allset");A.tmNone=el=>tmSet(el,[],"tm_noneset");
-A.tmMail=el=>{const u=(PG.users||[]).find(x=>x.id==el.dataset.id);if(!u)return;
- modal({title:t("tm_mail_t"),sub:esc(u.name),icon:"mail",w:420,body:`<div class="fd"><label>${t("ac_mail")}</label><input id="tme" type="email" value="${u.noMail?"":esc(u.email||"")}" placeholder="name@company.com" autocomplete="off"><div class="hn">${t("tm_mail_h")}</div></div><div class="note er hide" id="tmx" style="grid-column:auto;margin-top:10px"></div>`,foot:`<button class="b" data-a="mdClose">${t("cancel")}</button><button class="b bp" id="tms">${t("save")}</button>`});
- setTimeout(()=>$("#tme")&&$("#tme").focus(),40);
- $("#tms").onclick=async()=>{const v=$("#tme").value.trim(),r=await usrPatch(u.id,{email:v}),e=$("#tmx");if(r.s==200){closeMd();await usrReload();toast(t("saved"));return}e.textContent=r.s==409?t("tm_mail_dup"):t("tm_mail_bad");e.classList.remove("hide")}};
-function accBody(){
- if(SERVER){const am=x=>`<span class="tmro" style="background:color-mix(in srgb,var(--am) 18%,transparent);color:var(--am);margin-left:6px">${esc(x)}</span>`,row=(k,l,v,x,raw)=>`<div class="row" style="padding:10px 0;border-top:1px solid var(--ln);flex-wrap:nowrap"><div style="flex:1;min-width:0"><small class="mu">${l}</small><div><b>${raw?v:esc(v)}</b>${x||""}</div></div><button class="b bs" data-a="acEdit" data-k="${k}">${ic("pen",13)} ${t("sv_edit")}</button></div>`;
- return `<p class="mu" style="margin-top:0">${t("sv_srv")}</p>${row("name",t("ac_full"),USER.name)}${row("email",t("ac_mail"),USER.noMail?"–":USER.email,USER.pend?am(t("ac_pend",USER.pend)):(!USER.emailOk&&!USER.noMail?am(t("ac_unver")):""))}${row("tg",t("ac_tg"),USER.tg?`<a href="https://t.me/${esc(USER.tg)}" target="_blank" rel="noopener" style="color:var(--ac)">@${esc(USER.tg)}</a>`:`<span class="mu">${t("ac_tg_none")}</span>`,"",true)}<div class="row" style="padding:10px 0;border-top:1px solid var(--ln);border-bottom:1px solid var(--ln);flex-wrap:nowrap"><div style="flex:1"><small class="mu">${t("pw")}</small><div><b>••••••••••</b></div></div><button class="b bs" data-a="acPw">${ic("key",13)} ${t("ac_change")}</button></div>
-<div class="lbl" style="margin-top:22px">${ic("shield",13)} ${t("sv_2fa_t")}</div>${USER.viaOwner?"":`<p class="mu" style="margin-top:0">${t(USER.totp?"sv_2fa_on":"sv_2fa_off")}</p>`}${USER.viaOwner||USER.totp&&PG.req2fa?"":`<button class="b ${USER.totp?"":"bp"}" data-a="${USER.totp?"tfOff":"tfStart"}">${t(USER.totp?"sv_2fa_disable":"sv_2fa_start")}</button>`}${tfPolicy()}
-${USER.owner?`<div class="lbl" style="margin-top:22px">${ic("clip",13)} ${t("sv_audit")}</div><p class="mu" style="margin-top:0">${t("sv_audit_s")}</p><button class="b" data-a="auditOpen">${t("sv_audit")}</button>`:""}`}
- return `<div class="lbl">${t("ac_det")}</div><div class="fg"><div class="fd h"><label>${t("ac_full")}</label><input value="${esc(S.name)}" data-i="acF" data-k="name"></div><div class="fd h"><label>${t("ac_user")}</label><input value="${esc(S.user)}" data-i="acF" data-k="user"></div><div class="fd"><label>${t("ac_mail")}</label><input type="email" value="${esc(S.mail)}" data-i="acF" data-k="mail"></div></div><div class="row" style="margin-top:12px"><button class="b bp" data-a="acSave">${t("save")}</button><button class="b" data-a="acPw">${ic("key",14)} ${t("ac_change")}</button></div>
-<div class="lbl" style="margin-top:22px">${t("dm_t")}</div><p class="mu" style="margin-top:0">${t("dm_s")}</p><div class="row"><button class="b" data-a="demoLoad">${ic("flask",14)} ${t("dm_load")}</button><button class="b dng" data-a="demoReset">${t("dm_reset")}</button></div>`}
-
-
-/* ----- Telegram: connect, test, send now ----- */
-Object.assign(D,{
-tgc_t:["Your Telegram","Sizning Telegram","Ваш Telegram"],
-tgc_off:["The bot is not switched on yet: the server needs TELEGRAM_BOT_TOKEN and TELEGRAM_WEBHOOK_SECRET.","Bot hali yoqilmagan: serverda TELEGRAM_BOT_TOKEN va TELEGRAM_WEBHOOK_SECRET kerak.","Бот ещё не включён: на сервере нужны TELEGRAM_BOT_TOKEN и TELEGRAM_WEBHOOK_SECRET."],
-tgc_s:["Link your account to get a morning summary and urgent alerts in a private chat with the bot, and to ask /status and /alerts any time.","Akkauntni ulang: bot bilan shaxsiy chatda ertalabki xulosa va shoshilinch ogohlantirishlar keladi, /status va /alerts buyruqlari ishlaydi.","Привяжите аккаунт: утренняя сводка и срочные оповещения придут в личный чат с ботом, а /status и /alerts работают в любое время."],
-tgc_conn:["Connect Telegram","Telegramni ulash","Подключить Telegram"],tgc_ok:["Connected","Ulangan","Подключено"],tgc_un:["Unlink","Uzish","Отключить"],
-tgc_dg:["Morning summary","Ertalabki xulosa","Утренняя сводка"],tgc_code:["Your one-time code","Bir martalik kod","Ваш одноразовый код"],
-tgc_how:["Tap the button to open the bot and press Start. Or send it this message: /start {0}. The code works for 10 minutes.","Tugmani bosib botni oching va Start bosing. Yoki botga shuni yuboring: /start {0}. Kod 10 daqiqa ishlaydi.","Нажмите кнопку, откройте бота и нажмите Start. Или отправьте ему: /start {0}. Код действует 10 минут."],
-tgc_open:["Open Telegram","Telegramni ochish","Открыть Telegram"],tgc_wh:["Reconnect the bot to this address","Botni shu manzilga qayta ulash","Переподключить бота к этому адресу"],
-tgc_whok:["Bot connected to this address.","Bot shu manzilga ulandi.","Бот подключён к этому адресу."],tgc_sent:["Sent.","Yuborildi.","Отправлено."],tgc_none:["Nothing to send: set a group id first.","Yuboradigan joy yo‘q: avval guruh id sini kiriting.","Некуда отправлять: сначала укажите id группы."]});
-function tgConnect(){if(!SERVER||!USER)return"";const i=PG.tgi;
- if(!i){if(!PG.tgiBusy){PG.tgiBusy=1;api("GET","/api/tg/info").then(r=>{PG.tgi=r.s==200?r.j:{enabled:false};PG.tgiBusy=0;if(V=="profile")page()})}return`<div class="mu">…</div>`}
- if(!i.enabled||!i.bot)return`<div class="note" style="grid-column:auto;margin-bottom:14px">${t("tgc_off")}</div>`;
- return `<div class="card" style="padding:14px;margin-bottom:16px"><div class="lbl" style="margin-top:0">${ic("send",13)} ${t("tgc_t")} · @${esc(i.bot)}</div><p class="mu" style="margin-top:0">${t(USER.owner?"tgc_s_own":"tgc_s")}</p>${USER.owner&&i.ai===false?`<div class="note er" style="grid-column:auto;margin-bottom:10px">${t("tgc_noai")}</div>`:""}
-${i.linked?`<div class="row" style="gap:10px">${tag(t("tgc_ok"),"var(--gr)")}<label class="ck"><input type="checkbox" data-c="tgDigest" ${i.digest?"checked":""}><span style="color:var(--tx)">${t("tgc_dg")}</span></label><button class="b" data-a="tgUnlink">${t("tgc_un")}</button></div>`:`<button class="b bp" data-a="tgCode">${ic("send",14)} ${t("tgc_conn")}</button>`}
-${canInt()&&i.webhook&&i.webhook.error?`<div style="margin-top:10px"><span class="mu" style="color:var(--rd)">${esc(i.webhook.error)}</span> <button class="b bs" data-a="tgReconn">${t("tgc_wh")}</button></div>`:""}</div>`}
-const _tgSec=tgSec;tgSec=function(){return tgConnect()+_tgSec()};
-A.tgCode=async()=>{const r=await api("POST","/api/tg/code");if(r.s!=200){toast(t("sv_off"),"er");return}
- modal({title:t("tgc_conn"),icon:"send",w:440,body:`<div class="lbl" style="margin-top:0">${t("tgc_code")}</div><div style="font:800 28px ui-monospace,monospace;letter-spacing:.2em;margin:6px 0 12px">${esc(r.j.code)}</div><p class="mu">${t("tgc_how",esc(r.j.code))}</p><a class="b bp" href="${esc(r.j.link)}" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none">${t("tgc_open")}</a>`,foot:`<button class="b" data-a="mdClose">${t("close")}</button>`});
- const poll=setInterval(async()=>{if(!$("#md")||!$("#md").children.length){clearInterval(poll);return}const q=await api("GET","/api/tg/info");if(q.s==200&&q.j.linked){clearInterval(poll);PG.tgi=q.j;closeMd();toast(t("tgc_ok"));if(V=="profile")page()}},3000)};
-A.tgUnlink=async()=>{await api("POST","/api/tg/unlink");PG.tgi=null;page()};
-C.tgDigest=async el=>{await api("POST","/api/tg/digest",{on:el.checked});PG.tgi.digest=el.checked};
-A.tgReconn=async()=>{const r=await api("POST","/api/tg/reconnect");toast(r.s==200&&r.j.ok?t("tgc_whok"):(r.j&&r.j.error)||t("sv_off"),r.s==200&&r.j.ok?"":"er");PG.tgi=null;page()};
-A.tgSave=async()=>{save();if(SERVER&&canInt()){await flushNow();const r=await api("POST","/api/tg/test");if(r.s==200){const L=r.j.results;toast(L.length?L.map(x=>x.group+": "+(x.ok?"OK":x.error)).join(" · "):t("tgc_none"),L.every(x=>x.ok)&&L.length?"":"er");return}}toast(t("tg_saved"))};
-A.tplSend2=async()=>{if(!SERVER||!canInt()){toast(t("tg_nosend"),"er");return}await flushNow();const r=await api("POST","/api/tg/send-now");toast(r.s==200&&r.j.ok?t("tgc_sent"):(r.j&&r.j.error)||t("tgc_none"),r.s==200&&r.j.ok?"":"er")};
-
-/* ----- deep link: /invoices?id=... opens that invoice once ----- */
-function deepOpen(){if(!SERVER||!S.in)return;let id=null;try{id=new URLSearchParams(location.search).get("id")}catch(e){}if(!id)return;
- if(V=="invoices"&&byId(DB.inv,id)){try{history.replaceState(null,"",location.pathname)}catch(e){}A.openInv({dataset:{id}})}else if(V=="invoices"){try{history.replaceState(null,"",location.pathname)}catch(e){}toast(t("dl_gone"),"er")}}
-Object.assign(D,{dl_gone:["That invoice was not found. It may have been deleted, or it belongs to another company.","Bu invoice topilmadi. U o‘chirilgan yoki boshqa kompaniyaniki bo‘lishi mumkin.","Этот счёт не найден. Возможно, он удалён или относится к другой компании."]});
-/* ----- show/hide eye on every password field ----- */
-P.eyeoff='<path d="M3 3l18 18M10.6 6.2A9.6 9.6 0 0 1 12 6c6 0 10 6 10 6a17 17 0 0 1-3.2 3.9M6.1 7.6C3.6 9.3 2 12 2 12s4 7 10 7c1.5 0 2.9-.4 4.1-1M9.9 9.9a3 3 0 0 0 4.2 4.2"/>';
-A.eye=el=>{const i=el.parentElement.querySelector("input");if(!i)return;const show=i.type=="password";i.type=show?"text":"password";el.innerHTML=ic(show?"eyeoff":"eye",16);el.setAttribute("aria-label",show?"Hide":"Show");el.title=show?"Hide":"Show";i.focus()};
-function addEyes(){document.querySelectorAll('input[type=password]:not([data-eye])').forEach(i=>{i.dataset.eye=1;if(i.closest(".pwd"))return;const w=document.createElement("div");w.className="pwd";i.parentNode.insertBefore(w,i);w.appendChild(i);const b=document.createElement("button");b.type="button";b.className="bi";b.dataset.a="eye";b.title="Show";b.setAttribute("aria-label","Show");b.tabIndex=-1;b.innerHTML=ic("eye",16);w.appendChild(b)})}
-try{new MutationObserver(addEyes).observe(document.body,{childList:true,subtree:true});addEyes()}catch(e){}
-const _sT=A.setTheme,_sL=A.lang;A.setTheme=el=>{_sT(el);savePrefs()};A.lang=el=>{_sL(el);savePrefs()};
-/* ----- profile photos ----- */
-P.cam='<path d="M4 8h3l2-2h6l2 2h3v11H4zM12 17a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"/>';
-P.camoff='<path d="M4 8h3l2-2h6l2 2h3v11H4zM12 17a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM3 3l18 18"/>';
-function cropImg(src,w,h,done){const s=Math.min(w,h),z=Math.min(800,s),c=document.createElement("canvas");c.width=c.height=z;const x=c.getContext("2d");x.imageSmoothingQuality="high";x.drawImage(src,(w-s)/2,(h-s)/2,s,s,0,0,z,z);let d=c.toDataURL("image/png");if(d.length>380000)d=c.toDataURL("image/jpeg",.92);if(d.length>420000)d=c.toDataURL("image/jpeg",.8);done(d)}
-function resizeImg(f,done){if(!/^image\//.test(f.type||"")){toast(t("ph_bad"),"er");return}const u=URL.createObjectURL(f),im=new Image();im.onload=()=>{URL.revokeObjectURL(u);cropImg(im,im.width,im.height,done)};im.onerror=()=>{URL.revokeObjectURL(u);toast(t("ph_bad"),"er")};im.src=u}
-function pickPhoto(done){const i=document.createElement("input");i.type="file";i.accept="image/*";i.onchange=()=>{if(i.files&&i.files[0])resizeImg(i.files[0],done)};i.click()}
-const phLocked=()=>!!(USER&&USER.avLock&&!USER.owner);
-function myPhoto(me){const has=!!avOf(me.name),lk=phLocked();return has||lk?avHtml(me.name,S.col,54):`<button class="avb" data-a="phPick" data-me="1" title="${esc(t("ph_change"))}" aria-label="${esc(t("ph_change"))}">${avHtml(me.name,S.col,54,1)}</button>`}
-async function phSet(el,val){const me=el.dataset.me=="1",id=me?USER.id:el.dataset.id,r=me?await api("PATCH","/api/me",{avatar:val}):await api("PATCH","/api/users/"+id,{avatar:val});
- if(r.s==200){const tm=(S.team||[]).find(x=>x.id==id);if(tm)tm.av=val;if(me)USER.avatar=val;const pu=(PG.users||[]).find(x=>x.id==id);if(pu)pu.avatar=val;toast(t(val?"ph_saved":"ph_removed"));render()}else toast(t(r.j&&r.j.error=="locked"?"ph_locked_msg":"ph_bad"),"er")}
-let PH_DONE=null,PH_STREAM=null;
-function phStop(){if(PH_STREAM){PH_STREAM.getTracks().forEach(x=>x.stop());PH_STREAM=null}}
-A.phPick=el=>{if(el.dataset.me=="1"&&phLocked()){toast(t("ph_locked_msg"),"er");return}PH_DONE=d=>phSet(el,d);
- modal({title:t("ph_change"),icon:"cam",w:400,body:`<div id="phdz" class="phdz"><div style="display:grid;gap:10px"><button class="b bp" data-a="phCam" style="padding:13px;justify-content:center;gap:8px">${ic("cam",17)} ${t("ph_take")}</button><button class="b" data-a="phFile" style="padding:13px;justify-content:center;gap:8px">${ic("file",17)} ${t("ph_file")}</button></div><div class="mu" style="text-align:center;margin-top:12px;font-size:calc(12.5px*var(--fz,1))">${ic("up2",14)} ${t("ph_drag")}</div></div>`,foot:`<button class="b" data-a="mdClose">${t("cancel")}</button>`});
- const z=$("#phdz");if(z){["dragenter","dragover"].forEach(e=>z.addEventListener(e,ev=>{ev.preventDefault();z.classList.add("on")}));["dragleave","drop"].forEach(e=>z.addEventListener(e,ev=>{ev.preventDefault();z.classList.remove("on")}));z.addEventListener("drop",ev=>{const f=ev.dataTransfer&&ev.dataTransfer.files&&ev.dataTransfer.files[0];if(f){const d=PH_DONE;closeMd();resizeImg(f,d)}})}};
-A.phView=el=>{const n=el.dataset.n,a=avOf(n);if(!a)return;const self=USER&&USER.name==n,tm=(S.team||[]).find(x=>x.n==n),id=self?USER.id:tm&&tm.id,can=self?!phLocked():(USER&&USER.role=="admin"&&!!id),at=self?`data-me="1"`:`data-id="${id}"`;
- modal({title:esc(n),w:620,body:`<img class="phbig" src="${a}" alt="${esc(n)}">`,foot:`${can?`<button class="b" data-a="phClr" ${at}>${ic("x",14)} ${t("ph_remove")}</button><button class="b" data-a="phPick" ${at}>${ic("cam",14)} ${t("ph_change")}</button>`:""}<button class="b bp" data-a="mdClose">${t("close")}</button>`})};
-A.phFile=()=>{const d=PH_DONE;closeMd();if(d)pickPhoto(d)};
-A.phCam=async()=>{if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){toast(t("ph_nocam"),"er");return}
- let st;try{st=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:720},height:{ideal:720}},audio:false})}catch(e){toast(t("ph_nocam"),"er");return}
- PH_STREAM=st;modal({title:t("ph_take"),icon:"cam",w:420,body:`<div style="border-radius:12px;overflow:hidden;background:#000;aspect-ratio:1/1"><video id="phv" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;transform:scaleX(-1)"></video></div>`,foot:`<button class="b" data-a="phCancel">${t("cancel")}</button><button class="b bp" data-a="phSnap">${ic("cam",14)} ${t("ph_snap")}</button>`});
- const v=$("#phv");v.srcObject=st;const tm=setInterval(()=>{if(!document.getElementById("phv")){phStop();clearInterval(tm)}},400)};
-A.phCancel=()=>{phStop();closeMd()};
-A.phSnap=()=>{const v=$("#phv");if(!v||!v.videoWidth)return;const w=v.videoWidth,h=v.videoHeight;phStop0(v,w,h)};
-function phStop0(v,w,h){cropImg(v,w,h,d=>{phStop();closeMd();if(PH_DONE)PH_DONE(d)})}
-A.phClr=el=>phSet(el,null);
-A.phLock=async el=>{const u=(PG.users||[]).find(x=>x.id==el.dataset.id);if(!u)return;const r=await api("PATCH","/api/users/"+u.id,{avLock:!u.avLock});if(r.s==200){u.avLock=!u.avLock;toast(t(u.avLock?"ph_blocked_set":"ph_allowed_set",u.name));page()}else toast(t("sv_forbid"),"er")};
-/* ----- start ----- */
-async function boot(){
- const r=await api("GET","/api/me",undefined,4000);
- if(r.json){SERVER=true;PULL=pullRemote;
-  // never reuse data left in this browser by the local demo mode
-  const keep={lang:S.lang,theme:S.theme,col:S.col,sm:S.sm},p=ld("tf2_p",{});S=Object.assign(DEF_S(),keep,p);S.in=false;DB=DEF_D();save=serverSave;
-  if(r.s==200&&r.j&&r.j.user){USER=r.j.user;applyPrefs(USER);if(USER.need2fa)S.in=true;else if(await loadRemote()){S.in=true}else USER=null}}
- const im=SERVER&&location.pathname.match(/^\/invite\/([A-Za-z0-9_-]{20,100})$/);
- if(im){S.in=false;USER=null;const ir=await api("GET","/api/invite/"+im[1]);INV=ir.s==200&&ir.j?{tok:im[1],email:ir.j.email,role:ir.j.role}:{bad:true}}
- V=viewFromHash();if(SERVER&&S.in&&(location.pathname=="/"||(Object.values(ROUTES).includes(location.pathname.slice(1))&&location.pathname!="/"+ROUTES[V])))history.replaceState(null,"","/"+ROUTES[V]);render();
- if(SERVER&&S.in&&USER){const em=new URLSearchParams(location.search).get("email");if(em){history.replaceState(null,"","/profile");setTimeout(()=>toast(t(em=="ok"?"ac_verified":"ac_verbad"),em=="ok"?"":"er"),500)}}
- if(SERVER&&S.in&&USER){if(USER.need2fa)setTimeout(force2fa,100);}}
-A.retry=()=>location.reload();
-boot();
-</script></body></html>
+if (require.main === module) {
+  C.seal('x'); // fail fast when APP_SECRET is missing
+  bootstrap().then(() => app.listen(PORT, () => console.log('TOPGFLEET listening on', PORT))).catch(e => { console.error(e); process.exit(1); });
+}
+module.exports = { app, bootstrap, parseKml };
