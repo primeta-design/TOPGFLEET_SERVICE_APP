@@ -4,7 +4,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap">
 <style>
 :root{--bg:#181818;--pn:#1f1f1f;--p2:#272727;--ln:#303030;--tx:#ececec;--mu:#9a9aa1;--ac:#8b5cf6;--rd:#ef4444;--am:#f59e0b;--gn:#22c55e;--bl:#3b82f6;color-scheme:dark}
-/* automatic page size on wide screens (Falcon style): the whole UI grows with the window */
+/* automatic page size on wide screens (app style): the whole UI grows with the window */
 :root{--uz:1}
 @supports (zoom:1){@media(min-width:1500px){:root{--uz:1.07}}@media(min-width:1700px){:root{--uz:1.14}}@media(min-width:2100px){:root{--uz:1.22}}@media(min-width:2400px){:root{--uz:1.36}}@media(min-width:3200px){:root{--uz:1.5}}html{zoom:var(--uz)}}
 *{box-sizing:border-box}html,body{margin:0;height:100%}
@@ -193,7 +193,7 @@ button.vnLk{background:none;border:0;padding:0;cursor:pointer;font:inherit;font-
 .szr input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:var(--ln)}.szr input[type=range]::-moz-range-progress{height:6px;border-radius:3px;background:#8b5cf6}
 .szr input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid #8b5cf6}
 
-/* v5 · Falcon look: status-tinted truck cards, read-only side panel, truck page, maintenance groups, roadside */
+/* v5 · look: status-tinted truck cards, read-only side panel, truck page, maintenance groups, roadside */
 .tc{background:color-mix(in srgb,var(--sc,var(--ln)) 9%,var(--pn));border-color:color-mix(in srgb,var(--sc,var(--ln)) 32%,var(--ln))}.tc:hover{border-color:var(--sc,var(--ac))}
 .kvt{border:1px solid var(--ln);border-radius:10px;overflow:hidden}.kvt.sm{border:0;border-radius:0}
 .kvr{display:grid;grid-template-columns:130px minmax(0,1fr);gap:12px;align-items:center;padding:10px 12px;border-top:1px solid var(--ln)}.kvr:first-child{border-top:0}
@@ -219,9 +219,9 @@ button.vnLk{background:none;border:0;padding:0;cursor:pointer;font:inherit;font-
 .pop .pi.dng:hover{background:color-mix(in srgb,var(--rd) 14%,transparent)}
 @media(max-width:900px){.tpg3{grid-template-columns:1fr}.kvr{grid-template-columns:110px minmax(0,1fr)}.tpa{width:100%}}
 
-/* v6 · Vendors in Falcon style: the map fills the page, search / chips / buttons float on it, the list slides in from the left */
+/* v6 · Vendors in app style: the map fills the page, search / chips / buttons float on it, the list slides in from the left */
 #c:has(>.vnP){padding:0;position:relative;overflow:hidden}
-.vnP{position:absolute;inset:0;--vnW:min(360px,42%);--vnL:12px;--vnT:66px}
+.vnP{position:absolute;inset:0;z-index:0;isolation:isolate;--vnW:min(360px,42%);--vnL:12px;--vnT:66px}
 .vnP.side{--vnL:calc(var(--vnW) + 24px)}
 .vnP>.vnMapBox{position:absolute;inset:0;border:0;border-radius:0;margin:0;padding:0}
 .vnP #vmap{position:absolute;inset:0}
@@ -235,10 +235,10 @@ button.vnLk{background:none;border:0;padding:0;cursor:pointer;font:inherit;font-
 .vnP.side>.vnSide{transform:none}
 .vnHandle{position:absolute;z-index:1101;top:50%;left:0;transform:translateY(-50%);width:24px;height:60px;border:1px solid var(--ln);border-left:0;border-radius:0 10px 10px 0;background:var(--pn);color:var(--tx);display:grid;place-items:center;padding:0;box-shadow:0 4px 14px #0008;transition:left .2s}
 .vnP.side .vnHandle{left:calc(var(--vnW) + 12px)}.vnHandle:hover{color:var(--ac)}
-.vnP #vbar{display:none}.vnP .vnTop{top:66px}.vnP #vsb{top:12px!important;left:var(--vnL)!important;transition:left .2s}.vnP #vpp,.vnP #vrp{top:var(--vnT)!important;left:var(--vnL)!important;transition:left .2s}
+.vnP #vtk{left:var(--vnL)!important;bottom:12px!important;transition:left .2s}.vnP #vbar{display:none}.vnP .vnTop{top:66px}.vnP #vsb{top:12px!important;left:var(--vnL)!important;transition:left .2s}.vnP #vpp,.vnP #vrp{top:var(--vnT)!important;left:var(--vnL)!important;transition:left .2s}
 .vnP .leaflet-top.leaflet-right{top:58px}
 .vnP:fullscreen,.vnP:-webkit-full-screen{background:var(--bg);width:100%;height:100%}
-.vnP.full{position:fixed;left:0;top:0;width:calc(100vw/var(--uz,1)/var(--pz,1));height:calc(100vh/var(--uz,1)/var(--pz,1));z-index:80;background:var(--bg)}
+.vnP.full{position:fixed;left:0;top:0;width:calc(100vw/var(--uz,1)/var(--pz,1));height:calc(100vh/var(--uz,1)/var(--pz,1));z-index:20;background:var(--bg)}
 .vnP.fs .vnFs,.vnP.full .vnFs{display:none}
 .vnP.fs .vnFsOff,.vnP.full .vnFsOff{display:inline-flex;position:absolute;z-index:1102;left:50%;bottom:28px;transform:translateX(-50%);align-items:center;gap:8px;background:#111827;color:#fff;border:1px solid #ffffff55;border-radius:999px;padding:10px 18px;font-weight:600;cursor:pointer;box-shadow:0 4px 14px #000a}
 .vnX{white-space:nowrap}
@@ -815,7 +815,7 @@ A.toggleIssue=el=>{const i=byId(DB.issues,el.dataset.id);i.status=i.status=="clo
 A.newIssue=()=>issueForm();A.openIssue=el=>issueForm(el.dataset.id);
 function issueForm(id){const i=id?byId(DB.issues,id):null;
  openForm({title:i?t("issue"):t("new_issue"),icon:"flag",save:i?t("save"):t("create_issue"),
- fields:[{k:"title",l:t("f_unit"),opt:true,ph:t("f_unit_ph"),list:"units",val:i&&i.title},{k:"desc",l:t("f_desc"),t:"textarea",rows:4,ph:t("f_desc_ph"),val:i&&i.desc},
+ fields:[{k:"title",l:t("f_unit"),opt:true,ph:t("f_unit_ph"),list:"units",val:i&&i.title},{k:"desc",l:t("f_desc"),t:"textarea",rows:4,ph:t("f_desc_ph"),val:i&&i.desc},{k:"loc",l:t("f_loc"),opt:true,ph:t("f_loc_ph"),val:i&&i.loc,hint:t("f_loc_h")},
  {k:"pr",l:t("f_prio"),t:"select",o:S.prio.map(p=>[p.id,p.n]),val:i?i.pr:S.prio[S.prio.length-1].id},{k:"owner",l:t("f_assign"),opt:true,t:"select",o:[["",t("unassigned")],...S.team.map(m=>[m.id,m.n])],val:i&&i.owner},
  {k:"sched",l:t("f_sched"),opt:true,t:"date",val:i&&i.sched,hint:t("f_sched_h")}],
  check:o=>!o.title&&!o.desc?t("req"):null,del:i?()=>{DB.issues=DB.issues.filter(x=>x.id!=id);refresh()}:null,
@@ -1778,15 +1778,15 @@ function vnLeaflet(){if(window.L&&L.map){vnGridFix();return Promise.resolve()}if
  VM.lf=new Promise((res,rej)=>{const l=document.createElement("link");l.rel="stylesheet";l.href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";document.head.appendChild(l);const s=document.createElement("script");s.src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";s.onload=()=>{vnGridFix();res()};s.onerror=()=>{VM.lf=null;rej(new Error("lf"))};document.head.appendChild(s)});return VM.lf}
 function vnLiveBuild(){const b=$("#vmap");if(!b)return null;if(VM.lmap){try{VM.lmap.remove()}catch(e){}VM.lmap=null}
  VM.view="live";const m=$("#vmsg");if(m)m.style.display="none";
- b.innerHTML=`<div class="vnFrm"><div id="vlf" style="position:absolute;inset:0;z-index:0;isolation:isolate;background:#16211c"></div><div id="vsb" style="position:absolute;z-index:1001;top:10px;left:10px;width:min(420px,calc(100% - 190px))"><div style="display:flex;gap:6px"><input id="vsi" data-i="vsI" data-enter="vsGo" autocomplete="off" placeholder="${esc(t("vm_sb"))}" style="flex:1;min-width:0;padding:11px 14px;border-radius:10px;border:1px solid var(--ln);background:var(--pn);color:var(--tx);font:14px Inter,system-ui,sans-serif;box-shadow:0 4px 14px #0009"><button data-a="vnDirOpen" title="${esc(t("vm_dirs"))}" aria-label="${esc(t("vm_dirs"))}" style="width:44px;flex:none;border-radius:10px;border:0;background:#6d5df6;color:#fff;cursor:pointer;box-shadow:0 4px 14px #0009;display:flex;align-items:center;justify-content:center">${ic("send",18)}</button></div><div id="vsr" style="margin-top:4px;border-radius:10px;overflow:hidden;box-shadow:0 4px 14px #0009"></div></div><div id="vpp" style="display:none;position:absolute;z-index:1000;top:64px;left:10px;width:min(340px,calc(100% - 20px));max-height:calc(100% - 76px);overflow:auto;background:var(--pn);color:var(--tx);border:1px solid var(--ln);border-radius:12px;box-shadow:0 6px 20px #0009;font:13px Inter,system-ui,sans-serif"></div><div id="vrp" style="display:none;position:absolute;z-index:1000;top:64px;left:10px;width:min(340px,calc(100% - 20px));max-height:calc(100% - 130px);overflow:auto;background:var(--pn);color:var(--tx);border:1px solid var(--ln);border-radius:12px;padding:12px;box-shadow:0 6px 20px #0009;font:13px Inter,system-ui,sans-serif"></div></div>`;
+ b.innerHTML=`<div class="vnFrm"><div id="vlf" style="position:absolute;inset:0;z-index:0;isolation:isolate;background:#16211c"></div><div id="vsb" style="position:absolute;z-index:1001;top:10px;left:10px;width:min(420px,calc(100% - 190px))"><div style="display:flex;gap:6px"><input id="vsi" data-i="vsI" data-enter="vsGo" autocomplete="off" placeholder="${esc(t("vm_sb"))}" style="flex:1;min-width:0;padding:11px 14px;border-radius:10px;border:1px solid var(--ln);background:var(--pn);color:var(--tx);font:14px Inter,system-ui,sans-serif;box-shadow:0 4px 14px #0009"><button data-a="vnDirOpen" title="${esc(t("vm_dirs"))}" aria-label="${esc(t("vm_dirs"))}" style="width:44px;flex:none;border-radius:10px;border:0;background:#6d5df6;color:#fff;cursor:pointer;box-shadow:0 4px 14px #0009;display:flex;align-items:center;justify-content:center">${ic("send",18)}</button></div><div id="vsr" style="margin-top:4px;border-radius:10px;overflow:hidden;box-shadow:0 4px 14px #0009"></div></div><div id="vtk" style="position:absolute;z-index:1001;left:10px;bottom:10px;right:70px;max-width:620px;display:flex;flex-direction:column-reverse;gap:6px;pointer-events:none;font:13px Inter,system-ui,sans-serif"></div><div id="vpp" style="display:none;position:absolute;z-index:1000;top:64px;left:10px;width:min(340px,calc(100% - 20px));max-height:calc(100% - 76px);overflow:auto;background:var(--pn);color:var(--tx);border:1px solid var(--ln);border-radius:12px;box-shadow:0 6px 20px #0009;font:13px Inter,system-ui,sans-serif"></div><div id="vrp" style="display:none;position:absolute;z-index:1000;top:64px;left:10px;width:min(340px,calc(100% - 20px));max-height:calc(100% - 130px);overflow:auto;background:var(--pn);color:var(--tx);border:1px solid var(--ln);border-radius:12px;padding:12px;box-shadow:0 6px 20px #0009;font:13px Inter,system-ui,sans-serif"></div></div>`;
  const mp=L.map("vlf",{preferCanvas:true,zoomControl:false}).setView([39.5,-98.35],4);
  const sat=L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,attribution:"Imagery \u00a9 Esri"}),osm=L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,referrerPolicy:"origin",attribution:"\u00a9 OpenStreetMap"});
  sat.addTo(mp);VM.llabels=L.layerGroup().addTo(mp);L.control.layers({[t("vm_sat")]:sat,[t("vm_street")]:osm},{[t("vm_labels")]:VM.llabels},{position:"topright"}).addTo(mp);mp.on("moveend zoomend overlayadd overlayremove",vnLabelsDraw);mp.on("moveend",vnPlFetch);L.control.zoom({position:"bottomright"}).addTo(mp);
  VM.lmap=mp;VM.lpins=L.layerGroup().addTo(mp);VM.lrt=L.layerGroup().addTo(mp);VM.llines=[];
  const lc=L.control({position:"bottomright"});lc.onAdd=()=>{const d=L.DomUtil.create("div","leaflet-bar"),a=L.DomUtil.create("a","",d);a.href="#";a.title=t("vm_loc");a.setAttribute("aria-label",t("vm_loc"));a.textContent="◎";a.style.cssText="font-size:18px;line-height:30px;text-align:center;width:30px;height:30px;display:block;cursor:pointer";L.DomEvent.on(a,"click",e=>{L.DomEvent.preventDefault(e);vnLocate()});return d};lc.addTo(mp);
  try{new ResizeObserver(()=>{try{mp.invalidateSize()}catch(e){}vnPpRender()}).observe(b)}catch(e){}
- ["#vsb","#vrp","#vpp"].forEach(q=>{const e=$(q);if(e)L.DomEvent.on(e,"mousedown dblclick touchstart wheel contextmenu",L.DomEvent.stopPropagation)});
- vnPinsDraw();vnLabelsDraw();setTimeout(()=>{if(VM.lmap!==mp)return;if(VM.rt){const f=VM.rt.fresh;VM.rt.fresh=false;vnRouteDraw();VM.rt.fresh=f&&false;if(VM.as&&VM.as.list)vnAlDraw()}else vnDirRender();vnPpRender()},0);return mp}
+ ["#vsb","#vrp","#vpp","#vtk"].forEach(q=>{const e=$(q);if(e)L.DomEvent.on(e,"mousedown dblclick touchstart wheel contextmenu",L.DomEvent.stopPropagation)});
+ vnPinsDraw();vnLabelsDraw();setTimeout(()=>{if(VM.lmap!==mp)return;if(VM.rt){const f=VM.rt.fresh;VM.rt.fresh=false;vnRouteDraw();VM.rt.fresh=f&&false;if(VM.as&&VM.as.list)vnAlDraw()}else vnDirRender();vnPpRender();vnTkRender()},0);return mp}
 async function vnLocate(){const g=vnLL(await vnGeo());if(!g||!VM.lmap)return toast(t("vm_from_need"),"er");
  if(VM.me)VM.me.remove();VM.me=L.circleMarker([g.lat,g.lng],{radius:8,color:"#fff",weight:2,fillColor:"#2563eb",fillOpacity:1}).addTo(VM.lmap);VM.lmap.setView([g.lat,g.lng],11)}
 async function vnLive(ll,z,bounds){
@@ -2090,7 +2090,7 @@ Object.assign(D,{pacc_lv_none:["No access","Ruxsat yo‘q","Нет доступ�
 pacc_deny:["You don’t have access to do this. This section is read only for you.","Sizda bu amalga ruxsat yo‘q. Bu bo‘lim siz uchun faqat o‘qish.","У вас нет доступа к этому действию. Раздел только для чтения."],
 pacc_banner:["Read only: you can look at this section but not change anything in it.","Faqat o‘qish: bu bo‘limni ko‘rasiz, lekin hech narsani o‘zgartira olmaysiz.","Только чтение: раздел можно смотреть, но нельзя ничего менять."],
 pacc_md_s:["Choose for each person: No access, Only read (can look, cannot change) or Can edit. Saved at once.","Har odam uchun tanlang: Ruxsat yo‘q, Faqat o‘qish (ko‘radi, o‘zgartira olmaydi) yoki Tahrirlay oladi. Darrov saqlanadi.","Для каждого выберите: Нет доступа, Только чтение (смотрит, не меняет) или Может менять. Сохраняется сразу."]});
-const RO_A=/^(tvOpen|tpOpen|tpBack|tpMenu|tpInv|tpDocs|tpRep|mhTog|tpHist|rsQr|rsCopy|rsPrint|mdClose|drClose|nav|menu|logout|pop|shpop|noop|eye|setTheme|setCol|pfGo|gopen|coPick|ivUnitClr|vnTab|vnDir|vnMode|vnFull|vnFocus|vnChip|vnSearch|vnPanTog|vnBackMy|vnRoute|vnDirOpen|vnDirClose|vnSteps|vnAs|vnAsChip|vnAsPick|vnAsX|vnPpX|vnPpDir|vnPpShare|vnSwap|vnRecGo|vnPlGo|vnRtSel|vsPick|vsPlace|vsGo|vnStepsTog|vnMsgX|ivPg|ivJump|ivView|ivViewF|ivReport|ivExport|ivPick|ivPrev|ivDl|ivDlF|ivRefresh|trView|trReport|trFind|trAll|tlRefresh|tlChip|issueTab|issueSort|issueGrp|alertTab|advClear|phView|mtReport|rpSet|ivCopy)$/;
+const RO_A=/^(tvOpen|tpOpen|tpBack|tpMenu|tpInv|tpDocs|tpRep|mhTog|tpHist|rsQr|rsCopy|rsPrint|mdClose|drClose|nav|menu|logout|pop|shpop|noop|eye|setTheme|setCol|pfGo|gopen|coPick|ivUnitClr|vnTab|vnDir|vnMode|vnFull|vnFocus|vnChip|vnSearch|vnPanTog|vnBackMy|vnRoute|vnDirOpen|vnDirClose|vnSteps|vnAs|vnAsChip|vnAsPick|vnAsX|vnTkGo|vnTkTog|vnPpX|vnPpDir|vnPpShare|vnSwap|vnRecGo|vnPlGo|vnRtSel|vsPick|vsPlace|vsGo|vnStepsTog|vnMsgX|ivPg|ivJump|ivView|ivViewF|ivReport|ivExport|ivPick|ivPrev|ivDl|ivDlF|ivRefresh|trView|trReport|trFind|trAll|tlRefresh|tlChip|issueTab|issueSort|issueGrp|alertTab|advClear|phView|mtReport|rpSet|ivCopy)$/;
 const RO_C=/^(ivF|tlF|inF|trSort|ivSel|ivAll|ivDate|vpDate|advComp|tgF)$/;
 const RO_I=/^(vsI|trq|tlq|iq|gq|drQ|dcQ|hdQ|inQ|ivQ|ivUnit|vnQ|vnQ0|vnN0|vnPlQ|tgF)$/;
 function roBlock(re,name){if(!aiSrv()||USER.owner||pageMode(V)!="read"||re.test(name))return false;toast(t("pacc_deny"),"er");return true}
@@ -2539,7 +2539,7 @@ A.phSnap=()=>{const v=$("#phv");if(!v||!v.videoWidth)return;const w=v.videoWidth
 function phStop0(v,w,h){cropImg(v,w,h,d=>{phStop();closeMd();if(PH_DONE)PH_DONE(d)})}
 A.phClr=el=>phSet(el,null);
 A.phLock=async el=>{const u=(PG.users||[]).find(x=>x.id==el.dataset.id);if(!u)return;const r=await api("PATCH","/api/users/"+u.id,{avLock:!u.avLock});if(r.s==200){u.avLock=!u.avLock;toast(t(u.avLock?"ph_blocked_set":"ph_allowed_set",u.name));page()}else toast(t("sv_forbid"),"er")};
-/* ===== v5: Falcon-style truck panel + truck page, mileage history, service log, maintenance groups, roadside QR, Telegram link ===== */
+/* ===== v5: app style truck panel + truck page, mileage history, service log, maintenance groups, roadside QR, Telegram link ===== */
 Object.assign(D,{
 tp_title:["Truck","Truck","Грузовик"],tp_back:["Trucks","Trucklar","Грузовики"],tp_unit_n:["Unit #{0}","Unit #{0}","Юнит #{0}"],
 tv_page:["Open truck page","Truck sahifasini ochish","Открыть страницу"],tv_hist:["Service history","Servis tarixi","История обслуживания"],
@@ -2613,7 +2613,7 @@ function cabV(tr){const c=cabState(tr);return tr.cab?tag(fd(tr.cab),stCol(c)):no
 function insSeg(tr,act){const ro=!act||!canEditTrucks();return `<div class="seg2">${[["cov",t("fl_cov"),"var(--gn)"],["unc",t("fl_unc"),"var(--rd)"],["",t("fl_nset"),"var(--mu)"]].map(([v,l,c])=>`<button class="${(tr.ins||"")==v?"on":""}" style="--c:${c}" ${ro?"disabled":`data-a="${act}" data-id="${tr.id}" data-v="${v}"`}>${l}</button>`).join("")}</div>`}
 function pmV(tr){const L=DB.plans.filter(p=>p.truck==tr.id);if(L.length&&L.every(pmNoLast))return `${tag(L[0].name,"var(--mu)")} <span class="mu">${t("mt_nos")}</span>`;const n=nextPM(tr);return n?`${tag(n.p.name,stCol(n.s.st))} <span class="mu">${esc(pmBits(n.s))}</span>`:noneV(t("tv_noplan"))}
 function milesV(tr){const L=mhList(tr),c=L[0];if(!c)return noneV();return `<b>${nf(c.mi)}</b> ${t("miles_u")} <span class="mu">${c.at?t("tv_upd",agoTxt(new Date(c.at).getTime())):t("tv_unknown")}</span>`}
-/* ---- the read-only side panel (Falcon style); Edit / Delete live behind buttons ---- */
+/* ---- the read-only side panel (app style); Edit / Delete live behind buttons ---- */
 function truckView(id){const tr=byId(DB.trucks,id);if(!tr){toast(t("tp_gone"),"er");return}
  const d=driverOf(tr.id),c=compOf(tr.company),s=statOf(tr.status),tl=DB.trailers.find(x=>x.truck==tr.id&&!x.archived),oi=truckIssues(tr);
  DR.cfg=null;DR.tid=id;
@@ -2714,7 +2714,7 @@ ${tgCard(tr)}
 <div class="card" id="tph"><div class="ch"><h2>${t("th_title")}</h2><span class="tg">${H.length}</span><span class="sp"></span><button class="b bs" data-a="tpRep" data-id="${id}">${ic("file",13)} ${t("th_report")}</button>${ed?`<button class="b bs" data-a="lsOpen" data-id="${id}" style="border-color:var(--ac);color:var(--ac)">${ic("plus",13)} ${t("ls_title")}</button>`:""}</div>
 ${H.length?H.map(h=>`<div class="ir" ${h.k=="i"?`data-a="openInv" data-id="${h.id}"`:""} style="${h.k=="s"?"cursor:default":""}"><span class="dt" style="background:${h.k=="i"?"var(--bl)":"var(--gn)"}"></span><div class="t"><b>${esc(h.title)}</b><span class="mu" style="font-size:calc(12px*var(--fz,1))">${esc(fd(h.date))} · ${h.k=="i"?t("th_inv"):t("th_svc")}${h.sub?" · "+esc(h.sub):""}${h.by?" · "+esc(h.by):""}</span></div>${h.cost?`<b>${money(h.cost)}</b>`:""}${h.k=="s"&&ed?`<button class="bi" data-a="svcDel" data-id="${h.id}" aria-label="${t("del")}">${ic("trash",15)}</button>`:""}</div>`).join(""):`<div class="mu" style="padding:0 16px 14px">${t("th_none")}</div>`}</div></div>`};
 A.tpMh=()=>{PG.mhOpen=PG.mhOpen===false;page()};
-/* ---- maintenance: Falcon groups (Overdue · Due soon · No service on record · Up to date) ---- */
+/* ---- maintenance: groups (Overdue · Due soon · No service on record · Up to date) ---- */
 const pmNoLast=p=>(p.lastMi===""||p.lastMi==null)&&!p.lastDate;
 function mtData(){const rows=[],nos=[];DB.trucks.forEach(tr=>{const L=DB.plans.filter(p=>p.truck==tr.id);if(!L.length){nos.push({tr,p:null});return}L.forEach(p=>{if(pmNoLast(p))nos.push({tr,p});else rows.push({tr,p,s:planState(p,tr)})})});
  const by=st=>rows.filter(r=>r.s.st==st).sort((a,b)=>natCmp(a.tr.num,b.tr.num));return{over:by("over"),soon:by("soon"),ok:by("ok"),nos:nos.sort((a,b)=>natCmp(a.tr.num,b.tr.num))}}
@@ -2738,7 +2738,7 @@ A.mtStart=()=>{const M=mtData(),T=[...new Map(M.nos.map(x=>[x.tr.id,x.tr])).valu
 /* global search opens the panel too */
 {const _g=A.gopen;A.gopen=el=>{if(el.dataset.k=="trucks"){$("#gq").value="";closePops();truckView(el.dataset.id);return}_g(el)}}
 
-/* ===== v6: Vendors in Falcon style (full-bleed map, floating search + buttons, collapsible list, real full screen, roads & names, starts close) ===== */
+/* ===== v6: Vendors in app style (full-bleed map, floating search + buttons, collapsible list, real full screen, roads & names, starts close) ===== */
 Object.assign(D,{vm_roads:["Roads & names","Yo‘llar va nomlar","Дороги и названия"],vn_list:["Vendors list","Servislar ro‘yxati","Список подрядчиков"],vn_show:["Show on the map","Xaritada ko‘rsatish","Показать на карте"],
 vn_invs:["Its invoices","Invoyslari","Его счета"],vn_nopin:["This vendor has no map location yet. Edit it and add the address.","Bu servisning xaritadagi joyi yo‘q. Tahrirlab manzil qo‘shing.","У подрядчика нет точки на карте. Измените его и добавьте адрес."]});
 const vnSideOpen=()=>ld("tf_vnside",innerWidth>900);
@@ -2788,6 +2788,21 @@ function vnCopiedNear(el){const box=$("#vbox");if(!el||!box)return toast(t("vm_c
 A.vnPpShare=el=>{const pp=VM.pp;if(!pp)return;const u="https://www.google.com/maps/search/?api=1&query="+pp.ll[0]+","+pp.ll[1];
  const fb=()=>{const ta=document.createElement("textarea");ta.value=u;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand("copy")}catch(e){}ta.remove();ok?vnCopiedNear(el):window.open(u,"_blank","noopener")};
  try{navigator.clipboard.writeText(u).then(()=>vnCopiedNear(el),fb)}catch(e){fb()}};
+Object.assign(D,{f_loc:["Current location","Hozirgi joylashuv","Текущее местоположение"],f_loc_ph:["City, State, address or coordinates","Shahar, shtat, manzil yoki koordinata","Город, штат, адрес или координаты"],f_loc_h:["Shown on the Vendors map. Click the unit there to jump to this place.","Vendors xaritasida ko‘rinadi. U yerda unitni bossangiz, shu joyga o‘tadi.","Показывается на карте Vendors. Нажмите на юнит, чтобы перейти сюда."],tk_bar:["Trucks with issues","Muammoli truck’lar","Траки с проблемами"],tk_noloc:["No current location on this issue. Add one in the issue.","Bu muammoda joylashuv yo‘q. Muammoni tahrirlab qo‘shing.","В проблеме нет местоположения. Добавьте его."],tk_nf:["Could not find this location on the map.","Bu joy xaritadan topilmadi.","Не удалось найти место на карте."]});
+const vnTkIss=()=>DB.issues.filter(i=>i.status!="closed"&&(i.title||"").trim());
+function vnTkRender(){const el=$("#vtk");if(!el)return;const L2=vnTkIss();VM.tkOpen=VM.tkOpen||{};
+ const pr=i=>{const q=S.prio.find(x=>x.id==i.pr);return q?q.n:""};
+ el.innerHTML=L2.length?`<div style="pointer-events:auto;display:flex;flex-wrap:wrap;gap:6px;align-items:flex-end;max-height:46vh;overflow:auto">${L2.map(i=>{const o=!!VM.tkOpen[i.id],has=!!(i.loc||"").trim();return `<div style="background:var(--pn);color:var(--tx);border:1px solid ${VM.tkAct==i.id?"#6d5df6":"var(--ln)"};border-radius:10px;box-shadow:0 4px 14px #0009;overflow:hidden;max-width:300px">
+ <div style="display:flex;align-items:stretch"><button data-a="vnTkGo" data-id="${esc(i.id)}" title="${esc(has?i.loc:t("tk_noloc"))}" style="border:0;background:none;color:var(--tx);padding:8px 10px;font:700 13px Inter,system-ui,sans-serif;cursor:pointer;display:flex;gap:6px;align-items:center;${has?"":"opacity:.6"}"><span style="width:8px;height:8px;border-radius:50%;background:${has?"#ef4444":"#888"}"></span>${esc(i.title)}</button><button data-a="vnTkTog" data-id="${esc(i.id)}" aria-expanded="${o}" aria-label="${esc(t("f_desc"))}" style="border:0;border-left:1px solid var(--ln);background:none;color:var(--mu);padding:0 10px;cursor:pointer;transition:transform .15s;transform:rotate(${o?180:0}deg)">▲</button></div>
+ ${o?`<div style="padding:8px 10px;border-top:1px solid var(--ln);max-width:300px;word-break:break-word"><div>${esc(i.desc||"—")}</div><div style="color:var(--mu);font-size:12px;margin-top:5px">${pr(i)?esc(pr(i))+" · ":""}${has?esc(i.loc):t("tk_noloc")}</div></div>`:""}</div>`}).join("")}</div>`:"";}
+async function vnTkGoTo(i){const mp=VM.lmap;if(!mp||!window.L)return;const q=(i.loc||"").trim();if(!q)return toast(t("tk_noloc"),"er");
+ VM.tkc=VM.tkc||{};let w=VM.tkc[q];if(!w){w=await vnWhere(q);if(w)VM.tkc[q]=w}
+ if(!w||VM.lmap!==mp)return w?0:toast(t("tk_nf"),"er");
+ VM.tkAct=i.id;if(!VM.ltk)VM.ltk=L.layerGroup().addTo(mp);VM.ltk.clearLayers();
+ L.marker([w.lat,w.lng],{icon:L.divIcon({className:"",iconSize:[0,0],html:`<div style="position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center"><span style="background:#ef4444;color:#fff;font:700 12px Inter,system-ui,sans-serif;padding:3px 8px;border-radius:7px;border:2px solid #fff;box-shadow:0 2px 8px #000a;white-space:nowrap">${esc(i.title)}</span><span style="width:0;height:0;border:6px solid transparent;border-top-color:#fff;margin-top:-1px"></span></div>`})}).addTo(VM.ltk).bindTooltip(esc(i.loc),{direction:"bottom",offset:[0,6]});
+ mp.flyTo([w.lat,w.lng],Math.max(mp.getZoom(),12),{duration:1.1});vnTkRender()}
+A.vnTkGo=el=>{const i=byId(DB.issues,el.dataset.id);if(i)vnTkGoTo(i)};
+A.vnTkTog=el=>{VM.tkOpen=VM.tkOpen||{};VM.tkOpen[el.dataset.id]=!VM.tkOpen[el.dataset.id];vnTkRender()};
 /* ----- start ----- */
 async function boot(){
  const r=await api("GET","/api/me",undefined,4000);
