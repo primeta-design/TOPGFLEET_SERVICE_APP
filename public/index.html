@@ -669,7 +669,7 @@ function field(f){const v=f.val??"",id="f_"+f.k,rq=f.req?'<span class="rq"> *</s
  else inp=`<input id="${id}" name="${f.k}" type="${f.t||"text"}" value="${esc(v)}" placeholder="${esc(f.ph||"")}" ${f.list?`list="${f.list}"`:""} ${f.min!=null?`min="${f.min}"`:""} ${f.step?`step="${f.step}"`:""} autocomplete="off">`;
  return `<div class="fd ${f.half?"h":""}"><label for="${id}">${f.l}${rq}${op}</label>${inp}${f.hint?`<div class="hn">${f.hint}</div>`:""}</div>`}
 const vals=root=>{const o={};root.querySelectorAll("[name]").forEach(n=>{o[n.name]=n.type=="checkbox"?n.checked:String(n.value).trim()});return o};
-const unitList=()=>`<datalist id="units">${DB.trucks.map(x=>`<option value="${esc(x.num)}">`).join("")}${DB.trailers.map(x=>`<option value="${esc(x.num)}">`).join("")}</datalist>`;
+const unitList=()=>`<datalist id="units">${DB.trucks.map(x=>`<option value="${esc(x.num)}">`).join("")}${DB.trailers.map(x=>`<option value="${esc(x.num)}">`).join("")}</datalist><datalist id="vdl">${DB.vend.map(v=>`<option value="${esc(v.name)}" label="${esc(v.addr||"")}">`).join("")}</datalist>`;
 
 /* ===== overlays ===== */
 const DR={cfg:null};
@@ -1176,7 +1176,7 @@ function invForm(id){const x=id?byId(DB.inv,id):null,f=x||{};PG.sp={by:f.sby||"p
  {k:"tp",l:t("ix_tp"),opt:true,t:"number",min:0,step:"0.01",ph:t("ix_tp_h"),val:f.tp},
  {k:"reason",l:t("iv_reason"),half:true,t:"select",o:REASONS.map(k=>[k,t("r_t_"+k)]),val:f.reason||"truck"},{k:"method",l:t("iv_method"),half:true,t:"select",o:METHODS.map(k=>[k,t("pm_"+k)]),val:f.method||"efs"},
  {k:"desc",l:t("iv_desc"),t:"textarea",rows:2,ph:t("iv_desc_ph"),val:f.desc},{k:"who",l:t("iv_who"),t:"select",o:WHO.map(k=>[k,t(WHO_L[k])]),val:f.who||"co"},{k:"sp",t:"html",html:`<div id="spl"></div>`},
- {k:"mgr",l:t("iv_mgr"),opt:true,ph:t("iv_mgr_ph"),val:f.mgr},{k:"num",l:t("iv_num"),half:true,opt:true,val:f.num},{k:"vendor",l:t("m_vendor"),half:true,opt:true,val:f.vendor},{k:"notes",l:t("m_note"),opt:true,t:"textarea",rows:2,val:f.notes},
+ {k:"mgr",l:t("iv_mgr"),opt:true,ph:t("iv_mgr_ph"),val:f.mgr},{k:"num",l:t("iv_num"),half:true,opt:true,val:f.num},{k:"vendor",l:t("m_vendor"),half:true,opt:true,list:"vdl",val:f.vendor},{k:"notes",l:t("m_note"),opt:true,t:"textarea",rows:2,val:f.notes},
  {k:"files",t:"files",val:f.files,old:f.file}],
  check:o=>{if(!o.tn&&!o.tl)return t("iv_need");if(o.who=="sp"){const sum=PG.sp.rows.reduce((a,r)=>a+(+r.v||0),0),want=PG.sp.by=="pct"?100:+o.amt;if(Math.abs(sum-want)>0.009)return t("iv_bad")}return null},
  del:x?()=>{DB.inv=DB.inv.filter(y=>y.id!=id);refresh()}:null,
