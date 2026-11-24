@@ -1601,7 +1601,7 @@ A.ivPrev=el=>{const x=byId(DB.inv,IVS.id);if(x){el.closest("label").querySelecto
 const ivCnt=()=>{const x=byId(DB.inv,IVS.id);if(!x)return;const n=Object.values(IVS.sel).filter(Boolean).length,c=document.getElementById("ivcnt");if(c)c.textContent=t("ix_selcnt",n,(x.files||[]).length);const al=document.querySelector("[data-c=ivAll]");if(al)al.checked=n&&n==(x.files||[]).length};
 C.ivSel=el=>{IVS.sel[el.dataset.f]=el.checked;ivCnt()};
 C.ivAll=el=>{const x=byId(DB.inv,IVS.id);(x&&x.files||[]).forEach(f=>IVS.sel[f.id]=el.checked);document.querySelectorAll("[data-c=ivSel]").forEach(i=>i.checked=el.checked);ivCnt()};
-A.ivViewF=()=>{const x=byId(DB.inv,IVS.id);if(!x)return;ivFiles(x).forEach(f=>window.open("/api/files/"+f.id,"_blank","noopener"))};
+A.ivViewF=()=>{const x=byId(DB.inv,IVS.id);if(!x)return;const fl=x.files||[],ch=fl.filter(f=>IVS.sel[f.id]),one=ch.length==1?ch[0]:(!ch.length&&fl.length==1?fl[0]:null);if(!one){toast(t(ch.length>1?"ix_one":"ix_pick1"),"er");return}window.open("/api/files/"+one.id,"_blank","noopener")};
 A.ivDlF=()=>{const x=byId(DB.inv,IVS.id);if(!x)return;ivFiles(x).forEach((f,i)=>setTimeout(()=>{const a=document.createElement("a");a.href="/api/files/"+f.id;a.download=f.name;document.body.appendChild(a);a.click();a.remove()},i*350))};
 
 A.ivDl=el=>{const x=byId(DB.inv,el.dataset.id),f=x&&x.files&&x.files[0];if(!f){toast(t("ix_nofile"),"er");return}const a=document.createElement("a");a.href="/api/files/"+f.id;a.download=f.name||"invoice";document.body.appendChild(a);a.click();a.remove()};
@@ -2803,6 +2803,7 @@ async function vnTkGoTo(i){const mp=VM.lmap;if(!mp||!window.L)return;const q=(i.
  mp.flyTo([w.lat,w.lng],Math.max(mp.getZoom(),12),{duration:1.1});vnTkRender()}
 A.vnTkGo=el=>{const i=byId(DB.issues,el.dataset.id);if(i)vnTkGoTo(i)};
 A.vnTkTog=el=>{VM.tkOpen=VM.tkOpen||{};VM.tkOpen[el.dataset.id]=!VM.tkOpen[el.dataset.id];vnTkRender()};
+Object.assign(D,{ix_one:["Select only one file to view. To get several files, use Download.","Ko‘rish uchun faqat bitta fayl tanlang. Bir nechtasini olish uchun Yuklab olishni bosing.","Для просмотра выберите только один файл. Несколько файлов — через «Скачать»."],ix_pick1:["Select a file to view first.","Avval ko‘rish uchun fayl tanlang.","Сначала выберите файл для просмотра."]});
 /* ----- start ----- */
 async function boot(){
  const r=await api("GET","/api/me",undefined,4000);
