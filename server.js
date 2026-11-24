@@ -544,6 +544,47 @@ app.get('/api/geo', limit('geo', 60, 60e3), auth(), staff, wrap(async (req, res)
     res.json(o);
   } catch (e) { res.json({ error: 'net' }); }
 }));
+/* ZIP code area (US Census ZCTA boundary, free, no key). Falls back to OpenStreetMap, then to a rough circle. */
+const ZIP_CACHE = new Map();
+const ZCTA_URLS = [
+  'https://tigerweb.geo.census.gov/arcgis/rest/services/Generalized_TAB2020/PUMA_TAD_TAZ_UGA_ZCTA/MapServer/1/query',
+  'https://tigerweb.geo.census.gov/arcgis/rest/services/Census2020/PUMA_TAD_TAZ_UGA_ZCTA/MapServer/2/query',
+  'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/PUMA_TAD_TAZ_UGA_ZCTA/MapServer/2/query'
+];
+const ringsFromGeo = g => {
+  if (!g) return [];
+  const polys = g.type === 'Polygon' ? [g.coordinates] : g.type === 'MultiPolygon' ? g.coordinates : [];
+  const out = polys.map(p => p[0]).filter(r => r && r.length > 3).sort((a, b) => b.length - a.length).slice(0, 6);
+  return out.map(r => { const step = Math.max(1, Math.ceil(r.length / 500)); const o = []; for (let i = 0; i < r.length; i += step) o.push([+(+r[i][1]).toFixed(5), +(+r[i][0]).toFixed(5)]); return o; });
+};
+const ringCenter = rings => { let a = 0, b = 0, n = 0; (rings[0] || []).forEach(p => { a += p[0]; b += p[1]; n++; }); return n ? { lat: a / n, lng: b / n } : null; };
+app.get('/api/zip', limit('zip', 40, 60e3), auth(), staff, wrap(async (req, res) => {
+  const z = String(req.query.z || '').trim(); if (!/^\d{5}$/.test(z)) return res.status(400).json({ error: 'bad' });
+  const c = ZIP_CACHE.get(z); if (c) return res.json(c);
+  let rings = [], src = '';
+  for (const u of ZCTA_URLS) {
+    try {
+      const f = await fetch(u + '?where=' + encodeURIComponent("ZCTA5='" + z + "'") + '&outFields=ZCTA5&outSR=4326&returnGeometry=true&geometryPrecision=5&maxAllowableOffset=0.0004&f=geojson', { headers: { 'User-Agent': 'TOPGFLEET/1.0' } });
+      if (!f.ok) continue; const j = await f.json();
+      const g = j && j.features && j.features[0] && j.features[0].geometry; rings = ringsFromGeo(g);
+      if (rings.length) { src = 'census'; break; }
+    } catch (e) {}
+  }
+  let ctr = rings.length ? ringCenter(rings) : null;
+  if (!rings.length) {
+    try {
+      const f = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&polygon_geojson=1&postalcode=' + z, { headers: { 'User-Agent': 'TOPGFLEET/1.0 (fleet control)', 'Accept-Language': 'en' } });
+      const j = f.ok ? await f.json() : [];
+      if (j && j[0]) {
+        ctr = { lat: +j[0].lat, lng: +j[0].lon }; rings = ringsFromGeo(j[0].geojson); src = rings.length ? 'osm' : '';
+        if (!rings.length) { const R = 0.03, pts = []; for (let i = 0; i < 36; i++) { const a = i * Math.PI / 18; pts.push([+(ctr.lat + R * Math.sin(a)).toFixed(5), +(ctr.lng + R * Math.cos(a) / Math.cos(ctr.lat * Math.PI / 180)).toFixed(5)]); } rings = [pts]; src = 'approx'; }
+      }
+    } catch (e) { return res.json({ error: 'net' }); }
+  }
+  if (!rings.length || !ctr) return res.json({});
+  const o = { zip: z, lat: ctr.lat, lng: ctr.lng, rings, src };
+  if (ZIP_CACHE.size > 500) ZIP_CACHE.clear(); ZIP_CACHE.set(z, o); res.json(o);
+}));
 const ETA_CACHE = new Map();
 const stepText = st => {
   const m = st.maneuver || {}, nm = st.name ? ' onto ' + st.name : '', ty = m.type, md = m.modifier ? m.modifier.replace('slight ', 'slight ') : '';
