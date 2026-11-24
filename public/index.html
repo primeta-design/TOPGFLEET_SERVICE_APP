@@ -1758,7 +1758,30 @@ const vnHav=(a,b)=>{const r=Math.PI/180,dx=(b.lat-a.lat)*r,dy=(b.lng-a.lng)*r,x=
 const vnLL=s=>{const m=String(s||"").match(/^\s*(-?\d{1,3}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)\s*$/);return m?{lat:+m[1],lng:+m[2]}:null};
 const vnWords=q=>String(q||"").toLowerCase().split(/[\s,]+/).filter(w=>w.length>1&&!["near","in","the","and"].includes(w));
 const vnPlMatch=(p,ws)=>{const h=(p.name+" "+vnClean(p.note)).toLowerCase();return ws.every(w=>h.includes(w))};
+/* Plus Codes (Open Location Code) */
+const OLC="23456789CFGHJMPQRVWX",OLC_RE=/^\s*([23456789CFGHJMPQRVWX]{2,8}\+[23456789CFGHJMPQRVWX]{2,7})(?:[\s,]+(.*))?$/i;
+function olcDecode(c){c=c.replace("+","").toUpperCase();let lat=-90,lng=-180,res=20;const n=Math.min(c.length,10);
+ for(let i=0;i<n;i+=2){lat+=OLC.indexOf(c[i])*res;lng+=OLC.indexOf(c[i+1])*res;if(i+2<n)res/=20}
+ let la=res,lo=res;
+ if(c.length>10){la=.000125;lo=.000125;for(let i=10;i<c.length;i++){la/=5;lo/=4;const k=OLC.indexOf(c[i]);lat+=Math.floor(k/4)*la;lng+=(k%4)*lo}}
+ return{lat:lat+la/2,lng:lng+lo/2}}
+function olcPre(lat,lng,k){lat=Math.min(89.999999,Math.max(-90,lat))+90;lng=((lng+180)%360+360)%360;let o="",res=20;for(let i=0;i<k/2;i++){const a=Math.floor(lat/res),b=Math.floor(lng/res);o+=OLC[a]+OLC[b];lat-=a*res;lng-=b*res;res/=20}return o}
+function olcRecover(code,rl,rg){code=code.toUpperCase();const pre=code.indexOf("+"),pad=8-pre;if(pad<=0)return olcDecode(code);
+ const c=olcDecode(olcPre(rl,rg,pad)+code),res=Math.pow(20,2-pad/2),h=res/2;let la=c.lat,lo=c.lng;
+ if(la-rl>h&&la-res>=-90)la-=res;else if(rl-la>h&&la+res<=90)la+=res;
+ if(lo-rg>h)lo-=res;else if(rg-lo>h)lo+=res;return{lat:la,lng:lo}}
+/* ZIP code zone (red area on the map) */
+async function vnZip(z){VM.zc=VM.zc||{};if(VM.zc[z])return VM.zc[z];const r=await api("GET","/api/zip?z="+z);VM.geoSt=r.s;VM.geoErr=r.j&&r.j.error;if(r.s==200&&r.j&&r.j.rings&&r.j.rings.length){VM.zc[z]=r.j;return r.j}return null}
+function vnZoneDraw(){const mp=VM.lmap;if(!mp||!window.L)return;if(VM.lzone){try{VM.lzone.remove()}catch(e){}VM.lzone=null}const zs=VM.zones||[];if(!zs.length)return;
+ VM.lzone=L.layerGroup(zs.map(z=>L.polygon(z.rings,{color:"#ef4444",weight:2.5,fillColor:"#ef4444",fillOpacity:.14,interactive:false}))).addTo(mp)}
+function vnZoneSet(list,fit){VM.zones=(list||[]).filter(z=>z&&z.rings);vnZoneDraw();if(fit&&VM.zones.length&&VM.lmap){try{VM.lmap.fitBounds(L.latLngBounds(VM.zones.flatMap(z=>z.rings.flat())),{padding:[40,40],maxZoom:13})}catch(e){}}}
+const vnNear=(rings,p)=>{let b=null,bd=1e12;rings.forEach(r=>r.forEach(q=>{const d=vnHav({lat:q[0],lng:q[1]},p);if(d<bd){bd=d;b=q}}));return b&&{lat:b[0],lng:b[1]}};
 async function vnWhere(txt){txt=String(txt||"").trim();const x=vnLL(txt);if(x)return x;
+ const pc=txt.match(OLC_RE);if(pc){const code=pc[1].toUpperCase(),loc=(pc[2]||"").trim();
+  if(code.indexOf("+")==8){const d=olcDecode(code);return{lat:d.lat,lng:d.lng,label:txt}}
+  let ref=loc?await vnWhere(loc):null;if(!ref&&VM.lmap){const c=VM.lmap.getCenter();ref={lat:c.lat,lng:c.lng}}
+  if(ref){const d=olcRecover(code,ref.lat,ref.lng);return{lat:d.lat,lng:d.lng,label:txt}}}
+ const zm=txt.match(/^[^\d]*(\d{5})(?:-\d{4})?$/);if(zm){const z=await vnZip(zm[1]);if(z)return{lat:z.lat,lng:z.lng,label:"ZIP "+zm[1],zone:z.rings,zip:zm[1]}}
  const v=vnFindV(txt);if(v&&v.lat!=null)return{lat:+v.lat,lng:+v.lng,label:v.name};
  const p=(VM.pl||[]).find(p=>p.name.toLowerCase()==txt.toLowerCase());if(p)return{lat:p.lat,lng:p.lng,label:p.name};
  const r=await api("GET","/api/geo?q="+encodeURIComponent(txt));VM.geoSt=r.s;VM.geoErr=r.j&&r.j.error;return r.s==200&&r.j&&r.j.lat!=null?{lat:r.j.lat,lng:r.j.lng,label:txt}:null}
@@ -1771,7 +1794,7 @@ async function vnFreeSearch(q0){const q=(q0||"").trim(),nr=(($("#vmn")||{}).valu
  VM.near=near;VM.plq=ws.length&&(VM.pl||[]).some(p=>vnPlMatch(p,ws))?ws.join(" "):"";
  $$(".vnPlQ").forEach(x=>x.value=VM.plq);
  VM.tab="pl";vnList();vnPlDraw();
- if(near)vnFrame(near.lat+","+near.lng,9);else{const m=VM.plq?(VM.pl||[]).filter(p=>vnPlMatch(p,vnWords(VM.plq))).map(p=>[p.lat,p.lng]):[];vnFrame(null,null,m.length?m:null)}}
+ if(near&&near.zone){vnZoneSet([{zip:near.zip,rings:near.zone}],true)}else if(near){vnZoneSet([]);vnFrame(near.lat+","+near.lng,9)}else{const m=VM.plq?(VM.pl||[]).filter(p=>vnPlMatch(p,vnWords(VM.plq))).map(p=>[p.lat,p.lng]):[];vnFrame(null,null,m.length?m:null)}}
 async function vnFreeRoute(){const fE=$("#vrf"),dE=$("#vrt"),f=((fE?fE.value:PG.vrf)||"").trim(),d=((dE?dE.value:PG.vrt)||"").trim();if(!d)return toast(t("vm_to"),"er");
  PG.vrf=f;PG.vrt=d;VM.dirOn=true;VM.dirBusy=true;vnDirRender();
  const done=m=>{VM.dirBusy=false;vnDirRender();if(m)toast(m,"er")};
@@ -1779,10 +1802,11 @@ async function vnFreeRoute(){const fE=$("#vrf"),dE=$("#vrt"),f=((fE?fE.value:PG.
  const why=()=>VM.geoSt==404?t("vm_srv_old"):VM.geoErr?t("vm_net"):t("vm_nf");
  if(!o)return done(f?why():t("vm_from_need"));
  if(!dd)return done(why());
- const r=await api("GET","/api/eta?full=1&a="+o.lat+","+o.lng+"&b="+dd.lat+","+dd.lng);
+ let o2=o,d2=dd;if(o.zone||dd.zone){vnZoneSet([o,dd].filter(z=>z.zone).map(z=>({zip:z.zip,rings:z.zone})));const oN=o.zone?vnNear(o.zone,d2.zone?{lat:d2.lat,lng:d2.lng}:d2):o,dN=dd.zone?vnNear(dd.zone,o.zone?{lat:o.lat,lng:o.lng}:o2):dd;if(oN)o2=Object.assign({},o,oN);if(dN)d2=Object.assign({},dd,dN);if(o.zone&&dd.zone&&oN&&dN){const o3=vnNear(o.zone,d2);if(o3)o2=Object.assign({},o,o3)}}else vnZoneSet([]);
+ const r=await api("GET","/api/eta?full=1&a="+o2.lat+","+o2.lng+"&b="+d2.lat+","+d2.lng);
  if(!(r.s==200&&r.j&&r.j.routes&&r.j.routes.length))return done(r.s==404?t("vm_srv_old"):r.j&&r.j.error=="net"?t("vm_net"):t("vm_eta_err"));
  try{await vnLeaflet()}catch(e){return done(t("vm_lf_err"))}
- VM.rt={o,dd,of:f||t("vm_you"),df:d,rs:r.j.routes,sel:0,fresh:true};VM.dirBusy=false;vnRouteDraw()}
+ VM.rt={o:o2,dd:d2,of:f||t("vm_you"),df:d,rs:r.j.routes,sel:0,fresh:true};VM.dirBusy=false;vnRouteDraw()}
 function vnGridFix(){if(L.GridLayer._vnfx)return;L.GridLayer._vnfx=1;const o=L.GridLayer.prototype._initTile;L.GridLayer.include({_initTile(t){o.call(this,t);const z=this.getTileSize();t.style.width=(z.x+1)+"px";t.style.height=(z.y+1)+"px"}})}
 function vnLeaflet(){if(window.L&&L.map){vnGridFix();return Promise.resolve()}if(VM.lf)return VM.lf;
  VM.lf=new Promise((res,rej)=>{const l=document.createElement("link");l.rel="stylesheet";l.href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";document.head.appendChild(l);const s=document.createElement("script");s.src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";s.onload=()=>{vnGridFix();res()};s.onerror=()=>{VM.lf=null;rej(new Error("lf"))};document.head.appendChild(s)});return VM.lf}
@@ -1796,7 +1820,7 @@ function vnLiveBuild(){const b=$("#vmap");if(!b)return null;if(VM.lmap){try{VM.l
  const lc=L.control({position:"bottomright"});lc.onAdd=()=>{const d=L.DomUtil.create("div","leaflet-bar"),a=L.DomUtil.create("a","",d);a.href="#";a.title=t("vm_loc");a.setAttribute("aria-label",t("vm_loc"));a.textContent="◎";a.style.cssText="font-size:18px;line-height:30px;text-align:center;width:30px;height:30px;display:block;cursor:pointer";L.DomEvent.on(a,"click",e=>{L.DomEvent.preventDefault(e);vnLocate()});return d};lc.addTo(mp);
  try{new ResizeObserver(()=>{try{mp.invalidateSize()}catch(e){}vnPpRender()}).observe(b)}catch(e){}
  ["#vsb","#vrp","#vpp","#vtk"].forEach(q=>{const e=$(q);if(e)L.DomEvent.on(e,"mousedown dblclick touchstart wheel contextmenu",L.DomEvent.stopPropagation)});
- vnPinsDraw();vnLabelsDraw();setTimeout(()=>{if(VM.lmap!==mp)return;if(VM.rt){const f=VM.rt.fresh;VM.rt.fresh=false;vnRouteDraw();VM.rt.fresh=f&&false;if(VM.as&&VM.as.list)vnAlDraw()}else vnDirRender();vnPpRender();vnTkRender()},0);return mp}
+ vnPinsDraw();vnLabelsDraw();setTimeout(()=>{if(VM.lmap!==mp)return;if(VM.rt){const f=VM.rt.fresh;VM.rt.fresh=false;vnRouteDraw();VM.rt.fresh=f&&false;if(VM.as&&VM.as.list)vnAlDraw()}else vnDirRender();vnPpRender();vnTkRender();vnZoneDraw()},0);return mp}
 async function vnLocate(){const g=vnLL(await vnGeo());if(!g||!VM.lmap)return toast(t("vm_from_need"),"er");
  if(VM.me)VM.me.remove();VM.me=new (vnPin())([g.lat,g.lng],{radius:12,base:14,color:"#fff",weight:1.5,fillColor:"#1a73e8",fillOpacity:1,interactive:false}).addTo(VM.lmap);VM.lmap.setView([g.lat,g.lng],11)}
 async function vnLive(ll,z,bounds){
@@ -1928,7 +1952,7 @@ function vnSugDraw(){const box=$("#vsr");if(!box)return;const q=(VM.vsq||"").tri
  box.innerHTML=H.map(([p,i])=>`<button style="${css}" data-a="vsPick" data-i="${i}"><b>${esc(p.name)}</b><div style="color:var(--mu);font-size:12px">${esc(vnParts(p.note).addr)}</div></button>`).join("")+`<button style="${css}" data-a="vsPlace">${ic("pin",12)} ${t("vm_sb_pl")}: <b>${esc(q)}</b></button>`}
 A.vsPick=el=>{const p=(VM.pl||[])[+el.dataset.i];if(!p||!VM.lmap)return;const b=$("#vsr");if(b)b.innerHTML="";VM.lmap.setView([p.lat,p.lng],16);vnPinPop(p,[p.lat,p.lng],+el.dataset.i)};
 A.vsPlace=async()=>{const q=(VM.vsq||"").trim();if(!q||!VM.lmap)return;const w=await vnWhere(q);if(!w)return toast(VM.geoSt==404?t("vm_srv_old"):VM.geoErr?t("vm_net"):t("vm_nf"),"er");
- const b=$("#vsr");if(b)b.innerHTML="";VM.near=w;VM.plq="";VM.tab="pl";vnList();vnPlDraw();if(VM.me)VM.me.remove();VM.me=new (vnPin())([w.lat,w.lng],{radius:12,base:14,color:"#fff",weight:1.5,fillColor:"#1a73e8",fillOpacity:1,interactive:false}).addTo(VM.lmap);VM.lmap.setView([w.lat,w.lng],12)};
+ const b=$("#vsr");if(b)b.innerHTML="";VM.near=w;VM.plq="";VM.tab="pl";vnList();vnPlDraw();if(VM.me){VM.me.remove();VM.me=null}if(!w.zone)VM.me=new (vnPin())([w.lat,w.lng],{radius:12,base:14,color:"#fff",weight:1.5,fillColor:"#1a73e8",fillOpacity:1,interactive:false}).addTo(VM.lmap);if(w.zone)vnZoneSet([{zip:w.zip,rings:w.zone}],true);else{vnZoneSet([]);VM.lmap.setView([w.lat,w.lng],12)}};
 A.vsGo=()=>{const b=$("#vsr"),f=b&&b.querySelector("[data-a]");if(f)f.click()};
 A.vnRtSel=el=>{if(VM.rt){VM.rt.sel=+el.dataset.i;vnRouteDraw()}};
 Object.assign(D,{vm_sat:["Satellite","Sun‘iy yo‘ldosh","Спутник"],vm_street:["Map","Xarita","Карта"],vm_labels:["Labels","Nomlar","Подписи"],vm_sb:["Search shops or places (city, address, ZIP)","Do‘kon yoki joy qidiring (shahar, manzil, ZIP)","Поиск сервиса или места (город, адрес, ZIP)"],vm_sb_pl:["Go to place","Joyga o‘tish","Перейти к месту"],vm_loc:["My location","Mening joylashuvim","Моё местоположение"],vm_lf_err:["The map could not load. Check the internet connection and try again.","Xarita yuklanmadi. Internetni tekshirib qayta urinib ko‘ring.","Карта не загрузилась. Проверьте интернет и повторите."],vm_srv_old:["The server is not updated yet. Upload the new server.js to GitHub and wait for Railway to redeploy.","Server hali yangilanmagan. Yangi server.js ni GitHub’ga yuklab, Railway qayta deploy qilishini kuting.","Сервер ещё не обновлён. Загрузите новый server.js в GitHub и дождитесь деплоя Railway."],vm_net:["The free map service did not answer. Try again in a minute.","Bepul xarita xizmati javob bermadi. Bir daqiqadan keyin qayta urinib ko‘ring.","Бесплатный картографический сервис не ответил. Повторите через минуту."],vm_fastest:["fastest","eng tez","быстрее всего"],});
