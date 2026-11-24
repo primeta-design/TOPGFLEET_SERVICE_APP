@@ -533,13 +533,34 @@ app.get('/api/mymap', auth(), staff, wrap(async (req, res) => {
 
 /* free geocoding (OpenStreetMap Nominatim) and driving ETA (OSRM public router) — no keys */
 const GEO_CACHE = new Map();
+/* Address search: OpenStreetMap often misses suite/unit numbers or an exact house number,
+   so try the full text first and then progressively simpler versions of the same address. */
+const geoOne = async q => {
+  const f = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(q), { headers: { 'User-Agent': 'TOPGFLEET/1.0 (fleet control)', 'Accept-Language': 'en' } });
+  const j = f.ok ? await f.json() : [];
+  return j && j[0] ? { lat: +j[0].lat, lng: +j[0].lon, label: String(j[0].display_name || q).slice(0, 140) } : null;
+};
+const geoVariants = qs => {
+  const out = [qs];
+  const noCountry = qs.replace(/,?\s*(united states( of america)?|usa|us)\s*$/i, '').trim();
+  const noUnit = noCountry.replace(/,?\s*\b(?:ste|suite|unit|apt|apartment|bldg|building|fl|floor|rm|room|lot|space|spc|dock|door)\b\.?\s*#?\s*[\w-]+/ig, '').replace(/,?\s*#\s*[\w-]+/g, '').replace(/\s{2,}/g, ' ').replace(/\s+,/g, ',').trim();
+  const noNum = noUnit.replace(/^\s*\d+[\w-]*\s+/, '').trim();
+  [noCountry, noUnit].forEach(v => { if (v && !out.includes(v)) out.push(v); });
+  const m = noUnit.match(/,\s*([^,]+,\s*[A-Za-z]{2}\s*\d{5})(?:-\d{4})?\s*$/) || noUnit.match(/,\s*([^,]+,\s*[A-Za-z]{2})\s*$/);
+  if (noNum && noNum !== noUnit && !out.includes(noNum)) out.push({ q: noNum, approx: 1 });
+  if (m) out.push({ q: m[1].trim(), approx: 1 });
+  return out;
+};
 app.get('/api/geo', limit('geo', 60, 60e3), auth(), staff, wrap(async (req, res) => {
   const qs = String(req.query.q || '').trim().slice(0, 200); if (!qs) return res.json({});
   const ck = qs.toLowerCase(), c = GEO_CACHE.get(ck); if (c) return res.json(c);
   try {
-    const f = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(qs), { headers: { 'User-Agent': 'TOPGFLEET/1.0 (fleet control)', 'Accept-Language': 'en' } });
-    const j = f.ok ? await f.json() : [];
-    const o = j && j[0] ? { lat: +j[0].lat, lng: +j[0].lon, label: String(j[0].display_name || qs).slice(0, 140) } : {};
+    let o = {}, tried = 0;
+    for (const v of geoVariants(qs)) {
+      const q = typeof v == 'string' ? v : v.q; if (tried++) await new Promise(r => setTimeout(r, 1100));
+      const r = await geoOne(q);
+      if (r) { o = typeof v == 'string' ? r : { ...r, label: (qs.length < 100 ? qs : r.label) + ' (≈ ' + q + ')', approx: 1 }; break; }
+    }
     if (o.lat != null) { if (GEO_CACHE.size > 2000) GEO_CACHE.clear(); GEO_CACHE.set(ck, o); }
     res.json(o);
   } catch (e) { res.json({ error: 'net' }); }
