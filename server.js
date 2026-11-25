@@ -6,10 +6,12 @@ const { pool, q, migrate } = require('./lib/db');
 const C = require('./lib/crypto');
 const TG = require('./lib/telegram');
 const MAIL = require('./lib/mail');
+const TELEM = require('./lib/telematics');
 
 const PROD = process.env.NODE_ENV === 'production';
 const PORT = +process.env.PORT || 3000;
-const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
+const DATA_DIR = process.env.DATA_DIR || process.env.RAILWAY_VOLUME_MOUNT_PATH || path.join(__dirname, 'data');   // Railway sets RAILWAY_VOLUME_MOUNT_PATH by itself when a volume is attached
+if (!process.env.DATA_DIR && !process.env.RAILWAY_VOLUME_MOUNT_PATH && process.env.RAILWAY_ENVIRONMENT) console.warn('WARNING: no volume attached - uploaded files will be lost on redeploy. Add a Volume in Railway.');
 const LOGIN_MAX = +process.env.RATE_LOGIN_MAX || 12;
 const SESSION_HOURS = 12, PW_STAGE_MIN = 10, LOCK_AFTER = 5, LOCK_MIN = 15;
 const COLLS = new Set(['trucks', 'trailers', 'drivers', 'issues', 'plans', 'svc', 'docs', 'inv', 'vend', 'links', 'hist', 'insp', 'park']);
@@ -886,6 +888,9 @@ app.get('/api/roadside/:tok/f/:fid', limit('rsf', 240, 600e3), wrap(async (req, 
   res.setHeader('Content-Security-Policy', "default-src 'none'; sandbox"); res.setHeader('Cache-Control', 'no-store');
   fs.createReadStream(path.join(DATA_DIR, f.path)).on('error', () => res.status(404).end()).pipe(res);
 }));
+// ---------- Samsara / Motive (read-only; keys sealed on the server) ----------
+const TM = TELEM.make({ q, C, audit, loadAll, allowedOf });
+TM.routes(app, { auth, staff, intOk, wrap, limit, okId, denyOf, roOf });
 app.use('/api', (req, res) => res.status(404).json({ error: 'none' }));
 app.use(express.static(path.join(__dirname, 'public'), { index: 'index.html', maxAge: 0, setHeaders: r => r.setHeader('Cache-Control', 'no-cache') }));
 const PAGES = new Set(['dashboard', 'alerts', 'fleet', 'trailers', 'hook-drop', 'drivers', 'maintenance', 'pti', 'inspections', 'documents', 'violation-report', 'invoices', 'vendors', 'parking', 'ai', 'ai-expenses', 'profile', 'companies']);
@@ -899,6 +904,7 @@ app.use((req, res) => res.status(404).type('text').send('Not found'));
 async function bootstrap() {
   await migrate();
   try { const r = await q("SELECT value FROM kv WHERE key='req2fa'"); REQ2FA = !!(r.rows[0] && r.rows[0].value === true); } catch (e) {}
+  TM.start();
   TG.init({ q, loadAll, scopeState, allowedOf, audit, dataDir: DATA_DIR }, process.env.PUBLIC_URL || (process.env.RAILWAY_PUBLIC_DOMAIN ? 'https://' + process.env.RAILWAY_PUBLIC_DOMAIN : ''));
   const n = +(await q('SELECT count(*) FROM users')).rows[0].count;
   if (!n) {
