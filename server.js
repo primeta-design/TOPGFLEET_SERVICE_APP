@@ -416,6 +416,7 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
   if (!Array.isArray(upserts) || !Array.isArray(deletes) || typeof kv !== 'object' || upserts.length + deletes.length > 2000) return res.status(400).json({ error: 'bad' });
   for (const x of upserts) if (!COLLS.has(x.c) || !okId(x.id) || typeof x.d !== 'object' || !x.d || JSON.stringify(x.d).length > 100000) return res.status(400).json({ error: 'bad' });
   for (const x of deletes) if (!COLLS.has(x.c) || !okId(x.id)) return res.status(400).json({ error: 'bad' });
+  if (!req.u.is_owner && deletes.some(x => x.c === 'vend')) return res.status(403).json({ error: 'owner' });   // only the owner may delete a vendor
   { const lim = [...await denyOf(req.u), ...await roOf(req.u)]; if (lim.length) { const blocked = new Set(lim.flatMap(k => SECTION_COLLS[k] || [])); if ([...upserts, ...deletes].some(x => blocked.has(x.c)) || (lim.includes('pti') && kv.pti !== undefined)) return res.status(403).json({ error: 'section' }); } }
   const kvKeys = Object.keys(kv);
   for (const k of kvKeys) {
@@ -547,7 +548,7 @@ app.put('/api/mapshop/:id', auth(), staff, mxGuard, wrap(async (req, res) => {
   const l = await mxGet(), i = l.findIndex(x => x.id === req.params.id); if (i < 0) return res.status(404).json({ error: 'nf' });
   o.id = l[i].id; l[i] = o; await saveKv(MX_KEY, l, req.u.id); res.json({ place: mxPlace(o) });
 }));
-app.delete('/api/mapshop/:id', auth(), staff, mxGuard, wrap(async (req, res) => {
+app.delete('/api/mapshop/:id', auth(), staff, need('admin','member'), (req, res, next) => req.u.is_owner ? next() : res.status(403).json({ error: 'owner' }), mxGuard, wrap(async (req, res) => {
   const l = await mxGet(), n = l.filter(x => x.id !== req.params.id); if (n.length === l.length) return res.status(404).json({ error: 'nf' });
   await saveKv(MX_KEY, n, req.u.id); res.json({ ok: 1 });
 }));
