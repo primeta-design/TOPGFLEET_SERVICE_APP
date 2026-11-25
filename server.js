@@ -520,6 +520,37 @@ function parseKml(x) {
   });
   return out;
 }
+/* Shops added by hand (not in the Google My Map). Merged into /api/mymap so they count as map shops. */
+const MX_KEY = 'mapExtra';
+const mxGet = async () => { const r = (await q("SELECT value FROM kv WHERE key=$1", [MX_KEY])).rows[0]; return Array.isArray(r && r.value) ? r.value : []; };
+const mxPlace = e => ({ id: e.id, name: e.name, lat: e.lat, lng: e.lng, note: e.note || '', c: '#2563eb', img: '', own: 1, a: e.a || '', p: e.p || '', w: e.w || '', n: e.n || '' });
+const mxClean = b => {
+  const s = (v, n) => String(v == null ? '' : v).replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, n);
+  const name = s(b.name, 120), lat = +b.lat, lng = +b.lng;
+  if (!name || !isFinite(lat) || !isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return null;
+  const a = s(b.addr, 160), p = s(b.phone, 40), w = s(b.web, 120), n = s(b.notes, 200);
+  return { name, lat, lng, a, p, w, n, note: [a, w, p, n].filter(Boolean).join(' · ') };
+};
+const mxGuard = wrap(async (req, res, next) => { if ((await denyOf(req.u)).includes('vendors')) return res.status(403).json({ error: 'role' }); next(); });
+app.get('/api/mymap', auth(), staff, wrap(async (req, res, next) => {
+  const oj = res.json.bind(res);
+  res.json = async o => { try { const ex = await mxGet(); o = { ...(o || {}), places: [...((o && o.places) || []), ...ex.map(mxPlace)] }; } catch (e) {} return oj(o); };
+  next();
+}));
+app.post('/api/mapshop', auth(), staff, mxGuard, wrap(async (req, res) => {
+  const o = mxClean(req.body || {}); if (!o) return res.status(400).json({ error: 'bad' });
+  const l = await mxGet(); if (l.length >= 1000) return res.status(400).json({ error: 'full' });
+  o.id = 'x' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); l.push(o); await saveKv(MX_KEY, l, req.u.id); res.json({ place: mxPlace(o) });
+}));
+app.put('/api/mapshop/:id', auth(), staff, mxGuard, wrap(async (req, res) => {
+  const o = mxClean(req.body || {}); if (!o) return res.status(400).json({ error: 'bad' });
+  const l = await mxGet(), i = l.findIndex(x => x.id === req.params.id); if (i < 0) return res.status(404).json({ error: 'nf' });
+  o.id = l[i].id; l[i] = o; await saveKv(MX_KEY, l, req.u.id); res.json({ place: mxPlace(o) });
+}));
+app.delete('/api/mapshop/:id', auth(), staff, mxGuard, wrap(async (req, res) => {
+  const l = await mxGet(), n = l.filter(x => x.id !== req.params.id); if (n.length === l.length) return res.status(404).json({ error: 'nf' });
+  await saveKv(MX_KEY, n, req.u.id); res.json({ ok: 1 });
+}));
 app.get('/api/mymap', auth(), staff, wrap(async (req, res) => {
   const r = (await q("SELECT value FROM kv WHERE key='myMap'")).rows[0], mid = r && typeof r.value === 'string' ? r.value : '';
   if (!/^[A-Za-z0-9_-]{10,}$/.test(mid)) return res.json({ places: [] });
