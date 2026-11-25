@@ -726,6 +726,22 @@ app.get('/api/along', limit('along', 30, 60e3), auth(), staff, wrap(async (req, 
 }));
 
 const CATS = { truck_repair: 'Truck repair shop', car_repair: 'Auto repair shop', tyres: 'Tire shop', fuel: 'Gas station', parking: 'Parking', car_wash: 'Car wash', restaurant: 'Restaurant', fast_food: 'Fast food', motel: 'Motel', hotel: 'Hotel', rest_area: 'Rest area', towing: 'Towing service' };
+/* Names of shops, offices and buildings plus house numbers for close-up zoom (OpenStreetMap), so the map reads like a street map */
+app.get('/api/poi', limit('poi', 40, 60e3), auth(), staff, wrap(async (req, res) => {
+  const b = bboxOf(req); if (!b || b[2] - b[0] > .04 || b[3] - b[1] > .06) return res.status(400).json({ error: 'bad' });
+  const r = x => Math.round(x * 1000) / 1000, bb = [b[0], b[1], b[2], b[3]].map(r).join(',');
+  const el = await overpass(`[out:json][timeout:25];(nwr["name"]["shop"](${bb});nwr["name"]["amenity"](${bb});nwr["name"]["office"](${bb});nwr["name"]["craft"](${bb});nwr["name"]["industrial"](${bb});nwr["name"]["tourism"](${bb});nwr["name"]["leisure"](${bb});nwr["name"]["building"](${bb});nwr["addr:housenumber"]["building"](${bb}););out center tags 900;`);
+  if (!el) return res.json({ error: 'net', items: [] });
+  const items = [];
+  for (const e of el) {
+    const t = e.tags || {}, la = e.lat != null ? e.lat : e.center && e.center.lat, lo = e.lon != null ? e.lon : e.center && e.center.lon; if (la == null) continue;
+    const k = t.shop ? 'shop' : t.amenity ? 'amenity' : t.office ? 'office' : t.craft ? 'craft' : t.industrial ? 'industrial' : t.tourism ? 'tourism' : t.leisure ? 'leisure' : 'building';
+    const n = String(t.name || '').slice(0, 50), h = String(t['addr:housenumber'] || '').slice(0, 10);
+    if (!n && !h) continue; if (n && /^(yes|no)$/i.test(n)) continue;
+    items.push({ n, h, la: +la.toFixed(6), lo: +lo.toFixed(6), k, v: String(t.amenity || t.shop || '').slice(0, 20) });
+  }
+  res.json({ items });
+}));
 app.get('/api/placeinfo', limit('pinfo', 60, 60e3), auth(), staff, wrap(async (req, res) => {
   const la = +req.query.lat, ln = +req.query.lng, nm = String(req.query.name || '').slice(0, 100).toLowerCase();
   if (!isFinite(la) || !isFinite(ln) || Math.abs(la) > 85 || Math.abs(ln) > 180) return res.status(400).json({ error: 'bad' });
