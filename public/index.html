@@ -2884,12 +2884,23 @@ function vnTkRender(){const el=$("#vtk");if(!el)return;const L2=vnTkIss();VM.tkO
  const pr=i=>{const q=S.prio.find(x=>x.id==i.pr);return q?q.n:""},card="background:var(--pn);color:var(--tx);border-radius:10px;box-shadow:0 4px 14px #0009";
  const chip=i=>{const o=!!VM.tkOpen[i.id],has=!!(i.loc||"").trim();return `<div style="${card};border:1px solid ${VM.tkAct==i.id||o?"#6d5df6":"var(--ln)"};overflow:hidden;display:flex;align-items:stretch"><button data-a="vnTkGo" data-id="${esc(i.id)}" title="${esc(has?i.loc:t("tk_noloc"))}" style="border:0;background:none;color:var(--tx);padding:8px 10px;font:700 13px Inter,system-ui,sans-serif;cursor:pointer;display:flex;gap:6px;align-items:center;${has?"":"opacity:.6"}"><span style="width:8px;height:8px;border-radius:50%;background:${has?"#ef4444":"#888"}"></span>${esc(i.title)}</button><button data-a="vnTkTog" data-id="${esc(i.id)}" aria-expanded="${o}" aria-label="${esc(t("f_desc"))}" style="border:0;border-left:1px solid var(--ln);background:none;color:var(--mu);padding:0 10px;cursor:pointer;transition:transform .15s;transform:rotate(${o?180:0}deg)">▲</button></div>`};
  const det=VM.tkOrd.map(id=>L2.find(i=>i.id==id)).filter(Boolean).map(i=>{const has=!!(i.loc||"").trim();return `<div style="${card};border:1px solid var(--ln);padding:9px 12px;width:min(340px,100%);box-sizing:border-box;word-break:break-word"><div style="font:700 13px Inter,system-ui,sans-serif">${esc(i.title)}</div><div style="margin-top:3px">${esc(i.desc||"—")}</div><div style="color:var(--mu);font-size:12px;margin-top:5px">${pr(i)?esc(pr(i))+" · ":""}${has?esc(i.loc):t("tk_noloc")}</div></div>`}).join("");
- el.innerHTML=L2.length?`<div style="pointer-events:auto;display:flex;flex-wrap:wrap;gap:6px;align-items:center">${L2.map(chip).join("")}</div>${det?`<div style="pointer-events:auto;display:flex;flex-direction:column;gap:6px;align-items:flex-start;max-height:40vh;overflow:auto">${det}</div>`:""}`:"";}
+ el.innerHTML=L2.length?`<div style="pointer-events:auto;display:flex;flex-wrap:wrap;gap:6px;align-items:center">${L2.map(chip).join("")}</div>${det?`<div style="pointer-events:auto;display:flex;flex-direction:column;gap:6px;align-items:flex-start;max-height:40vh;overflow:auto">${det}</div>`:""}`:"";vnTkPins()}
+const vnTkPinHtml=i=>`<div style="position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center"><span style="background:#ef4444;color:#fff;font:700 12px Inter,system-ui,sans-serif;padding:3px 8px;border-radius:7px;border:2px solid #fff;box-shadow:0 2px 8px #000a;white-space:nowrap">${esc(i.title)}</span><span style="width:0;height:0;border:6px solid transparent;border-top-color:#fff;margin-top:-1px"></span></div>`;
+function vnTkCache(){if(!VM.tkc){try{VM.tkc=JSON.parse(localStorage.getItem("tf_tkc")||"{}")}catch(e){VM.tkc={}}}return VM.tkc}
+async function vnTkWhere(q){const c=vnTkCache();if(c[q])return c[q];const w=await vnWhere(q);if(w){c[q]=w;try{localStorage.setItem("tf_tkc",JSON.stringify(c))}catch(e){}}return w}
+/* every open issue that has a location keeps its red pin on the map, always (until the issue is closed) */
+async function vnTkPins(){const mp=VM.lmap;if(!mp||!window.L)return;const L2=vnTkIss().filter(i=>(i.loc||"").trim());
+ const sig=L2.map(i=>i.id+"|"+i.title+"|"+i.loc).join("~");if(VM.ltkMap===mp&&VM.ltkSig===sig&&VM.ltk&&mp.hasLayer(VM.ltk))return;
+ const tok=VM.ltkTok=(VM.ltkTok||0)+1;VM.ltkMap=mp;VM.ltkSig=sig;
+ const got=await Promise.all(L2.map(async i=>{try{return [i,await vnTkWhere(i.loc.trim())]}catch(e){return [i,null]}}));
+ if(tok!==VM.ltkTok||VM.lmap!==mp)return;
+ if(VM.ltk&&VM.ltk._map)VM.ltk.remove();VM.ltk=L.layerGroup().addTo(mp);
+ got.forEach(([i,w])=>{if(!w)return;L.marker([w.lat,w.lng],{icon:L.divIcon({className:"",iconSize:[0,0],html:vnTkPinHtml(i)}),zIndexOffset:900}).addTo(VM.ltk).bindTooltip(esc(i.loc),{direction:"bottom",offset:[0,6]})});
+ if(got.some(([i,w])=>!w))VM.ltkSig=""}
 async function vnTkGoTo(i){const mp=VM.lmap;if(!mp||!window.L)return;const q=(i.loc||"").trim();if(!q)return toast(t("tk_noloc"),"er");
- VM.tkc=VM.tkc||{};let w=VM.tkc[q];if(!w){w=await vnWhere(q);if(w)VM.tkc[q]=w}
+ const w=await vnTkWhere(q);
  if(!w||VM.lmap!==mp)return w?0:toast(t("tk_nf"),"er");
- VM.tkAct=i.id;if(!VM.ltk)VM.ltk=L.layerGroup().addTo(mp);VM.ltk.clearLayers();
- L.marker([w.lat,w.lng],{icon:L.divIcon({className:"",iconSize:[0,0],html:`<div style="position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center"><span style="background:#ef4444;color:#fff;font:700 12px Inter,system-ui,sans-serif;padding:3px 8px;border-radius:7px;border:2px solid #fff;box-shadow:0 2px 8px #000a;white-space:nowrap">${esc(i.title)}</span><span style="width:0;height:0;border:6px solid transparent;border-top-color:#fff;margin-top:-1px"></span></div>`})}).addTo(VM.ltk).bindTooltip(esc(i.loc),{direction:"bottom",offset:[0,6]});
+ VM.tkAct=i.id;vnTkPins();
  mp.flyTo([w.lat,w.lng],Math.max(mp.getZoom(),12),{duration:1.1});vnTkRender()}
 A.vnTkGo=el=>{const i=byId(DB.issues,el.dataset.id);if(i)vnTkGoTo(i)};
 A.vnTkTog=el=>{VM.tkOpen=VM.tkOpen||{};VM.tkOrd=VM.tkOrd||[];const id=el.dataset.id,o=VM.tkOpen[id]=!VM.tkOpen[id];VM.tkOrd=VM.tkOrd.filter(x=>x!=id);if(o)VM.tkOrd.push(id);vnTkRender()};
