@@ -755,7 +755,7 @@ A.pop=el=>{PG.pop=PG.pop===el.dataset.p?null:el.dataset.p;page()};
 A.drClose=closeDr;A.mdClose=closeMd;
 A.eye=el=>{const i=el.parentElement.querySelector("input");i.type=i.type=="password"?"text":"password"};
 A.drSave=()=>{const c=DR.cfg;if(!c)return;const root=$("#dr"),o=vals(root);let bad=null;
- c.fields.forEach(f=>{const n=root.querySelector(`[name="${f.k}"]`);if(!n)return;n.classList.remove("bad");if(f.req&&!o[f.k]){n.classList.add("bad");bad=bad||n}});
+ c.fields.forEach(f=>{const n=root.querySelector(`[name="${f.k}"]`);if(!n)return;n.classList.remove("bad");if(f.req&&!o[f.k]&&!(n.closest(".fd")&&n.closest(".fd").style.display=="none")){n.classList.add("bad");bad=bad||n}});
  if(bad){bad.focus();toast(t("req"),"er");return}if(c.check){const m=c.check(o);if(m){toast(m,"er");return}}c.onSave(o)};
 A.drDel=()=>{const c=DR.cfg;ask(t("confirm"),()=>{c.del();closeDr()})};
 I.pw=el=>{const v=el.value;let s=0;if(v.length>=8)s++;if(v.length>=11)s++;if(/[A-Z]/.test(v)&&/[a-z]/.test(v))s++;if(/\d/.test(v)&&/[^A-Za-z0-9]/.test(v))s++;
