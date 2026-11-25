@@ -14,7 +14,7 @@ const LOGIN_MAX = +process.env.RATE_LOGIN_MAX || 12;
 const SESSION_HOURS = 12, PW_STAGE_MIN = 10, LOCK_AFTER = 5, LOCK_MIN = 15;
 const COLLS = new Set(['trucks', 'trailers', 'drivers', 'issues', 'plans', 'svc', 'docs', 'inv', 'vend', 'links', 'hist', 'insp', 'park']);
 const KV_FLEET = new Set(['pti', 'ck', 'ph']);          // fleet-wide documents (members may write)
-const SETTING_KEYS = ['prio', 'prioEd', 'compEd', 'teams', 'comps', 'stat', 'tg', 'tpl', 'ptiOff', 'tmAcc', 'seed14', 'myMap', 'vnLay', 'intEd', 'tstat', 'stEd'];   // admin-only
+const SETTING_KEYS = ['prio', 'prioEd', 'compEd', 'teams', 'comps', 'stat', 'tg', 'tpl', 'ptiOff', 'tmAcc', 'seed14', 'myMap', 'vnLay', 'intEd', 'tstat', 'stEd', 'pkDel'];   // admin-only
 const ROLES = new Set(['admin', 'member', 'driver']);
 
 const app = express();
@@ -417,6 +417,7 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
   if (!Array.isArray(upserts) || !Array.isArray(deletes) || typeof kv !== 'object' || upserts.length + deletes.length > 2000) return res.status(400).json({ error: 'bad' });
   for (const x of upserts) if (!COLLS.has(x.c) || !okId(x.id) || typeof x.d !== 'object' || !x.d || JSON.stringify(x.d).length > 100000) return res.status(400).json({ error: 'bad' });
   for (const x of deletes) if (!COLLS.has(x.c) || !okId(x.id)) return res.status(400).json({ error: 'bad' });
+  if (!req.u.is_owner && deletes.some(x => x.c === 'park')) { const pe = (await q("SELECT value FROM kv WHERE key='pkDel'")).rows[0]; if (!(pe && Array.isArray(pe.value) && pe.value.includes(req.u.id))) return res.status(403).json({ error: 'owner' }); }   // closed parking records: only the owner, or people the owner approved, may delete
   if (!req.u.is_owner && deletes.some(x => x.c === 'vend')) return res.status(403).json({ error: 'owner' });   // only the owner may delete a vendor
   { const lim = [...await denyOf(req.u), ...await roOf(req.u)]; if (lim.length) { const blocked = new Set(lim.flatMap(k => SECTION_COLLS[k] || [])); if ([...upserts, ...deletes].some(x => blocked.has(x.c)) || (lim.includes('pti') && kv.pti !== undefined)) return res.status(403).json({ error: 'section' }); } }
   const kvKeys = Object.keys(kv);
@@ -424,7 +425,7 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
     if (KV_FLEET.has(k)) { if (JSON.stringify(kv[k]).length > 400000) return res.status(400).json({ error: 'bad' }); }
     else if (SETTING_KEYS.includes(k)) {
       let okk = req.u.role === 'admin';
-      if (k === 'prioEd' || k === 'compEd' || k === 'intEd' || k === 'stEd') { okk = !!req.u.is_owner; if (!(Array.isArray(kv[k]) && kv[k].length <= 200 && kv[k].every(okId))) return res.status(400).json({ error: 'bad' }); }
+      if (k === 'prioEd' || k === 'compEd' || k === 'intEd' || k === 'stEd' || k === 'pkDel') { okk = !!req.u.is_owner; if (!(Array.isArray(kv[k]) && kv[k].length <= 200 && kv[k].every(okId))) return res.status(400).json({ error: 'bad' }); }
       else if (k === 'tstat') { const pe = (await q("SELECT value FROM kv WHERE key='stEd'")).rows[0]; okk = !!req.u.is_owner || (!!pe && Array.isArray(pe.value) && pe.value.includes(req.u.id)); if (!(Array.isArray(kv[k]) && kv[k].length >= 1 && kv[k].length <= 40 && kv[k].every(x => x && okId(x.id) && typeof x.n === 'string' && x.n.length <= 60))) return res.status(400).json({ error: 'bad' }); }   // trailer statuses: owner, or people the owner allowed
       else if (k === 'prio') { const pe = (await q("SELECT value FROM kv WHERE key='prioEd'")).rows[0]; okk = !!req.u.is_owner || (!!pe && Array.isArray(pe.value) && pe.value.includes(req.u.id)); }   // priorities: owner, or people the owner allowed
       else if (k === 'comps' || k === 'teams') { const pe = (await q("SELECT value FROM kv WHERE key='compEd'")).rows[0]; okk = !!req.u.is_owner || (!!pe && Array.isArray(pe.value) && pe.value.includes(req.u.id)); }   // companies and teams: owner, or people the owner allowed
