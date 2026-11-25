@@ -12,9 +12,9 @@ const PORT = +process.env.PORT || 3000;
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
 const LOGIN_MAX = +process.env.RATE_LOGIN_MAX || 12;
 const SESSION_HOURS = 12, PW_STAGE_MIN = 10, LOCK_AFTER = 5, LOCK_MIN = 15;
-const COLLS = new Set(['trucks', 'trailers', 'drivers', 'issues', 'plans', 'svc', 'docs', 'inv', 'vend', 'links', 'hist', 'insp']);
+const COLLS = new Set(['trucks', 'trailers', 'drivers', 'issues', 'plans', 'svc', 'docs', 'inv', 'vend', 'links', 'hist', 'insp', 'park']);
 const KV_FLEET = new Set(['pti', 'ck', 'ph']);          // fleet-wide documents (members may write)
-const SETTING_KEYS = ['prio', 'prioEd', 'compEd', 'teams', 'comps', 'stat', 'tg', 'tpl', 'ptiOff', 'tmAcc', 'seed14', 'myMap', 'vnLay', 'intEd'];   // admin-only
+const SETTING_KEYS = ['prio', 'prioEd', 'compEd', 'teams', 'comps', 'stat', 'tg', 'tpl', 'ptiOff', 'tmAcc', 'seed14', 'myMap', 'vnLay', 'intEd', 'tstat', 'stEd'];   // admin-only
 const ROLES = new Set(['admin', 'member', 'driver']);
 
 const app = express();
@@ -108,8 +108,8 @@ const admin = need('admin');
 // Integrations (Telegram, Samsara/Motive accounts): the owner, plus people the owner allowed (kv intEd)
 const canInt = async u => { if (u.is_owner) return true; const r = (await q("SELECT value FROM kv WHERE key='intEd'")).rows[0]; return !!r && Array.isArray(r.value) && r.value.includes(u.id); };
 // Section access: the owner can switch any section off for any person (kv pageDeny: { userId: [section keys] })
-const SECTIONS = ['today', 'trucks', 'trailers', 'hookdrop', 'drivers', 'maintenance', 'pti', 'inspections', 'documents', 'violations', 'invoices', 'vendors'];
-const SECTION_COLLS = { today: ['issues'], hookdrop: ['links', 'hist'], trucks: ['trucks'], trailers: ['trailers'], drivers: ['drivers'], maintenance: ['plans', 'svc'], documents: ['docs'], inspections: ['insp'], invoices: ['inv'], vendors: ['vend'] };
+const SECTIONS = ['today', 'trucks', 'trailers', 'hookdrop', 'drivers', 'maintenance', 'pti', 'inspections', 'documents', 'violations', 'invoices', 'vendors', 'parking'];
+const SECTION_COLLS = { today: ['issues'], hookdrop: ['links', 'hist'], trucks: ['trucks'], trailers: ['trailers'], drivers: ['drivers'], maintenance: ['plans', 'svc'], documents: ['docs'], inspections: ['insp'], invoices: ['inv'], vendors: ['vend'], parking: ['park'] };
 const roOf = async u => { if (u.is_owner) return []; const r = (await q("SELECT value FROM kv WHERE key='pageRead'")).rows[0]; const l = r && r.value && r.value[u.id]; return Array.isArray(l) ? l.filter(k => SECTIONS.includes(k)) : []; };
 const denyOf = async u => { if (u.is_owner) return []; const r = (await q("SELECT value FROM kv WHERE key='pageDeny'")).rows[0]; const l = r && r.value && r.value[u.id]; return Array.isArray(l) ? l.filter(k => SECTIONS.includes(k)) : []; };
 const intOk = wrap(async (req, res, next) => { if (!(await canInt(req.u))) return res.status(403).json({ error: 'role' }); next(); });
@@ -392,6 +392,7 @@ function scopeState(DB, A) {
   out.links = DB.links.filter(x => rids.has(x.trailer));
   out.hist = DB.hist.filter(x => rids.has(x.trailer));
   out.insp = DB.insp.filter(x => unitOk(x.unit));
+  out.park = (DB.park || []).filter(x => x.kind === 'trailer' ? rids.has(x.uid) : tids.has(x.uid));
   if (DB.pti) out.pti = Object.fromEntries(Object.entries(DB.pti).filter(([k]) => tids.has(k)));
   return out;
 }
@@ -405,7 +406,7 @@ async function loadAll() {
 app.get('/api/state', auth(), staff, wrap(async (req, res) => {
   let { DB, S } = await loadAll();
   const A = allowedOf(req.u); if (A) DB = scopeState(DB, A);
-  const deny = await denyOf(req.u); if (deny.includes('invoices')) DB.inv = []; if (deny.includes('vendors')) DB.vend = [];
+  const deny = await denyOf(req.u); if (deny.includes('invoices')) DB.inv = []; if (deny.includes('vendors')) DB.vend = []; if (deny.includes('parking')) DB.park = [];
   const tm = (await q("SELECT id,name,username,email,role,is_owner,color,companies,is_test,avatar,tg_user FROM users WHERE role<>'driver' AND NOT disabled ORDER BY created_at")).rows;
   const team = tm.map(u => ({ id: u.id, n: u.name, u: u.username, m: (req.u.is_owner || (req.u.role === 'admin' && (u.role === 'member' || u.id === req.u.id)) || u.id === req.u.id) ? u.email : '', r: u.role, owner: u.is_owner, c: u.color, av: avUrl(u), tg: u.tg_user || '', co: u.role === 'admin' ? null : (u.companies || null), test: u.is_test }));
   res.json({ DB, S, team, user: { ...publicUser(req.u), ai: await TG.ai().info(req.u), deny, ro: await roOf(req.u) } });
@@ -423,7 +424,8 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
     if (KV_FLEET.has(k)) { if (JSON.stringify(kv[k]).length > 400000) return res.status(400).json({ error: 'bad' }); }
     else if (SETTING_KEYS.includes(k)) {
       let okk = req.u.role === 'admin';
-      if (k === 'prioEd' || k === 'compEd' || k === 'intEd') { okk = !!req.u.is_owner; if (!(Array.isArray(kv[k]) && kv[k].length <= 200 && kv[k].every(okId))) return res.status(400).json({ error: 'bad' }); }
+      if (k === 'prioEd' || k === 'compEd' || k === 'intEd' || k === 'stEd') { okk = !!req.u.is_owner; if (!(Array.isArray(kv[k]) && kv[k].length <= 200 && kv[k].every(okId))) return res.status(400).json({ error: 'bad' }); }
+      else if (k === 'tstat') { const pe = (await q("SELECT value FROM kv WHERE key='stEd'")).rows[0]; okk = !!req.u.is_owner || (!!pe && Array.isArray(pe.value) && pe.value.includes(req.u.id)); if (!(Array.isArray(kv[k]) && kv[k].length >= 1 && kv[k].length <= 40 && kv[k].every(x => x && okId(x.id) && typeof x.n === 'string' && x.n.length <= 60))) return res.status(400).json({ error: 'bad' }); }   // trailer statuses: owner, or people the owner allowed
       else if (k === 'prio') { const pe = (await q("SELECT value FROM kv WHERE key='prioEd'")).rows[0]; okk = !!req.u.is_owner || (!!pe && Array.isArray(pe.value) && pe.value.includes(req.u.id)); }   // priorities: owner, or people the owner allowed
       else if (k === 'comps' || k === 'teams') { const pe = (await q("SELECT value FROM kv WHERE key='compEd'")).rows[0]; okk = !!req.u.is_owner || (!!pe && Array.isArray(pe.value) && pe.value.includes(req.u.id)); }   // companies and teams: owner, or people the owner allowed
       if (k === 'tg' || k === 'tmAcc') {
@@ -780,6 +782,27 @@ app.post('/api/tg/send-now', limit('tgnow', 20, 10 * 60e3), auth(), staff, intOk
   if (!TG.enabled()) return res.status(503).json({ error: 'off' }); const { DB, S } = await loadAll(); const r = await TG.sendWorkersList(S, DB, true); res.json({ ok: !!r.ok, error: r.ok ? null : r.description });
 }));
 
+// ---------- parking: send the due / full list to the workers group now, or schedule it ----------
+const parkGuard = wrap(async (req, res, next) => { if ([...await denyOf(req.u), ...await roOf(req.u)].includes('parking')) return res.status(403).json({ error: 'section' }); next(); });
+const parkScope = v => { v = String(v || 'all'); return v === 'all' || /^(t:)?[A-Za-z0-9_-]{1,40}$/.test(v) ? v : 'all'; };
+const parkSchedGet = async () => { const r = (await q("SELECT value FROM kv WHERE key='parkSched'")).rows[0]; return Array.isArray(r && r.value) ? r.value : []; };
+app.post('/api/park/send', limit('parksend', 20, 10 * 60e3), auth(), staff, parkGuard, wrap(async (req, res) => {
+  if (!TG.enabled()) return res.status(503).json({ error: 'off' });
+  const b = req.body || {}, kind = b.kind === 'full' ? 'full' : 'due', r = await TG.sendParkList(kind, parkScope(b.scope), allowedOf(req.u));
+  res.json({ ok: !!r.ok, error: r.ok ? null : r.description });
+}));
+app.get('/api/park/sched', auth(), staff, parkGuard, wrap(async (req, res) => res.json({ items: await parkSchedGet() })));
+app.post('/api/park/sched', limit('parksch', 30, 10 * 60e3), auth(), staff, parkGuard, wrap(async (req, res) => {
+  const b = req.body || {}, kind = b.kind === 'full' ? 'full' : 'due', time = String(b.time || ''), daily = !!b.daily, date = String(b.date || '');
+  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(time) || (!daily && !/^\d{4}-\d{2}-\d{2}$/.test(date))) return res.status(400).json({ error: 'bad' });
+  const list = await parkSchedGet(); if (list.length >= 30) return res.status(400).json({ error: 'many' });
+  list.push({ id: require('crypto').randomBytes(6).toString('hex'), kind, scope: parkScope(b.scope), date: daily ? '' : date, time, daily, by: req.u.name });
+  await saveKv('parkSched', list, req.u.id); audit(req.u.id, 'park.sched', kind, null, req.ip); res.json({ items: list });
+}));
+app.delete('/api/park/sched/:id', auth(), staff, parkGuard, wrap(async (req, res) => {
+  const list = (await parkSchedGet()).filter(x => x.id !== req.params.id); await saveKv('parkSched', list, req.u.id); res.json({ items: list });
+}));
+
 app.post('/api/invoices/:id/telegram', limit('tginv', 30, 10 * 60e3), auth(), staff, wrap(async (req, res) => {
   if ([...await denyOf(req.u), ...await roOf(req.u)].includes('invoices')) return res.status(403).json({ error: 'section' });
   if (!TG.enabled()) return res.json({ ok: false, error: 'off' });
@@ -863,7 +886,7 @@ app.get('/api/roadside/:tok/f/:fid', limit('rsf', 240, 600e3), wrap(async (req, 
 }));
 app.use('/api', (req, res) => res.status(404).json({ error: 'none' }));
 app.use(express.static(path.join(__dirname, 'public'), { index: 'index.html', maxAge: 0, setHeaders: r => r.setHeader('Cache-Control', 'no-cache') }));
-const PAGES = new Set(['dashboard', 'alerts', 'fleet', 'trailers', 'hook-drop', 'drivers', 'maintenance', 'pti', 'inspections', 'documents', 'violation-report', 'invoices', 'vendors', 'ai', 'ai-expenses', 'profile', 'companies']);
+const PAGES = new Set(['dashboard', 'alerts', 'fleet', 'trailers', 'hook-drop', 'drivers', 'maintenance', 'pti', 'inspections', 'documents', 'violation-report', 'invoices', 'vendors', 'parking', 'ai', 'ai-expenses', 'profile', 'companies']);
 app.get('/invite/:t', (req, res) => { res.setHeader('Cache-Control', 'no-cache'); res.sendFile(path.join(__dirname, 'public', 'index.html')); });
 app.get('/fleet/:id', (req, res, next) => okId(req.params.id) ? (res.setHeader('Cache-Control', 'no-cache'), res.sendFile(path.join(__dirname, 'public', 'index.html'))) : next());
 app.get('/r/:tok', (req, res, next) => okTok(req.params.tok) ? (res.setHeader('Cache-Control', 'no-cache'), res.setHeader('Referrer-Policy', 'no-referrer'), res.sendFile(path.join(__dirname, 'public', 'index.html'))) : next());
