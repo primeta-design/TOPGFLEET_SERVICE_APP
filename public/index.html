@@ -1816,7 +1816,7 @@ function vnLiveBuild(){const b=$("#vmap");if(!b)return null;if(VM.lmap){try{VM.l
  b.innerHTML=`<div class="vnFrm"><div id="vlf" style="position:absolute;inset:0;z-index:0;isolation:isolate;background:#16211c"></div><div id="vsb" style="position:absolute;z-index:1001;top:10px;left:10px;width:min(420px,calc(100% - 190px))"><div style="display:flex;gap:6px"><input id="vsi" data-i="vsI" data-enter="vsGo" autocomplete="off" placeholder="${esc(t("vm_sb"))}" style="flex:1;min-width:0;padding:11px 14px;border-radius:10px;border:1px solid var(--ln);background:var(--pn);color:var(--tx);font:14px Inter,system-ui,sans-serif;box-shadow:0 4px 14px #0009"><button data-a="vnDirOpen" title="${esc(t("vm_dirs"))}" aria-label="${esc(t("vm_dirs"))}" style="width:44px;flex:none;border-radius:10px;border:0;background:#6d5df6;color:#fff;cursor:pointer;box-shadow:0 4px 14px #0009;display:flex;align-items:center;justify-content:center">${ic("send",18)}</button></div><div id="vsr" style="margin-top:4px;border-radius:10px;overflow:hidden;box-shadow:0 4px 14px #0009"></div></div><div id="vtk" style="position:absolute;z-index:1001;left:10px;bottom:10px;right:70px;max-width:620px;display:flex;flex-direction:column-reverse;gap:6px;pointer-events:none;font:13px Inter,system-ui,sans-serif"></div><div id="vpp" style="display:none;position:absolute;z-index:1000;top:64px;left:10px;width:min(340px,calc(100% - 20px));max-height:calc(100% - 76px);overflow:auto;background:var(--pn);color:var(--tx);border:1px solid var(--ln);border-radius:12px;box-shadow:0 6px 20px #0009;font:13px Inter,system-ui,sans-serif"></div><div id="vrp" style="display:none;position:absolute;z-index:1000;top:64px;left:10px;width:min(340px,calc(100% - 20px));max-height:calc(100% - 130px);overflow:auto;background:var(--pn);color:var(--tx);border:1px solid var(--ln);border-radius:12px;padding:12px;box-shadow:0 6px 20px #0009;font:13px Inter,system-ui,sans-serif"></div></div>`;
  const mp=L.map("vlf",{preferCanvas:true,zoomControl:false}).setView([39.5,-98.35],4);
  const sat=L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,attribution:"Imagery \u00a9 Esri"}),osm=L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,referrerPolicy:"origin",attribution:"\u00a9 OpenStreetMap"});
- sat.addTo(mp);VM.llabels=L.layerGroup().addTo(mp);L.control.layers({[t("vm_sat")]:sat,[t("vm_street")]:osm},{[t("vm_labels")]:VM.llabels},{position:"topright"}).addTo(mp);mp.on("moveend zoomend overlayadd overlayremove",vnLabelsDraw);mp.on("moveend",vnPlFetch);L.control.zoom({position:"bottomright"}).addTo(mp);
+ sat.addTo(mp);VM.llabels=L.layerGroup().addTo(mp);L.control.layers({[t("vm_sat")]:sat,[t("vm_street")]:osm},{[t("vm_labels")]:VM.llabels},{position:"topright"}).addTo(mp);mp.on("moveend zoomend overlayadd overlayremove",vnLabelsDraw);mp.on("zoomend",()=>{try{vnPoiDraw()}catch(e){}});mp.on("moveend",vnPlFetch);L.control.zoom({position:"bottomright"}).addTo(mp);
  VM.lmap=mp;VM.lpins=L.layerGroup().addTo(mp);VM.lrt=L.layerGroup().addTo(mp);VM.llines=[];
  const lc=L.control({position:"bottomright"});lc.onAdd=()=>{const d=L.DomUtil.create("div","leaflet-bar"),a=L.DomUtil.create("a","",d);a.href="#";a.title=t("vm_loc");a.setAttribute("aria-label",t("vm_loc"));a.textContent="◎";a.style.cssText="font-size:18px;line-height:30px;text-align:center;width:30px;height:30px;display:block;cursor:pointer";L.DomEvent.on(a,"click",e=>{L.DomEvent.preventDefault(e);vnLocate()});return d};lc.addTo(mp);
  try{new ResizeObserver(()=>{try{mp.invalidateSize()}catch(e){}vnPpRender()}).observe(b)}catch(e){}
@@ -1839,6 +1839,27 @@ function vnCities(){const n=(VM.pl||[]).length;if(VM._ct&&VM._ctN===n)return VM.
 function vnPlFetch(){clearTimeout(VM._plt);VM._plt=setTimeout(async()=>{const mp=VM.lmap;if(!mp)return;const z=mp.getZoom();if(z<4)return;const b=mp.getBounds(),k=z+"|"+[b.getSouth(),b.getWest(),b.getNorth(),b.getEast()].map(x=>x.toFixed(1)).join(",");if(VM._plk==k)return;VM._plk=k;
   const r=await api("GET","/api/places?s="+b.getSouth().toFixed(3)+"&w="+b.getWest().toFixed(3)+"&n="+b.getNorth().toFixed(3)+"&e="+b.getEast().toFixed(3)+"&z="+z);
   if(r.s==200&&r.j&&r.j.items&&r.j.items.length&&VM.lmap===mp){VM.opl=r.j.items;vnLabelsDraw()}else VM._plk=""},450)}
+/* close-up names: shops, offices, buildings and house numbers (zoom 16+) */
+const VN_PC={shop:"#f59e0b",amenity:"#3b82f6",office:"#8b5cf6",craft:"#8b5cf6",industrial:"#8b5cf6",tourism:"#14b8a6",leisure:"#22c55e",building:"#94a3b8"};
+let vnPoiT=null;
+function vnPoiGo(){clearTimeout(vnPoiT);vnPoiT=setTimeout(vnPoiLoad,450)}
+async function vnPoiLoad(){const mp=VM.lmap,g=VM.lpoi;if(!mp||!g||!window.L)return;if(mp.getZoom()<16){g.clearLayers();return}
+ const b=mp.getBounds(),P=VM.poi;if(P&&b.getSouth()>=P.b[0]&&b.getWest()>=P.b[1]&&b.getNorth()<=P.b[2]&&b.getEast()<=P.b[3]){vnPoiDraw();return}
+ const dy=(b.getNorth()-b.getSouth())*.35,dx=(b.getEast()-b.getWest())*.35,bb=[b.getSouth()-dy,b.getWest()-dx,b.getNorth()+dy,b.getEast()+dx];
+ if(bb[2]-bb[0]>.04||bb[3]-bb[1]>.06){bb[0]=b.getSouth();bb[1]=b.getWest();bb[2]=b.getNorth();bb[3]=b.getEast()}
+ if(bb[2]-bb[0]>.04||bb[3]-bb[1]>.06)return;
+ const my=VM.poiSeq=(VM.poiSeq||0)+1,r=await api("GET","/api/poi?s="+bb[0].toFixed(5)+"&w="+bb[1].toFixed(5)+"&n="+bb[2].toFixed(5)+"&e="+bb[3].toFixed(5),undefined,45000).catch(()=>null);
+ if(my!=VM.poiSeq||!r||r.s!=200||!r.j||!r.j.items)return;VM.poi={b:bb,items:r.j.items};vnPoiDraw()}
+function vnPoiDraw(){const mp=VM.lmap,g=VM.lpoi,P=VM.poi;if(!mp||!g||!P)return;g.clearLayers();const z=mp.getZoom();if(z<16)return;
+ const bd=mp.getBounds().pad(.02),sz=mp.getSize(),boxes=[],fs=z>=18?12:11;let k=0;
+ const place=(it,txt,css,dx)=>{const p=mp.latLngToContainerPoint([it.la,it.lo]);if(p.x<-10||p.y<-10||p.x>sz.x+10||p.y>sz.y+10)return false;const tw=txt.length*fs*.58+(dx||0)+8,th=fs+6,cx=p.x-4,cy=p.y-th/2;
+  for(const q of boxes)if(cx<q[2]&&cx+tw>q[0]&&cy<q[3]&&cy+th>q[1])return false;boxes.push([cx,cy,cx+tw,cy+th]);return{p,tw}};
+ const items=P.items.filter(it=>bd.contains([it.la,it.lo]));
+ for(const it of items){if(k>=140)break;if(!it.n)continue;if(z<17&&it.k=="building")continue;if(z<18&&it.k=="leisure"&&!it.n)continue;
+  const hit=place(it,it.n,"",12);if(!hit)continue;k++;const c=VN_PC[it.k]||"#94a3b8";
+  L.marker([it.la,it.lo],{interactive:false,keyboard:false,zIndexOffset:-500,icon:L.divIcon({className:"",html:`<span style="position:absolute;left:-5px;top:-5px;width:10px;height:10px;border-radius:50%;background:${c};border:1.5px solid #fff;box-shadow:0 1px 3px #000a"></span><span style="position:absolute;left:8px;top:-8px;white-space:nowrap;pointer-events:none;color:#fff;font:600 ${fs}px Inter,system-ui,sans-serif;text-shadow:0 0 3px #000,0 0 3px #000,0 1px 2px #000">${esc(it.n)}</span>`,iconSize:[0,0]})}).addTo(g)}
+ if(z>=18)for(const it of items){if(k>=220)break;if(!it.h||it.n)continue;const hit=place(it,it.h,"",0);if(!hit)continue;k++;
+  L.marker([it.la,it.lo],{interactive:false,keyboard:false,zIndexOffset:-600,icon:L.divIcon({className:"",html:`<span style="position:absolute;left:0;top:-7px;transform:translateX(-50%);white-space:nowrap;pointer-events:none;color:#e5e7eb;font:600 11px Inter,system-ui,sans-serif;text-shadow:0 0 3px #000,0 0 3px #000">${esc(it.h)}</span>`,iconSize:[0,0]})}).addTo(g)}}
 function vnLabelsDraw(){const mp=VM.lmap,g=VM.llabels;if(!mp||!g||!window.L)return;g.clearLayers();if(!mp.hasLayer(g))return;
  const z=mp.getZoom(),bd=mp.getBounds().pad(.05),boxes=[],sz=mp.getSize();
  const put=(lat,lng,txt,css,w,fs,dy)=>{const p=mp.latLngToContainerPoint([lat,lng]);if(p.x<-20||p.y<-20||p.x>sz.x+20||p.y>sz.y+20)return;fs=fs||12;const tw=txt.length*fs*.58+6,th=fs+5,cx=p.x-tw/2,cy=p.y+(dy||0)-th/2;
@@ -2836,8 +2857,9 @@ document.addEventListener("keydown",e=>{if(e.key=="Escape"){const p=$("#vpage");
 {const _b=vnLiveBuild;vnLiveBuild=function(){let lref=null;const LC=window.L&&L.control&&L.control.layers;
   if(LC&&!L.control._vn6){const orig=L.control.layers;L.control.layers=function(base,over,opt){if(VM._mkRef){lref=VM.lref=L.layerGroup([L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,opacity:.9}),L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",{maxZoom:19})]);over=Object.assign({[t("vm_roads")]:lref},over||{})}return orig.call(this,base,over,opt)};L.control._vn6=1}
   VM._mkRef=true;const mp=_b.apply(this,arguments);VM._mkRef=false;if(!mp)return mp;
-  const on=ld("tf_vnref",true);if(VM.lref&&on)VM.lref.addTo(mp);if(on&&VM.llabels&&ld("tf_vnlab",false)===false)mp.removeLayer(VM.llabels);
-  mp.on("overlayadd overlayremove",e=>{if(e.layer===VM.lref)sv("tf_vnref",e.type=="overlayadd");if(e.layer===VM.llabels)sv("tf_vnlab",e.type=="overlayadd")});
+  const on=ld("tf_vnref2",true);if(VM.lref&&on)VM.lref.addTo(mp);if(on&&VM.llabels&&ld("tf_vnlab2",false)===false)mp.removeLayer(VM.llabels);
+  mp.on("overlayadd overlayremove",e=>{if(e.layer===VM.lref)sv("tf_vnref2",e.type=="overlayadd");if(e.layer===VM.llabels)sv("tf_vnlab2",e.type=="overlayadd")});
+  VM.lpoi=L.layerGroup().addTo(mp);mp.on("moveend",vnPoiGo);setTimeout(vnPoiGo,300);
   VM._home=true;return mp}}
 /* start close: your vendors, else your location (only if already allowed), else the whole country */
 function vnHome(){const mp=VM.lmap;if(!mp||!window.L)return;const pts=DB.vend.filter(v=>v.lat!=null&&v.lat!==""&&isFinite(+v.lat)).map(v=>[+v.lat,+v.lng]);
