@@ -15,8 +15,8 @@ global.fetch = async (u, o = {}) => {
     if (auth !== 'Bearer ' + GOOD && auth !== 'Bearer ' + SCOPELESS) return J(401, { message: 'Unauthorized' });
     const p = new URL(url);
     if (p.pathname === '/fleet/vehicles') {
-      if (!p.searchParams.get('after')) return J(200, { data: [{ id: '281474', name: '1965', vin: '3akjhhdr2nsna6660', make: 'Freightliner', model: 'Cascadia', year: '2022', licensePlate: 'P1345928' }, { id: '281475', name: '777', vin: '1XKYD49X0LJ999999', make: 'Kenworth', model: 'T680', year: '2020', licensePlate: 'K777' }], pagination: { endCursor: 'c2', hasNextPage: true } });
-      return J(200, { data: [{ id: '281476', name: '4382', vin: '4V4NC9EH7MN283746', make: 'Volvo', model: 'VNL', year: '2021' }], pagination: { endCursor: '', hasNextPage: false } });
+      if (!p.searchParams.get('after')) return J(200, { data: [{ id: '281474', name: '1965', vin: '3akjhhdr2nsna6660', make: 'Freightliner', model: 'Cascadia', year: '2022', licensePlate: 'P1345928', tags: [{ id: '1', name: 'ESL' }] }, { id: '281475', name: '777', vin: '1XKYD49X0LJ999999', make: 'Kenworth', model: 'T680', year: '2020', licensePlate: 'K777', tags: [{ id: '2', name: 'OTHER MC' }] }], pagination: { endCursor: 'c2', hasNextPage: true } });
+      return J(200, { data: [{ id: '281476', name: '4382', vin: '4V4NC9EH7MN283746', make: 'Volvo', model: 'VNL', year: '2021', tags: [{ id: '1', name: 'ESL' }] }, { id: '281474', name: '1965', vin: '3akjhhdr2nsna6660' }], pagination: { endCursor: '', hasNextPage: false } });
     }
     if (p.pathname === '/fleet/vehicles/stats') { if (auth === 'Bearer ' + SCOPELESS) return J(403, { message: 'forbidden' });
       return J(200, { data: [{ id: '281474', name: '1965', obdOdometerMeters: { time: '2026-11-25T15:00:00Z', value: ODO }, gps: { latitude: 41.52, longitude: -88.08, time: '2026-11-25T15:00:00Z', reverseGeo: { formattedLocation: 'Joliet, IL' } } }, { id: '281476', name: '4382', gpsOdometerMeters: { time: '2026-11-25T15:00:00Z', value: 321868800 } }], pagination: { endCursor: '', hasNextPage: false } }); }
@@ -99,7 +99,16 @@ global.fetch = async (u, o = {}) => {
   ok(!A.d.querySelector('#tlm').classList.contains('hide') && /rejected/.test(A.d.querySelector('#tlm').textContent), 'a wrong token shows a clear message in the form'); A.ev('closeMd()');
   A.ev('go("trucks")'); await sleep(300); A.ev('A.syncV()'); await sleep(900);
   ok(/3 vehicles · 1 not on the site yet/.test(A.d.querySelector('.mdl').textContent) && A.d.querySelectorAll('[data-sv]').length === 1, 'Sync vehicles lists what is new');
-  A.d.querySelector('[data-sv]').checked = true; A.d.querySelector('[data-sv]').dispatchEvent(new A.w.Event('change')); A.d.querySelector('#sv_go').click(); await sleep(1500);
+  ok(A.d.querySelectorAll('#sv_b tr').length === 1, 'Only new is on by default');
+  A.d.querySelector('#sv_new').checked = false; A.d.querySelector('#sv_new').dispatchEvent(new A.w.Event('change')); await sleep(50);
+  ok(A.d.querySelectorAll('#sv_b tr').length === 3, 'a vehicle reported twice is listed once');
+  A.ev('(()=>{const s=document.querySelector("#sv_tag");s.value="ESL";s.dispatchEvent(new Event("change"))})()'); await sleep(50);
+  ok(A.d.querySelectorAll('#sv_b tr').length === 2 && !/777/.test(A.d.querySelector('#sv_b').textContent), 'the Samsara tag filter works');
+  A.ev('(()=>{const s=document.querySelector("#sv_tag");s.value="";s.dispatchEvent(new Event("change"))})()'); setv(A, '#sv_q', '777'); await sleep(50);
+  ok(A.d.querySelectorAll('#sv_b tr').length === 1 && /777/.test(A.d.querySelector('#sv_b').textContent), 'search by unit number');
+  const cb = A.d.querySelector('#sv_b [data-sv]'); cb.checked = true; cb.dispatchEvent(new A.w.Event('change', { bubbles: true })); await sleep(50);
+  ok(/1 selected/.test(A.d.querySelector('#sv_cnt').textContent) && /Add 1 trucks/.test(A.d.querySelector('#sv_go').textContent), 'the counter follows the selection');
+  A.d.querySelector('#sv_go').click(); await sleep(1500);
   s2 = await J(A, 'GET', '/api/state'); const t7 = s2.j.DB.trucks.find(x => x.num === '777');
   ok(t7 && t7.vin === '1XKYD49X0LJ999999' && t7.company === c0 && t7.tsid === '281475', 'the new truck is added with its Samsara data and company');
   A.ev('openTruck()'); await sleep(150); A.d.querySelector('#trf').value = '4382'; A.ev('A.trFind()'); await sleep(700);
@@ -108,6 +117,13 @@ global.fetch = async (u, o = {}) => {
   ok(/Harsh Brake/.test(A.d.querySelector('#c').textContent) && /Ali Karimov/.test(A.d.querySelector('#c').textContent) && !!A.d.querySelector('#c [data-a=tvOpen][data-id=t1]'), 'Violation Report shows the events and opens the truck');
   for (const lg of ['uz', 'ru']) { A.ev(`S.lang="${lg}";page()`); await sleep(150); ok(!/\b(tl_|sv_|sm_|tf_|vr_)[a-z0-9]+\b/.test(A.d.querySelector('#c').textContent), lg + ': no missing translations'); }
   A.ev('S.lang="en"');
+  // the company picked at the top: its own account + shared ones, never another company's
+  r = await J(A, 'POST', '/api/telem', { p: 'samsara', n: 'Other MC', key: GOOD, co: c1 }); const acc2 = r.j.account.id;
+  r = await J(A, 'GET', '/api/telem/vehicles?co=' + c0); ok(r.s === 200 && r.j.accounts === 1 && r.j.vehicles.every(v => v.acc === accId), 'Sync vehicles for one company leaves out the other company\'s account');
+  r = await J(A, 'GET', '/api/telem/vehicles'); ok(r.j.accounts === 2, 'all companies: both accounts');
+  A.ev(`setCur("${c0}");shellRefresh()`); A.ev('go("trucks")'); await sleep(200); A.ev('A.syncV()'); await sleep(900);
+  ok(/For /.test(A.d.querySelector('.mdl').textContent) && A.d.querySelector('#sv_co').value === c0, 'the window says which company and pre-picks it');
+  A.ev('closeMd();setCur("all")'); await J(A, 'DELETE', '/api/telem/' + acc2);
   r = await J(A, 'DELETE', '/api/telem/' + accId); r = await J(A, 'GET', '/api/telem'); ok(r.j.accounts.length === 0, 'the account can be removed');
   ok(CALLS.every(c => c.method === 'GET'), 'still: only GET requests went to Samsara');
   console.log(errs.length ? `\n${errs.length} FAILED of ${n}` : `\nALL ${n} TELEM CHECKS PASSED`);
