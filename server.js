@@ -390,7 +390,7 @@ function scopeState(DB, A) {
   out.plans = DB.plans.filter(x => tids.has(x.truck));
   out.svc = DB.svc.filter(x => tids.has(x.truck));
   out.docs = DB.docs.filter(x => x.kind === 'truck' ? tids.has(x.uid) : rids.has(x.uid));
-  out.inv = DB.inv.filter(x => (!x.truck || tids.has(x.truck)) && (!x.trailer || rids.has(x.trailer)));
+  out.inv = DB.inv.filter(x => (!x.truck || tids.has(x.truck)) && (!x.trailer || rids.has(x.trailer)) && (x.truck || x.trailer || !x.co || A.has(x.co)));   // a hand-typed unit only: the company it was written for
   out.links = DB.links.filter(x => rids.has(x.trailer));
   out.hist = DB.hist.filter(x => rids.has(x.trailer));
   out.insp = DB.insp.filter(x => unitOk(x.unit));
@@ -815,7 +815,7 @@ app.post('/api/invoices/:id/telegram', limit('tginv', 30, 10 * 60e3), auth(), st
   if (!TG.enabled()) return res.json({ ok: false, error: 'off' });
   let { DB, S } = await loadAll(); const A = allowedOf(req.u); if (A) DB = scopeState(DB, A);
   const inv = (DB.inv || []).find(x => x.id === req.params.id); if (!inv) return res.status(404).json({ error: 'none' });
-  const tU = (DB.trucks || []).find(x => x.id === inv.truck), lU = (DB.trailers || []).find(x => x.id === inv.trailer), cU = (S.comps || []).find(c => c.id === ((tU && tU.company) || (lU && lU.company)));
+  const tU = (DB.trucks || []).find(x => x.id === inv.truck), lU = (DB.trailers || []).find(x => x.id === inv.trailer), cU = (S.comps || []).find(c => c.id === ((tU && tU.company) || (lU && lU.company) || inv.co));
   if (!(cU && cU.inv)) return res.json({ ok: false, error: 'nogroup' });
   const sent = await TG.notifyNewInvoices([inv], 'https://' + req.get('host')); audit(req.u.id, 'invoice.telegram', inv.id, null, req.ip);
   if (!sent.length) return res.json({ ok: false, error: 'fail' });
