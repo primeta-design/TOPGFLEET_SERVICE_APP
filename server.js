@@ -16,7 +16,7 @@ const LOGIN_MAX = +process.env.RATE_LOGIN_MAX || 12;
 const SESSION_HOURS = 12, PW_STAGE_MIN = 10, LOCK_AFTER = 5, LOCK_MIN = 15;
 const COLLS = new Set(['trucks', 'trailers', 'drivers', 'issues', 'plans', 'svc', 'docs', 'inv', 'vend', 'links', 'hist', 'insp', 'park']);
 const KV_FLEET = new Set(['pti', 'ck', 'ph']);          // fleet-wide documents (members may write)
-const SETTING_KEYS = ['prio', 'prioEd', 'compEd', 'teams', 'comps', 'stat', 'tg', 'tpl', 'ptiOff', 'tmAcc', 'seed14', 'myMap', 'vnLay', 'intEd', 'tstat', 'stEd', 'pkDel', 'pkSend'];   // admin-only
+const SETTING_KEYS = ['hideF', 'prio', 'prioEd', 'compEd', 'teams', 'comps', 'stat', 'tg', 'tpl', 'ptiOff', 'tmAcc', 'seed14', 'myMap', 'vnLay', 'intEd', 'tstat', 'stEd', 'pkDel', 'pkSend'];   // admin-only
 const ROLES = new Set(['admin', 'member', 'driver']);
 
 const app = express();
@@ -437,6 +437,7 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
         if (k === 'tg') { const g = kv[k], idOk = v => v === undefined || v === '' || (typeof v === 'string' && /^-?\d{5,20}$/.test(v)), tzOk = v => { try { new Intl.DateTimeFormat('en', { timeZone: v }); return typeof v === 'string' && v.length < 60; } catch { return false; } };
           if (!(g && typeof g === 'object' && !Array.isArray(g) && idOk(g.work) && (g.topic === undefined || g.topic === '' || /^\d{1,12}$/.test(String(g.topic))) && (g.tz === undefined || g.tz === '' || tzOk(g.tz)) && (g.times === undefined || (Array.isArray(g.times) && g.times.length <= 24 && g.times.every(x => /^\d\d:\d\d$/.test(x)))))) return res.status(400).json({ error: 'bad' }); }
       }
+      if (k === 'hideF') { const h = kv[k], okL = L => L === undefined || (Array.isArray(L) && L.length <= 20 && L.every(x => typeof x === 'string' && /^[a-z]{1,12}$/.test(x))); if (!(h && typeof h === 'object' && !Array.isArray(h) && okL(h.tr) && okL(h.tl))) return res.status(400).json({ error: 'bad' }); okk = !!req.u.is_owner || req.u.role === 'admin'; }   // hidden truck / trailer fields
       if (k === 'comps' && !(Array.isArray(kv[k]) && kv[k].length <= 200 && kv[k].every(c => c && okId(c.id) && typeof c.n === 'string' && c.n.length <= 120 && ['inv', 'mgr'].every(f => c[f] === undefined || c[f] === '' || (typeof c[f] === 'string' && /^-?\d{5,20}$/.test(c[f])))))) return res.status(400).json({ error: 'bad' });
       if (k === 'myMap') { okk = !!req.u.is_owner; if (!(kv[k] === '' || (typeof kv[k] === 'string' && /^[A-Za-z0-9_-]{10,80}$/.test(kv[k])))) return res.status(400).json({ error: 'bad' }); }
       if (k === 'vnLay') { okk = !!req.u.is_owner; const L = kv[k], num = v => typeof v === 'number' && isFinite(v) && Math.abs(v) < 5000; if (!(L && typeof L === 'object' && !Array.isArray(L) && Object.keys(L).every(w => ['list', 'bar', 'exit', 'back'].includes(w) && L[w] && typeof L[w] === 'object' && Object.values(L[w]).every(num)))) return res.status(400).json({ error: 'bad' }); }
@@ -875,12 +876,14 @@ async function roadsideOf(tok) {
   const docs = (await q("SELECT data FROM records WHERE coll='docs' AND data->>'kind'='truck' AND data->>'uid'=$1", [tr.data.id])).rows.map(r => r.data).filter(d => d.vis !== false);
   return { tr: tr.data, docs };
 }
+const HIDEF_DEF = { tr: ['plate', 'cab', 'owner'], tl: ['ins', 'notes'] };   // same default as the site
+const hideOf = async () => { const r = (await q("SELECT value FROM kv WHERE key='hideF'")).rows[0], h = (r && r.value) || HIDEF_DEF; return { tr: Array.isArray(h.tr) ? h.tr.filter(x => typeof x === 'string').slice(0, 20) : [], tl: Array.isArray(h.tl) ? h.tl.filter(x => typeof x === 'string').slice(0, 20) : [] }; };
 const rsFiles = d => (Array.isArray(d.files) ? d.files : []).filter(f => f && okId(f.id));
 app.get('/api/roadside/:tok', limit('rs', 120, 600e3), wrap(async (req, res) => {
   const r = await roadsideOf(req.params.tok); if (!r) return res.status(404).json({ error: 'none' });
   const cr = (await q("SELECT value FROM kv WHERE key='comps'")).rows[0], co = cr && Array.isArray(cr.value) ? cr.value.find(c => c && c.id === r.tr.company) : null, s = v => String(v == null ? '' : v).slice(0, 120);
-  res.setHeader('Cache-Control', 'no-store');
-  res.json({ unit: { num: s(r.tr.num), year: s(r.tr.year), make: s(r.tr.make), model: s(r.tr.model), vin: s(r.tr.vin), plate: s(r.tr.plate), cab: s(r.tr.cab), ins: s(r.tr.ins) }, company: co ? s(co.n) : '',
+  res.setHeader('Cache-Control', 'no-store'); const H = await hideOf(), hv = (f, v) => H.tr.includes(f) ? '' : s(v);   // hidden fields are not sent at all
+  res.json({ hide: H, unit: { num: s(r.tr.num), year: s(r.tr.year), make: s(r.tr.make), model: s(r.tr.model), vin: s(r.tr.vin), plate: hv('plate', r.tr.plate), cab: hv('cab', r.tr.cab), ins: hv('ins', r.tr.ins) }, company: co ? s(co.n) : '',
     docs: r.docs.map(d => ({ type: s(d.type), title: s(d.title), exp: s(d.exp), files: rsFiles(d).map(f => ({ id: f.id, name: s(f.name || 'file'), type: s(f.type) })) })) });
 }));
 app.get('/api/roadside/:tok/f/:fid', limit('rsf', 240, 600e3), wrap(async (req, res) => {
