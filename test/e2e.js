@@ -69,8 +69,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   ok(B.ev('S.in') === true, 'member logs in');
   ok(B.ev('DB.trucks.length') === 1 && B.ev('DB.trucks[0].num') === '4382', 'member sees the shared truck');
   await sleep(300);
-  ok(B.d.querySelector('#md') && /./.test(B.d.querySelector('#md').innerHTML), 'member is forced to choose a new password');
-  B.click('[data-a=mdClose]'); // modal can be closed in the test; server still enforces nothing more here
+  ok(!(B.d.querySelector('#md') && B.d.querySelector('#md').innerHTML.trim()), 'no forced password dialog after sign-in');
   // member edits a truck; admin page pulls it
   B.ev('DB.trucks[0].miles="123456";refresh()'); await sleep(1300);
   await A.ev('pullRemote(true)'); await sleep(900);
@@ -89,9 +88,9 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   // logout clears memory
   await Cc.ev('A.logout()'); await sleep(500); ok(Cc.ev('DB.trucks.length') === 0 && !Cc.ev('S.in'), 'logout wipes data from the page');
   // deep link from Telegram: /invoices?id=... opens that invoice
-  A.ev('DB.inv.push({id:"ivX",truck:"",trailer:"",amt:42,reason:"fuel",date:"2026-11-17",who:"co",method:"cc",desc:"deep link test"})');
+  A.ev('DB.inv.push({id:"ivX",truck:"",trailer:"",amt:42,reason:"fuel",date:"2026-11-17",who:"co",method:"cc",desc:"deep link test",num:"N-77"})');
   A.ev('history.pushState(null,"","/invoices?id=ivX");V="invoices";render()'); await sleep(300);
-  ok(/deep link test/.test(A.d.querySelector('#dr').innerHTML) || A.d.querySelector('#dr [name=desc]') && A.d.querySelector('#dr [name=desc]').value === 'deep link test', 'invoice link opens that invoice');
+  ok(/deep link test/.test(A.d.querySelector('#dr').innerHTML) || A.d.querySelector('#dr [name=num]') && A.d.querySelector('#dr [name=num]').value === 'N-77', 'invoice link opens that invoice');
   ok(A.ev('location.search') === '', 'query is cleaned after opening');
   console.log(errs.length ? `\n${errs.length} FAILED of ${n}` : `\nALL ${n} E2E CHECKS PASSED`);
   srv.close(); await pg.stop(); process.exit(errs.length ? 1 : 0);
