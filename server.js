@@ -16,7 +16,7 @@ const LOGIN_MAX = +process.env.RATE_LOGIN_MAX || 12;
 const SESSION_HOURS = 12, PW_STAGE_MIN = 10, LOCK_AFTER = 5, LOCK_MIN = 15;
 const COLLS = new Set(['trucks', 'trailers', 'drivers', 'issues', 'plans', 'svc', 'docs', 'inv', 'vend', 'links', 'hist', 'insp', 'park']);
 const KV_FLEET = new Set(['pti', 'ck', 'ph']);          // fleet-wide documents (members may write)
-const SETTING_KEYS = ['prio', 'prioEd', 'compEd', 'teams', 'comps', 'stat', 'tg', 'tpl', 'ptiOff', 'tmAcc', 'seed14', 'myMap', 'vnLay', 'intEd', 'tstat', 'stEd', 'pkDel'];   // admin-only
+const SETTING_KEYS = ['prio', 'prioEd', 'compEd', 'teams', 'comps', 'stat', 'tg', 'tpl', 'ptiOff', 'tmAcc', 'seed14', 'myMap', 'vnLay', 'intEd', 'tstat', 'stEd', 'pkDel', 'pkSend'];   // admin-only
 const ROLES = new Set(['admin', 'member', 'driver']);
 
 const app = express();
@@ -427,7 +427,7 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
     if (KV_FLEET.has(k)) { if (JSON.stringify(kv[k]).length > 400000) return res.status(400).json({ error: 'bad' }); }
     else if (SETTING_KEYS.includes(k)) {
       let okk = req.u.role === 'admin';
-      if (k === 'prioEd' || k === 'compEd' || k === 'intEd' || k === 'stEd' || k === 'pkDel') { okk = !!req.u.is_owner; if (!(Array.isArray(kv[k]) && kv[k].length <= 200 && kv[k].every(okId))) return res.status(400).json({ error: 'bad' }); }
+      if (k === 'prioEd' || k === 'compEd' || k === 'intEd' || k === 'stEd' || k === 'pkDel' || k === 'pkSend') { okk = !!req.u.is_owner; if (!(Array.isArray(kv[k]) && kv[k].length <= 200 && kv[k].every(okId))) return res.status(400).json({ error: 'bad' }); }
       else if (k === 'stat') { const pe = (await q("SELECT value FROM kv WHERE key='stEd'")).rows[0]; okk = !!req.u.is_owner || (!!pe && Array.isArray(pe.value) && pe.value.includes(req.u.id)); }   // truck statuses: owner, or people the owner approved
       else if (k === 'tstat') { const pe = (await q("SELECT value FROM kv WHERE key='stEd'")).rows[0]; okk = !!req.u.is_owner || (!!pe && Array.isArray(pe.value) && pe.value.includes(req.u.id)); if (!(Array.isArray(kv[k]) && kv[k].length >= 1 && kv[k].length <= 40 && kv[k].every(x => x && okId(x.id) && typeof x.n === 'string' && x.n.length <= 60))) return res.status(400).json({ error: 'bad' }); }   // trailer statuses: owner, or people the owner allowed
       else if (k === 'prio') { const pe = (await q("SELECT value FROM kv WHERE key='prioEd'")).rows[0]; okk = !!req.u.is_owner || (!!pe && Array.isArray(pe.value) && pe.value.includes(req.u.id)); }   // priorities: owner, or people the owner allowed
@@ -789,21 +789,23 @@ app.post('/api/tg/send-now', limit('tgnow', 20, 10 * 60e3), auth(), staff, intOk
 // ---------- parking: send the due / full list to the workers group now, or schedule it ----------
 const parkGuard = wrap(async (req, res, next) => { if ([...await denyOf(req.u), ...await roOf(req.u)].includes('parking')) return res.status(403).json({ error: 'section' }); next(); });
 const parkScope = v => { v = String(v || 'all'); return v === 'all' || /^(t:)?[A-Za-z0-9_-]{1,40}$/.test(v) ? v : 'all'; };
+// sending the parking lists to Telegram (now or on a schedule): the owner, plus people the owner approved (kv pkSend)
+const pkSendOk = wrap(async (req, res, next) => { if (req.u.is_owner) return next(); const r = (await q("SELECT value FROM kv WHERE key='pkSend'")).rows[0]; if (!(r && Array.isArray(r.value) && r.value.includes(req.u.id))) return res.status(403).json({ error: 'role' }); next(); });
 const parkSchedGet = async () => { const r = (await q("SELECT value FROM kv WHERE key='parkSched'")).rows[0]; return Array.isArray(r && r.value) ? r.value : []; };
-app.post('/api/park/send', limit('parksend', 20, 10 * 60e3), auth(), staff, parkGuard, wrap(async (req, res) => {
+app.post('/api/park/send', limit('parksend', 20, 10 * 60e3), auth(), staff, parkGuard, pkSendOk, wrap(async (req, res) => {
   if (!TG.enabled()) return res.status(503).json({ error: 'off' });
   const b = req.body || {}, kind = b.kind === 'full' ? 'full' : 'due', r = await TG.sendParkList(kind, parkScope(b.scope), allowedOf(req.u));
   res.json({ ok: !!r.ok, error: r.ok ? null : r.description });
 }));
 app.get('/api/park/sched', auth(), staff, parkGuard, wrap(async (req, res) => res.json({ items: await parkSchedGet() })));
-app.post('/api/park/sched', limit('parksch', 30, 10 * 60e3), auth(), staff, parkGuard, wrap(async (req, res) => {
+app.post('/api/park/sched', limit('parksch', 30, 10 * 60e3), auth(), staff, parkGuard, pkSendOk, wrap(async (req, res) => {
   const b = req.body || {}, kind = b.kind === 'full' ? 'full' : 'due', time = String(b.time || ''), daily = !!b.daily, date = String(b.date || '');
   if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(time) || (!daily && !/^\d{4}-\d{2}-\d{2}$/.test(date))) return res.status(400).json({ error: 'bad' });
   const list = await parkSchedGet(); if (list.length >= 30) return res.status(400).json({ error: 'many' });
   list.push({ id: require('crypto').randomBytes(6).toString('hex'), kind, scope: parkScope(b.scope), date: daily ? '' : date, time, daily, by: req.u.name });
   await saveKv('parkSched', list, req.u.id); audit(req.u.id, 'park.sched', kind, null, req.ip); res.json({ items: list });
 }));
-app.delete('/api/park/sched/:id', auth(), staff, parkGuard, wrap(async (req, res) => {
+app.delete('/api/park/sched/:id', auth(), staff, parkGuard, pkSendOk, wrap(async (req, res) => {
   const list = (await parkSchedGet()).filter(x => x.id !== req.params.id); await saveKv('parkSched', list, req.u.id); res.json({ items: list });
 }));
 
