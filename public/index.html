@@ -834,13 +834,18 @@ A.toggleIssue=el=>{const i=byId(DB.issues,el.dataset.id);i.status=i.status=="clo
 A.newIssue=()=>issueForm();A.openIssue=el=>issueForm(el.dataset.id);
 function issueForm(id){const i=id?byId(DB.issues,id):null;
  openForm({title:i?t("issue"):t("new_issue"),icon:"flag",save:i?t("save"):t("create_issue"),
- fields:[{k:"title",l:t("f_unit"),opt:true,ph:t("f_unit_ph"),list:"units",val:i&&i.title},{k:"desc",l:t("f_desc"),t:"textarea",rows:4,ph:t("f_desc_ph"),val:i&&i.desc},{k:"loc",l:t("f_loc"),opt:true,ph:t("f_loc_ph"),val:i&&i.loc,hint:t("f_loc_h")},
+ fields:[{k:"title",l:t("f_unit"),opt:true,ph:t("f_unit_ph"),list:"units",val:i&&i.title},{k:"nco",l:t("is_nco"),opt:true,t:"select",o:[["",t("is_nco_none")],...S.comps.map(c=>[c.id,c.n])],val:curCo&&curCo()!="all"?curCo():""},{k:"desc",l:t("f_desc"),t:"textarea",rows:4,ph:t("f_desc_ph"),val:i&&i.desc},{k:"loc",l:t("f_loc"),opt:true,ph:t("f_loc_ph"),val:i&&i.loc,hint:t("f_loc_h")},
  {k:"pr",l:t("f_prio"),t:"select",o:S.prio.map(p=>[p.id,p.n]),val:i?i.pr:S.prio[S.prio.length-1].id},{k:"owner",l:t("f_assign"),opt:true,t:"select",o:[["",t("unassigned")],...tmPick(i&&i.owner).map(m=>[m.id,m.n])],val:i&&i.owner},
  {k:"sched",l:t("f_sched"),opt:true,t:"date",val:i&&i.sched,hint:t("f_sched_h")}],
- check:o=>!o.title&&!o.desc?t("req"):null,del:i?()=>{DB.issues=DB.issues.filter(x=>x.id!=id);refresh()}:null,
+ check:o=>{if(!o.title&&!o.desc)return t("req");const v=String(o.title||"").trim();if(v&&!unitByNum(isNum(v))&&isLooksUnit(v)&&!o.nco){const e=$("#f_nco");if(e)e.classList.add("bad");return t("is_nco_need")}return null},del:i?()=>{DB.issues=DB.issues.filter(x=>x.id!=id);refresh()}:null,
  extra:i?`<button class="b" data-a="drToggle">${t(i.status=="closed"?"reopen":"close_issue")}</button>`:"",
- onSave:o=>{if(i)Object.assign(i,o);else DB.issues.push({id:uid(),created:Date.now(),status:"open",...o});closeDr();refresh()}});
- DR.issueId=id}
+ onSave:o=>{const{nco,...r}=o,v=String(r.title||"").trim();
+  if(v&&nco&&!unitByNum(isNum(v))){const tk={id:uid(),added:Date.now(),num:isNum(v).slice(0,40),company:nco,status:(S.stat[0]||{}).id||"",stAt:Date.now()};DB.trucks.push(tk);r.title=tk.num;toast(t("iv_nco_add",tk.num))}   // a unit that is not on the site joins that company's truck list
+  if(i)Object.assign(i,r);else DB.issues.push({id:uid(),created:Date.now(),status:"open",...r});closeDr();refresh()}});
+ DR.issueId=id;
+ setTimeout(()=>{const ti=$("#f_title"),cb=$("#f_nco")&&$("#f_nco").closest(".fd");if(!ti||!cb)return;const nc=()=>{const v=ti.value.trim(),nw=!!v&&!unitByNum(isNum(v));cb.style.display=nw?"":"none";const lb=cb.querySelector("label"),u=isLooksUnit(v),op=cb.querySelector(".op"),o0=cb.querySelector("option");if(lb)lb.firstChild.textContent=nw?t(u?"is_nco_l":"is_nco_l2",isNum(v))+" ":t("is_nco");if(op)op.style.display=u?"none":"";if(o0)o0.textContent=u?t("tr_choosec"):t("is_nco_none")};ti.addEventListener("input",nc);ti.addEventListener("change",nc);nc()},50)}
+const isNum=v=>String(v||"").trim().replace(/^#\s*/,""),isLooksUnit=v=>/^#?\s*[A-Za-z]{0,6}[- ]?\d{2,}[A-Za-z]?$/.test(String(v||"").trim());
+Object.assign(D,{is_nco:["Company","Kompaniya","Компания"],is_nco_l:["Unit {0} is not on the site — which company?","{0} unit saytda yo‘q — qaysi kompaniyaga?","Юнита {0} нет на сайте — какой компании?"],is_nco_l2:["“{0}” is not a unit on the site. If it is a new unit, pick its company:","“{0}” saytdagi unit emas. Agar yangi unit bo‘lsa, kompaniyasini tanlang:","«{0}» — не юнит с сайта. Если это новый юнит, выберите компанию:"],is_nco_none:["— not a unit, just a title","— unit emas, shunchaki sarlavha","— не юнит, просто заголовок"],is_nco_need:["Pick the company for the new unit.","Yangi unit uchun kompaniyani tanlang.","Выберите компанию для нового юнита."]});
 A.drToggle=()=>{const i=byId(DB.issues,DR.issueId);if(i){i.status=i.status=="closed"?"open":"closed";closeDr();refresh()}};
 
 /* ===== ALERTS ===== */
