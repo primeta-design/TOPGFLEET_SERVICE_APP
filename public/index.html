@@ -1825,6 +1825,7 @@ function vnZoneDraw(){const mp=VM.lmap;if(!mp||!window.L)return;if(VM.lzone){try
  VM.lzone=L.layerGroup(zs.map(z=>L.polygon(z.rings,{color:"#ef4444",weight:2.5,fillColor:"#ef4444",fillOpacity:.14,interactive:false}))).addTo(mp)}
 function vnZoneSet(list,fit){VM.zones=(list||[]).filter(z=>z&&z.rings);vnZoneDraw();if(fit&&VM.zones.length&&VM.lmap){try{VM.lmap.fitBounds(L.latLngBounds(VM.zones.flatMap(z=>z.rings.flat())),{padding:[40,40],maxZoom:13})}catch(e){}}}
 const vnNear=(rings,p)=>{let b=null,bd=1e12;rings.forEach(r=>r.forEach(q=>{const d=vnHav({lat:q[0],lng:q[1]},p);if(d<bd){bd=d;b=q}}));return b&&{lat:b[0],lng:b[1]}};
+const vnAddrKey=a=>String(a||"").toLowerCase().replace(/,?\s*(united states( of america)?|usa)\s*$/,"").replace(/\b(\d{5})-\d{4}\b/,"$1").replace(/[^a-z0-9]+/g," ").trim();
 async function vnWhere(txt){txt=String(txt||"").trim();const x=vnLL(txt);if(x)return x;
  const pc=txt.match(OLC_RE);if(pc){const code=pc[1].toUpperCase(),loc=(pc[2]||"").trim();
   if(code.indexOf("+")==8){const d=olcDecode(code);return{lat:d.lat,lng:d.lng,label:txt}}
@@ -1832,6 +1833,7 @@ async function vnWhere(txt){txt=String(txt||"").trim();const x=vnLL(txt);if(x)re
   if(ref){const d=olcRecover(code,ref.lat,ref.lng);return{lat:d.lat,lng:d.lng,label:txt}}}
  const zm=txt.match(/^[^\d]*(\d{5})(?:-\d{4})?$/);if(zm){const z=await vnZip(zm[1]);if(z)return{lat:z.lat,lng:z.lng,label:"ZIP "+zm[1],zone:z.rings,zip:zm[1]}}
  const v=vnFindV(txt);if(v&&v.lat!=null)return{lat:+v.lat,lng:+v.lng,label:v.name};
+ const na=vnAddrKey(txt),va=na.length>8&&DB.vend.find(o=>o.lat!=null&&o.addr&&vnAddrKey(o.addr)==na);if(va)return{lat:+va.lat,lng:+va.lng,label:txt};
  const p=(VM.pl||[]).find(p=>p.name.toLowerCase()==txt.toLowerCase());if(p)return{lat:p.lat,lng:p.lng,label:p.name};
  const r=await api("GET","/api/geo?q="+encodeURIComponent(txt));VM.geoSt=r.s;VM.geoErr=r.j&&r.j.error;return r.s==200&&r.j&&r.j.lat!=null?{lat:r.j.lat,lng:r.j.lng,label:txt}:null}
 async function vnFreeSearch(q0){const q=(q0||"").trim(),nr=(($("#vmn")||{}).value||"").trim();
@@ -2941,32 +2943,34 @@ function vnTkRender(){const el=$("#vtk");if(!el)return;const L2=vnTkIss(),PK=vnP
   return `<div style="pointer-events:auto;display:flex;flex-wrap:wrap;gap:6px;align-items:center;${end?"justify-content:flex-end":""}">${items.map(chip).join("")}</div>${det?`<div style="pointer-events:auto;display:flex;flex-direction:column;gap:6px;align-items:${end?"flex-end":"flex-start"};max-height:40vh;overflow:auto">${det}</div>`:""}`};
  el.innerHTML=mk(L2,0);const pe=$("#vpk");if(pe)pe.innerHTML=mk(PK,1);vnTkPins();vnPkPins()}
 A.vnPkGo=async el=>{const mp=VM.lmap;if(!mp||!window.L)return;const p=(DB.park||[]).find(x=>x.id==el.dataset.id),q=p&&(p.loc||"").trim();if(!q)return toast(t("tk_noloc"),"er");
- const w=await vnTkWhere(q);if(!w||VM.lmap!==mp)return w?0:toast(t("tk_nf"),"er");VM.tkAct="p:"+p.id;vnPkPins();mp.flyTo([w.lat,w.lng],Math.max(mp.getZoom(),12),{duration:1.1});vnTkRender()};
+ const w=ownLL(p,q)||await vnTkWhere(q);if(!w||VM.lmap!==mp)return w?0:toast(t("tk_nf"),"er");VM.tkAct="p:"+p.id;vnPkPins();mp.flyTo([w.lat,w.lng],Math.max(mp.getZoom(),12),{duration:1.1});vnTkRender()};
 const vnTkPinHtml=i=>`<div style="position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center"><span style="background:#ef4444;color:#fff;font:700 12px Inter,system-ui,sans-serif;padding:3px 8px;border-radius:7px;border:2px solid #fff;box-shadow:0 2px 8px #000a;white-space:nowrap">${esc(i.title)}</span><span style="width:0;height:0;border:6px solid transparent;border-top-color:#fff;margin-top:-1px"></span></div>`;
-function vnTkCache(){if(!VM.tkc){try{VM.tkc=JSON.parse(localStorage.getItem("tf_tkc")||"{}")}catch(e){VM.tkc={}}}return VM.tkc}
-async function vnTkWhere(q){const c=vnTkCache();if(c[q])return c[q];const w=await vnWhere(q);if(w){c[q]=w;try{localStorage.setItem("tf_tkc",JSON.stringify(c))}catch(e){}}return w}
+function vnTkCache(){if(!VM.tkc){try{VM.tkc=JSON.parse(localStorage.getItem("tf_tkc2")||"{}")}catch(e){VM.tkc={}}}return VM.tkc}
+const ownLL=(o,q)=>o&&o.lat!=null&&o.lng!=null&&o.llFor==q?{lat:+o.lat,lng:+o.lng,label:q}:null;
+const pinDrag=(m,o,q)=>{m.on("dragend",()=>{const ll=m.getLatLng();o.lat=+ll.lat.toFixed(6);o.lng=+ll.lng.toFixed(6);o.llFor=q;save();toast(t("tk_moved"))})};
+async function vnTkWhere(q){const c=vnTkCache();if(c[q])return c[q];const w=await vnWhere(q);if(w){c[q]=w;try{localStorage.setItem("tf_tkc2",JSON.stringify(c))}catch(e){}}return w}
 /* every open issue that has a location keeps its red pin on the map, always (until the issue is closed) */
 async function vnTkPins(){const mp=VM.lmap;if(!mp||!window.L)return;const L2=vnTkIss().filter(i=>(i.loc||"").trim());
- const sig=L2.map(i=>i.id+"|"+i.title+"|"+i.loc).join("~");if(VM.ltkMap===mp&&VM.ltkSig===sig&&VM.ltk&&mp.hasLayer(VM.ltk))return;
+ const sig=L2.map(i=>i.id+"|"+i.title+"|"+i.loc+"|"+(i.lat||"")).join("~");if(VM.ltkMap===mp&&VM.ltkSig===sig&&VM.ltk&&mp.hasLayer(VM.ltk))return;
  const tok=VM.ltkTok=(VM.ltkTok||0)+1;VM.ltkMap=mp;VM.ltkSig=sig;
- const got=await Promise.all(L2.map(async i=>{try{return [i,await vnTkWhere(i.loc.trim())]}catch(e){return [i,null]}}));
+ const got=await Promise.all(L2.map(async i=>{try{return [i,ownLL(i,i.loc.trim())||await vnTkWhere(i.loc.trim())]}catch(e){return [i,null]}}));
  if(tok!==VM.ltkTok||VM.lmap!==mp)return;
  if(VM.ltk&&VM.ltk._map)VM.ltk.remove();VM.ltk=L.layerGroup().addTo(mp);
- got.forEach(([i,w])=>{if(!w)return;L.marker([w.lat,w.lng],{icon:L.divIcon({className:"",iconSize:[0,0],html:vnTkPinHtml(i)}),zIndexOffset:900}).addTo(VM.ltk).bindTooltip(esc(i.loc),{direction:"bottom",offset:[0,6]})});
+ got.forEach(([i,w])=>{if(!w)return;const m=L.marker([w.lat,w.lng],{draggable:true,icon:L.divIcon({className:"",iconSize:[0,0],html:vnTkPinHtml(i)}),zIndexOffset:900}).addTo(VM.ltk).bindTooltip(esc(i.loc)+"<br><small>"+esc(t("tk_drag"))+"</small>",{direction:"bottom",offset:[0,6]});pinDrag(m,i,i.loc.trim())});
  if(got.some(([i,w])=>!w))VM.ltkSig=""}
 /* parked units: a purple pin per booking, labelled with the unit, where it is parked */
 async function vnPkPins(){const mp=VM.lmap;if(!mp||!window.L)return;const cur=curSel(),src=(cur=="all"?DB.park||[]:scopeDB(DB,cur).park||[]).filter(p=>p.status!="closed");
  const rows=src.map(p=>{const u=p.kind=="trailer"?byId(DB.trailers,p.uid):byId(DB.trucks,p.uid);return u&&(p.loc||"").trim()?{p,u}:null}).filter(Boolean);
- const sig=rows.map(r=>r.p.id+"|"+r.u.num+"|"+r.p.loc+"|"+(r.p.to||"")).join("~");if(VM.lpkMap===mp&&VM.lpkSig===sig&&VM.lpk&&mp.hasLayer(VM.lpk))return;
+ const sig=rows.map(r=>r.p.id+"|"+r.u.num+"|"+r.p.loc+"|"+(r.p.to||"")+"|"+(r.p.lat||"")).join("~");if(VM.lpkMap===mp&&VM.lpkSig===sig&&VM.lpk&&mp.hasLayer(VM.lpk))return;
  const tok=VM.lpkTok=(VM.lpkTok||0)+1;VM.lpkMap=mp;VM.lpkSig=sig;
- const got=await Promise.all(rows.map(async r=>{try{return [r,await vnTkWhere(r.p.loc.trim())]}catch(e){return [r,null]}}));
+ const got=await Promise.all(rows.map(async r=>{try{return [r,ownLL(r.p,r.p.loc.trim())||await vnTkWhere(r.p.loc.trim())]}catch(e){return [r,null]}}));
  if(tok!==VM.lpkTok||VM.lmap!==mp)return;
  if(VM.lpk&&VM.lpk._map)VM.lpk.remove();VM.lpk=L.layerGroup().addTo(mp);
  got.forEach(([r,w])=>{if(!w)return;const lab=(r.p.kind=="trailer"?t("pk_trailer"):t("pk_truck"))+" "+r.u.num;
-  L.marker([w.lat,w.lng],{icon:L.divIcon({className:"",iconSize:[0,0],html:`<div style="position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center"><span style="background:#7c5cf2;color:#fff;font:700 12px Inter,system-ui,sans-serif;padding:3px 8px;border-radius:7px;border:2px solid #fff;box-shadow:0 2px 8px #000a;white-space:nowrap">P · ${esc(lab)}</span><span style="width:0;height:0;border:6px solid transparent;border-top-color:#fff;margin-top:-1px"></span></div>`}),zIndexOffset:850}).addTo(VM.lpk).bindTooltip(esc(r.p.loc)+(r.p.to?" · "+t("pk_to")+" "+fd(r.p.to):"")+(r.p.driver?" · "+esc(r.p.driver):""),{direction:"bottom",offset:[0,6]})});
+  const pm=L.marker([w.lat,w.lng],{draggable:true,icon:L.divIcon({className:"",iconSize:[0,0],html:`<div style="position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center"><span style="background:#7c5cf2;color:#fff;font:700 12px Inter,system-ui,sans-serif;padding:3px 8px;border-radius:7px;border:2px solid #fff;box-shadow:0 2px 8px #000a;white-space:nowrap">P · ${esc(lab)}</span><span style="width:0;height:0;border:6px solid transparent;border-top-color:#fff;margin-top:-1px"></span></div>`}),zIndexOffset:850}).addTo(VM.lpk).bindTooltip(esc(r.p.loc)+(r.p.to?" · "+t("pk_to")+" "+fd(r.p.to):"")+(r.p.driver?" · "+esc(r.p.driver):"")+"<br><small>"+esc(t("tk_drag"))+"</small>",{direction:"bottom",offset:[0,6]});pinDrag(pm,r.p,r.p.loc.trim())});
  if(got.some(([r,w])=>!w))VM.lpkSig=""}
 async function vnTkGoTo(i){const mp=VM.lmap;if(!mp||!window.L)return;const q=(i.loc||"").trim();if(!q)return toast(t("tk_noloc"),"er");
- const w=await vnTkWhere(q);
+ const w=ownLL(i,q)||await vnTkWhere(q);
  if(!w||VM.lmap!==mp)return w?0:toast(t("tk_nf"),"er");
  VM.tkAct=i.id;vnTkPins();
  mp.flyTo([w.lat,w.lng],Math.max(mp.getZoom(),12),{duration:1.1});vnTkRender()}
@@ -3223,6 +3227,7 @@ openForm=c=>{const f=(c.fields||[]).find(x=>x.unitNew);if(!f)return _openFormU(c
  const res=_openFormU(c);
  setTimeout(()=>{const ti=$("#f_"+k),cb=$("#f_uco")&&$("#f_uco").closest(".fd");if(!ti||!cb)return;const nc=()=>{const v=isNum(ti.value),nw=!!v&&!unitByNum(v);cb.style.display=nw?"":"none";const lb=cb.querySelector("label");if(lb)lb.firstChild.textContent=nw?t("is_nco_l",v)+" ":t("is_nco")};ti.addEventListener("input",nc);ti.addEventListener("change",nc);nc()},50);
  return res};
+Object.assign(D,{tk_drag:["Not exact? Drag the pin to the right spot","Aniq emasmi? Pinni to‘g‘ri joyga sudrang","Неточно? Перетащите метку на нужное место"],tk_moved:["Pin moved — this spot is saved for this unit","Pin ko‘chirildi — bu joy shu unit uchun saqlandi","Метка перенесена — место сохранено"]});
 /* ----- start ----- */
 async function boot(){
  const r=await api("GET","/api/me",undefined,4000);
