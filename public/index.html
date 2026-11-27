@@ -1290,7 +1290,7 @@ ${secH("comp","pf_comp",`<p class="mu" style="margin-top:0">${t("co_s")}</p><p c
 ${secH("prio","pf_prio",`<p class="mu" style="margin-top:0">${t("pr_s")}</p><div class="prioBox">${prioInner()}</div><p class="mu" style="font-size:calc(12px*var(--fz,1))">${t("pr_s2")}</p>${typeof prEdPanel=="function"?prEdPanel():""}`)}
 ${pfL().some(x=>x[0]=="team")?secH("team","pf_team",teamBody()):""}
 ${secH("acc","pf_acc",accBody())}
-${pfL().some(x=>x[0]=="pacc")&&typeof paccBody=="function"?secH("pacc","pf_pacc",paccBody()+(typeof stEdPanel=="function"?stEdPanel():"")+(typeof pkDelPanel=="function"?pkDelPanel():"")+(typeof pkSendPanel=="function"?pkSendPanel():"")):""}
+${pfL().some(x=>x[0]=="pacc")&&typeof paccBody=="function"?secH("pacc","pf_pacc",paccBody()+(typeof stEdPanel=="function"?stEdPanel():"")+(typeof pkDelPanel=="function"?pkDelPanel():"")+(typeof pkSendPanel=="function"?pkSendPanel():"")+(typeof pinMovePanel=="function"?pinMovePanel():"")):""}
 ${pfOwn()?secH("flds","pf_flds",fldBody()):""}
 ${secH("disp","pf_disp",dispBody())}
 </div></div></div>`};
@@ -2321,7 +2321,7 @@ sv_roles:["Role","Rol","Роль"],sv_when:["When","Qachon","Когда"],sv_who
 sv_dupe:["That e-mail or username is already used.","Bu e-mail yoki username band.","Такой e-mail или логин уже используется."]
 });
 let SERVER=false,USER=null,INV=null,PULL=null,LS={step:"pw",err:"",busy:false,email:""},SNAP={rec:{},kv:{}},SYNC={timer:null,busy:false,again:false,pending:false,retry:null},LASTR="";
-const COLLS=["trucks","trailers","drivers","issues","plans","svc","docs","inv","vend","links","hist","insp","park"],KVF=["pti","ck","ph"],KVS=["hideF","prio","prioEd","compEd","teams","comps","stat","tg","tpl","ptiOff","tmAcc","seed14","myMap","vnLay","intEd","tstat","stEd","pkDel","pkSend"];
+const COLLS=["trucks","trailers","drivers","issues","plans","svc","docs","inv","vend","links","hist","insp","park"],KVF=["pti","ck","ph"],KVS=["hideF","prio","prioEd","compEd","teams","comps","stat","tg","tpl","ptiOff","tmAcc","seed14","myMap","vnLay","intEd","tstat","stEd","pkDel","pkSend","pinMove"];
 const uSig=u=>u&&[u.permEdit,u.role,u.tg,u.avLock,JSON.stringify(u.ai||null),JSON.stringify(u.deny||[]),JSON.stringify(u.ro||[])];
 const hashN=s=>{let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))>>>0;return h};
 
@@ -2387,7 +2387,7 @@ async function loadRemote(){const r=await api("GET","/api/state");
 function diff(){const up=[],del=[],kv={},isA=USER&&USER.role=="admin";
  COLLS.forEach(c=>{const old=SNAP.rec[c]||{},seen={};(DB[c]||[]).forEach(x=>{seen[x.id]=1;const j=JSON.stringify(x);if(old[x.id]!==j)up.push({c,id:x.id,d:x,j})});Object.keys(old).forEach(id=>{if(!seen[id])del.push({c,id})})});
  KVF.forEach(k=>{const j=JSON.stringify(DB[k]);if(SNAP.kv[k]!==j)kv[k]=DB[k]});
- KVS.forEach(k=>{if(!(k=="prio"?canPrio():k=="comps"||k=="teams"?canComp():k=="tg"||k=="tmAcc"?canInt():k=="stEd"||k=="pkDel"||k=="pkSend"||k=="prioEd"||k=="compEd"||k=="intEd"||k=="myMap"||k=="vnLay"?!!USER.owner:k=="tstat"||k=="stat"?canSt():isA))return;const j=JSON.stringify(S[k]);if(S[k]!==undefined&&SNAP.kv[k]!==j)kv[k]=S[k]});
+ KVS.forEach(k=>{if(!(k=="prio"?canPrio():k=="comps"||k=="teams"?canComp():k=="tg"||k=="tmAcc"?canInt():k=="stEd"||k=="pkDel"||k=="pkSend"||k=="pinMove"||k=="prioEd"||k=="compEd"||k=="intEd"||k=="myMap"||k=="vnLay"?!!USER.owner:k=="tstat"||k=="stat"?canSt():isA))return;const j=JSON.stringify(S[k]);if(S[k]!==undefined&&SNAP.kv[k]!==j)kv[k]=S[k]});
  return up.length||del.length||Object.keys(kv).length?{up,del,kv}:null}
 function serverSave(){sv("tf2_p",{lang:S.lang,theme:S.theme,col:S.col,sm:S.sm});if(!S.in)return;SYNC.pending=true;clearTimeout(SYNC.timer);SYNC.timer=setTimeout(flush,500)}
 async function flushNow(){clearTimeout(SYNC.timer);await flush()}
@@ -2545,7 +2545,7 @@ co_inv_s:["Every company has its own two Telegram chats: invoices and managers. 
 tq_s:["Add {0} to the workers Telegram group, send /chatid in it, and paste the number below. Invoice and managers chats are set per company (Companies section).","{0} ni ishchilar Telegram guruhiga qo‘shing, guruhda /chatid yuboring va chiqqan raqamni pastga qo‘ying. Invoice va managers chatlari har kompaniya uchun alohida (Companies bo‘limi).","Добавьте {0} в группу работников, отправьте в ней /chatid и вставьте номер ниже. Чаты счетов и менеджеров задаются для каждой компании (раздел Companies)."],
 ix_sent_no:["Telegram is not connected or this company has no invoice chat.","Telegram ulanmagan yoki bu kompaniyada invoice chat yo‘q.","Telegram не подключён или у компании нет чата счетов."]});
 function edPanel(key,act,tK,sK,lockK,okK){if(!(typeof SERVER!="undefined"&&SERVER&&USER))return "";
- if(!USER.owner)return `<p class="mu" style="font-size:calc(12px*var(--fz,1));margin-top:10px">${t((key=="prioEd"?canPrio():key=="intEd"?canInt():key=="stEd"?canSt():key=="pkDel"?canPkDel():key=="pkSend"?canPkSend():canComp())?okK:lockK)}</p>`;
+ if(!USER.owner)return `<p class="mu" style="font-size:calc(12px*var(--fz,1));margin-top:10px">${t((key=="prioEd"?canPrio():key=="intEd"?canInt():key=="stEd"?canSt():key=="pkDel"?canPkDel():key=="pkSend"?canPkSend():key=="pinMove"?canPinMove():canComp())?okK:lockK)}</p>`;
  const ed=S[key]||[];return `<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--ln)"><div class="lbl">${t(tK)}</div><p class="mu" style="margin-top:0;font-size:calc(12px*var(--fz,1))">${t(sK)}</p><div style="display:flex;flex-wrap:wrap;gap:6px">${S.team.filter(m=>!m.owner&&m.r!="driver").map(m=>`<button class="tmc ${ed.includes(m.id)?"":"off"}" data-a="${act}" data-id="${m.id}">${ed.includes(m.id)?ic("check",11):""}<span>${esc(m.n)}</span><span class="mu" style="font-size:calc(10px*var(--fz,1))">${t(m.r=="admin"?"tm_admin":"tm_member")}</span></button>`).join("")||`<span class="mu">–</span>`}</div></div>`}
 const prEdPanel=()=>edPanel("prioEd","prEd","pr_ed_t","pr_ed_s","pr_lock","pr_allowed"),compEdPanel=()=>edPanel("compEd","coEd","co_ed_t","co_ed_s","co_lock","co_allowed");
 const edTog=(key,el,onK,offK)=>{const id=el.dataset.id,m=S.team.find(x=>x.id==id);if(!m)return;const ed=(S[key]||[]).slice(),i=ed.indexOf(id);if(i<0)ed.push(id);else ed.splice(i,1);S[key]=ed;save();toast(t(i<0?onK:offK,m.n));page()};
@@ -2947,7 +2947,7 @@ A.vnPkGo=async el=>{const mp=VM.lmap;if(!mp||!window.L)return;const p=(DB.park||
 const vnTkPinHtml=i=>`<div style="position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center"><span style="background:#ef4444;color:#fff;font:700 12px Inter,system-ui,sans-serif;padding:3px 8px;border-radius:7px;border:2px solid #fff;box-shadow:0 2px 8px #000a;white-space:nowrap">${esc(i.title)}</span><span style="width:0;height:0;border:6px solid transparent;border-top-color:#fff;margin-top:-1px"></span></div>`;
 function vnTkCache(){if(!VM.tkc){try{VM.tkc=JSON.parse(localStorage.getItem("tf_tkc2")||"{}")}catch(e){VM.tkc={}}}return VM.tkc}
 const ownLL=(o,q)=>o&&o.lat!=null&&o.lng!=null&&o.llFor==q?{lat:+o.lat,lng:+o.lng,label:q}:null;
-const pinDrag=(m,o,q)=>{m.on("dragend",()=>{const ll=m.getLatLng();o.lat=+ll.lat.toFixed(6);o.lng=+ll.lng.toFixed(6);o.llFor=q;save();toast(t("tk_moved"))})};
+const pinDrag=(m,o,q)=>{if(!canPinMove())return;m.on("dragend",()=>{const ll=m.getLatLng();o.lat=+ll.lat.toFixed(6);o.lng=+ll.lng.toFixed(6);o.llFor=q;save();toast(t("tk_moved"))})};
 async function vnTkWhere(q){const c=vnTkCache();if(c[q])return c[q];const w=await vnWhere(q);if(w){c[q]=w;try{localStorage.setItem("tf_tkc2",JSON.stringify(c))}catch(e){}}return w}
 /* every open issue that has a location keeps its red pin on the map, always (until the issue is closed) */
 async function vnTkPins(){const mp=VM.lmap;if(!mp||!window.L)return;const L2=vnTkIss().filter(i=>(i.loc||"").trim());
@@ -2956,7 +2956,7 @@ async function vnTkPins(){const mp=VM.lmap;if(!mp||!window.L)return;const L2=vnT
  const got=await Promise.all(L2.map(async i=>{try{return [i,ownLL(i,i.loc.trim())||await vnTkWhere(i.loc.trim())]}catch(e){return [i,null]}}));
  if(tok!==VM.ltkTok||VM.lmap!==mp)return;
  if(VM.ltk&&VM.ltk._map)VM.ltk.remove();VM.ltk=L.layerGroup().addTo(mp);
- got.forEach(([i,w])=>{if(!w)return;const m=L.marker([w.lat,w.lng],{draggable:true,icon:L.divIcon({className:"",iconSize:[0,0],html:vnTkPinHtml(i)}),zIndexOffset:900}).addTo(VM.ltk).bindTooltip(esc(i.loc)+"<br><small>"+esc(t("tk_drag"))+"</small>",{direction:"bottom",offset:[0,6]});pinDrag(m,i,i.loc.trim())});
+ got.forEach(([i,w])=>{if(!w)return;const m=L.marker([w.lat,w.lng],{draggable:canPinMove(),icon:L.divIcon({className:"",iconSize:[0,0],html:vnTkPinHtml(i)}),zIndexOffset:900}).addTo(VM.ltk).bindTooltip(esc(i.loc)+(canPinMove()?"<br><small>"+esc(t("tk_drag"))+"</small>":""),{direction:"bottom",offset:[0,6]});pinDrag(m,i,i.loc.trim())});
  if(got.some(([i,w])=>!w))VM.ltkSig=""}
 /* parked units: a purple pin per booking, labelled with the unit, where it is parked */
 async function vnPkPins(){const mp=VM.lmap;if(!mp||!window.L)return;const cur=curSel(),src=(cur=="all"?DB.park||[]:scopeDB(DB,cur).park||[]).filter(p=>p.status!="closed");
@@ -2967,7 +2967,7 @@ async function vnPkPins(){const mp=VM.lmap;if(!mp||!window.L)return;const cur=cu
  if(tok!==VM.lpkTok||VM.lmap!==mp)return;
  if(VM.lpk&&VM.lpk._map)VM.lpk.remove();VM.lpk=L.layerGroup().addTo(mp);
  got.forEach(([r,w])=>{if(!w)return;const lab=(r.p.kind=="trailer"?t("pk_trailer"):t("pk_truck"))+" "+r.u.num;
-  const pm=L.marker([w.lat,w.lng],{draggable:true,icon:L.divIcon({className:"",iconSize:[0,0],html:`<div style="position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center"><span style="background:#7c5cf2;color:#fff;font:700 12px Inter,system-ui,sans-serif;padding:3px 8px;border-radius:7px;border:2px solid #fff;box-shadow:0 2px 8px #000a;white-space:nowrap">P · ${esc(lab)}</span><span style="width:0;height:0;border:6px solid transparent;border-top-color:#fff;margin-top:-1px"></span></div>`}),zIndexOffset:850}).addTo(VM.lpk).bindTooltip(esc(r.p.loc)+(r.p.to?" · "+t("pk_to")+" "+fd(r.p.to):"")+(r.p.driver?" · "+esc(r.p.driver):"")+"<br><small>"+esc(t("tk_drag"))+"</small>",{direction:"bottom",offset:[0,6]});pinDrag(pm,r.p,r.p.loc.trim())});
+  const pm=L.marker([w.lat,w.lng],{draggable:canPinMove(),icon:L.divIcon({className:"",iconSize:[0,0],html:`<div style="position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center"><span style="background:#7c5cf2;color:#fff;font:700 12px Inter,system-ui,sans-serif;padding:3px 8px;border-radius:7px;border:2px solid #fff;box-shadow:0 2px 8px #000a;white-space:nowrap">P · ${esc(lab)}</span><span style="width:0;height:0;border:6px solid transparent;border-top-color:#fff;margin-top:-1px"></span></div>`}),zIndexOffset:850}).addTo(VM.lpk).bindTooltip(esc(r.p.loc)+(r.p.to?" · "+t("pk_to")+" "+fd(r.p.to):"")+(r.p.driver?" · "+esc(r.p.driver):"")+(canPinMove()?"<br><small>"+esc(t("tk_drag"))+"</small>":""),{direction:"bottom",offset:[0,6]});pinDrag(pm,r.p,r.p.loc.trim())});
  if(got.some(([r,w])=>!w))VM.lpkSig=""}
 async function vnTkGoTo(i){const mp=VM.lmap;if(!mp||!window.L)return;const q=(i.loc||"").trim();if(!q)return toast(t("tk_noloc"),"er");
  const w=ownLL(i,q)||await vnTkWhere(q);
@@ -3025,6 +3025,9 @@ A.pkClose=el=>pkSet(el.dataset.id,p=>{p.status="closed";p.closedAt=today();p.clo
 A.pkReopen=el=>pkSet(el.dataset.id,p=>{p.status="";delete p.closedAt;delete p.closedBy});
 A.pkDel=el=>{const p=byId(DB.park,el.dataset.id);if(!p||p.status!="closed"||!canPkDel())return;ask(t("confirm"),()=>{DB.park=DB.park.filter(y=>y.id!=p.id);refresh()})};
 A.pkToggle=()=>{const p=byId(DB.park,DR.pkId);if(!p)return;if(p.status=="closed"){p.status="";delete p.closedAt;delete p.closedBy}else{p.status="closed";p.closedAt=today();p.closedBy=meName()}closeDr();refresh()};
+const canPinMove=()=>!(typeof SERVER!="undefined"&&SERVER&&USER)||USER.owner||(S.pinMove||[]).includes(USER.id);
+const pinMovePanel=()=>edPanel("pinMove","pinMoveEd","pm_ed_t","pm_ed_s","pm_lock","pm_allowed");A.pinMoveEd=el=>edTog("pinMove",el,"pm_ed_on","pm_ed_off");
+Object.assign(D,{pm_ed_t:["Who can move unit pins on the Shops Map","Shops Map’da unit pinlarini kim ko‘chira oladi","Кто может переносить метки юнитов на карте"],pm_ed_s:["Dragging an issue or parking pin to the exact spot. Only you by default; switch on the people you approve, tap again to take it back.","Issue yoki parking pinini aniq joyga sudrab qo‘yish. Odatda faqat siz; ruxsat beradigan odamlarni yoqing, yana bossangiz ruxsat olinadi.","Перетаскивание метки проблемы или парковки на точное место. По умолчанию только вы; включите тех, кого одобряете, повторное нажатие — забрать."],pm_lock:["Only the owner (or people the owner approved) can move pins.","Pinlarni faqat owner (yoki owner ruxsat bergan odam) ko‘chira oladi.","Метки может переносить только владелец (или одобренные им)."],pm_allowed:["The owner approved you to move unit pins on the map.","Owner sizga xaritada pinlarni ko‘chirishga ruxsat bergan.","Владелец разрешил вам переносить метки на карте."],pm_ed_on:["{0} can now move pins","{0} endi pinlarni ko‘chira oladi","{0} теперь может переносить метки"],pm_ed_off:["{0} can no longer move pins","{0} endi pinlarni ko‘chira olmaydi","{0} больше не может переносить метки"]});
 const canPkSend=()=>!(typeof SERVER!="undefined"&&SERVER&&USER)||USER.owner||(S.pkSend||[]).includes(USER.id);
 const pkSendPanel=()=>edPanel("pkSend","pkSendEd","pks_ed_t","pks_ed_s","pks_lock","pks_allowed");A.pkSendEd=el=>edTog("pkSend",el,"pks_ed_on","pks_ed_off");
 Object.assign(D,{pks_ed_t:["Who can send the parking lists to Telegram","Parking ro‘yxatlarini Telegramga kim yubora oladi","Кто может отправлять списки парковки в Telegram"],pks_ed_s:["“Send due list” and “Full list”, now or on a schedule. Only you by default; switch on the people you approve, tap again to take it back.","“Send due list” va “Full list”: hozir yoki jadval bo‘yicha. Odatda faqat siz; ruxsat beradigan odamlarni yoqing, yana bossangiz ruxsat olinadi.","«Send due list» и «Full list», сразу или по расписанию. По умолчанию только вы; включите тех, кого одобряете, повторное нажатие — забрать."],
