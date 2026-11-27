@@ -813,7 +813,7 @@ function issueList(){const q=(PG.iq||"").toLowerCase(),top=S.prio[0].id,td=today
  let L=DB.issues.filter(pass[PG.fl||"open"]).filter(i=>!q||[i.title,i.desc,(member(i.owner)||{}).n].join(" ").toLowerCase().includes(q));
  const pi=i=>S.prio.findIndex(p=>p.id==effPrio(i).id);const so=PG.so||"prio";
  L.sort(so=="prio"?(a,b)=>pi(a)-pi(b)||b.created-a.created:so=="new"?(a,b)=>b.created-a.created:(a,b)=>a.created-b.created);return{L,cnt}}
-function issueRow(i){const p=effPrio(i),m=member(i.owner);return `<div class="ir" data-a="openIssue" data-id="${i.id}">${dot(p.c)}<div class="t"><b>${esc(i.title||i.desc)}</b>${i.title&&i.desc?`<small class="mu">${esc(i.desc)}</small>`:""}</div>${tag(p.n,p.c)}${m?avatar(m):`<span class="mu" style="font-size:calc(12px*var(--fz,1))">${t("unassigned")}</span>`}${i.sched?`<span class="mu" style="font-size:calc(12px*var(--fz,1))">${ic("sun",12)} ${fd(i.sched)}</span>`:`<span class="mu" style="font-size:calc(12px*var(--fz,1))">${fd(ymd(new Date(i.created)))}</span>`}<button class="b bs" data-a="toggleIssue" data-id="${i.id}">${t(i.status=="closed"?"reopen":"close_issue")}</button></div>`}
+function issueRow(i){const p=effPrio(i),m=member(i.owner);return `<div class="ir" data-a="openIssue" data-id="${i.id}">${dot(p.c)}<div class="t"><b>${esc(i.title||i.desc)}</b>${i.title&&i.desc?`<small class="mu">${esc(i.desc)}</small>`:""}${i.status=="closed"?`<small style="color:var(--gn);display:block;margin-top:2px">${ic("check",11)} ${t("cl_by",esc(i.closedBy||"–"),i.closedAt?fd(ymd(new Date(i.closedAt))):"–")}</small>`:""}</div>${tag(p.n,p.c)}${m?avatar(m):`<span class="mu" style="font-size:calc(12px*var(--fz,1))">${t("unassigned")}</span>`}${i.sched?`<span class="mu" style="font-size:calc(12px*var(--fz,1))">${ic("sun",12)} ${fd(i.sched)}</span>`:`<span class="mu" style="font-size:calc(12px*var(--fz,1))">${fd(ymd(new Date(i.created)))}</span>`}<button class="b bs" data-a="toggleIssue" data-id="${i.id}">${t(i.status=="closed"?"reopen":"close_issue")}</button></div>`}
 PAGES.today=()=>{const R=todayData(),setup=S.stat.every(s=>s.w==null),on=DB.drivers.filter(d=>d.duty!="off").length,off=DB.drivers.length-on,rev=DB.insp.filter(x=>!x.reviewed).length;
  const col=(k,lab,c,emp)=>{const L=R[k];return `<div class="nc"><div class="nh">${dot(c)}${t(lab)}<span class="nn">${L.length}</span></div>${L.length?L.slice(0,3).map(x=>`<a class="ni" href="#${ROUTES[x.v]}" data-a="nav" data-v="${x.v}"><b>${esc(x.u)}</b> ${esc(x.t)}</a>`).join("")+(L.length>3?`<div class="mu">+${L.length-3} ${t("more")}</div>`:""):`<div class="mu">${emp}</div>`}</div>`};
  const {L,cnt}=issueList(),fl=PG.fl||"open",so=PG.so||"prio";
@@ -830,7 +830,8 @@ ${typeof pkTodayCard=="function"?pkTodayCard():""}
 <button class="b bp" data-a="newIssue">${ic("plus",15)} ${t("new_issue")}</button></div>${rows}</div></div>`};
 A.issueTab=el=>{PG.fl=el.dataset.v;page()};I.iq=el=>{PG.iq=el.value;page()};A.issueSort=el=>{PG.so=el.dataset.v;PG.pop=null;page()};A.issueGrp=()=>{PG.grp=!PG.grp;PG.pop=null;page()};
 A.trSetup=()=>{go("trucks");setTimeout(()=>A.stManage(),30)};
-A.toggleIssue=el=>{const i=byId(DB.issues,el.dataset.id);i.status=i.status=="closed"?"open":"closed";refresh()};
+const issFlip=i=>{if(i.status=="closed"){i.status="open";delete i.closedAt;delete i.closedBy}else{i.status="closed";i.closedAt=Date.now();i.closedBy=meName()}};
+A.toggleIssue=el=>{const i=byId(DB.issues,el.dataset.id);issFlip(i);refresh()};
 A.newIssue=()=>issueForm();A.openIssue=el=>issueForm(el.dataset.id);
 function issueForm(id){const i=id?byId(DB.issues,id):null;
  openForm({title:i?t("issue"):t("new_issue"),icon:"flag",save:i?t("save"):t("create_issue"),
@@ -838,7 +839,7 @@ function issueForm(id){const i=id?byId(DB.issues,id):null;
  {k:"pr",l:t("f_prio"),t:"select",o:S.prio.map(p=>[p.id,p.n]),val:i?i.pr:S.prio[S.prio.length-1].id},{k:"owner",l:t("f_assign"),opt:true,t:"select",o:[["",t("unassigned")],...tmPick(i&&i.owner).map(m=>[m.id,m.n])],val:i&&i.owner},
  {k:"sched",l:t("f_sched"),opt:true,t:"date",val:i&&i.sched,hint:t("f_sched_h")}],
  check:o=>{if(!o.title&&!o.desc)return t("req");const v=String(o.title||"").trim();if(v&&!unitByNum(isNum(v))&&isLooksUnit(v)&&!o.nco){const e=$("#f_nco");if(e)e.classList.add("bad");return t("is_nco_need")}return null},del:i?()=>{DB.issues=DB.issues.filter(x=>x.id!=id);refresh()}:null,
- extra:i?`<button class="b" data-a="drToggle">${t(i.status=="closed"?"reopen":"close_issue")}</button>`:"",
+ extra:i?`${i.status=="closed"?`<span class="mu" style="font-size:calc(12px*var(--fz,1));margin-right:auto">${t("cl_by",esc(i.closedBy||"–"),i.closedAt?fd(ymd(new Date(i.closedAt))):"–")}</span>`:""}<button class="b" data-a="drToggle">${t(i.status=="closed"?"reopen":"close_issue")}</button>`:"",
  onSave:o=>{const{nco,...r}=o,v=String(r.title||"").trim();
   if(v&&nco&&!unitByNum(isNum(v))){const tk={id:uid(),added:Date.now(),num:isNum(v).slice(0,40),company:nco,status:(S.stat[0]||{}).id||"",stAt:Date.now()};DB.trucks.push(tk);r.title=tk.num;toast(t("iv_nco_add",tk.num))}   // a unit that is not on the site joins that company's truck list
   if(i)Object.assign(i,r);else DB.issues.push({id:uid(),created:Date.now(),status:"open",...r});closeDr();refresh()}});
@@ -846,7 +847,7 @@ function issueForm(id){const i=id?byId(DB.issues,id):null;
  setTimeout(()=>{const ti=$("#f_title"),cb=$("#f_nco")&&$("#f_nco").closest(".fd");if(!ti||!cb)return;const nc=()=>{const v=ti.value.trim(),nw=!!v&&!unitByNum(isNum(v));cb.style.display=nw?"":"none";const lb=cb.querySelector("label"),u=isLooksUnit(v),op=cb.querySelector(".op"),o0=cb.querySelector("option");if(lb)lb.firstChild.textContent=nw?t(u?"is_nco_l":"is_nco_l2",isNum(v))+" ":t("is_nco");if(op)op.style.display=u?"none":"";if(o0)o0.textContent=u?t("tr_choosec"):t("is_nco_none")};ti.addEventListener("input",nc);ti.addEventListener("change",nc);nc()},50)}
 const isNum=v=>String(v||"").trim().replace(/^#\s*/,""),isLooksUnit=v=>/^#?\s*[A-Za-z]{0,6}[- ]?\d{2,}[A-Za-z]?$/.test(String(v||"").trim());
 Object.assign(D,{is_nco:["Company","Kompaniya","Компания"],is_nco_l:["Unit {0} is not on the site — which company?","{0} unit saytda yo‘q — qaysi kompaniyaga?","Юнита {0} нет на сайте — какой компании?"],is_nco_l2:["“{0}” is not a unit on the site. If it is a new unit, pick its company:","“{0}” saytdagi unit emas. Agar yangi unit bo‘lsa, kompaniyasini tanlang:","«{0}» — не юнит с сайта. Если это новый юнит, выберите компанию:"],is_nco_none:["— not a unit, just a title","— unit emas, shunchaki sarlavha","— не юнит, просто заголовок"],is_nco_need:["Pick the company for the new unit.","Yangi unit uchun kompaniyani tanlang.","Выберите компанию для нового юнита."]});
-A.drToggle=()=>{const i=byId(DB.issues,DR.issueId);if(i){i.status=i.status=="closed"?"open":"closed";closeDr();refresh()}};
+A.drToggle=()=>{const i=byId(DB.issues,DR.issueId);if(i){issFlip(i);closeDr();refresh()}};
 
 /* ===== ALERTS ===== */
 PAGES.alerts=()=>{const L=alertList(),o=L.filter(a=>a.st=="over"),u=L.filter(a=>a.st!="over"),f=PG.af||"all",show=f=="over"?o:f=="up"?u:L;
@@ -1113,7 +1114,7 @@ PAGES.inspections=()=>{const s=inS(),pend=DB.insp.filter(x=>!x.reviewed).sort((a
  return `<div class="pg n"><h1 style="font-size:calc(20px*var(--fz,1));margin:4px 0 14px">${t("inspections")}</h1><div style="margin-bottom:14px">${tabsH([["pend",t("n_pend"),pend.length],["hist",t("n_hist")],["hd",t("n_hd")],["ck",t("n_ck")]],s.tab,"inTab")}</div>${body}</div>`};
 A.inTab=el=>{inS().tab=el.dataset.v;page()};I.inQ=el=>{inS().q=el.value;page()};C.inF=el=>{inS()[el.dataset.k]=el.value;page()};A.inRev=el=>{byId(DB.insp,el.dataset.id).reviewed=true;refresh()};
 A.inLog=()=>openForm({title:t("n_log"),icon:"clip",
- fields:[{k:"unit",l:t("d_unit"),req:true,ph:t("d_unit_ph"),list:"units"},{k:"kind",l:t("n_kind"),half:true,t:"select",o:[["pre",t("n_pre")],["annual",t("n_ann")],["dot",t("n_dot")]]},{k:"date",l:t("m_date"),half:true,t:"date",val:today()},
+ fields:[{k:"unit",l:t("d_unit"),req:true,unitNew:true,ph:t("d_unit_ph"),list:"units"},{k:"kind",l:t("n_kind"),half:true,t:"select",o:[["pre",t("n_pre")],["annual",t("n_ann")],["dot",t("n_dot")]]},{k:"date",l:t("m_date"),half:true,t:"date",val:today()},
  {k:"result",l:t("n_res"),half:true,t:"select",o:[["ok",t("n_ok")],["def",t("n_def")]]},{k:"driver",l:t("tr_driver"),half:true,t:"select",o:[["",t("unassigned")],...DB.drivers.map(d=>[d.name,d.name])]},{k:"note",l:t("n_note"),t:"textarea",rows:3}],
  check:o=>unitByNum(o.unit)?null:t("iv_need"),onSave:o=>{DB.insp.push({id:uid(),...o,reviewed:false});closeDr();refresh()}});
 /* checklist editor */
@@ -1148,7 +1149,7 @@ A.dcTab=el=>{dcS().f=el.dataset.v;page()};I.dcQ=el=>{dcS().q=el.value;page()};A.
 function docForm(id){const d=id?byId(DB.docs,id):null,f=d||{};if(!DB.trucks.length&&!DB.trailers.length){toast(t("d_empty"),"er");return}
  const cur=d?(d.kind=="truck"?truckNum(d.uid):trailerNum(d.uid)):"";
  openForm({title:d?esc(d.title||t("dt_"+d.type)):t("d_add"),sub:t("d_add_s"),icon:"folder",save:d?t("save"):t("d_add"),
- fields:[{k:"unit",l:t("d_unit"),req:true,ph:t("d_unit_ph"),list:"units",val:cur},{k:"type",l:t("d_type"),half:true,t:"select",o:["reg","ins","perm","ann","other"].map(k=>[k,t("dt_"+k)]),val:f.type||"reg"},{k:"exp",l:t("d_expires"),half:true,t:"date",val:f.exp},
+ fields:[{k:"unit",l:t("d_unit"),req:true,unitNew:true,ph:t("d_unit_ph"),list:"units",val:cur},{k:"type",l:t("d_type"),half:true,t:"select",o:["reg","ins","perm","ann","other"].map(k=>[k,t("dt_"+k)]),val:f.type||"reg"},{k:"exp",l:t("d_expires"),half:true,t:"date",val:f.exp},
  {k:"title",l:t("d_title"),opt:true,ph:t("d_title_ph"),val:f.title},{k:"files",t:"files",val:f.files,old:f.file},{k:"vis",l:t("d_vis"),t:"check",val:f.vis!==false},{k:"notes",l:t("d_notes"),opt:true,t:"textarea",rows:2,val:f.notes}],
  check:o=>unitByNum(o.unit)?null:t("iv_need"),del:d?()=>{DB.docs=DB.docs.filter(x=>x.id!=id);refresh()}:null,
  onSave:o=>{const u=unitByNum(o.unit),kind=DB.trucks.includes(u)?"truck":"trailer",{unit,files,...r}=o;const row={...r,files:parseFiles(files),kind,uid:u.id};if(d)Object.assign(d,row);else DB.docs.push({id:uid(),...row});closeDr();refresh()}})}
@@ -3027,7 +3028,7 @@ pks_lock:["Only the owner (or people the owner approved) can send the parking li
 pks_ed_on:["{0} can now send the parking lists","{0} endi parking ro‘yxatlarini yubora oladi","{0} теперь может отправлять списки"],pks_ed_off:["{0} can no longer send the parking lists","{0} endi parking ro‘yxatlarini yubora olmaydi","{0} больше не может отправлять списки"]});
 const canPkDel=()=>!(typeof SERVER!="undefined"&&SERVER&&USER)||USER.owner||(S.pkDel||[]).includes(USER.id);
 const pkDelPanel=()=>edPanel("pkDel","pkDelEd","pk_ed_t","pk_ed_s","pk_lock","pk_allowed");A.pkDelEd=el=>edTog("pkDel",el,"pk_ed_on","pk_ed_off");
-Object.assign(D,{pk_close:["Close","Yopish","Закрыть"],pk_closed_on:["Closed {0} · {1}","Yopilgan {0} · {1}","Закрыто {0} · {1}"],pk_none_closed:["No closed parking yet. Closed records stay here as history.","Hali yopilgan parking yo‘q. Yopilganlar shu yerda tarix bo‘lib turadi.","Закрытых записей пока нет. Здесь хранится история."],
+Object.assign(D,{pk_close:["Close","Yopish","Закрыть"],pk_closed_on:["Closed {0} by {1}","Yopilgan {0} · yopgan: {1}","Закрыто {0} · закрыл: {1}"],pk_none_closed:["No closed parking yet. Closed records stay here as history.","Hali yopilgan parking yo‘q. Yopilganlar shu yerda tarix bo‘lib turadi.","Закрытых записей пока нет. Здесь хранится история."],
 pk_ed_t:["Who can delete closed parking records","Yopilgan parking yozuvlarini kim o‘chira oladi","Кто может удалять закрытые записи парковки"],pk_ed_s:["Only you can by default. Switch on the people you approve.","Odatda faqat siz. Tasdiqlagan odamlarni yoqing.","По умолчанию только вы. Включите тех, кого одобряете."],
 pk_lock:["Only the owner (or people the owner approved) can delete closed parking records.","Yopilgan parking yozuvini faqat owner (yoki owner ruxsat bergan odam) o‘chira oladi.","Закрытые записи может удалять только владелец (или одобренные им)."],pk_allowed:["The owner approved you to delete closed parking records.","Owner sizga yopilgan parking yozuvlarini o‘chirishga ruxsat berdi.","Владелец разрешил вам удалять закрытые записи парковки."],
 pk_ed_on:["{0} can now delete closed parking records.","{0} endi yopilgan parking yozuvlarini o‘chira oladi.","{0} теперь может удалять закрытые записи парковки."],pk_ed_off:["{0} can no longer delete parking records.","{0} endi parking yozuvlarini o‘chira olmaydi.","{0} больше не может удалять записи парковки."]});
@@ -3035,10 +3036,10 @@ I.pkq=el=>{pkQ().q=el.value;page()};
 A.pkAdd=()=>pkForm();A.pkOpen=el=>pkForm(el.dataset.id);
 function pkForm(id){const x=id?byId(DB.park,id):null,u=x?parkUnit(x):null;DR.pkId=id;
  openForm({title:x?t("parking"):t("pk_add"),icon:"pin",save:x?t("save"):t("pk_add"),
- fields:[{k:"unit",l:t("pk_unit"),req:true,list:"units",ph:t("f_unit_ph"),val:u?u.num:""},{k:"loc",l:t("pk_loc"),req:true,val:x&&x.loc},{k:"driver",l:t("pk_driver"),half:true,opt:true,val:x&&x.driver},{k:"phone",l:t("pk_phone"),half:true,opt:true,val:x&&x.phone},{k:"from",l:t("pk_from"),half:true,t:"date",val:(x&&x.from)||today()},{k:"to",l:t("pk_to"),half:true,t:"date",req:true,val:x&&x.to},{k:"note",l:t("m_note"),opt:true,t:"textarea",rows:2,val:x&&x.note}],
+ fields:[{k:"unit",l:t("pk_unit"),req:true,unitNew:true,list:"units",ph:t("f_unit_ph"),val:u?u.num:""},{k:"loc",l:t("pk_loc"),req:true,val:x&&x.loc},{k:"driver",l:t("pk_driver"),half:true,opt:true,val:x&&x.driver},{k:"phone",l:t("pk_phone"),half:true,opt:true,val:x&&x.phone},{k:"from",l:t("pk_from"),half:true,t:"date",val:(x&&x.from)||today()},{k:"to",l:t("pk_to"),half:true,t:"date",req:true,val:x&&x.to},{k:"note",l:t("m_note"),opt:true,t:"textarea",rows:2,val:x&&x.note}],
  check:o=>{if(!pkFind(o.unit))return t("pk_unit_bad");if(o.from&&o.to&&o.to<o.from)return t("pk_range");return null},
  del:x&&x.status=="closed"&&canPkDel()?()=>{DB.park=DB.park.filter(y=>y.id!=id);refresh()}:null,
- extra:x?`<button class="b" data-a="pkToggle">${t(x.status=="closed"?"reopen":"pk_close")}</button>`:"",
+ extra:x?`${x.status=="closed"?`<span class="mu" style="font-size:calc(12px*var(--fz,1));margin-right:auto">${t("pk_closed_on",x.closedAt?fd(x.closedAt):"–",esc(x.closedBy||"–"))}</span>`:""}<button class="b" data-a="pkToggle">${t(x.status=="closed"?"reopen":"pk_close")}</button>`:"",
  onSave:o=>{const f=pkFind(o.unit),row={kind:f.kind,uid:f.u.id,loc:o.loc,driver:o.driver,phone:o.phone,from:o.from,to:o.to,note:o.note};if(x)Object.assign(x,row);else DB.park.push({id:uid(),by:meName(),...row});if(o.loc)ivShopCreate("Parking",o.loc,true);closeDr();refresh()}})}
 function pkFind(n){n=String(n||"").trim().toLowerCase();if(!n)return null;let u=DB.trucks.find(x=>String(x.num||"").trim().toLowerCase()==n);if(u)return{kind:"truck",u};u=DB.trailers.find(x=>String(x.num||"").trim().toLowerCase()==n);return u?{kind:"trailer",u}:null}
 /* send the due list / full list to the workers group: now, or at a chosen time */
@@ -3209,6 +3210,19 @@ const canFld=()=>pfOwn();
 function fldBody(){const ed=canFld(),grp=(k,ttl,ico)=>`<div class="lbl" style="margin-top:14px">${ic(ico,13)} ${ttl}</div><div style="display:flex;flex-direction:column;gap:2px">${HF_OPT[k].map(f=>{const on=!hf(k,f);return `<label class="row fldr" style="padding:7px 0;border-top:1px solid var(--ln);flex-wrap:nowrap;cursor:${ed?"pointer":"default"}"><input type="checkbox" data-c="fldTog" data-k="${k}" data-f="${f}" ${on?"checked":""} ${ed?"":"disabled"}><span style="flex:1">${t(HF_L[k][f])}</span><span class="tg" style="color:${on?"var(--gn)":"var(--mu)"}">${t(on?"fl_on":"fl_off")}</span></label>`}).join("")}</div>`;
  return `<p class="mu" style="margin-top:0">${t("fl_s")}</p>${ed?"":`<div class="note" style="margin-bottom:8px">${ic("lock",13)} ${t("fl_only")}</div>`}${grp("tr",t("trucks"),"truck")}<div class="hn" style="margin-top:6px">${t("fl_core")}</div>${grp("tl",t("trailers"),"box")}<div class="hn" style="margin-top:6px">${t("fl_tcore")}</div>`}
 C.fldTog=el=>{if(!canFld())return;const h=hideF(),k=el.dataset.k,f=el.dataset.f,L=h[k].filter(x=>x!=f);if(!el.checked)L.push(f);S.hideF={...h,[k]:L};save();page()};
+/* ---- any form with a typed unit (unitNew): a unit that is not on the site asks for its company and joins that company's truck list ---- */
+Object.assign(D,{cl_by:["Closed by {0} · {1}","Yopgan: {0} · {1}","Закрыл: {0} · {1}"]});
+const _openFormU=openForm;
+openForm=c=>{const f=(c.fields||[]).find(x=>x.unitNew);if(!f)return _openFormU(c);const k=f.k,i=c.fields.indexOf(f);
+ c.fields=[...c.fields.slice(0,i+1),{k:"uco",l:t("is_nco"),t:"select",o:[["",t("tr_choosec")],...S.comps.map(x=>[x.id,x.n])],val:curCo&&curCo()!="all"?curCo():S.comps.length==1?S.comps[0].id:""},...c.fields.slice(i+1)];
+ const ck=c.check,sv=c.onSave;
+ c.check=o=>{const v=isNum(o[k]);let made=null;
+  if(v&&!unitByNum(v)){if(!o.uco){const e=$("#f_uco");if(e)e.classList.add("bad");return t("is_nco_need")}made={id:uid(),added:Date.now(),num:v.slice(0,40),company:o.uco,status:(S.stat[0]||{}).id||"",stAt:Date.now()};DB.trucks.push(made);o[k]=made.num}
+  const r=ck?ck(o):null;if(r&&made)DB.trucks=DB.trucks.filter(x=>x!==made);else if(made)toast(t("iv_nco_add",made.num));return r};   // the truck stays only if the form is saved
+ c.onSave=o=>{delete o.uco;return sv(o)};
+ const res=_openFormU(c);
+ setTimeout(()=>{const ti=$("#f_"+k),cb=$("#f_uco")&&$("#f_uco").closest(".fd");if(!ti||!cb)return;const nc=()=>{const v=isNum(ti.value),nw=!!v&&!unitByNum(v);cb.style.display=nw?"":"none";const lb=cb.querySelector("label");if(lb)lb.firstChild.textContent=nw?t("is_nco_l",v)+" ":t("is_nco")};ti.addEventListener("input",nc);ti.addEventListener("change",nc);nc()},50);
+ return res};
 /* ----- start ----- */
 async function boot(){
  const r=await api("GET","/api/me",undefined,4000);
