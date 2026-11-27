@@ -339,7 +339,7 @@ f_unit:["Unit number or a short title","Unit raqami yoki qisqa sarlavha","Ном
 f_unit_ph:["Type or pick a unit number…","Unit raqamini yozing yoki tanlang…","Введите или выберите номер юнита…"],
 f_desc:["Description","Tavsif","Описание"],f_desc_ph:["Describe the issue…","Muammoni tasvirlang…","Опишите проблему…"],
 f_prio:["Priority","Prioritet","Приоритет"],f_assign:["Assign to","Mas‘ul","Назначить"],f_sched:["Schedule for","Rejalashtirish sanasi","Запланировать на"],
-f_sched_h:["Optional. A scheduled issue takes its priority from the date.","Ixtiyoriy. Rejalangan muammo prioritetni sanadan oladi.","Необязательно. У запланированной проблемы приоритет зависит от даты."],
+f_sched_h:["Optional. The day you plan to work on it; the priority stays as you picked it.","Ixtiyoriy. Ish rejalangan kun; prioritet siz tanlaganicha qoladi.","Необязательно. День, на который запланировано; приоритет остаётся выбранным."],
 create_issue:["Create Issue","Muammo yaratish","Создать"],issue:["Issue","Muammo","Проблема"],
 close_issue:["Close issue","Muammoni yopish","Закрыть проблему"],reopen:["Reopen","Qayta ochish","Открыть снова"],
 /* alerts */
@@ -724,7 +724,7 @@ function todayData(){const R={cant:[],blk:[],soon:[]};
  DB.trucks.forEach(tr=>{const c=cabState(tr);if(c=="over")R.blk.push({u:tr.num,t:t("a_cab"),v:"trucks"});else if(c=="soon")R.soon.push({u:tr.num,t:t("a_cab"),v:"trucks"})});
  DB.docs.forEach(x=>{const s=docSt(x),u=x.kind=="truck"?truckNum(x.uid):trailerNum(x.uid);if(s=="over")R.blk.push({u,t:x.title||t("dt_"+x.type),v:"documents"});else if(s=="soon")R.soon.push({u,t:x.title||t("dt_"+x.type),v:"documents"})});
  return R}
-function effPrio(i){if(i.sched){const d=dd(i.sched),n=S.prio.length;const k=d<=0?0:d<=2?Math.min(1,n-1):n-1;return S.prio[k]}return prioOf(i.pr)||S.prio[S.prio.length-1]}
+function effPrio(i){return prioOf(i.pr)||S.prio[S.prio.length-1]}   // always the priority that was picked; the schedule date never changes it
 
 /* ===== router / events ===== */
 const ROUTES={today:"dashboard",alerts:"alerts",trucks:"fleet",trailers:"trailers",hookdrop:"hook-drop",parking:"parking",drivers:"drivers",maintenance:"maintenance",pti:"pti",inspections:"inspections",documents:"documents",violations:"violation-report",invoices:"invoices",vendors:"vendors",aibot:"ai",aiexp:"ai-expenses",profile:"profile",companies:"companies"};
