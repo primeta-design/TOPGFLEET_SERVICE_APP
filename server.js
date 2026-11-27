@@ -16,7 +16,7 @@ const LOGIN_MAX = +process.env.RATE_LOGIN_MAX || 12;
 const SESSION_HOURS = 12, PW_STAGE_MIN = 10, LOCK_AFTER = 5, LOCK_MIN = 15;
 const COLLS = new Set(['trucks', 'trailers', 'drivers', 'issues', 'plans', 'svc', 'docs', 'inv', 'vend', 'links', 'hist', 'insp', 'park']);
 const KV_FLEET = new Set(['pti', 'ck', 'ph']);          // fleet-wide documents (members may write)
-const SETTING_KEYS = ['hideF', 'prio', 'prioEd', 'compEd', 'teams', 'comps', 'stat', 'tg', 'tpl', 'ptiOff', 'tmAcc', 'seed14', 'myMap', 'vnLay', 'intEd', 'tstat', 'stEd', 'pkDel', 'pkSend'];   // admin-only
+const SETTING_KEYS = ['hideF', 'prio', 'prioEd', 'compEd', 'teams', 'comps', 'stat', 'tg', 'tpl', 'ptiOff', 'tmAcc', 'seed14', 'myMap', 'vnLay', 'intEd', 'tstat', 'stEd', 'pkDel', 'pkSend', 'pinMove'];   // admin-only
 const ROLES = new Set(['admin', 'member', 'driver']);
 
 const app = express();
@@ -427,7 +427,7 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
     if (KV_FLEET.has(k)) { if (JSON.stringify(kv[k]).length > 400000) return res.status(400).json({ error: 'bad' }); }
     else if (SETTING_KEYS.includes(k)) {
       let okk = req.u.role === 'admin';
-      if (k === 'prioEd' || k === 'compEd' || k === 'intEd' || k === 'stEd' || k === 'pkDel' || k === 'pkSend') { okk = !!req.u.is_owner; if (!(Array.isArray(kv[k]) && kv[k].length <= 200 && kv[k].every(okId))) return res.status(400).json({ error: 'bad' }); }
+      if (k === 'prioEd' || k === 'compEd' || k === 'intEd' || k === 'stEd' || k === 'pkDel' || k === 'pkSend' || k === 'pinMove') { okk = !!req.u.is_owner; if (!(Array.isArray(kv[k]) && kv[k].length <= 200 && kv[k].every(okId))) return res.status(400).json({ error: 'bad' }); }
       else if (k === 'stat') { const pe = (await q("SELECT value FROM kv WHERE key='stEd'")).rows[0]; okk = !!req.u.is_owner || (!!pe && Array.isArray(pe.value) && pe.value.includes(req.u.id)); }   // truck statuses: owner, or people the owner approved
       else if (k === 'tstat') { const pe = (await q("SELECT value FROM kv WHERE key='stEd'")).rows[0]; okk = !!req.u.is_owner || (!!pe && Array.isArray(pe.value) && pe.value.includes(req.u.id)); if (!(Array.isArray(kv[k]) && kv[k].length >= 1 && kv[k].length <= 40 && kv[k].every(x => x && okId(x.id) && typeof x.n === 'string' && x.n.length <= 60))) return res.status(400).json({ error: 'bad' }); }   // trailer statuses: owner, or people the owner allowed
       else if (k === 'prio') { const pe = (await q("SELECT value FROM kv WHERE key='prioEd'")).rows[0]; okk = !!req.u.is_owner || (!!pe && Array.isArray(pe.value) && pe.value.includes(req.u.id)); }   // priorities: owner, or people the owner allowed
@@ -465,6 +465,15 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
   const existing = async (coll, L) => L.length ? new Set((await q('SELECT id FROM records WHERE coll=$1 AND id=ANY($2)', [coll, L.map(x => x.id)])).rows.map(r => r.id)) : new Set();
   const had = await existing('issues', issueUps), hadInv = await existing('inv', invUps);
   for (const x of invUps) if (!hadInv.has(x.id) && !x.d.by) { x.d.by = req.u.name; x.d.byAt = new Date().toISOString().slice(0, 10); }   // who added a new invoice
+  // moving a map pin (lat / lng on an issue or a parking booking): the owner, plus people the owner approved (kv pinMove)
+  const pinUps = upserts.filter(x => (x.c === 'issues' || x.c === 'park') && x.d);
+  if (pinUps.length && !req.u.is_owner) {
+    const pr = (await q("SELECT value FROM kv WHERE key='pinMove'")).rows[0], okPin = pr && Array.isArray(pr.value) && pr.value.includes(req.u.id);
+    if (!okPin) {
+      const old = new Map((await q('SELECT coll,id,data FROM records WHERE coll IN (\'issues\',\'park\') AND id=ANY($1)', [pinUps.map(x => x.id)])).rows.map(r => [r.coll + ':' + r.id, r.data]));
+      for (const x of pinUps) { const o = old.get(x.c + ':' + x.id) || {}; ['lat', 'lng', 'llFor'].forEach(k => { if (o[k] === undefined) delete x.d[k]; else x.d[k] = o[k]; }); }
+    }
+  }
   const cl = await pool.connect();
   try {
     await cl.query('BEGIN');
