@@ -579,6 +579,17 @@ const geoOne = async q => {
   const j = f.ok ? await f.json() : [];
   return j && j[0] ? { lat: +j[0].lat, lng: +j[0].lon, label: String(j[0].display_name || q).slice(0, 140) } : null;
 };
+/* Esri World Geocoder: puts a street address on the building itself (rooftop), where OpenStreetMap
+   often only guesses a point along the street from the house-number range. Used first for full addresses. */
+const geoEsri = async q => {
+  const u = 'https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?f=json&maxLocations=1&locationType=rooftop&outFields=Addr_type&SingleLine=' + encodeURIComponent(q);
+  const ac = new AbortController(), tm = setTimeout(() => ac.abort(), 6000);
+  try {
+    const f = await fetch(u, { signal: ac.signal, headers: { 'User-Agent': 'TOPGFLEET/1.0 (fleet control)' } }); if (!f.ok) return null;
+    const c = ((await f.json()).candidates || [])[0], ty = c && c.attributes && c.attributes.Addr_type;
+    return c && c.location && c.score >= 90 && /^(PointAddress|Subaddress|StreetAddress|StreetAddressExt)$/.test(ty || '') ? { lat: +c.location.y, lng: +c.location.x, label: String(c.address || q).slice(0, 140), exact: ty !== 'StreetAddress' && ty !== 'StreetAddressExt' } : null;
+  } catch (e) { return null; } finally { clearTimeout(tm); }
+};
 const geoVariants = qs => {
   const out = [qs];
   const noCountry = qs.replace(/,?\s*(united states( of america)?|usa|us)\s*$/i, '').trim();
@@ -595,7 +606,8 @@ app.get('/api/geo', limit('geo', 60, 60e3), auth(), staff, wrap(async (req, res)
   const ck = qs.toLowerCase(), c = GEO_CACHE.get(ck); if (c) return res.json(c);
   try {
     let o = {}, tried = 0;
-    for (const v of geoVariants(qs)) {
+    if (/\d/.test(qs)) { const e = await geoEsri(qs); if (e) o = e; }   // a house number: try the rooftop point first
+    if (o.lat == null) for (const v of geoVariants(qs)) {
       const q = typeof v == 'string' ? v : v.q; if (tried++) await new Promise(r => setTimeout(r, 1100));
       const r = await geoOne(q);
       if (r) { o = typeof v == 'string' ? r : { ...r, label: (qs.length < 100 ? qs : r.label) + ' (≈ ' + q + ')', approx: 1 }; break; }
