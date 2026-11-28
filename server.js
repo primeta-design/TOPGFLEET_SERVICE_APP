@@ -426,7 +426,7 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
   for (const k of kvKeys) {
     if (KV_FLEET.has(k)) { if (JSON.stringify(kv[k]).length > 400000) return res.status(400).json({ error: 'bad' }); }
     else if (SETTING_KEYS.includes(k)) {
-      let okk = req.u.role === 'admin';
+      let okk = req.u.role === 'admin' || !!req.u.is_owner;
       if (k === 'prioEd' || k === 'compEd' || k === 'intEd' || k === 'stEd' || k === 'pkDel' || k === 'pkSend' || k === 'pinMove') { okk = !!req.u.is_owner; if (!(Array.isArray(kv[k]) && kv[k].length <= 200 && kv[k].every(okId))) return res.status(400).json({ error: 'bad' }); }
       else if (k === 'stat') { const pe = (await q("SELECT value FROM kv WHERE key='stEd'")).rows[0]; okk = !!req.u.is_owner || (!!pe && Array.isArray(pe.value) && pe.value.includes(req.u.id)); }   // truck statuses: owner, or people the owner approved
       else if (k === 'tstat') { const pe = (await q("SELECT value FROM kv WHERE key='stEd'")).rows[0]; okk = !!req.u.is_owner || (!!pe && Array.isArray(pe.value) && pe.value.includes(req.u.id)); if (!(Array.isArray(kv[k]) && kv[k].length >= 1 && kv[k].length <= 40 && kv[k].every(x => x && okId(x.id) && typeof x.n === 'string' && x.n.length <= 60))) return res.status(400).json({ error: 'bad' }); }   // trailer statuses: owner, or people the owner allowed
