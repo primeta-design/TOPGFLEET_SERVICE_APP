@@ -477,6 +477,17 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
       for (const x of pinUps) { const o = old.get(x.c + ':' + x.id) || {}; ['lat', 'lng', 'llFor'].forEach(k => { if (o[k] === undefined) delete x.d[k]; else x.d[k] = o[k]; }); }
     }
   }
+  // shop reviews: only the person who wrote a review can remove or change it
+  const vendUps = upserts.filter(x => x.c === 'vend' && x.d);
+  if (vendUps.length) {
+    const old = new Map((await q("SELECT id,data FROM records WHERE coll='vend' AND id=ANY($1)", [vendUps.map(x => x.id)])).rows.map(r => [r.id, r.data]));
+    for (const x of vendUps) {
+      const was = (old.get(x.id) || {}).revs || [], now = Array.isArray(x.d.revs) ? x.d.revs.filter(r => r && typeof r === 'object') : [];
+      const keep = was.filter(r => r.by !== req.u.name);   // other people's reviews stay exactly as they were
+      const mine = now.filter(r => !keep.some(k => k.id === r.id) && (r.by === req.u.name || !was.some(w => w.id === r.id)) ).map(r => ({ ...r, by: was.some(w => w.id === r.id) ? r.by : req.u.name }));
+      x.d.revs = [...keep, ...mine].slice(0, 500);
+    }
+  }
   const cl = await pool.connect();
   try {
     await cl.query('BEGIN');
