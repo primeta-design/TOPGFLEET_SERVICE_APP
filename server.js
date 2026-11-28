@@ -479,7 +479,7 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
   }
   // shop reviews: only the person who wrote a review can remove or change it
   const vendUps = upserts.filter(x => x.c === 'vend' && x.d);
-  if (vendUps.length) {
+  if (vendUps.length && !req.u.is_owner) {   // the owner may remove anything
     const old = new Map((await q("SELECT id,data FROM records WHERE coll='vend' AND id=ANY($1)", [vendUps.map(x => x.id)])).rows.map(r => [r.id, r.data]));
     for (const x of vendUps) {
       const was = (old.get(x.id) || {}).revs || [], now = Array.isArray(x.d.revs) ? x.d.revs.filter(r => r && typeof r === 'object') : [];
