@@ -465,6 +465,9 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
   const existing = async (coll, L) => L.length ? new Set((await q('SELECT id FROM records WHERE coll=$1 AND id=ANY($2)', [coll, L.map(x => x.id)])).rows.map(r => r.id)) : new Set();
   const had = await existing('issues', issueUps), hadInv = await existing('inv', invUps);
   for (const x of invUps) if (!hadInv.has(x.id) && !x.d.by) { x.d.by = req.u.name; x.d.byAt = new Date().toISOString().slice(0, 10); }   // who added a new invoice
+  // an edited invoice keeps its Telegram message ids (the page may not have them yet), so the group message can be fixed after the save
+  const oldInv = new Map(); { const ids = invUps.filter(x => hadInv.has(x.id)).map(x => x.id); if (ids.length) (await q("SELECT id,data FROM records WHERE coll='inv' AND id=ANY($1)", [ids])).rows.forEach(r => oldInv.set(r.id, r.data)); }
+  for (const x of invUps) { const o = oldInv.get(x.id); if (!o) continue; if (o.tgm) x.d.tgm = o.tgm; else delete x.d.tgm; if (o.tg) x.d.tg = o.tg; else delete x.d.tg; }   // the server's copy is the truth
   // moving a map pin (lat / lng on an issue or a parking booking): the owner, plus people the owner approved (kv pinMove)
   const pinUps = upserts.filter(x => (x.c === 'issues' || x.c === 'park') && x.d);
   if (pinUps.length && !req.u.is_owner) {
@@ -489,6 +492,7 @@ app.post('/api/sync', limit('sync', 240, 60e3), auth(), staff, wrap(async (req, 
     audit(req.u.id, 'sync', null, { up: upserts.slice(0, 50).map(x => x.c + '/' + x.id), upN: upserts.length, del: deletes.slice(0, 50).map(x => x.c + '/' + x.id), delN: deletes.length, kv: kvKeys }, req.ip);
   const fresh = issueUps.filter(x => !had.has(x.id)).map(x => x.d); if (fresh.length) TG.notifyNewIssues(fresh);
   const freshInv = invUps.filter(x => !hadInv.has(x.id)).map(x => x.d); if (freshInv.length) TG.notifyNewInvoices(freshInv, 'https://' + req.get('host'));
+  for (const x of invUps) { const o = oldInv.get(x.id); if (o && x.d.tgm && TG.updateInvoice) TG.updateInvoice(x.d, 'https://' + req.get('host'), o).catch(() => {}); }   // edited after it was posted: fix the group message
   res.json({ ok: true });
 }));
 
